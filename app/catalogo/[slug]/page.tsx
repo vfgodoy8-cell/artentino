@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation'
 import { prisma } from '@/lib/prisma'
 import { serializeProduct } from '@/lib/serialize'
 import { CategoryIcon } from '@/app/ui/product-card'
+import AddToCartButton from '@/app/ui/add-to-cart-button'
 
 function fmt(n: number) {
   return `$${n.toLocaleString('es-AR')}`
@@ -113,13 +114,14 @@ export default async function ProductoPage({ params }: Props) {
             </div>
 
             {/* CTA */}
-            <button
+            <AddToCartButton
+              productId={product.id}
+              name={product.name}
+              price={price}
+              imageUrl={product.imageUrl}
               disabled={product.stock === 0}
-              className="mt-8 w-full rounded-2xl py-4 text-sm font-black uppercase tracking-widest text-white transition-opacity disabled:opacity-40"
-              style={{ backgroundColor: '#2BBCB0' }}
-            >
-              Agregar al carrito
-            </button>
+              size="lg"
+            />
 
             {/* Back link */}
             <Link

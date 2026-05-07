@@ -4,6 +4,7 @@ import "./globals.css";
 import Marquee from "./ui/marquee";
 import Header from "./ui/header";
 import Footer from "./ui/footer";
+import { CartProvider } from "./context/cart-context";
 
 const nunito = Nunito({
   variable: "--font-nunito",
@@ -35,10 +36,12 @@ export default function RootLayout({
       className={`${nunito.variable} ${dancingScript.variable} h-full antialiased`}
     >
       <body className="flex min-h-full flex-col bg-white text-dark">
-        <Marquee />
-        <Header />
-        <main className="flex flex-1 flex-col">{children}</main>
-        <Footer />
+        <CartProvider>
+          <Marquee />
+          <Header />
+          <main className="flex flex-1 flex-col">{children}</main>
+          <Footer />
+        </CartProvider>
       </body>
     </html>
   );

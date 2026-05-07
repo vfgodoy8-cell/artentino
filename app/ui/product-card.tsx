@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import AddToCartButton from './add-to-cart-button'
 
 type ProductCardProps = {
   id: string
@@ -57,9 +58,7 @@ export default function ProductCard({ id, name, slug, price, imageUrl, category 
           <p className="mt-1.5 text-xs text-gray-400">
             6x {fmt(Math.round(priceNum / 6))} sin interés
           </p>
-          <button className="mt-4 w-full rounded-xl bg-[#1E1E1E] py-3 text-xs font-black uppercase tracking-widest text-white transition-colors duration-200 hover:bg-[#2BBCB0]">
-            Agregar
-          </button>
+          <AddToCartButton productId={id} name={name} price={priceNum} imageUrl={imageUrl} />
         </div>
       </div>
     </article>
