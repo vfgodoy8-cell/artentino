@@ -4,7 +4,7 @@ import "./globals.css";
 import Marquee from "./ui/marquee";
 import Header from "./ui/header";
 import Footer from "./ui/footer";
-import { CartProvider } from "./context/cart-context"
+import Providers from "./providers"
 import WhatsAppButton from "./ui/whatsapp-button";
 
 const nunito = Nunito({
@@ -37,13 +37,13 @@ export default function RootLayout({
       className={`${nunito.variable} ${dancingScript.variable} h-full antialiased`}
     >
       <body className="flex min-h-full flex-col bg-white text-dark">
-        <CartProvider>
+        <Providers>
           <Marquee />
           <Header />
           <main className="flex flex-1 flex-col">{children}</main>
           <Footer />
           <WhatsAppButton />
-        </CartProvider>
+        </Providers>
       </body>
     </html>
   );

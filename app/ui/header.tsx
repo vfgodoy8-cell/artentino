@@ -1,8 +1,10 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import Link from 'next/link'
+import { useSession } from 'next-auth/react'
 import { useCart } from '@/app/context/cart-context'
+import { logout } from '@/app/actions/auth'
 import CartDrawer from './cart-drawer'
 
 const navLinks = [
@@ -15,8 +17,22 @@ const navLinks = [
 export default function Header() {
   const [menuOpen, setMenuOpen] = useState(false)
   const [cartOpen, setCartOpen] = useState(false)
+  const [dropdownOpen, setDropdownOpen] = useState(false)
+  const dropdownRef = useRef<HTMLDivElement>(null)
   const { getItemCount } = useCart()
+  const { data: session } = useSession()
   const cartCount = getItemCount()
+  const firstName = session?.user?.name?.split(' ')[0] ?? ''
+
+  useEffect(() => {
+    function handleClick(e: MouseEvent) {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
+        setDropdownOpen(false)
+      }
+    }
+    document.addEventListener('mousedown', handleClick)
+    return () => document.removeEventListener('mousedown', handleClick)
+  }, [])
 
   return (
     <>
@@ -49,6 +65,58 @@ export default function Header() {
 
             {/* Actions */}
             <div className="flex items-center gap-3">
+
+              {/* User button — desktop */}
+              <div className="relative hidden md:block" ref={dropdownRef}>
+                {session?.user ? (
+                  <>
+                    <button
+                      onClick={() => setDropdownOpen((v) => !v)}
+                      className="flex items-center gap-2 rounded-full border border-gray-200 px-4 py-2 text-sm font-black text-[#1E1E1E] transition-colors hover:border-[#2BBCB0] hover:text-[#2BBCB0]"
+                    >
+                      <UserIcon />
+                      {firstName}
+                      <ChevronIcon open={dropdownOpen} />
+                    </button>
+
+                    {dropdownOpen && (
+                      <div className="absolute right-0 top-full z-50 mt-2 w-52 overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-xl">
+                        <div className="border-b border-gray-100 px-4 py-3">
+                          <p className="text-xs font-black uppercase tracking-wider text-gray-400">Mi cuenta</p>
+                          <p className="mt-0.5 truncate text-sm font-bold text-[#1E1E1E]">{session.user.name}</p>
+                        </div>
+                        <nav className="py-1">
+                          <DropdownLink href="/perfil" onClick={() => setDropdownOpen(false)}>
+                            Mi perfil
+                          </DropdownLink>
+                          <DropdownLink href="/perfil/pedidos" onClick={() => setDropdownOpen(false)}>
+                            Mis pedidos
+                          </DropdownLink>
+                        </nav>
+                        <div className="border-t border-gray-100 py-1">
+                          <form action={logout}>
+                            <button
+                              type="submit"
+                              className="flex w-full items-center gap-3 px-4 py-2.5 text-sm font-bold text-red-500 transition-colors hover:bg-red-50"
+                            >
+                              <LogoutIcon />
+                              Cerrar sesión
+                            </button>
+                          </form>
+                        </div>
+                      </div>
+                    )}
+                  </>
+                ) : (
+                  <Link
+                    href="/login"
+                    className="rounded-full border border-gray-200 px-4 py-2 text-sm font-black text-[#1E1E1E] transition-colors hover:border-[#2BBCB0] hover:text-[#2BBCB0]"
+                  >
+                    Ingresar
+                  </Link>
+                )}
+              </div>
+
               {/* Cart */}
               <button
                 aria-label="Ver carrito"
@@ -73,32 +141,16 @@ export default function Header() {
                 onClick={() => setMenuOpen((prev) => !prev)}
                 className="flex h-10 w-10 flex-col items-center justify-center gap-[5px] md:hidden"
               >
-                <span
-                  className={`block h-px w-6 bg-[#1E1E1E] transition-transform duration-200 ${
-                    menuOpen ? 'translate-y-[6px] rotate-45' : ''
-                  }`}
-                />
-                <span
-                  className={`block h-px w-6 bg-[#1E1E1E] transition-opacity duration-200 ${
-                    menuOpen ? 'opacity-0' : ''
-                  }`}
-                />
-                <span
-                  className={`block h-px w-6 bg-[#1E1E1E] transition-transform duration-200 ${
-                    menuOpen ? '-translate-y-[6px] -rotate-45' : ''
-                  }`}
-                />
+                <span className={`block h-px w-6 bg-[#1E1E1E] transition-transform duration-200 ${menuOpen ? 'translate-y-[6px] rotate-45' : ''}`} />
+                <span className={`block h-px w-6 bg-[#1E1E1E] transition-opacity duration-200 ${menuOpen ? 'opacity-0' : ''}`} />
+                <span className={`block h-px w-6 bg-[#1E1E1E] transition-transform duration-200 ${menuOpen ? '-translate-y-[6px] -rotate-45' : ''}`} />
               </button>
             </div>
           </div>
         </div>
 
         {/* Mobile menu */}
-        <div
-          className={`overflow-hidden transition-all duration-300 md:hidden ${
-            menuOpen ? 'max-h-72' : 'max-h-0'
-          }`}
-        >
+        <div className={`overflow-hidden transition-all duration-300 md:hidden ${menuOpen ? 'max-h-96' : 'max-h-0'}`}>
           <nav className="border-t border-gray-100 bg-white px-6 py-2">
             {navLinks.map((link) => (
               <Link
@@ -110,6 +162,44 @@ export default function Header() {
                 {link.label}
               </Link>
             ))}
+
+            {/* Mobile user section */}
+            <div className="border-t border-gray-100 pt-2">
+              {session?.user ? (
+                <>
+                  <Link
+                    href="/perfil"
+                    onClick={() => setMenuOpen(false)}
+                    className="flex items-center border-b border-gray-50 py-4 text-sm font-bold uppercase tracking-widest text-[#1E1E1E] transition-colors hover:text-[#2BBCB0]"
+                  >
+                    Mi perfil
+                  </Link>
+                  <Link
+                    href="/perfil/pedidos"
+                    onClick={() => setMenuOpen(false)}
+                    className="flex items-center border-b border-gray-50 py-4 text-sm font-bold uppercase tracking-widest text-[#1E1E1E] transition-colors hover:text-[#2BBCB0]"
+                  >
+                    Mis pedidos
+                  </Link>
+                  <form action={logout}>
+                    <button
+                      type="submit"
+                      className="flex w-full items-center py-4 text-sm font-bold uppercase tracking-widest text-red-500"
+                    >
+                      Cerrar sesión
+                    </button>
+                  </form>
+                </>
+              ) : (
+                <Link
+                  href="/login"
+                  onClick={() => setMenuOpen(false)}
+                  className="flex items-center py-4 text-sm font-bold uppercase tracking-widest text-[#2BBCB0]"
+                >
+                  Ingresar
+                </Link>
+              )}
+            </div>
           </nav>
         </div>
       </header>
@@ -119,21 +209,60 @@ export default function Header() {
   )
 }
 
-function CartIcon() {
+function DropdownLink({ href, onClick, children }: { href: string; onClick: () => void; children: React.ReactNode }) {
+  return (
+    <Link
+      href={href}
+      onClick={onClick}
+      className="flex items-center px-4 py-2.5 text-sm font-bold text-[#1E1E1E] transition-colors hover:bg-gray-50 hover:text-[#2BBCB0]"
+    >
+      {children}
+    </Link>
+  )
+}
+
+function UserIcon() {
+  return (
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
+      <circle cx="12" cy="8" r="4" />
+      <path d="M4 20c0-4 3.6-7 8-7s8 3 8 7" />
+    </svg>
+  )
+}
+
+function ChevronIcon({ open }: { open: boolean }) {
   return (
     <svg
-      width="18"
-      height="18"
+      width="12"
+      height="12"
       viewBox="0 0 24 24"
       fill="none"
       stroke="currentColor"
-      strokeWidth="2"
+      strokeWidth="3"
       strokeLinecap="round"
-      strokeLinejoin="round"
+      className={`transition-transform duration-200 ${open ? 'rotate-180' : ''}`}
     >
+      <polyline points="6 9 12 15 18 9" />
+    </svg>
+  )
+}
+
+function CartIcon() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
       <circle cx="9" cy="21" r="1" />
       <circle cx="20" cy="21" r="1" />
       <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6" />
+    </svg>
+  )
+}
+
+function LogoutIcon() {
+  return (
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
+      <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+      <polyline points="16 17 21 12 16 7" />
+      <line x1="21" y1="12" x2="9" y2="12" />
     </svg>
   )
 }
