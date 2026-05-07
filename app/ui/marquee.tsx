@@ -1,4 +1,4 @@
-const items = [
+﻿const items = [
   "COMPRA POR UNIDAD",
   "PACK & LOTE MAYORISTA",
   "CUOTAS SIN INTERÉS",
@@ -19,7 +19,7 @@ function Track({ hidden }: { hidden?: boolean }) {
         <span
           key={`sep-${i}`}
           className="mx-6 shrink-0 text-xs"
-          style={{ color: "#2BBCB0" }}
+          style={{ color: "#0eb1c3" }}
         >
           ◆
         </span>,

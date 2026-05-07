@@ -1,4 +1,4 @@
-import Link from 'next/link'
+﻿import Link from 'next/link'
 
 const navLinks = [
   { href: '/', label: 'Inicio' },
@@ -26,7 +26,7 @@ export default function Footer() {
           <div>
             <span
               className="text-3xl leading-none"
-              style={{ fontFamily: 'var(--font-script)', color: '#2BBCB0' }}
+              style={{ fontFamily: 'var(--font-script)', color: '#0eb1c3' }}
             >
               Artentino
             </span>
@@ -42,7 +42,7 @@ export default function Footer() {
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="Instagram"
-                className="flex h-9 w-9 items-center justify-center rounded-full border border-[#333] text-[#555] transition-all hover:border-[#2BBCB0] hover:text-[#2BBCB0]"
+                className="flex h-9 w-9 items-center justify-center rounded-full border border-[#333] text-[#555] transition-all hover:border-[#0eb1c3] hover:text-[#0eb1c3]"
               >
                 <InstagramIcon />
               </a>
@@ -51,7 +51,7 @@ export default function Footer() {
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="WhatsApp"
-                className="flex h-9 w-9 items-center justify-center rounded-full border border-[#333] text-[#555] transition-all hover:border-[#2BBCB0] hover:text-[#2BBCB0]"
+                className="flex h-9 w-9 items-center justify-center rounded-full border border-[#333] text-[#555] transition-all hover:border-[#0eb1c3] hover:text-[#0eb1c3]"
               >
                 <WhatsAppIcon />
               </a>
@@ -60,7 +60,7 @@ export default function Footer() {
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="Facebook"
-                className="flex h-9 w-9 items-center justify-center rounded-full border border-[#333] text-[#555] transition-all hover:border-[#2BBCB0] hover:text-[#2BBCB0]"
+                className="flex h-9 w-9 items-center justify-center rounded-full border border-[#333] text-[#555] transition-all hover:border-[#0eb1c3] hover:text-[#0eb1c3]"
               >
                 <FacebookIcon />
               </a>
@@ -69,7 +69,7 @@ export default function Footer() {
 
           {/* Col 2 — Navegar */}
           <div>
-            <h3 className="mb-5 text-[11px] font-black uppercase tracking-[0.2em] text-[#2BBCB0]">
+            <h3 className="mb-5 text-[11px] font-black uppercase tracking-[0.2em] text-[#0eb1c3]">
               Navegar
             </h3>
             <ul className="space-y-3">
@@ -77,7 +77,7 @@ export default function Footer() {
                 <li key={link.href}>
                   <Link
                     href={link.href}
-                    className="text-sm text-[#555] transition-colors hover:text-[#2BBCB0]"
+                    className="text-sm text-[#555] transition-colors hover:text-[#0eb1c3]"
                   >
                     {link.label}
                   </Link>
@@ -88,7 +88,7 @@ export default function Footer() {
 
           {/* Col 3 — Ayuda */}
           <div>
-            <h3 className="mb-5 text-[11px] font-black uppercase tracking-[0.2em] text-[#2BBCB0]">
+            <h3 className="mb-5 text-[11px] font-black uppercase tracking-[0.2em] text-[#0eb1c3]">
               Ayuda
             </h3>
             <ul className="space-y-3">
@@ -96,7 +96,7 @@ export default function Footer() {
                 <li key={link.href}>
                   <Link
                     href={link.href}
-                    className="text-sm text-[#555] transition-colors hover:text-[#2BBCB0]"
+                    className="text-sm text-[#555] transition-colors hover:text-[#0eb1c3]"
                   >
                     {link.label}
                   </Link>
@@ -107,12 +107,12 @@ export default function Footer() {
 
           {/* Col 4 — Contacto */}
           <div>
-            <h3 className="mb-5 text-[11px] font-black uppercase tracking-[0.2em] text-[#2BBCB0]">
+            <h3 className="mb-5 text-[11px] font-black uppercase tracking-[0.2em] text-[#0eb1c3]">
               Contacto
             </h3>
             <ul className="space-y-4">
               <li className="flex items-start gap-3">
-                <span className="mt-0.5 shrink-0 text-[#2BBCB0]">
+                <span className="mt-0.5 shrink-0 text-[#0eb1c3]">
                   <PinIcon />
                 </span>
                 <span className="text-sm leading-relaxed text-[#555]">
@@ -122,18 +122,18 @@ export default function Footer() {
                 </span>
               </li>
               <li className="flex items-center gap-3">
-                <span className="shrink-0 text-[#2BBCB0]">
+                <span className="shrink-0 text-[#0eb1c3]">
                   <PhoneIcon />
                 </span>
                 <a
                   href="tel:+5491139363333"
-                  className="text-sm text-[#555] transition-colors hover:text-[#2BBCB0]"
+                  className="text-sm text-[#555] transition-colors hover:text-[#0eb1c3]"
                 >
                   +54 9 11 3936-3333
                 </a>
               </li>
               <li className="flex items-center gap-3">
-                <span className="shrink-0 text-[#2BBCB0]">
+                <span className="shrink-0 text-[#0eb1c3]">
                   <ClockIcon />
                 </span>
                 <span className="text-sm text-[#555]">

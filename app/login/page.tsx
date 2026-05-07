@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import Link from 'next/link'
 import { useActionState } from 'react'
@@ -16,7 +16,7 @@ export default function LoginPage() {
           <div className="mb-8 text-center">
             <p
               className="font-script text-3xl font-bold"
-              style={{ color: '#2BBCB0', fontFamily: 'var(--font-script)' }}
+              style={{ color: '#0eb1c3', fontFamily: 'var(--font-script)' }}
             >
               Artentino
             </p>
@@ -41,7 +41,7 @@ export default function LoginPage() {
                 required
                 autoComplete="email"
                 placeholder="tu@email.com"
-                className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm font-semibold text-[#1E1E1E] outline-none transition-colors focus:border-[#2BBCB0]"
+                className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm font-semibold text-[#1E1E1E] outline-none transition-colors focus:border-[#0eb1c3]"
               />
             </div>
 
@@ -55,14 +55,14 @@ export default function LoginPage() {
                 required
                 autoComplete="current-password"
                 placeholder="••••••••"
-                className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm font-semibold text-[#1E1E1E] outline-none transition-colors focus:border-[#2BBCB0]"
+                className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm font-semibold text-[#1E1E1E] outline-none transition-colors focus:border-[#0eb1c3]"
               />
             </div>
 
             <div className="text-right">
               <Link
                 href="/recuperar-contrasena"
-                className="text-xs font-semibold text-gray-400 transition-colors hover:text-[#2BBCB0]"
+                className="text-xs font-semibold text-gray-400 transition-colors hover:text-[#0eb1c3]"
               >
                 ¿Olvidaste tu contraseña?
               </Link>
@@ -72,7 +72,7 @@ export default function LoginPage() {
               type="submit"
               disabled={pending}
               className="mt-2 w-full rounded-2xl py-4 text-sm font-black uppercase tracking-widest text-white transition-opacity disabled:opacity-60"
-              style={{ backgroundColor: '#2BBCB0' }}
+              style={{ backgroundColor: '#0eb1c3' }}
             >
               {pending ? 'Ingresando...' : 'Ingresar'}
             </button>
@@ -80,7 +80,7 @@ export default function LoginPage() {
 
           <p className="mt-6 text-center text-sm text-gray-400">
             ¿No tenés cuenta?{' '}
-            <Link href="/registro" className="font-bold transition-colors hover:text-[#2BBCB0]" style={{ color: '#1E1E1E' }}>
+            <Link href="/registro" className="font-bold transition-colors hover:text-[#0eb1c3]" style={{ color: '#1E1E1E' }}>
               Registrate
             </Link>
           </p>

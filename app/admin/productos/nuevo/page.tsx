@@ -1,4 +1,4 @@
-import Link from 'next/link'
+﻿import Link from 'next/link'
 import { prisma } from '@/lib/prisma'
 import NuevoProductoForm from './form'
 
@@ -10,7 +10,7 @@ export default async function NuevoProductoPage() {
       <div className="mb-6">
         <Link
           href="/admin/productos"
-          className="mb-4 inline-block text-sm font-semibold text-gray-400 transition-colors hover:text-[#2BBCB0]"
+          className="mb-4 inline-block text-sm font-semibold text-gray-400 transition-colors hover:text-[#0eb1c3]"
         >
           ← Volver a productos
         </Link>

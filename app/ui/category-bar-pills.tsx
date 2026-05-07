@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useState } from 'react'
 
@@ -19,8 +19,8 @@ export default function CategoryBarPills({ categories }: Props) {
             onClick={() => setActive(cat)}
             className={`shrink-0 rounded-full border px-4 py-1.5 text-sm font-semibold transition-all duration-150 ${
               isActive
-                ? 'border-[#2BBCB0] bg-[#2BBCB0] text-white'
-                : 'border-gray-200 bg-white text-[#1E1E1E] hover:border-[#2BBCB0] hover:bg-[#2BBCB0] hover:text-white'
+                ? 'border-[#0eb1c3] bg-[#0eb1c3] text-white'
+                : 'border-gray-200 bg-white text-[#1E1E1E] hover:border-[#0eb1c3] hover:bg-[#0eb1c3] hover:text-white'
             }`}
           >
             {cat}

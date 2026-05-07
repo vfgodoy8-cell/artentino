@@ -2,6 +2,8 @@
 
 @theme inline {
   --font-sans: var(--font-nunito);
+  --color-brand: #0eb1c3;
+  --color-brand-dark: #0a8f9e;
 }
 
 @keyframes marquee {

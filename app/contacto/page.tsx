@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useState } from 'react'
 import Link from 'next/link'
@@ -25,7 +25,7 @@ const INITIAL_JOB: JobForm = { name: '', email: '', phone: '', position: '', mes
 
 function inputCls(error?: string) {
   return `w-full rounded-xl border px-4 py-3 text-sm font-semibold text-[#1E1E1E] outline-none transition-colors ${
-    error ? 'border-red-300 focus:border-red-400' : 'border-gray-200 focus:border-[#2BBCB0]'
+    error ? 'border-red-300 focus:border-red-400' : 'border-gray-200 focus:border-[#0eb1c3]'
   }`
 }
 
@@ -56,7 +56,7 @@ function Success({ onReset }: { onReset: () => void }) {
     <div className="flex flex-col items-center py-12 text-center">
       <div
         className="flex h-14 w-14 items-center justify-center rounded-full"
-        style={{ backgroundColor: '#2BBCB0' }}
+        style={{ backgroundColor: '#0eb1c3' }}
       >
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
           <polyline points="20 6 9 17 4 12" />
@@ -69,7 +69,7 @@ function Success({ onReset }: { onReset: () => void }) {
       <button
         onClick={onReset}
         className="mt-6 text-sm font-black uppercase tracking-widest transition-colors hover:opacity-70"
-        style={{ color: '#2BBCB0' }}
+        style={{ color: '#0eb1c3' }}
       >
         Enviar otra consulta
       </button>
@@ -159,7 +159,7 @@ export default function ContactoPage() {
       <div className="mx-auto max-w-2xl px-4 py-12 sm:px-6">
 
         <div className="mb-8">
-          <Link href="/" className="mb-4 inline-block text-sm font-semibold text-gray-400 transition-colors hover:text-[#2BBCB0]">
+          <Link href="/" className="mb-4 inline-block text-sm font-semibold text-gray-400 transition-colors hover:text-[#0eb1c3]">
             ← Volver al inicio
           </Link>
           <h1 className="text-3xl font-black uppercase tracking-wide text-[#1E1E1E]">Contacto</h1>
@@ -174,7 +174,7 @@ export default function ContactoPage() {
             className={`flex-1 rounded-xl py-3 text-sm font-black uppercase tracking-wider transition-colors ${
               tab === 'GENERAL' ? 'text-white' : 'text-gray-400 hover:text-gray-600'
             }`}
-            style={tab === 'GENERAL' ? { backgroundColor: '#2BBCB0' } : {}}
+            style={tab === 'GENERAL' ? { backgroundColor: '#0eb1c3' } : {}}
           >
             Consulta general
           </button>
@@ -184,7 +184,7 @@ export default function ContactoPage() {
             className={`flex-1 rounded-xl py-3 text-sm font-black uppercase tracking-wider transition-colors ${
               tab === 'JOB' ? 'text-white' : 'text-gray-400 hover:text-gray-600'
             }`}
-            style={tab === 'JOB' ? { backgroundColor: '#2BBCB0' } : {}}
+            style={tab === 'JOB' ? { backgroundColor: '#0eb1c3' } : {}}
           >
             Postulación laboral
           </button>
@@ -322,7 +322,7 @@ export default function ContactoPage() {
                 type="submit"
                 disabled={loading}
                 className="mt-2 w-full rounded-2xl py-4 text-sm font-black uppercase tracking-widest text-white transition-opacity disabled:opacity-50 hover:opacity-85"
-                style={{ backgroundColor: '#2BBCB0' }}
+                style={{ backgroundColor: '#0eb1c3' }}
               >
                 {loading ? 'Enviando...' : 'Enviar mensaje'}
               </button>

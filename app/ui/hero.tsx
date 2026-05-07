@@ -10,12 +10,12 @@ export default function Hero() {
   return (
     <section
       className="w-full px-4 py-20 text-center sm:py-28"
-      style={{ backgroundColor: '#1E1E1E' }}
+      style={{ background: 'linear-gradient(135deg, #0eb1c3 0%, #0a8f9e 100%)' }}
     >
       <div className="mx-auto max-w-3xl">
         <p
           className="mb-4 text-[11px] font-black uppercase tracking-[0.35em]"
-          style={{ color: '#2BBCB0' }}
+          style={{ color: 'white' }}
         >
           Arte · Diseño · Hogar
         </p>
@@ -31,14 +31,15 @@ export default function Hero() {
         <div className="flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
           <Link
             href="/catalogo"
-            className="inline-flex h-12 w-full items-center justify-center rounded-lg px-8 text-sm font-black uppercase tracking-widest text-white transition-opacity hover:opacity-90 sm:w-auto"
-            style={{ backgroundColor: '#2BBCB0' }}
+            className="inline-flex h-12 w-full items-center justify-center rounded-lg border border-white px-8 text-sm font-black uppercase tracking-widest transition-opacity hover:opacity-90 sm:w-auto"
+            style={{ backgroundColor: 'white', color: '#0eb1c3' }}
           >
             Ver catálogo
           </Link>
           <Link
             href="/turnos"
-            className="inline-flex h-12 w-full items-center justify-center rounded-lg border border-white/20 px-8 text-sm font-black uppercase tracking-widest text-white/70 transition-colors hover:border-[#2BBCB0] hover:text-[#2BBCB0] sm:w-auto"
+            className="inline-flex h-12 w-full items-center justify-center rounded-lg border px-8 text-sm font-black uppercase tracking-widest text-white transition-colors hover:bg-white/25 sm:w-auto"
+            style={{ backgroundColor: 'rgba(255,255,255,0.15)', borderColor: 'rgba(255,255,255,0.35)' }}
           >
             Reservar turno
           </Link>

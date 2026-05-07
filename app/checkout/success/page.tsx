@@ -1,11 +1,11 @@
-import Link from 'next/link'
+﻿import Link from 'next/link'
 
 export default function CheckoutSuccessPage() {
   return (
     <main className="flex min-h-[70vh] flex-col items-center justify-center px-4 py-16 text-center">
       <div
         className="mb-6 flex h-20 w-20 items-center justify-center rounded-full"
-        style={{ backgroundColor: '#2BBCB0' }}
+        style={{ backgroundColor: '#0eb1c3' }}
       >
         <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
           <polyline points="20 6 9 17 4 12" />
@@ -18,7 +18,7 @@ export default function CheckoutSuccessPage() {
       <Link
         href="/"
         className="mt-8 inline-block rounded-2xl px-8 py-4 text-sm font-black uppercase tracking-widest text-white transition-opacity hover:opacity-85"
-        style={{ backgroundColor: '#2BBCB0' }}
+        style={{ backgroundColor: '#0eb1c3' }}
       >
         Volver al inicio
       </Link>

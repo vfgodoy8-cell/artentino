@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useState } from 'react'
 import { useCart } from '@/app/context/cart-context'
@@ -35,14 +35,14 @@ export default function AddToCartButton({
         onClick={handleClick}
         disabled={disabled}
         className="mt-8 w-full rounded-2xl py-4 text-sm font-black uppercase tracking-widest text-white transition-all disabled:opacity-40"
-        style={{ backgroundColor: added ? '#1E1E1E' : '#2BBCB0' }}
+        style={{ backgroundColor: added ? '#1E1E1E' : '#0eb1c3' }}
       >
         {disabled ? 'Sin stock' : added ? '¡Agregado!' : 'Agregar al carrito'}
       </button>
     )
   }
 
-  const bgClass = added ? 'bg-[#1E1E1E]' : 'bg-[#1E1E1E] hover:bg-[#2BBCB0]'
+  const bgClass = added ? 'bg-[#1E1E1E]' : 'bg-[#1E1E1E] hover:bg-[#0eb1c3]'
   return (
     <button
       onClick={handleClick}

@@ -1,4 +1,4 @@
-import Link from 'next/link'
+﻿import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { prisma } from '@/lib/prisma'
 import { serializeProduct } from '@/lib/serialize'
@@ -32,13 +32,13 @@ export default async function ProductoPage({ params }: Props) {
 
         {/* Breadcrumb */}
         <nav className="mb-8 flex items-center gap-2 text-sm text-gray-400">
-          <Link href="/" className="transition-colors hover:text-[#2BBCB0]">Inicio</Link>
+          <Link href="/" className="transition-colors hover:text-[#0eb1c3]">Inicio</Link>
           <span>/</span>
-          <Link href="/catalogo" className="transition-colors hover:text-[#2BBCB0]">Catálogo</Link>
+          <Link href="/catalogo" className="transition-colors hover:text-[#0eb1c3]">Catálogo</Link>
           <span>/</span>
           <Link
             href={`/catalogo?categoria=${product.category.slug}`}
-            className="transition-colors hover:text-[#2BBCB0]"
+            className="transition-colors hover:text-[#0eb1c3]"
           >
             {product.category.name}
           </Link>
@@ -73,7 +73,7 @@ export default async function ProductoPage({ params }: Props) {
             {/* Category badge */}
             <span
               className="mb-4 inline-flex w-fit rounded-full px-3 py-1 text-[10px] font-black uppercase tracking-widest text-white"
-              style={{ backgroundColor: '#2BBCB0' }}
+              style={{ backgroundColor: '#0eb1c3' }}
             >
               {product.category.name}
             </span>
@@ -126,7 +126,7 @@ export default async function ProductoPage({ params }: Props) {
             {/* Back link */}
             <Link
               href="/catalogo"
-              className="mt-4 text-center text-sm font-semibold text-gray-400 transition-colors hover:text-[#2BBCB0]"
+              className="mt-4 text-center text-sm font-semibold text-gray-400 transition-colors hover:text-[#0eb1c3]"
             >
               ← Volver al catálogo
             </Link>

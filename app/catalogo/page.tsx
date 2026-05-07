@@ -1,4 +1,4 @@
-import Link from 'next/link'
+﻿import Link from 'next/link'
 import { prisma } from '@/lib/prisma'
 import { serializeProduct } from '@/lib/serialize'
 import ProductCard from '@/app/ui/product-card'
@@ -29,7 +29,7 @@ export default async function CatalogoPage({ searchParams }: Props) {
         <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
           <p
             className="mb-1 text-[11px] font-black uppercase tracking-[0.25em]"
-            style={{ color: '#2BBCB0' }}
+            style={{ color: '#0eb1c3' }}
           >
             Artentino
           </p>
@@ -51,8 +51,8 @@ export default async function CatalogoPage({ searchParams }: Props) {
               href="/catalogo"
               className={`shrink-0 rounded-full border px-4 py-1.5 text-sm font-semibold transition-all duration-150 ${
                 !categoria
-                  ? 'border-[#2BBCB0] bg-[#2BBCB0] text-white'
-                  : 'border-gray-200 bg-white text-[#1E1E1E] hover:border-[#2BBCB0] hover:bg-[#2BBCB0] hover:text-white'
+                  ? 'border-[#0eb1c3] bg-[#0eb1c3] text-white'
+                  : 'border-gray-200 bg-white text-[#1E1E1E] hover:border-[#0eb1c3] hover:bg-[#0eb1c3] hover:text-white'
               }`}
             >
               Todos
@@ -66,8 +66,8 @@ export default async function CatalogoPage({ searchParams }: Props) {
                   href={`/catalogo?categoria=${cat.slug}`}
                   className={`shrink-0 rounded-full border px-4 py-1.5 text-sm font-semibold transition-all duration-150 ${
                     isActive
-                      ? 'border-[#2BBCB0] bg-[#2BBCB0] text-white'
-                      : 'border-gray-200 bg-white text-[#1E1E1E] hover:border-[#2BBCB0] hover:bg-[#2BBCB0] hover:text-white'
+                      ? 'border-[#0eb1c3] bg-[#0eb1c3] text-white'
+                      : 'border-gray-200 bg-white text-[#1E1E1E] hover:border-[#0eb1c3] hover:bg-[#0eb1c3] hover:text-white'
                   }`}
                 >
                   {cat.name}
@@ -86,7 +86,7 @@ export default async function CatalogoPage({ searchParams }: Props) {
             <Link
               href="/catalogo"
               className="mt-4 inline-block text-sm font-semibold underline underline-offset-4"
-              style={{ color: '#2BBCB0' }}
+              style={{ color: '#0eb1c3' }}
             >
               Ver todos los productos
             </Link>

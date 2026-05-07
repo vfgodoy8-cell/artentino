@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
@@ -17,7 +17,7 @@ function toSlug(str: string) {
 }
 
 const inputClass =
-  'w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm text-[#1E1E1E] placeholder-gray-300 outline-none transition-colors focus:border-[#2BBCB0] focus:ring-2 focus:ring-[#2BBCB0]/10'
+  'w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm text-[#1E1E1E] placeholder-gray-300 outline-none transition-colors focus:border-[#0eb1c3] focus:ring-2 focus:ring-[#0eb1c3]/10'
 
 export default function NuevoProductoForm({ categories }: { categories: Category[] }) {
   const router = useRouter()
@@ -201,7 +201,7 @@ export default function NuevoProductoForm({ categories }: { categories: Category
           type="checkbox"
           checked={form.featured}
           onChange={(e) => set('featured', e.target.checked)}
-          className="h-4 w-4 rounded border-gray-300 accent-[#2BBCB0]"
+          className="h-4 w-4 rounded border-gray-300 accent-[#0eb1c3]"
         />
         <label htmlFor="featured" className="text-sm font-semibold text-[#1E1E1E]">
           Producto destacado — aparece en el home
@@ -214,7 +214,7 @@ export default function NuevoProductoForm({ categories }: { categories: Category
           type="submit"
           disabled={loading}
           className="flex-1 rounded-xl py-3 text-sm font-black uppercase tracking-wider text-white transition-opacity disabled:opacity-50"
-          style={{ backgroundColor: '#2BBCB0' }}
+          style={{ backgroundColor: '#0eb1c3' }}
         >
           {loading ? 'Guardando...' : 'Guardar producto'}
         </button>

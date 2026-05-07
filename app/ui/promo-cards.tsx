@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react'
+﻿import type { ReactNode } from 'react'
 
 const promos = [
   {
@@ -30,10 +30,10 @@ export default function PromoCards() {
         {promos.map((promo) => (
           <div
             key={promo.title}
-            className="group flex flex-col items-center rounded-xl border border-gray-200 bg-white p-5 text-center transition-all duration-200 hover:border-[#2BBCB0] hover:bg-[#f0fdfc] sm:p-6"
+            className="group flex flex-col items-center rounded-xl border border-gray-200 bg-white p-5 text-center transition-all duration-200 hover:border-[#0eb1c3] hover:bg-[#f0fdfc] sm:p-6"
           >
             <div
-              className="mb-3 flex h-11 w-11 items-center justify-center rounded-full bg-[#f0fdfc] text-[#2BBCB0] transition-all duration-200 group-hover:bg-[#2BBCB0] group-hover:text-white"
+              className="mb-3 flex h-11 w-11 items-center justify-center rounded-full bg-[#f0fdfc] text-[#0eb1c3] transition-all duration-200 group-hover:bg-[#0eb1c3] group-hover:text-white"
             >
               {promo.icon as ReactNode}
             </div>

@@ -1,4 +1,4 @@
-import Link from 'next/link'
+﻿import Link from 'next/link'
 
 export default function CheckoutPendingPage() {
   return (
@@ -17,7 +17,7 @@ export default function CheckoutPendingPage() {
       <Link
         href="/"
         className="mt-8 inline-block rounded-2xl px-8 py-4 text-sm font-black uppercase tracking-widest text-white transition-opacity hover:opacity-85"
-        style={{ backgroundColor: '#2BBCB0' }}
+        style={{ backgroundColor: '#0eb1c3' }}
       >
         Volver al inicio
       </Link>

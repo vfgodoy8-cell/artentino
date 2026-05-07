@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useState, useRef, useEffect } from 'react'
 import Link from 'next/link'
@@ -44,7 +44,7 @@ export default function Header() {
             <Link href="/" className="shrink-0 leading-none">
               <span
                 className="text-3xl leading-none"
-                style={{ fontFamily: 'var(--font-script)', color: '#2BBCB0' }}
+                style={{ fontFamily: 'var(--font-script)', color: '#0eb1c3' }}
               >
                 Artentino
               </span>
@@ -56,7 +56,7 @@ export default function Header() {
                 <Link
                   key={link.href}
                   href={link.href}
-                  className="text-sm font-bold uppercase tracking-widest text-[#1E1E1E] transition-colors hover:text-[#2BBCB0]"
+                  className="text-sm font-bold uppercase tracking-widest text-[#1E1E1E] transition-colors hover:text-[#0eb1c3]"
                 >
                   {link.label}
                 </Link>
@@ -72,7 +72,7 @@ export default function Header() {
                   <>
                     <button
                       onClick={() => setDropdownOpen((v) => !v)}
-                      className="flex items-center gap-2 rounded-full border border-gray-200 px-4 py-2 text-sm font-black text-[#1E1E1E] transition-colors hover:border-[#2BBCB0] hover:text-[#2BBCB0]"
+                      className="flex items-center gap-2 rounded-full border border-gray-200 px-4 py-2 text-sm font-black text-[#1E1E1E] transition-colors hover:border-[#0eb1c3] hover:text-[#0eb1c3]"
                     >
                       <UserIcon />
                       {firstName}
@@ -110,7 +110,7 @@ export default function Header() {
                 ) : (
                   <Link
                     href="/login"
-                    className="rounded-full border border-gray-200 px-4 py-2 text-sm font-black text-[#1E1E1E] transition-colors hover:border-[#2BBCB0] hover:text-[#2BBCB0]"
+                    className="rounded-full border border-gray-200 px-4 py-2 text-sm font-black text-[#1E1E1E] transition-colors hover:border-[#0eb1c3] hover:text-[#0eb1c3]"
                   >
                     Ingresar
                   </Link>
@@ -122,7 +122,7 @@ export default function Header() {
                 aria-label="Ver carrito"
                 onClick={() => setCartOpen(true)}
                 className="relative flex h-10 w-10 items-center justify-center rounded-full text-white transition-opacity hover:opacity-85"
-                style={{ backgroundColor: '#2BBCB0' }}
+                style={{ backgroundColor: '#0eb1c3' }}
               >
                 <CartIcon />
                 {cartCount > 0 && (
@@ -157,7 +157,7 @@ export default function Header() {
                 key={link.href}
                 href={link.href}
                 onClick={() => setMenuOpen(false)}
-                className="flex items-center border-b border-gray-50 py-4 text-sm font-bold uppercase tracking-widest text-[#1E1E1E] transition-colors hover:text-[#2BBCB0] last:border-0"
+                className="flex items-center border-b border-gray-50 py-4 text-sm font-bold uppercase tracking-widest text-[#1E1E1E] transition-colors hover:text-[#0eb1c3] last:border-0"
               >
                 {link.label}
               </Link>
@@ -170,14 +170,14 @@ export default function Header() {
                   <Link
                     href="/perfil"
                     onClick={() => setMenuOpen(false)}
-                    className="flex items-center border-b border-gray-50 py-4 text-sm font-bold uppercase tracking-widest text-[#1E1E1E] transition-colors hover:text-[#2BBCB0]"
+                    className="flex items-center border-b border-gray-50 py-4 text-sm font-bold uppercase tracking-widest text-[#1E1E1E] transition-colors hover:text-[#0eb1c3]"
                   >
                     Mi perfil
                   </Link>
                   <Link
                     href="/perfil/pedidos"
                     onClick={() => setMenuOpen(false)}
-                    className="flex items-center border-b border-gray-50 py-4 text-sm font-bold uppercase tracking-widest text-[#1E1E1E] transition-colors hover:text-[#2BBCB0]"
+                    className="flex items-center border-b border-gray-50 py-4 text-sm font-bold uppercase tracking-widest text-[#1E1E1E] transition-colors hover:text-[#0eb1c3]"
                   >
                     Mis pedidos
                   </Link>
@@ -194,7 +194,7 @@ export default function Header() {
                 <Link
                   href="/login"
                   onClick={() => setMenuOpen(false)}
-                  className="flex items-center py-4 text-sm font-bold uppercase tracking-widest text-[#2BBCB0]"
+                  className="flex items-center py-4 text-sm font-bold uppercase tracking-widest text-[#0eb1c3]"
                 >
                   Ingresar
                 </Link>
@@ -214,7 +214,7 @@ function DropdownLink({ href, onClick, children }: { href: string; onClick: () =
     <Link
       href={href}
       onClick={onClick}
-      className="flex items-center px-4 py-2.5 text-sm font-bold text-[#1E1E1E] transition-colors hover:bg-gray-50 hover:text-[#2BBCB0]"
+      className="flex items-center px-4 py-2.5 text-sm font-bold text-[#1E1E1E] transition-colors hover:bg-gray-50 hover:text-[#0eb1c3]"
     >
       {children}
     </Link>

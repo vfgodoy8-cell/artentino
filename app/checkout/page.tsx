@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
@@ -39,7 +39,7 @@ export default function CheckoutPage() {
         <Link
           href="/catalogo"
           className="mt-4 inline-block rounded-2xl px-8 py-4 text-sm font-black uppercase tracking-widest text-white"
-          style={{ backgroundColor: '#2BBCB0' }}
+          style={{ backgroundColor: '#0eb1c3' }}
         >
           Ver catálogo
         </Link>
@@ -89,7 +89,7 @@ export default function CheckoutPage() {
 
         {/* Header */}
         <div className="mb-8">
-          <Link href="/" className="mb-4 inline-block text-sm font-semibold text-gray-400 transition-colors hover:text-[#2BBCB0]">
+          <Link href="/" className="mb-4 inline-block text-sm font-semibold text-gray-400 transition-colors hover:text-[#0eb1c3]">
             ← Seguir comprando
           </Link>
           <h1 className="text-2xl font-black uppercase tracking-wide text-[#1E1E1E]">Checkout</h1>
@@ -103,9 +103,9 @@ export default function CheckoutPage() {
                 <div
                   className={`flex h-8 w-8 items-center justify-center rounded-full text-xs font-black transition-colors ${
                     i < step
-                      ? 'bg-[#2BBCB0] text-white'
+                      ? 'bg-[#0eb1c3] text-white'
                       : i === step
-                      ? 'border-2 border-[#2BBCB0] text-[#2BBCB0]'
+                      ? 'border-2 border-[#0eb1c3] text-[#0eb1c3]'
                       : 'border-2 border-gray-200 text-gray-300'
                   }`}
                 >
@@ -115,12 +115,12 @@ export default function CheckoutPage() {
                     i + 1
                   )}
                 </div>
-                <span className={`mt-1 text-[10px] font-bold uppercase tracking-wider ${i === step ? 'text-[#2BBCB0]' : 'text-gray-400'}`}>
+                <span className={`mt-1 text-[10px] font-bold uppercase tracking-wider ${i === step ? 'text-[#0eb1c3]' : 'text-gray-400'}`}>
                   {label}
                 </span>
               </div>
               {i < STEPS.length - 1 && (
-                <div className={`mb-4 h-px flex-1 transition-colors ${i < step ? 'bg-[#2BBCB0]' : 'bg-gray-200'}`} />
+                <div className={`mb-4 h-px flex-1 transition-colors ${i < step ? 'bg-[#0eb1c3]' : 'bg-gray-200'}`} />
               )}
             </div>
           ))}
@@ -144,7 +144,7 @@ export default function CheckoutPage() {
                       required
                       value={contact.name}
                       onChange={(e) => setContact({ ...contact, name: e.target.value })}
-                      className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm font-semibold text-[#1E1E1E] outline-none focus:border-[#2BBCB0]"
+                      className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm font-semibold text-[#1E1E1E] outline-none focus:border-[#0eb1c3]"
                     />
                   </div>
                   <div>
@@ -154,7 +154,7 @@ export default function CheckoutPage() {
                       required
                       value={contact.surname}
                       onChange={(e) => setContact({ ...contact, surname: e.target.value })}
-                      className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm font-semibold text-[#1E1E1E] outline-none focus:border-[#2BBCB0]"
+                      className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm font-semibold text-[#1E1E1E] outline-none focus:border-[#0eb1c3]"
                     />
                   </div>
                   <div className="col-span-2">
@@ -164,7 +164,7 @@ export default function CheckoutPage() {
                       required
                       value={contact.email}
                       onChange={(e) => setContact({ ...contact, email: e.target.value })}
-                      className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm font-semibold text-[#1E1E1E] outline-none focus:border-[#2BBCB0]"
+                      className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm font-semibold text-[#1E1E1E] outline-none focus:border-[#0eb1c3]"
                     />
                   </div>
                   <div className="col-span-2">
@@ -173,7 +173,7 @@ export default function CheckoutPage() {
                       type="tel"
                       value={contact.phone}
                       onChange={(e) => setContact({ ...contact, phone: e.target.value })}
-                      className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm font-semibold text-[#1E1E1E] outline-none focus:border-[#2BBCB0]"
+                      className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm font-semibold text-[#1E1E1E] outline-none focus:border-[#0eb1c3]"
                     />
                   </div>
                 </div>
@@ -184,7 +184,7 @@ export default function CheckoutPage() {
                   }}
                   disabled={!contact.name || !contact.surname || !contact.email}
                   className="mt-6 w-full rounded-2xl py-4 text-sm font-black uppercase tracking-widest text-white transition-opacity disabled:opacity-40"
-                  style={{ backgroundColor: '#2BBCB0' }}
+                  style={{ backgroundColor: '#0eb1c3' }}
                 >
                   Continuar
                 </button>
@@ -200,7 +200,7 @@ export default function CheckoutPage() {
                 <div className="space-y-3">
                   <label
                     className={`flex cursor-pointer items-start gap-4 rounded-2xl border-2 p-4 transition-colors ${
-                      shipping === 'pickup' ? 'border-[#2BBCB0] bg-[#2BBCB0]/5' : 'border-gray-100 hover:border-gray-200'
+                      shipping === 'pickup' ? 'border-[#0eb1c3] bg-[#0eb1c3]/5' : 'border-gray-100 hover:border-gray-200'
                     }`}
                   >
                     <input
@@ -209,18 +209,18 @@ export default function CheckoutPage() {
                       value="pickup"
                       checked={shipping === 'pickup'}
                       onChange={() => setShipping('pickup')}
-                      className="mt-0.5 accent-[#2BBCB0]"
+                      className="mt-0.5 accent-[#0eb1c3]"
                     />
                     <div className="flex-1">
                       <p className="font-black text-[#1E1E1E]">Retiro en tienda</p>
                       <p className="text-sm text-gray-500">Colegiales, CABA — Coordinamos por WhatsApp</p>
                     </div>
-                    <span className="font-black text-[#2BBCB0]">Gratis</span>
+                    <span className="font-black text-[#0eb1c3]">Gratis</span>
                   </label>
 
                   <label
                     className={`flex cursor-pointer items-start gap-4 rounded-2xl border-2 p-4 transition-colors ${
-                      shipping === 'delivery' ? 'border-[#2BBCB0] bg-[#2BBCB0]/5' : 'border-gray-100 hover:border-gray-200'
+                      shipping === 'delivery' ? 'border-[#0eb1c3] bg-[#0eb1c3]/5' : 'border-gray-100 hover:border-gray-200'
                     }`}
                   >
                     <input
@@ -229,7 +229,7 @@ export default function CheckoutPage() {
                       value="delivery"
                       checked={shipping === 'delivery'}
                       onChange={() => setShipping('delivery')}
-                      className="mt-0.5 accent-[#2BBCB0]"
+                      className="mt-0.5 accent-[#0eb1c3]"
                     />
                     <div className="flex-1">
                       <p className="font-black text-[#1E1E1E]">Envío a domicilio</p>
@@ -242,14 +242,14 @@ export default function CheckoutPage() {
                 <div className="mt-6 flex gap-3">
                   <button
                     onClick={() => setStep(0)}
-                    className="flex-1 rounded-2xl border border-gray-200 py-4 text-sm font-bold text-[#1E1E1E] transition-colors hover:border-[#2BBCB0] hover:text-[#2BBCB0]"
+                    className="flex-1 rounded-2xl border border-gray-200 py-4 text-sm font-bold text-[#1E1E1E] transition-colors hover:border-[#0eb1c3] hover:text-[#0eb1c3]"
                   >
                     Atrás
                   </button>
                   <button
                     onClick={() => setStep(2)}
                     className="flex-[2] rounded-2xl py-4 text-sm font-black uppercase tracking-widest text-white transition-opacity hover:opacity-85"
-                    style={{ backgroundColor: '#2BBCB0' }}
+                    style={{ backgroundColor: '#0eb1c3' }}
                   >
                     Continuar
                   </button>
@@ -266,7 +266,7 @@ export default function CheckoutPage() {
                 <div className="space-y-3">
                   <label
                     className={`flex cursor-pointer items-center gap-4 rounded-2xl border-2 p-4 transition-colors ${
-                      payment === 'mercadopago' ? 'border-[#2BBCB0] bg-[#2BBCB0]/5' : 'border-gray-100 hover:border-gray-200'
+                      payment === 'mercadopago' ? 'border-[#0eb1c3] bg-[#0eb1c3]/5' : 'border-gray-100 hover:border-gray-200'
                     }`}
                   >
                     <input
@@ -275,7 +275,7 @@ export default function CheckoutPage() {
                       value="mercadopago"
                       checked={payment === 'mercadopago'}
                       onChange={() => setPayment('mercadopago')}
-                      className="accent-[#2BBCB0]"
+                      className="accent-[#0eb1c3]"
                     />
                     <div className="flex flex-1 items-center justify-between">
                       <div>
@@ -292,7 +292,7 @@ export default function CheckoutPage() {
                   </label>
 
                   <div className="flex items-center gap-4 rounded-2xl border-2 border-gray-100 p-4 opacity-50">
-                    <input type="radio" name="payment" disabled className="accent-[#2BBCB0]" />
+                    <input type="radio" name="payment" disabled className="accent-[#0eb1c3]" />
                     <div className="flex flex-1 items-center justify-between">
                       <div>
                         <p className="font-black text-[#1E1E1E]">MODO</p>
@@ -308,14 +308,14 @@ export default function CheckoutPage() {
                 <div className="mt-6 flex gap-3">
                   <button
                     onClick={() => setStep(1)}
-                    className="flex-1 rounded-2xl border border-gray-200 py-4 text-sm font-bold text-[#1E1E1E] transition-colors hover:border-[#2BBCB0] hover:text-[#2BBCB0]"
+                    className="flex-1 rounded-2xl border border-gray-200 py-4 text-sm font-bold text-[#1E1E1E] transition-colors hover:border-[#0eb1c3] hover:text-[#0eb1c3]"
                   >
                     Atrás
                   </button>
                   <button
                     onClick={() => setStep(3)}
                     className="flex-[2] rounded-2xl py-4 text-sm font-black uppercase tracking-widest text-white transition-opacity hover:opacity-85"
-                    style={{ backgroundColor: '#2BBCB0' }}
+                    style={{ backgroundColor: '#0eb1c3' }}
                   >
                     Ver resumen
                   </button>
@@ -371,7 +371,7 @@ export default function CheckoutPage() {
                 <div className="mt-6 flex gap-3">
                   <button
                     onClick={() => setStep(2)}
-                    className="flex-1 rounded-2xl border border-gray-200 py-4 text-sm font-bold text-[#1E1E1E] transition-colors hover:border-[#2BBCB0] hover:text-[#2BBCB0]"
+                    className="flex-1 rounded-2xl border border-gray-200 py-4 text-sm font-bold text-[#1E1E1E] transition-colors hover:border-[#0eb1c3] hover:text-[#0eb1c3]"
                   >
                     Atrás
                   </button>
@@ -379,7 +379,7 @@ export default function CheckoutPage() {
                     onClick={handlePay}
                     disabled={loading}
                     className="flex-[2] rounded-2xl py-4 text-sm font-black uppercase tracking-widest text-white transition-opacity disabled:opacity-60 hover:opacity-85"
-                    style={{ backgroundColor: '#2BBCB0' }}
+                    style={{ backgroundColor: '#0eb1c3' }}
                   >
                     {loading ? 'Procesando...' : 'Pagar con MercadoPago'}
                   </button>
@@ -397,7 +397,7 @@ export default function CheckoutPage() {
                   <div className="flex items-center gap-2">
                     <span
                       className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-[9px] font-black text-white"
-                      style={{ backgroundColor: '#2BBCB0' }}
+                      style={{ backgroundColor: '#0eb1c3' }}
                     >
                       {item.quantity}
                     </span>

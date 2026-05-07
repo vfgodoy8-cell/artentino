@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import Link from 'next/link'
 import { useCart } from '@/app/context/cart-context'
@@ -67,7 +67,7 @@ export default function CartDrawer({ open, onClose }: Props) {
               <button
                 onClick={onClose}
                 className="mt-2 text-sm font-black uppercase tracking-widest text-white rounded-xl px-6 py-2.5 transition-opacity hover:opacity-85"
-                style={{ backgroundColor: '#2BBCB0' }}
+                style={{ backgroundColor: '#0eb1c3' }}
               >
                 Ver catálogo
               </button>
@@ -148,13 +148,13 @@ export default function CartDrawer({ open, onClose }: Props) {
               href="/checkout"
               onClick={onClose}
               className="block w-full rounded-2xl py-4 text-center text-sm font-black uppercase tracking-widest text-white transition-opacity hover:opacity-85"
-              style={{ backgroundColor: '#2BBCB0' }}
+              style={{ backgroundColor: '#0eb1c3' }}
             >
               Ir al checkout
             </Link>
             <button
               onClick={onClose}
-              className="mt-3 w-full rounded-2xl border border-gray-200 py-3.5 text-sm font-bold text-[#1E1E1E] transition-colors hover:border-[#2BBCB0] hover:text-[#2BBCB0]"
+              className="mt-3 w-full rounded-2xl border border-gray-200 py-3.5 text-sm font-bold text-[#1E1E1E] transition-colors hover:border-[#0eb1c3] hover:text-[#0eb1c3]"
             >
               Seguir comprando
             </button>

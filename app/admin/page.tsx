@@ -1,4 +1,4 @@
-import { prisma } from '@/lib/prisma'
+﻿import { prisma } from '@/lib/prisma'
 
 export default async function AdminDashboard() {
   const [productCount, categoryCount, pendingOrders, totalOrders] = await Promise.all([
@@ -9,7 +9,7 @@ export default async function AdminDashboard() {
   ])
 
   const metrics = [
-    { label: 'Total productos', value: productCount, color: '#2BBCB0', icon: 'box' },
+    { label: 'Total productos', value: productCount, color: '#0eb1c3', icon: 'box' },
     { label: 'Total categorías', value: categoryCount, color: '#8b5cf6', icon: 'layers' },
     { label: 'Pedidos pendientes', value: pendingOrders, color: '#f59e0b', icon: 'clock' },
     { label: 'Total pedidos', value: totalOrders, color: '#10b981', icon: 'cart' },

@@ -1,4 +1,4 @@
-import { prisma } from '@/lib/prisma'
+﻿import { prisma } from '@/lib/prisma'
 import { serializeProduct } from '@/lib/serialize'
 import ProductCard from './product-card'
 
@@ -17,7 +17,7 @@ export default async function ProductGrid() {
         <div>
           <p
             className="mb-1 text-[11px] font-black uppercase tracking-[0.25em]"
-            style={{ color: '#2BBCB0' }}
+            style={{ color: '#0eb1c3' }}
           >
             Lo más vendido
           </p>
@@ -27,7 +27,7 @@ export default async function ProductGrid() {
         </div>
         <a
           href="/catalogo"
-          className="hidden text-sm font-bold text-[#1E1E1E] underline-offset-4 hover:text-[#2BBCB0] hover:underline sm:block"
+          className="hidden text-sm font-bold text-[#1E1E1E] underline-offset-4 hover:text-[#0eb1c3] hover:underline sm:block"
         >
           Ver todos →
         </a>
@@ -42,7 +42,7 @@ export default async function ProductGrid() {
       <div className="mt-8 text-center sm:hidden">
         <a
           href="/catalogo"
-          className="inline-flex h-11 items-center rounded-xl border border-gray-200 px-8 text-sm font-bold text-[#1E1E1E] transition-colors hover:border-[#2BBCB0] hover:text-[#2BBCB0]"
+          className="inline-flex h-11 items-center rounded-xl border border-gray-200 px-8 text-sm font-bold text-[#1E1E1E] transition-colors hover:border-[#0eb1c3] hover:text-[#0eb1c3]"
         >
           Ver todos los productos
         </a>

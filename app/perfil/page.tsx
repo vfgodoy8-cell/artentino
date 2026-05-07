@@ -1,4 +1,4 @@
-import { auth } from '@/auth'
+﻿import { auth } from '@/auth'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import { logout } from '@/app/actions/auth'
@@ -14,7 +14,7 @@ export default async function PerfilPage() {
       <div className="mx-auto max-w-2xl px-4 py-12 sm:px-6">
 
         <div className="mb-8">
-          <Link href="/" className="mb-4 inline-block text-sm font-semibold text-gray-400 transition-colors hover:text-[#2BBCB0]">
+          <Link href="/" className="mb-4 inline-block text-sm font-semibold text-gray-400 transition-colors hover:text-[#0eb1c3]">
             ← Volver al inicio
           </Link>
           <h1 className="text-3xl font-black uppercase tracking-wide text-[#1E1E1E]">Mi perfil</h1>
@@ -24,7 +24,7 @@ export default async function PerfilPage() {
         <div className="mb-6 flex items-center gap-5 rounded-2xl bg-white p-6 shadow-sm">
           <div
             className="flex h-16 w-16 shrink-0 items-center justify-center rounded-full text-2xl font-black text-white"
-            style={{ backgroundColor: '#2BBCB0' }}
+            style={{ backgroundColor: '#0eb1c3' }}
           >
             {name?.charAt(0).toUpperCase()}
           </div>
@@ -47,7 +47,7 @@ export default async function PerfilPage() {
         <div className="mb-6 rounded-2xl bg-white shadow-sm">
           <Link
             href="/perfil/pedidos"
-            className="flex items-center justify-between px-6 py-4 transition-colors hover:text-[#2BBCB0]"
+            className="flex items-center justify-between px-6 py-4 transition-colors hover:text-[#0eb1c3]"
           >
             <span className="text-sm font-black uppercase tracking-wider text-[#1E1E1E]">Mis pedidos</span>
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">

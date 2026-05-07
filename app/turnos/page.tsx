@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
@@ -118,7 +118,7 @@ export default function TurnosPage() {
   if (submitted) {
     return (
       <main className="flex min-h-[70vh] flex-col items-center justify-center px-4 text-center">
-        <div className="flex h-16 w-16 items-center justify-center rounded-full" style={{ backgroundColor: '#2BBCB0' }}>
+        <div className="flex h-16 w-16 items-center justify-center rounded-full" style={{ backgroundColor: '#0eb1c3' }}>
           <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
             <polyline points="20 6 9 17 4 12" />
           </svg>
@@ -132,7 +132,7 @@ export default function TurnosPage() {
         <Link
           href="/"
           className="mt-8 inline-block rounded-2xl px-8 py-4 text-sm font-black uppercase tracking-widest text-white transition-opacity hover:opacity-85"
-          style={{ backgroundColor: '#2BBCB0' }}
+          style={{ backgroundColor: '#0eb1c3' }}
         >
           Volver al inicio
         </Link>
@@ -145,7 +145,7 @@ export default function TurnosPage() {
       <div className="mx-auto max-w-2xl px-4 py-12 sm:px-6">
 
         <div className="mb-8">
-          <Link href="/" className="mb-4 inline-block text-sm font-semibold text-gray-400 transition-colors hover:text-[#2BBCB0]">
+          <Link href="/" className="mb-4 inline-block text-sm font-semibold text-gray-400 transition-colors hover:text-[#0eb1c3]">
             ← Volver al inicio
           </Link>
           <h1 className="text-3xl font-black uppercase tracking-wide text-[#1E1E1E]">Reservar turno</h1>
@@ -213,7 +213,7 @@ export default function TurnosPage() {
                   key={opt.value}
                   className={`flex cursor-pointer items-center gap-4 rounded-2xl border-2 p-4 transition-colors ${
                     form.modality === opt.value
-                      ? 'border-[#2BBCB0] bg-[#2BBCB0]/5'
+                      ? 'border-[#0eb1c3] bg-[#0eb1c3]/5'
                       : 'border-gray-100 hover:border-gray-200'
                   }`}
                 >
@@ -223,7 +223,7 @@ export default function TurnosPage() {
                     value={opt.value}
                     checked={form.modality === opt.value}
                     onChange={() => set('modality', opt.value)}
-                    className="accent-[#2BBCB0]"
+                    className="accent-[#0eb1c3]"
                   />
                   <div>
                     <p className="font-black text-[#1E1E1E]">{opt.label}</p>
@@ -282,9 +282,9 @@ export default function TurnosPage() {
                         onClick={() => available && set('time', slot)}
                         className={`rounded-xl border-2 px-4 py-2.5 text-sm font-black transition-colors ${
                           form.time === slot
-                            ? 'border-[#2BBCB0] bg-[#2BBCB0] text-white'
+                            ? 'border-[#0eb1c3] bg-[#0eb1c3] text-white'
                             : available
-                            ? 'border-gray-200 text-[#1E1E1E] hover:border-[#2BBCB0] hover:text-[#2BBCB0]'
+                            ? 'border-gray-200 text-[#1E1E1E] hover:border-[#0eb1c3] hover:text-[#0eb1c3]'
                             : 'cursor-not-allowed border-gray-100 text-gray-300 line-through'
                         }`}
                       >
@@ -310,7 +310,7 @@ export default function TurnosPage() {
             type="submit"
             disabled={loading}
             className="w-full rounded-2xl py-4 text-sm font-black uppercase tracking-widest text-white transition-opacity disabled:opacity-50 hover:opacity-85"
-            style={{ backgroundColor: '#2BBCB0' }}
+            style={{ backgroundColor: '#0eb1c3' }}
           >
             {loading ? 'Reservando...' : 'Confirmar turno'}
           </button>
@@ -322,7 +322,7 @@ export default function TurnosPage() {
 
 function inputCls(error?: string) {
   return `w-full rounded-xl border px-4 py-3 text-sm font-semibold text-[#1E1E1E] outline-none transition-colors ${
-    error ? 'border-red-300 focus:border-red-400' : 'border-gray-200 focus:border-[#2BBCB0]'
+    error ? 'border-red-300 focus:border-red-400' : 'border-gray-200 focus:border-[#0eb1c3]'
   }`
 }
 

@@ -1,4 +1,4 @@
-import Link from 'next/link'
+﻿import Link from 'next/link'
 
 export default function CheckoutFailurePage() {
   return (
@@ -17,13 +17,13 @@ export default function CheckoutFailurePage() {
         <Link
           href="/checkout"
           className="inline-block rounded-2xl px-8 py-4 text-sm font-black uppercase tracking-widest text-white transition-opacity hover:opacity-85"
-          style={{ backgroundColor: '#2BBCB0' }}
+          style={{ backgroundColor: '#0eb1c3' }}
         >
           Reintentar pago
         </Link>
         <Link
           href="/"
-          className="inline-block rounded-2xl border border-gray-200 px-8 py-4 text-sm font-bold text-[#1E1E1E] transition-colors hover:border-[#2BBCB0] hover:text-[#2BBCB0]"
+          className="inline-block rounded-2xl border border-gray-200 px-8 py-4 text-sm font-bold text-[#1E1E1E] transition-colors hover:border-[#0eb1c3] hover:text-[#0eb1c3]"
         >
           Volver al inicio
         </Link>

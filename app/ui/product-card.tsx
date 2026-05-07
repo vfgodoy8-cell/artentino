@@ -1,4 +1,4 @@
-import Link from 'next/link'
+﻿import Link from 'next/link'
 import AddToCartButton from './add-to-cart-button'
 
 type ProductCardProps = {
@@ -27,7 +27,7 @@ export default function ProductCard({ id, name, slug, price, imageUrl, category 
         <div className="relative aspect-square overflow-hidden bg-gray-50">
           <span
             className="absolute left-3 top-3 z-10 rounded-full px-2.5 py-1 text-[9px] font-black uppercase tracking-wider text-white"
-            style={{ backgroundColor: '#2BBCB0' }}
+            style={{ backgroundColor: '#0eb1c3' }}
           >
             {category.name}
           </span>
@@ -48,7 +48,7 @@ export default function ProductCard({ id, name, slug, price, imageUrl, category 
       {/* Card body */}
       <div className="flex flex-1 flex-col p-4">
         <Link href={`/catalogo/${slug}`}>
-          <p className="mb-4 line-clamp-2 text-sm font-bold leading-snug text-[#1E1E1E] transition-colors hover:text-[#2BBCB0]">
+          <p className="mb-4 line-clamp-2 text-sm font-bold leading-snug text-[#1E1E1E] transition-colors hover:text-[#0eb1c3]">
             {name}
           </p>
         </Link>
@@ -84,11 +84,11 @@ export function CategoryIcon({ category }: { category: string }) {
           <ellipse cx="12" cy="11" rx="6" ry="7.5" />
           <line x1="12" y1="18.5" x2="12" y2="22" />
           <line x1="9" y1="22" x2="15" y2="22" />
-          <circle cx="12" cy="3.2" r="0.7" fill="#2BBCB0" stroke="none" />
-          <circle cx="17.8" cy="6.5" r="0.7" fill="#2BBCB0" stroke="none" />
-          <circle cx="6.2" cy="6.5" r="0.7" fill="#2BBCB0" stroke="none" />
-          <circle cx="18.5" cy="11" r="0.7" fill="#2BBCB0" stroke="none" />
-          <circle cx="5.5" cy="11" r="0.7" fill="#2BBCB0" stroke="none" />
+          <circle cx="12" cy="3.2" r="0.7" fill="#0eb1c3" stroke="none" />
+          <circle cx="17.8" cy="6.5" r="0.7" fill="#0eb1c3" stroke="none" />
+          <circle cx="6.2" cy="6.5" r="0.7" fill="#0eb1c3" stroke="none" />
+          <circle cx="18.5" cy="11" r="0.7" fill="#0eb1c3" stroke="none" />
+          <circle cx="5.5" cy="11" r="0.7" fill="#0eb1c3" stroke="none" />
         </svg>
       )
     case 'Tazas':
@@ -112,7 +112,7 @@ export function CategoryIcon({ category }: { category: string }) {
           <path d="M7 9 Q12 2 17 9 H7z" />
           <line x1="12" y1="9" x2="12" y2="21" />
           <line x1="8" y1="21" x2="16" y2="21" />
-          <circle cx="12" cy="9.8" r="0.9" fill="#2BBCB0" stroke="none" />
+          <circle cx="12" cy="9.8" r="0.9" fill="#0eb1c3" stroke="none" />
         </svg>
       )
     case 'Mate':

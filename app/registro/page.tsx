@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import Link from 'next/link'
 import { useState } from 'react'
@@ -58,7 +58,7 @@ export default function RegistroPage() {
           <div className="mb-8 text-center">
             <p
               className="font-script text-3xl font-bold"
-              style={{ color: '#2BBCB0', fontFamily: 'var(--font-script)' }}
+              style={{ color: '#0eb1c3', fontFamily: 'var(--font-script)' }}
             >
               Artentino
             </p>
@@ -82,7 +82,7 @@ export default function RegistroPage() {
                 type="text"
                 required
                 placeholder="Tu nombre"
-                className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm font-semibold text-[#1E1E1E] outline-none transition-colors focus:border-[#2BBCB0]"
+                className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm font-semibold text-[#1E1E1E] outline-none transition-colors focus:border-[#0eb1c3]"
               />
             </div>
 
@@ -95,7 +95,7 @@ export default function RegistroPage() {
                 type="email"
                 required
                 placeholder="tu@email.com"
-                className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm font-semibold text-[#1E1E1E] outline-none transition-colors focus:border-[#2BBCB0]"
+                className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm font-semibold text-[#1E1E1E] outline-none transition-colors focus:border-[#0eb1c3]"
               />
             </div>
 
@@ -107,7 +107,7 @@ export default function RegistroPage() {
                 name="phone"
                 type="tel"
                 placeholder="+54 11 1234 5678"
-                className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm font-semibold text-[#1E1E1E] outline-none transition-colors focus:border-[#2BBCB0]"
+                className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm font-semibold text-[#1E1E1E] outline-none transition-colors focus:border-[#0eb1c3]"
               />
             </div>
 
@@ -121,7 +121,7 @@ export default function RegistroPage() {
                 required
                 minLength={6}
                 placeholder="Mínimo 6 caracteres"
-                className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm font-semibold text-[#1E1E1E] outline-none transition-colors focus:border-[#2BBCB0]"
+                className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm font-semibold text-[#1E1E1E] outline-none transition-colors focus:border-[#0eb1c3]"
               />
             </div>
 
@@ -129,7 +129,7 @@ export default function RegistroPage() {
               type="submit"
               disabled={pending}
               className="mt-2 w-full rounded-2xl py-4 text-sm font-black uppercase tracking-widest text-white transition-opacity disabled:opacity-60"
-              style={{ backgroundColor: '#2BBCB0' }}
+              style={{ backgroundColor: '#0eb1c3' }}
             >
               {pending ? 'Creando cuenta...' : 'Crear cuenta'}
             </button>
@@ -137,7 +137,7 @@ export default function RegistroPage() {
 
           <p className="mt-6 text-center text-sm text-gray-400">
             ¿Ya tenés cuenta?{' '}
-            <Link href="/login" className="font-bold transition-colors hover:text-[#2BBCB0]" style={{ color: '#1E1E1E' }}>
+            <Link href="/login" className="font-bold transition-colors hover:text-[#0eb1c3]" style={{ color: '#1E1E1E' }}>
               Iniciá sesión
             </Link>
           </p>

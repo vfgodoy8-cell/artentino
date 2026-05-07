@@ -1,4 +1,4 @@
-import Link from 'next/link'
+﻿import Link from 'next/link'
 import { prisma } from '@/lib/prisma'
 import { serializeProduct } from '@/lib/serialize'
 import ProductsTable from './products-table'
@@ -38,7 +38,7 @@ export default async function AdminProductos({ searchParams }: Props) {
         <Link
           href="/admin/productos/nuevo"
           className="rounded-xl px-5 py-2.5 text-sm font-black uppercase tracking-wider text-white transition-opacity hover:opacity-90"
-          style={{ backgroundColor: '#2BBCB0' }}
+          style={{ backgroundColor: '#0eb1c3' }}
         >
           + Nuevo producto
         </Link>
@@ -55,7 +55,7 @@ export default async function AdminProductos({ searchParams }: Props) {
           {page > 1 && (
             <Link
               href={`/admin/productos?page=${page - 1}`}
-              className="rounded-xl border border-gray-200 px-4 py-2 text-sm font-bold text-[#1E1E1E] transition-colors hover:border-[#2BBCB0] hover:text-[#2BBCB0]"
+              className="rounded-xl border border-gray-200 px-4 py-2 text-sm font-bold text-[#1E1E1E] transition-colors hover:border-[#0eb1c3] hover:text-[#0eb1c3]"
             >
               ← Anterior
             </Link>
@@ -66,7 +66,7 @@ export default async function AdminProductos({ searchParams }: Props) {
           {page < totalPages && (
             <Link
               href={`/admin/productos?page=${page + 1}`}
-              className="rounded-xl border border-gray-200 px-4 py-2 text-sm font-bold text-[#1E1E1E] transition-colors hover:border-[#2BBCB0] hover:text-[#2BBCB0]"
+              className="rounded-xl border border-gray-200 px-4 py-2 text-sm font-bold text-[#1E1E1E] transition-colors hover:border-[#0eb1c3] hover:text-[#0eb1c3]"
             >
               Siguiente →
             </Link>

@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
@@ -60,7 +60,7 @@ export default function ProductsTable({ products }: { products: Product[] }) {
                 <span
                   className={`inline-flex rounded-full px-2.5 py-0.5 text-[10px] font-bold uppercase ${
                     product.featured
-                      ? 'bg-[#2BBCB0]/10 text-[#2BBCB0]'
+                      ? 'bg-[#0eb1c3]/10 text-[#0eb1c3]'
                       : 'bg-gray-100 text-gray-400'
                   }`}
                 >

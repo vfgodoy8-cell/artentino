@@ -1,11 +1,11 @@
-import { auth } from '@/auth'
+﻿import { auth } from '@/auth'
 import { redirect } from 'next/navigation'
 import { prisma } from '@/lib/prisma'
 import Link from 'next/link'
 
 const STATUS_MAP: Record<string, { label: string; bg: string; color: string }> = {
   PENDING:   { label: 'Pendiente',  bg: '#FEF3C7', color: '#D97706' },
-  CONFIRMED: { label: 'Confirmado', bg: '#CCFBF4', color: '#2BBCB0' },
+  CONFIRMED: { label: 'Confirmado', bg: '#CCFBF4', color: '#0eb1c3' },
   SHIPPED:   { label: 'Enviado',    bg: '#DBEAFE', color: '#2563EB' },
   DELIVERED: { label: 'Entregado',  bg: '#D1FAE5', color: '#059669' },
   CANCELLED: { label: 'Cancelado',  bg: '#FEE2E2', color: '#EF4444' },
@@ -30,7 +30,7 @@ export default async function PedidosPage() {
       <div className="mx-auto max-w-2xl px-4 py-12 sm:px-6">
 
         <div className="mb-8">
-          <Link href="/perfil" className="mb-4 inline-block text-sm font-semibold text-gray-400 transition-colors hover:text-[#2BBCB0]">
+          <Link href="/perfil" className="mb-4 inline-block text-sm font-semibold text-gray-400 transition-colors hover:text-[#0eb1c3]">
             ← Mi perfil
           </Link>
           <h1 className="text-3xl font-black uppercase tracking-wide text-[#1E1E1E]">Mis pedidos</h1>
@@ -43,7 +43,7 @@ export default async function PedidosPage() {
             <Link
               href="/catalogo"
               className="mt-6 inline-block rounded-2xl px-8 py-4 text-sm font-black uppercase tracking-widest text-white transition-opacity hover:opacity-85"
-              style={{ backgroundColor: '#2BBCB0' }}
+              style={{ backgroundColor: '#0eb1c3' }}
             >
               Ver catálogo
             </Link>

@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
@@ -20,7 +20,7 @@ export default function SidebarNav() {
       <div className="border-b border-[#2a2a2a] px-6 py-5">
         <span
           className="text-2xl leading-none"
-          style={{ fontFamily: 'var(--font-script)', color: '#2BBCB0' }}
+          style={{ fontFamily: 'var(--font-script)', color: '#0eb1c3' }}
         >
           Artentino
         </span>
@@ -42,7 +42,7 @@ export default function SidebarNav() {
               href={item.href}
               className={`flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-semibold transition-colors ${
                 isActive
-                  ? 'bg-[#2BBCB0] text-white'
+                  ? 'bg-[#0eb1c3] text-white'
                   : 'text-[#666] hover:bg-[#2a2a2a] hover:text-white'
               }`}
             >

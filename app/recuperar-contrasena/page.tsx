@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import Link from 'next/link'
 import { useState } from 'react'
@@ -21,7 +21,7 @@ export default function RecuperarContrasenaPage() {
           <div className="mb-8 text-center">
             <p
               className="font-script text-3xl font-bold"
-              style={{ color: '#2BBCB0', fontFamily: 'var(--font-script)' }}
+              style={{ color: '#0eb1c3', fontFamily: 'var(--font-script)' }}
             >
               Artentino
             </p>
@@ -32,7 +32,7 @@ export default function RecuperarContrasenaPage() {
             <div className="text-center">
               <div
                 className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full"
-                style={{ backgroundColor: '#2BBCB0' }}
+                style={{ backgroundColor: '#0eb1c3' }}
               >
                 <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                   <polyline points="20 6 9 17 4 12" />
@@ -44,7 +44,7 @@ export default function RecuperarContrasenaPage() {
               </p>
               <Link
                 href="/login"
-                className="mt-6 inline-block text-sm font-bold transition-colors hover:text-[#2BBCB0]"
+                className="mt-6 inline-block text-sm font-bold transition-colors hover:text-[#0eb1c3]"
                 style={{ color: '#1E1E1E' }}
               >
                 ← Volver al login
@@ -67,14 +67,14 @@ export default function RecuperarContrasenaPage() {
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="tu@email.com"
-                    className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm font-semibold text-[#1E1E1E] outline-none transition-colors focus:border-[#2BBCB0]"
+                    className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm font-semibold text-[#1E1E1E] outline-none transition-colors focus:border-[#0eb1c3]"
                   />
                 </div>
 
                 <button
                   type="submit"
                   className="mt-2 w-full rounded-2xl py-4 text-sm font-black uppercase tracking-widest text-white"
-                  style={{ backgroundColor: '#2BBCB0' }}
+                  style={{ backgroundColor: '#0eb1c3' }}
                 >
                   Enviar link
                 </button>
@@ -82,7 +82,7 @@ export default function RecuperarContrasenaPage() {
 
               <p className="mt-6 text-center text-sm text-gray-400">
                 ¿Recordaste tu contraseña?{' '}
-                <Link href="/login" className="font-bold transition-colors hover:text-[#2BBCB0]" style={{ color: '#1E1E1E' }}>
+                <Link href="/login" className="font-bold transition-colors hover:text-[#0eb1c3]" style={{ color: '#1E1E1E' }}>
                   Iniciá sesión
                 </Link>
               </p>

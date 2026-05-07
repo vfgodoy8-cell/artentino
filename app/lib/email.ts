@@ -1,4 +1,4 @@
-import { Resend } from 'resend'
+﻿import { Resend } from 'resend'
 
 const resend = new Resend(process.env.RESEND_API_KEY)
 
@@ -22,7 +22,7 @@ export async function sendEmail({ to, subject, html }: SendEmailParams) {
 }
 
 const HEADER = `
-  <div style="background:#2BBCB0;padding:36px 32px;text-align:center;">
+  <div style="background:#0eb1c3;padding:36px 32px;text-align:center;">
     <p style="margin:0;color:rgba(255,255,255,.75);font-size:11px;font-weight:900;letter-spacing:3px;text-transform:uppercase;">Artentino</p>
     <h1 style="margin:8px 0 0;color:#fff;font-size:22px;font-weight:900;letter-spacing:1px;">{{title}}</h1>
   </div>`
@@ -76,7 +76,7 @@ export function appointmentConfirmationEmail({
       <p style="margin:0 0 24px;color:#555;line-height:1.6;">
         Nos comunicaremos para confirmar los detalles. Si necesitás cambiar o cancelar, escribinos a través de nuestra web.
       </p>
-      <p style="margin:0;color:#2BBCB0;font-weight:900;">Equipo Artentino</p>
+      <p style="margin:0;color:#0eb1c3;font-weight:900;">Equipo Artentino</p>
     </div>` +
     FOOTER +
     WRAP_END
@@ -135,7 +135,7 @@ export function purchaseConfirmationEmail({
       <div style="background:#F7F7F7;border-radius:12px;padding:16px 20px;margin-bottom:28px;">
         <p style="margin:0;color:#555;"><strong style="color:#1E1E1E;">Envío:</strong> ${shippingLabel}</p>
       </div>
-      <p style="margin:0;color:#2BBCB0;font-weight:900;">Equipo Artentino</p>
+      <p style="margin:0;color:#0eb1c3;font-weight:900;">Equipo Artentino</p>
     </div>` +
     FOOTER +
     WRAP_END
