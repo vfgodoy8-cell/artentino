@@ -1,54 +1,17 @@
-type Product = {
-  id: number
-  name: string
-  category: string
-  price: number
+import { prisma } from '@/lib/prisma'
+
+function fmt(n: { toString(): string } | number) {
+  return `$${Number(n.toString()).toLocaleString('es-AR')}`
 }
 
-const products: Product[] = [
-  {
-    id: 1,
-    name: 'Espejo LED Touch 60cm',
-    category: 'Espejos LED',
-    price: 266000,
-  },
-  {
-    id: 2,
-    name: 'Taza Cerámica Pack x6',
-    category: 'Tazas',
-    price: 8500,
-  },
-  {
-    id: 3,
-    name: 'Vaso Térmico Chopp 500ml',
-    category: 'Vasos Térmicos',
-    price: 12900,
-  },
-  {
-    id: 4,
-    name: 'Lámpara de Pie Negra',
-    category: 'Lámparas',
-    price: 189000,
-  },
-  {
-    id: 5,
-    name: 'Kit Mate Acero Inox',
-    category: 'Mate',
-    price: 18500,
-  },
-  {
-    id: 6,
-    name: 'Sillón Relax Gris',
-    category: 'Sillones',
-    price: 298000,
-  },
-]
+export default async function ProductGrid() {
+  const products = await prisma.product.findMany({
+    where: { featured: true },
+    include: { category: true },
+    orderBy: { createdAt: 'desc' },
+    take: 6,
+  })
 
-function fmt(n: number) {
-  return `$${n.toLocaleString('es-AR')}`
-}
-
-export default function ProductGrid() {
   return (
     <section className="mx-auto w-full max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
 
@@ -75,50 +38,63 @@ export default function ProductGrid() {
 
       {/* Grid */}
       <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:gap-6">
-        {products.map((product) => (
-          <article
-            key={product.id}
-            className="group flex flex-col overflow-hidden rounded-2xl border border-gray-100 bg-white transition-all duration-300 hover:-translate-y-1 hover:shadow-xl"
-          >
-            {/* Image area */}
-            <div className="relative aspect-square overflow-hidden bg-gray-50">
+        {products.map((product) => {
+          const categoryName = product.category.name
+          const price = Number(product.price.toString())
 
-              {/* Category badge */}
-              <span
-                className="absolute left-3 top-3 z-10 rounded-full px-2.5 py-1 text-[9px] font-black uppercase tracking-wider text-white"
-                style={{ backgroundColor: '#2BBCB0' }}
-              >
-                {product.category}
-              </span>
+          return (
+            <article
+              key={product.id}
+              className="group flex flex-col overflow-hidden rounded-2xl border border-gray-100 bg-white transition-all duration-300 hover:-translate-y-1 hover:shadow-xl"
+            >
+              {/* Image area */}
+              <div className="relative aspect-square overflow-hidden bg-gray-50">
 
-              {/* Centered icon */}
-              <div className="flex h-full w-full items-center justify-center">
-                <div className="flex h-20 w-20 items-center justify-center rounded-2xl bg-white shadow-sm">
-                  <CategoryIcon category={product.category} />
+                {/* Category badge */}
+                <span
+                  className="absolute left-3 top-3 z-10 rounded-full px-2.5 py-1 text-[9px] font-black uppercase tracking-wider text-white"
+                  style={{ backgroundColor: '#2BBCB0' }}
+                >
+                  {categoryName}
+                </span>
+
+                {product.imageUrl ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={product.imageUrl}
+                    alt={product.name}
+                    className="h-full w-full object-cover"
+                  />
+                ) : (
+                  <div className="flex h-full w-full items-center justify-center">
+                    <div className="flex h-20 w-20 items-center justify-center rounded-2xl bg-white shadow-sm">
+                      <CategoryIcon category={categoryName} />
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Card body */}
+              <div className="flex flex-1 flex-col p-4">
+                <p className="mb-4 line-clamp-2 text-sm font-bold leading-snug text-[#1E1E1E]">
+                  {product.name}
+                </p>
+
+                <div className="mt-auto">
+                  <p className="text-2xl font-black leading-none text-[#1E1E1E]">
+                    {fmt(price)}
+                  </p>
+                  <p className="mt-1.5 text-xs text-gray-400">
+                    6x {fmt(Math.round(price / 6))} sin interés
+                  </p>
+                  <button className="mt-4 w-full rounded-xl bg-[#1E1E1E] py-3 text-xs font-black uppercase tracking-widest text-white transition-colors duration-200 hover:bg-[#2BBCB0]">
+                    Agregar
+                  </button>
                 </div>
               </div>
-            </div>
-
-            {/* Card body */}
-            <div className="flex flex-1 flex-col p-4">
-              <p className="mb-4 line-clamp-2 text-sm font-bold leading-snug text-[#1E1E1E]">
-                {product.name}
-              </p>
-
-              <div className="mt-auto">
-                <p className="text-2xl font-black leading-none text-[#1E1E1E]">
-                  {fmt(product.price)}
-                </p>
-                <p className="mt-1.5 text-xs text-gray-400">
-                  6x {fmt(Math.round(product.price / 6))} sin interés
-                </p>
-                <button className="mt-4 w-full rounded-xl bg-[#1E1E1E] py-3 text-xs font-black uppercase tracking-widest text-white transition-colors duration-200 hover:bg-[#2BBCB0]">
-                  Agregar
-                </button>
-              </div>
-            </div>
-          </article>
-        ))}
+            </article>
+          )
+        })}
       </div>
 
       {/* Mobile CTA */}
@@ -199,7 +175,7 @@ function CategoryIcon({ category }: { category: string }) {
         </svg>
       )
 
-    case 'Sillones':
+    case 'Muebles':
       return (
         <svg {...base}>
           <rect x="5" y="6" width="14" height="8" rx="2" />
