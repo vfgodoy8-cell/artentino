@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { MercadoPagoConfig, Preference } from 'mercadopago'
+import { sendEmail, purchaseConfirmationEmail } from '@/app/lib/email'
 
 type CartItem = {
   productId: string
@@ -74,6 +75,14 @@ export async function POST(req: Request) {
     // sandbox_init_point stays inside the sandbox environment.
     const initPoint = result.sandbox_init_point ?? result.init_point
     console.log('Preference created, initPoint:', initPoint?.substring(0, 60))
+
+    const total = items.reduce((sum, item) => sum + item.price * item.quantity, 0)
+    sendEmail({
+      to: payer.email,
+      subject: '¡Gracias por tu compra en Artentino!',
+      html: purchaseConfirmationEmail({ name: payer.name, items, total, shipping }),
+    }).catch((err) => console.error('[email] purchase confirmation failed:', err))
+
     return NextResponse.json({ initPoint })
   } catch (error) {
     console.error('MercadoPago error:', JSON.stringify(error, null, 2))

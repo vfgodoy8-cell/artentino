@@ -47,3 +47,8 @@ export type OrderItem = Prisma.OrderItemModel
  * 
  */
 export type Appointment = Prisma.AppointmentModel
+/**
+ * Model Contact
+ * 
+ */
+export type Contact = Prisma.ContactModel

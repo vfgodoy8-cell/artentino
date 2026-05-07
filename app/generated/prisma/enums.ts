@@ -43,3 +43,11 @@ export const AppointmentStatus = {
 } as const
 
 export type AppointmentStatus = (typeof AppointmentStatus)[keyof typeof AppointmentStatus]
+
+
+export const ContactType = {
+  GENERAL: 'GENERAL',
+  JOB: 'JOB'
+} as const
+
+export type ContactType = (typeof ContactType)[keyof typeof ContactType]
