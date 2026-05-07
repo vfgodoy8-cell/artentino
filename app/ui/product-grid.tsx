@@ -1,4 +1,5 @@
 import { prisma } from '@/lib/prisma'
+import { serializeProduct } from '@/lib/serialize'
 import ProductCard from './product-card'
 
 export default async function ProductGrid() {
@@ -33,7 +34,7 @@ export default async function ProductGrid() {
       </div>
 
       <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:gap-6">
-        {products.map((product) => (
+        {products.map(serializeProduct).map((product) => (
           <ProductCard key={product.id} {...product} />
         ))}
       </div>

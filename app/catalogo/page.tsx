@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import { prisma } from '@/lib/prisma'
+import { serializeProduct } from '@/lib/serialize'
 import ProductCard from '@/app/ui/product-card'
 
 type Props = {
@@ -92,7 +93,7 @@ export default async function CatalogoPage({ searchParams }: Props) {
           </div>
         ) : (
           <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4 lg:gap-6">
-            {products.map((product) => (
+            {products.map(serializeProduct).map((product) => (
               <ProductCard key={product.id} {...product} />
             ))}
           </div>

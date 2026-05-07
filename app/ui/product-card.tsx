@@ -4,17 +4,17 @@ type ProductCardProps = {
   id: string
   name: string
   slug: string
-  price: { toString(): string } | number
+  price: number
   imageUrl: string | null
   category: { name: string; slug: string }
 }
 
-function fmt(n: { toString(): string } | number) {
-  return `$${Number(n.toString()).toLocaleString('es-AR')}`
+function fmt(n: number) {
+  return `$${n.toLocaleString('es-AR')}`
 }
 
 export default function ProductCard({ id, name, slug, price, imageUrl, category }: ProductCardProps) {
-  const priceNum = Number(price.toString())
+  const priceNum = price
 
   return (
     <article

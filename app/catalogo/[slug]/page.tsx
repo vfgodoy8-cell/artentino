@@ -1,10 +1,11 @@
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { prisma } from '@/lib/prisma'
+import { serializeProduct } from '@/lib/serialize'
 import { CategoryIcon } from '@/app/ui/product-card'
 
-function fmt(n: { toString(): string } | number) {
-  return `$${Number(n.toString()).toLocaleString('es-AR')}`
+function fmt(n: number) {
+  return `$${n.toLocaleString('es-AR')}`
 }
 
 type Props = {
@@ -21,7 +22,8 @@ export default async function ProductoPage({ params }: Props) {
 
   if (!product) notFound()
 
-  const price = Number(product.price.toString())
+  const serialized = serializeProduct(product)
+  const price = serialized.price
 
   return (
     <main className="min-h-screen bg-white">
