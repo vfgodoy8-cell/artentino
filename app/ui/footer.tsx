@@ -1,4 +1,5 @@
 ﻿import Link from 'next/link'
+import Image from 'next/image'
 
 const navLinks = [
   { href: '/', label: 'Inicio' },
@@ -24,12 +25,7 @@ export default function Footer() {
 
           {/* Col 1 — Brand + redes */}
           <div>
-            <span
-              className="text-3xl leading-none"
-              style={{ fontFamily: 'var(--font-script)', color: '#0eb1c3' }}
-            >
-              Artentino
-            </span>
+            <Image src="/logo.png" alt="Artentino" width={130} height={46} className="object-contain" />
             <p className="mt-4 text-sm leading-relaxed text-[#888]">
               Deco, hogar y regalos únicos con diseño argentino. Cuotas sin
               interés y envíos a todo el país.

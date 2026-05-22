@@ -1,6 +1,7 @@
 'use client'
 
 import Link from 'next/link'
+import Image from 'next/image'
 import { usePathname } from 'next/navigation'
 import { useState, useEffect } from 'react'
 
@@ -129,10 +130,8 @@ export default function SidebarNav() {
     <aside className="flex h-full w-60 shrink-0 flex-col" style={{ backgroundColor: '#1E1E1E' }}>
       {/* Logo */}
       <div className="border-b border-[#2a2a2a] px-6 py-5">
-        <span className="text-2xl leading-none" style={{ fontFamily: 'var(--font-script)', color: '#0eb1c3' }}>
-          Artentino
-        </span>
-        <p className="mt-1 text-[10px] font-bold uppercase tracking-widest text-[#444]">Admin</p>
+        <Image src="/logo.png" alt="Artentino" width={120} height={44} className="object-contain" />
+        <p className="mt-2 text-[10px] font-bold uppercase tracking-widest text-[#444]">Admin</p>
       </div>
 
       {/* Navigation */}

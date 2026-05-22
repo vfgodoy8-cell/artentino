@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect } from 'react'
 import Link from 'next/link'
+import Image from 'next/image'
 import { useSession } from 'next-auth/react'
 import { useCart } from '@/app/context/cart-context'
 import { logout } from '@/app/actions/auth'
@@ -41,13 +42,8 @@ export default function Header() {
           <div className="flex h-16 items-center justify-between">
 
             {/* Logo */}
-            <Link href="/" className="shrink-0 leading-none">
-              <span
-                className="text-3xl leading-none"
-                style={{ fontFamily: 'var(--font-script)', color: '#0eb1c3' }}
-              >
-                Artentino
-              </span>
+            <Link href="/" className="shrink-0">
+              <Image src="/logo.png" alt="Artentino" width={140} height={50} className="object-contain" />
             </Link>
 
             {/* Desktop nav */}
