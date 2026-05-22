@@ -33,41 +33,158 @@ enum AppointmentStatus {
   CANCELLED
 }
 
+enum ContactType {
+  GENERAL
+  JOB
+}
+
 // ─── Models ──────────────────────────────────────────────────────────────────
 
 model Category {
-  id          String    @id @default(cuid())
-  name        String
-  slug        String    @unique
-  description String?
-  imageUrl    String?
-  products    Product[]
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
+  id              String    @id @default(cuid())
+  name            String
+  slug            String    @unique
+  description     String?
+  imageUrl        String?
+  products        Product[]
+  active          Boolean   @default(true)
+  wholesaleActive Boolean   @default(false)
+  sortOrder       Int       @default(0)
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
 
   @@map("categories")
 }
 
+model Condition {
+  id         String    @id @default(cuid())
+  name       String
+  colorClass String
+  createdAt  DateTime  @default(now())
+  products   Product[]
+
+  @@map("conditions")
+}
+
 model Product {
-  id           String      @id @default(cuid())
-  name         String
-  slug         String      @unique
-  description  String?     @db.Text
-  price        Decimal     @db.Decimal(10, 2)
-  comparePrice Decimal?    @db.Decimal(10, 2)
-  imageUrl     String?
-  images       String[]
-  stock        Int         @default(0)
-  featured     Boolean     @default(false)
-  categoryId   String
-  category     Category    @relation(fields: [categoryId], references: [id])
-  orderItems   OrderItem[]
-  createdAt    DateTime    @default(now())
-  updatedAt    DateTime    @updatedAt
+  id             String              @id @default(cuid())
+  name           String
+  slug           String              @unique
+  description    String?             @db.Text
+  additionalData String?             @db.Text
+  price          Decimal             @db.Decimal(10, 2)
+  comparePrice   Decimal?            @db.Decimal(10, 2)
+  cost           Decimal?            @db.Decimal(10, 2)
+  wholesalePrice Decimal?            @db.Decimal(10, 2)
+  imageUrl       String?
+  images         String[]
+  stock          Int                 @default(0)
+  featured       Boolean             @default(false)
+  active         Boolean             @default(true)
+  showPrice      Boolean             @default(true)
+  sortOrder      Int                 @default(0)
+  videoUrl       String?
+  height         Decimal?            @db.Decimal(10, 2)
+  width          Decimal?            @db.Decimal(10, 2)
+  length         Decimal?            @db.Decimal(10, 2)
+  weight         Decimal?            @db.Decimal(10, 2)
+  categoryId     String
+  category       Category            @relation(fields: [categoryId], references: [id])
+  conditionId    String?
+  condition      Condition?          @relation(fields: [conditionId], references: [id])
+  orderItems     OrderItem[]
+  comboPrices    ProductComboPrice[]
+  attributes     ProductAttribute[]
+  stockItems     ProductStock[]
+  productImages  ProductImage[]
+  createdAt      DateTime            @default(now())
+  updatedAt      DateTime            @updatedAt
 
   @@index([categoryId])
   @@index([featured])
+  @@index([active])
+  @@index([conditionId])
   @@map("products")
+}
+
+model ProductComboPrice {
+  id        String    @id @default(cuid())
+  productId String
+  product   Product   @relation(fields: [productId], references: [id], onDelete: Cascade)
+  price     Decimal   @db.Decimal(10, 2)
+  quantity  Int
+  startDate DateTime?
+  endDate   DateTime?
+  createdAt DateTime  @default(now())
+
+  @@index([productId])
+  @@map("product_combo_prices")
+}
+
+model Attribute {
+  id        String           @id @default(cuid())
+  name      String
+  filter    Boolean          @default(false)
+  position  Int              @default(0)
+  active    Boolean          @default(true)
+  createdAt DateTime         @default(now())
+  values    AttributeValue[]
+
+  @@map("attributes")
+}
+
+model AttributeValue {
+  id                String             @id @default(cuid())
+  attributeId       String
+  attribute         Attribute          @relation(fields: [attributeId], references: [id], onDelete: Cascade)
+  value             String
+  createdAt         DateTime           @default(now())
+  productAttributes ProductAttribute[]
+  productStocks     ProductStock[]
+
+  @@index([attributeId])
+  @@map("attribute_values")
+}
+
+model ProductAttribute {
+  id               String         @id @default(cuid())
+  productId        String
+  product          Product        @relation(fields: [productId], references: [id], onDelete: Cascade)
+  attributeValueId String
+  attributeValue   AttributeValue @relation(fields: [attributeValueId], references: [id])
+  createdAt        DateTime       @default(now())
+
+  @@unique([productId, attributeValueId])
+  @@index([productId])
+  @@map("product_attributes")
+}
+
+model ProductStock {
+  id               String         @id @default(cuid())
+  productId        String
+  product          Product        @relation(fields: [productId], references: [id], onDelete: Cascade)
+  attributeValueId String
+  attributeValue   AttributeValue @relation(fields: [attributeValueId], references: [id])
+  stock            Int            @default(0)
+  sortOrder        Int            @default(0)
+  createdAt        DateTime       @default(now())
+
+  @@unique([productId, attributeValueId])
+  @@index([productId])
+  @@map("product_stocks")
+}
+
+model ProductImage {
+  id        String   @id @default(cuid())
+  productId String
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  url       String
+  filename  String
+  size      Int      @default(0)
+  createdAt DateTime @default(now())
+
+  @@index([productId])
+  @@map("product_images")
 }
 
 model User {
@@ -128,11 +245,6 @@ model Appointment {
 
   @@index([date])
   @@map("appointments")
-}
-
-enum ContactType {
-  GENERAL
-  JOB
 }
 
 model Contact {

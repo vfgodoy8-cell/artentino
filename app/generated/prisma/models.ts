@@ -9,7 +9,14 @@
  * 🟢 You can import this file directly.
  */
 export type * from './models/Category'
+export type * from './models/Condition'
 export type * from './models/Product'
+export type * from './models/ProductComboPrice'
+export type * from './models/Attribute'
+export type * from './models/AttributeValue'
+export type * from './models/ProductAttribute'
+export type * from './models/ProductStock'
+export type * from './models/ProductImage'
 export type * from './models/User'
 export type * from './models/Order'
 export type * from './models/OrderItem'

@@ -52,7 +52,14 @@ export const AnyNull = runtime.AnyNull
 
 export const ModelName = {
   Category: 'Category',
+  Condition: 'Condition',
   Product: 'Product',
+  ProductComboPrice: 'ProductComboPrice',
+  Attribute: 'Attribute',
+  AttributeValue: 'AttributeValue',
+  ProductAttribute: 'ProductAttribute',
+  ProductStock: 'ProductStock',
+  ProductImage: 'ProductImage',
   User: 'User',
   Order: 'Order',
   OrderItem: 'OrderItem',
@@ -82,6 +89,9 @@ export const CategoryScalarFieldEnum = {
   slug: 'slug',
   description: 'description',
   imageUrl: 'imageUrl',
+  active: 'active',
+  wholesaleActive: 'wholesaleActive',
+  sortOrder: 'sortOrder',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -89,23 +99,114 @@ export const CategoryScalarFieldEnum = {
 export type CategoryScalarFieldEnum = (typeof CategoryScalarFieldEnum)[keyof typeof CategoryScalarFieldEnum]
 
 
+export const ConditionScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  colorClass: 'colorClass',
+  createdAt: 'createdAt'
+} as const
+
+export type ConditionScalarFieldEnum = (typeof ConditionScalarFieldEnum)[keyof typeof ConditionScalarFieldEnum]
+
+
 export const ProductScalarFieldEnum = {
   id: 'id',
   name: 'name',
   slug: 'slug',
   description: 'description',
+  additionalData: 'additionalData',
   price: 'price',
   comparePrice: 'comparePrice',
+  cost: 'cost',
+  wholesalePrice: 'wholesalePrice',
   imageUrl: 'imageUrl',
   images: 'images',
   stock: 'stock',
   featured: 'featured',
+  active: 'active',
+  showPrice: 'showPrice',
+  sortOrder: 'sortOrder',
+  videoUrl: 'videoUrl',
+  height: 'height',
+  width: 'width',
+  length: 'length',
+  weight: 'weight',
   categoryId: 'categoryId',
+  conditionId: 'conditionId',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
 
 export type ProductScalarFieldEnum = (typeof ProductScalarFieldEnum)[keyof typeof ProductScalarFieldEnum]
+
+
+export const ProductComboPriceScalarFieldEnum = {
+  id: 'id',
+  productId: 'productId',
+  price: 'price',
+  quantity: 'quantity',
+  startDate: 'startDate',
+  endDate: 'endDate',
+  createdAt: 'createdAt'
+} as const
+
+export type ProductComboPriceScalarFieldEnum = (typeof ProductComboPriceScalarFieldEnum)[keyof typeof ProductComboPriceScalarFieldEnum]
+
+
+export const AttributeScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  filter: 'filter',
+  position: 'position',
+  active: 'active',
+  createdAt: 'createdAt'
+} as const
+
+export type AttributeScalarFieldEnum = (typeof AttributeScalarFieldEnum)[keyof typeof AttributeScalarFieldEnum]
+
+
+export const AttributeValueScalarFieldEnum = {
+  id: 'id',
+  attributeId: 'attributeId',
+  value: 'value',
+  createdAt: 'createdAt'
+} as const
+
+export type AttributeValueScalarFieldEnum = (typeof AttributeValueScalarFieldEnum)[keyof typeof AttributeValueScalarFieldEnum]
+
+
+export const ProductAttributeScalarFieldEnum = {
+  id: 'id',
+  productId: 'productId',
+  attributeValueId: 'attributeValueId',
+  createdAt: 'createdAt'
+} as const
+
+export type ProductAttributeScalarFieldEnum = (typeof ProductAttributeScalarFieldEnum)[keyof typeof ProductAttributeScalarFieldEnum]
+
+
+export const ProductStockScalarFieldEnum = {
+  id: 'id',
+  productId: 'productId',
+  attributeValueId: 'attributeValueId',
+  stock: 'stock',
+  sortOrder: 'sortOrder',
+  createdAt: 'createdAt'
+} as const
+
+export type ProductStockScalarFieldEnum = (typeof ProductStockScalarFieldEnum)[keyof typeof ProductStockScalarFieldEnum]
+
+
+export const ProductImageScalarFieldEnum = {
+  id: 'id',
+  productId: 'productId',
+  url: 'url',
+  filename: 'filename',
+  size: 'size',
+  createdAt: 'createdAt'
+} as const
+
+export type ProductImageScalarFieldEnum = (typeof ProductImageScalarFieldEnum)[keyof typeof ProductImageScalarFieldEnum]
 
 
 export const UserScalarFieldEnum = {
