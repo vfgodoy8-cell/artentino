@@ -1,13 +1,14 @@
-﻿'use client'
+'use client'
 
 import { useState } from 'react'
-import { useCart } from '@/app/context/cart-context'
+import { useCart, type ComboPrice } from '@/app/context/cart-context'
 
 type Props = {
   productId: string
   name: string
   price: number
   imageUrl: string | null
+  comboPrices?: ComboPrice[]
   disabled?: boolean
   size?: 'sm' | 'lg'
 }
@@ -17,6 +18,7 @@ export default function AddToCartButton({
   name,
   price,
   imageUrl,
+  comboPrices,
   disabled,
   size = 'sm',
 }: Props) {
@@ -24,7 +26,7 @@ export default function AddToCartButton({
   const [added, setAdded] = useState(false)
 
   function handleClick() {
-    addItem({ productId, name, price, imageUrl })
+    addItem({ productId, name, price, imageUrl, comboPrices })
     setAdded(true)
     setTimeout(() => setAdded(false), 1200)
   }

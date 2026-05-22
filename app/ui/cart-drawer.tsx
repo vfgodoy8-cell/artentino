@@ -1,7 +1,7 @@
-﻿'use client'
+'use client'
 
 import Link from 'next/link'
-import { useCart } from '@/app/context/cart-context'
+import { useCart, getEffectivePrice } from '@/app/context/cart-context'
 import { CategoryIcon } from './product-card'
 
 function fmt(n: number) {
@@ -74,65 +74,79 @@ export default function CartDrawer({ open, onClose }: Props) {
             </div>
           ) : (
             <ul className="space-y-4">
-              {items.map((item) => (
-                <li key={item.productId} className="flex gap-3">
-                  {/* Thumbnail */}
-                  <div className="h-16 w-16 shrink-0 overflow-hidden rounded-xl bg-gray-50">
-                    {item.imageUrl ? (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img
-                        src={item.imageUrl}
-                        alt={item.name}
-                        className="h-full w-full object-cover"
-                      />
-                    ) : (
-                      <div className="flex h-full w-full items-center justify-center">
-                        <CategoryIcon category="" />
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Info */}
-                  <div className="flex flex-1 flex-col gap-1">
-                    <p className="line-clamp-2 text-xs font-bold leading-snug text-[#1E1E1E]">
-                      {item.name}
-                    </p>
-                    <p className="text-sm font-black text-[#1E1E1E]">{fmt(item.price)}</p>
-
-                    {/* Quantity + remove */}
-                    <div className="mt-auto flex items-center gap-2">
-                      <div className="flex items-center rounded-lg border border-gray-200">
-                        <button
-                          onClick={() => updateQuantity(item.productId, item.quantity - 1)}
-                          className="flex h-7 w-7 items-center justify-center text-gray-500 transition-colors hover:text-[#1E1E1E]"
-                        >
-                          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><line x1="5" y1="12" x2="19" y2="12" /></svg>
-                        </button>
-                        <span className="w-7 text-center text-xs font-black text-[#1E1E1E]">
-                          {item.quantity}
-                        </span>
-                        <button
-                          onClick={() => updateQuantity(item.productId, item.quantity + 1)}
-                          className="flex h-7 w-7 items-center justify-center text-gray-500 transition-colors hover:text-[#1E1E1E]"
-                        >
-                          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" /></svg>
-                        </button>
-                      </div>
-                      <button
-                        onClick={() => removeItem(item.productId)}
-                        className="text-xs font-semibold text-red-400 transition-colors hover:text-red-600"
-                      >
-                        Eliminar
-                      </button>
+              {items.map((item) => {
+                const effectivePrice = getEffectivePrice(item)
+                const hasCombo = effectivePrice < item.price
+                return (
+                  <li key={item.productId} className="flex gap-3">
+                    {/* Thumbnail */}
+                    <div className="h-16 w-16 shrink-0 overflow-hidden rounded-xl bg-gray-50">
+                      {item.imageUrl ? (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img
+                          src={item.imageUrl}
+                          alt={item.name}
+                          className="h-full w-full object-cover"
+                        />
+                      ) : (
+                        <div className="flex h-full w-full items-center justify-center">
+                          <CategoryIcon category="" />
+                        </div>
+                      )}
                     </div>
-                  </div>
 
-                  {/* Line total */}
-                  <p className="shrink-0 text-sm font-black text-[#1E1E1E]">
-                    {fmt(item.price * item.quantity)}
-                  </p>
-                </li>
-              ))}
+                    {/* Info */}
+                    <div className="flex flex-1 flex-col gap-1">
+                      <p className="line-clamp-2 text-xs font-bold leading-snug text-[#1E1E1E]">
+                        {item.name}
+                      </p>
+                      <div className="flex items-baseline gap-2">
+                        <p className="text-sm font-black text-[#1E1E1E]">{fmt(effectivePrice)}</p>
+                        {hasCombo && (
+                          <p className="text-xs text-gray-400 line-through">{fmt(item.price)}</p>
+                        )}
+                      </div>
+                      {hasCombo && (
+                        <p className="text-[10px] font-black uppercase tracking-wide text-[#0eb1c3]">
+                          Precio por volumen aplicado ✓
+                        </p>
+                      )}
+
+                      {/* Quantity + remove */}
+                      <div className="mt-auto flex items-center gap-2">
+                        <div className="flex items-center rounded-lg border border-gray-200">
+                          <button
+                            onClick={() => updateQuantity(item.productId, item.quantity - 1)}
+                            className="flex h-7 w-7 items-center justify-center text-gray-500 transition-colors hover:text-[#1E1E1E]"
+                          >
+                            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><line x1="5" y1="12" x2="19" y2="12" /></svg>
+                          </button>
+                          <span className="w-7 text-center text-xs font-black text-[#1E1E1E]">
+                            {item.quantity}
+                          </span>
+                          <button
+                            onClick={() => updateQuantity(item.productId, item.quantity + 1)}
+                            className="flex h-7 w-7 items-center justify-center text-gray-500 transition-colors hover:text-[#1E1E1E]"
+                          >
+                            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" /></svg>
+                          </button>
+                        </div>
+                        <button
+                          onClick={() => removeItem(item.productId)}
+                          className="text-xs font-semibold text-red-400 transition-colors hover:text-red-600"
+                        >
+                          Eliminar
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* Line total */}
+                    <p className="shrink-0 text-sm font-black text-[#1E1E1E]">
+                      {fmt(effectivePrice * item.quantity)}
+                    </p>
+                  </li>
+                )
+              })}
             </ul>
           )}
         </div>

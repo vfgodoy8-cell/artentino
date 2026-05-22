@@ -1,4 +1,4 @@
-﻿import Link from 'next/link'
+import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { prisma } from '@/lib/prisma'
 import { serializeProduct } from '@/lib/serialize'
@@ -18,13 +18,32 @@ export default async function ProductoPage({ params }: Props) {
 
   const product = await prisma.product.findUnique({
     where: { slug },
-    include: { category: true },
+    include: {
+      category: true,
+      comboPrices: { orderBy: { quantity: 'asc' } },
+    },
   })
 
   if (!product) notFound()
 
   const serialized = serializeProduct(product)
   const price = serialized.price
+
+  // Filter to combos that are currently valid by date
+  const now = new Date()
+  const comboPrices = product.comboPrices
+    .filter((c) => {
+      if (c.startDate && c.startDate > now) return false
+      if (c.endDate && c.endDate < now) return false
+      return true
+    })
+    .map((c) => ({
+      id: c.id,
+      quantity: c.quantity,
+      price: Number(c.price.toString()),
+      startDate: c.startDate?.toISOString() ?? null,
+      endDate: c.endDate?.toISOString() ?? null,
+    }))
 
   return (
     <main className="min-h-screen bg-white">
@@ -93,6 +112,42 @@ export default async function ProductoPage({ params }: Props) {
               </p>
             </div>
 
+            {/* Volume pricing table */}
+            {comboPrices.length > 0 && (
+              <div className="mt-5 overflow-hidden rounded-xl border border-[#0eb1c3]/30 bg-[#f0fbfc]">
+                <div className="border-b border-[#0eb1c3]/20 px-4 py-2.5">
+                  <p className="text-xs font-black uppercase tracking-wider text-[#0eb1c3]">
+                    Precios por volumen
+                  </p>
+                </div>
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="border-b border-[#0eb1c3]/10">
+                      <th className="px-4 py-2 text-left text-[10px] font-black uppercase tracking-wider text-gray-400">Cantidad</th>
+                      <th className="px-4 py-2 text-left text-[10px] font-black uppercase tracking-wider text-gray-400">Precio unitario</th>
+                      <th className="px-4 py-2 text-left text-[10px] font-black uppercase tracking-wider text-gray-400">Ahorrás</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-[#0eb1c3]/10">
+                    {comboPrices.map((c) => {
+                      const pct = Math.round((1 - c.price / price) * 100)
+                      return (
+                        <tr key={c.id}>
+                          <td className="px-4 py-2.5 font-bold text-[#1E1E1E]">{c.quantity}+ unidades</td>
+                          <td className="px-4 py-2.5 font-black text-[#1E1E1E]">{fmt(c.price)}</td>
+                          <td className="px-4 py-2.5">
+                            <span className="rounded-full bg-[#0eb1c3] px-2.5 py-0.5 text-xs font-black text-white">
+                              {pct}% off
+                            </span>
+                          </td>
+                        </tr>
+                      )
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            )}
+
             {/* Divider */}
             <div className="my-6 border-t border-gray-100" />
 
@@ -104,7 +159,7 @@ export default async function ProductoPage({ params }: Props) {
             {/* Stock */}
             <div className="mt-6 flex items-center gap-2">
               <span
-                className={`h-2 w-2 rounded-full ${product.stock > 0 ? 'bg-green-400' : 'bg-red-400'}`}
+                className={`h-2 w-2 rounded-full ${product.stock > 0 ? 'bg-[#4ade80]' : 'bg-[#f87171]'}`}
               />
               <span className="text-sm text-gray-500">
                 {product.stock > 0
@@ -119,6 +174,7 @@ export default async function ProductoPage({ params }: Props) {
               name={product.name}
               price={price}
               imageUrl={product.imageUrl}
+              comboPrices={comboPrices}
               disabled={product.stock === 0}
               size="lg"
             />

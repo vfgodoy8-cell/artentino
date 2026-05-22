@@ -2,12 +2,35 @@
 
 import { createContext, useContext, useEffect, useState } from 'react'
 
+export type ComboPrice = {
+  id: string
+  quantity: number
+  price: number
+  startDate: string | null
+  endDate: string | null
+}
+
 export type CartItem = {
   productId: string
   name: string
   price: number
   imageUrl: string | null
   quantity: number
+  comboPrices?: ComboPrice[]
+}
+
+export function getEffectivePrice(item: CartItem): number {
+  if (!item.comboPrices || item.comboPrices.length === 0) return item.price
+  const now = new Date()
+  const applicable = item.comboPrices
+    .filter((c) => {
+      if (item.quantity < c.quantity) return false
+      if (c.startDate && new Date(c.startDate) > now) return false
+      if (c.endDate && new Date(c.endDate) < now) return false
+      return true
+    })
+    .sort((a, b) => b.quantity - a.quantity)
+  return applicable.length > 0 ? applicable[0].price : item.price
 }
 
 type CartContextType = {
@@ -69,7 +92,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   }
 
   function getTotal() {
-    return items.reduce((acc, i) => acc + i.price * i.quantity, 0)
+    return items.reduce((acc, i) => acc + getEffectivePrice(i) * i.quantity, 0)
   }
 
   function getItemCount() {

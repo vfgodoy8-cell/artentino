@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { useCart } from '@/app/context/cart-context'
+import { useCart, getEffectivePrice } from '@/app/context/cart-context'
 
 function fmt(n: number) {
   return `$${n.toLocaleString('es-AR')}`
@@ -60,7 +60,7 @@ export default function CheckoutPage() {
           items: items.map((i) => ({
             productId: i.productId,
             name: i.name,
-            price: i.price,
+            price: getEffectivePrice(i),
             quantity: i.quantity,
           })),
           payer: contact,
@@ -350,15 +350,28 @@ export default function CheckoutPage() {
                 <div className="mb-4">
                   <p className="mb-2 text-xs font-black uppercase tracking-wider text-gray-400">Productos</p>
                   <ul className="space-y-2">
-                    {items.map((item) => (
-                      <li key={item.productId} className="flex items-center justify-between rounded-xl border border-gray-100 px-4 py-3">
-                        <div>
-                          <p className="text-sm font-bold text-[#1E1E1E]">{item.name}</p>
-                          <p className="text-xs text-gray-400">x{item.quantity} · {fmt(item.price)} c/u</p>
-                        </div>
-                        <p className="text-sm font-black text-[#1E1E1E]">{fmt(item.price * item.quantity)}</p>
-                      </li>
-                    ))}
+                    {items.map((item) => {
+                      const effectivePrice = getEffectivePrice(item)
+                      const hasCombo = effectivePrice < item.price
+                      const savings = (item.price - effectivePrice) * item.quantity
+                      return (
+                        <li key={item.productId} className="rounded-xl border border-gray-100 px-4 py-3">
+                          <div className="flex items-start justify-between gap-2">
+                            <div className="min-w-0">
+                              <p className="text-sm font-bold text-[#1E1E1E]">{item.name}</p>
+                              {hasCombo ? (
+                                <p className="text-xs text-[#0eb1c3] font-semibold">
+                                  Precio volumen: {fmt(effectivePrice)} c/u · ahorrás {fmt(savings)}
+                                </p>
+                              ) : (
+                                <p className="text-xs text-gray-400">x{item.quantity} · {fmt(item.price)} c/u</p>
+                              )}
+                            </div>
+                            <p className="shrink-0 text-sm font-black text-[#1E1E1E]">{fmt(effectivePrice * item.quantity)}</p>
+                          </div>
+                        </li>
+                      )
+                    })}
                   </ul>
                 </div>
 
@@ -392,22 +405,25 @@ export default function CheckoutPage() {
           <div className="rounded-2xl bg-white p-5 shadow-sm lg:h-fit">
             <h3 className="mb-4 text-xs font-black uppercase tracking-wider text-gray-400">Tu pedido</h3>
             <ul className="space-y-3">
-              {items.map((item) => (
-                <li key={item.productId} className="flex items-start justify-between gap-2">
-                  <div className="flex items-center gap-2">
-                    <span
-                      className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-[9px] font-black text-white"
-                      style={{ backgroundColor: '#0eb1c3' }}
-                    >
-                      {item.quantity}
+              {items.map((item) => {
+                const effectivePrice = getEffectivePrice(item)
+                return (
+                  <li key={item.productId} className="flex items-start justify-between gap-2">
+                    <div className="flex items-center gap-2">
+                      <span
+                        className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-[9px] font-black text-white"
+                        style={{ backgroundColor: '#0eb1c3' }}
+                      >
+                        {item.quantity}
+                      </span>
+                      <span className="text-xs font-semibold text-[#1E1E1E]">{item.name}</span>
+                    </div>
+                    <span className="shrink-0 text-xs font-black text-[#1E1E1E]">
+                      {fmt(effectivePrice * item.quantity)}
                     </span>
-                    <span className="text-xs font-semibold text-[#1E1E1E]">{item.name}</span>
-                  </div>
-                  <span className="shrink-0 text-xs font-black text-[#1E1E1E]">
-                    {fmt(item.price * item.quantity)}
-                  </span>
-                </li>
-              ))}
+                  </li>
+                )
+              })}
             </ul>
             <div className="mt-4 border-t border-gray-100 pt-4">
               <div className="flex items-center justify-between">
