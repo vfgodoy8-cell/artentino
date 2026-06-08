@@ -2,13 +2,11 @@
 
 import { useState } from 'react'
 import TabInfo from './tab-info'
-import TabAtributos from './tab-atributos'
 import TabStock from './tab-stock'
 import TabImagenes from './tab-imagenes'
 
 const TABS = [
   { id: 'info', label: 'Información' },
-  { id: 'atributos', label: 'Atributos' },
   { id: 'stock', label: 'Stock' },
   { id: 'imagenes', label: 'Imágenes' },
 ] as const
@@ -19,18 +17,14 @@ type EditFormProps = {
   product: {
     id: string
     name: string
-    stock: number
     categoryId: string
-    conditionId: string | null
     description: string | null
     additionalData: string | null
     price: number
     comparePrice: number | null
     cost: number | null
     videoUrl: string | null
-    showPrice: boolean
     active: boolean
-    sortOrder: number
     height: number | null
     width: number | null
     length: number | null
@@ -44,31 +38,13 @@ type EditFormProps = {
     endDate: string | null
   }[]
   categories: { id: string; name: string }[]
-  conditions: { id: string; name: string }[]
-  attributes: {
-    id: string
-    name: string
-    values: { id: string; value: string }[]
-  }[]
-  productAttributes: {
-    id: string
-    attributeValueId: string
-    attributeValue: {
-      id: string
-      value: string
-      attribute: { id: string; name: string }
-    }
-  }[]
+  attributes: { id: string; name: string }[]
   productStocks: {
     id: string
     stock: number
-    sortOrder: number
-    attributeValueId: string
-    attributeValue: {
-      id: string
-      value: string
-      attribute: { id: string; name: string }
-    }
+    attributeId: string
+    attribute: { id: string; name: string }
+    value: string
   }[]
   productImages: {
     id: string
@@ -103,21 +79,12 @@ export default function EditForm(props: EditFormProps) {
         </nav>
       </div>
 
-      {/* Tab content */}
       <div>
         {activeTab === 'info' && (
           <TabInfo
             product={props.product}
             comboPrices={props.comboPrices}
             categories={props.categories}
-            conditions={props.conditions}
-          />
-        )}
-        {activeTab === 'atributos' && (
-          <TabAtributos
-            productId={props.product.id}
-            attributes={props.attributes}
-            initial={props.productAttributes}
           />
         )}
         {activeTab === 'stock' && (

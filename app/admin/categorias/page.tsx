@@ -4,14 +4,7 @@ import CategoriasTable from './categorias-table'
 export default async function AdminCategorias() {
   const categories = await prisma.category.findMany({
     orderBy: [{ sortOrder: 'asc' }, { name: 'asc' }],
-    select: {
-      id: true,
-      name: true,
-      slug: true,
-      active: true,
-      wholesaleActive: true,
-      sortOrder: true,
-    },
+    select: { id: true, name: true, slug: true, active: true, sortOrder: true },
   })
 
   return (

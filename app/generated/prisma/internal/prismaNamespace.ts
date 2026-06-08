@@ -385,7 +385,6 @@ type FieldRefInputType<Model, FieldType> = Model extends never ? never : FieldRe
 
 export const ModelName = {
   Category: 'Category',
-  Condition: 'Condition',
   Product: 'Product',
   ProductComboPrice: 'ProductComboPrice',
   Attribute: 'Attribute',
@@ -413,7 +412,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "category" | "condition" | "product" | "productComboPrice" | "attribute" | "attributeValue" | "productAttribute" | "productStock" | "productImage" | "user" | "order" | "orderItem" | "appointment" | "contact"
+    modelProps: "category" | "product" | "productComboPrice" | "attribute" | "attributeValue" | "productAttribute" | "productStock" | "productImage" | "user" | "order" | "orderItem" | "appointment" | "contact"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -488,80 +487,6 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.CategoryCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.CategoryCountAggregateOutputType> | number
-        }
-      }
-    }
-    Condition: {
-      payload: Prisma.$ConditionPayload<ExtArgs>
-      fields: Prisma.ConditionFieldRefs
-      operations: {
-        findUnique: {
-          args: Prisma.ConditionFindUniqueArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ConditionPayload> | null
-        }
-        findUniqueOrThrow: {
-          args: Prisma.ConditionFindUniqueOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ConditionPayload>
-        }
-        findFirst: {
-          args: Prisma.ConditionFindFirstArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ConditionPayload> | null
-        }
-        findFirstOrThrow: {
-          args: Prisma.ConditionFindFirstOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ConditionPayload>
-        }
-        findMany: {
-          args: Prisma.ConditionFindManyArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ConditionPayload>[]
-        }
-        create: {
-          args: Prisma.ConditionCreateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ConditionPayload>
-        }
-        createMany: {
-          args: Prisma.ConditionCreateManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        createManyAndReturn: {
-          args: Prisma.ConditionCreateManyAndReturnArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ConditionPayload>[]
-        }
-        delete: {
-          args: Prisma.ConditionDeleteArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ConditionPayload>
-        }
-        update: {
-          args: Prisma.ConditionUpdateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ConditionPayload>
-        }
-        deleteMany: {
-          args: Prisma.ConditionDeleteManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        updateMany: {
-          args: Prisma.ConditionUpdateManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        updateManyAndReturn: {
-          args: Prisma.ConditionUpdateManyAndReturnArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ConditionPayload>[]
-        }
-        upsert: {
-          args: Prisma.ConditionUpsertArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ConditionPayload>
-        }
-        aggregate: {
-          args: Prisma.ConditionAggregateArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.AggregateCondition>
-        }
-        groupBy: {
-          args: Prisma.ConditionGroupByArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.ConditionGroupByOutputType>[]
-        }
-        count: {
-          args: Prisma.ConditionCountArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.ConditionCountAggregateOutputType> | number
         }
       }
     }
@@ -1499,23 +1424,12 @@ export const CategoryScalarFieldEnum = {
   description: 'description',
   imageUrl: 'imageUrl',
   active: 'active',
-  wholesaleActive: 'wholesaleActive',
   sortOrder: 'sortOrder',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
 
 export type CategoryScalarFieldEnum = (typeof CategoryScalarFieldEnum)[keyof typeof CategoryScalarFieldEnum]
-
-
-export const ConditionScalarFieldEnum = {
-  id: 'id',
-  name: 'name',
-  colorClass: 'colorClass',
-  createdAt: 'createdAt'
-} as const
-
-export type ConditionScalarFieldEnum = (typeof ConditionScalarFieldEnum)[keyof typeof ConditionScalarFieldEnum]
 
 
 export const ProductScalarFieldEnum = {
@@ -1530,10 +1444,8 @@ export const ProductScalarFieldEnum = {
   wholesalePrice: 'wholesalePrice',
   imageUrl: 'imageUrl',
   images: 'images',
-  stock: 'stock',
   featured: 'featured',
   active: 'active',
-  showPrice: 'showPrice',
   sortOrder: 'sortOrder',
   videoUrl: 'videoUrl',
   height: 'height',
@@ -1541,7 +1453,6 @@ export const ProductScalarFieldEnum = {
   length: 'length',
   weight: 'weight',
   categoryId: 'categoryId',
-  conditionId: 'conditionId',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -1597,9 +1508,9 @@ export type ProductAttributeScalarFieldEnum = (typeof ProductAttributeScalarFiel
 export const ProductStockScalarFieldEnum = {
   id: 'id',
   productId: 'productId',
-  attributeValueId: 'attributeValueId',
+  attributeId: 'attributeId',
+  value: 'value',
   stock: 'stock',
-  sortOrder: 'sortOrder',
   createdAt: 'createdAt'
 } as const
 
@@ -2004,7 +1915,6 @@ export type PrismaClientOptions = ({
 }
 export type GlobalOmitConfig = {
   category?: Prisma.CategoryOmit
-  condition?: Prisma.ConditionOmit
   product?: Prisma.ProductOmit
   productComboPrice?: Prisma.ProductComboPriceOmit
   attribute?: Prisma.AttributeOmit

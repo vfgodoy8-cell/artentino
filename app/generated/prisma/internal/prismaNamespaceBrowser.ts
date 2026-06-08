@@ -52,7 +52,6 @@ export const AnyNull = runtime.AnyNull
 
 export const ModelName = {
   Category: 'Category',
-  Condition: 'Condition',
   Product: 'Product',
   ProductComboPrice: 'ProductComboPrice',
   Attribute: 'Attribute',
@@ -90,23 +89,12 @@ export const CategoryScalarFieldEnum = {
   description: 'description',
   imageUrl: 'imageUrl',
   active: 'active',
-  wholesaleActive: 'wholesaleActive',
   sortOrder: 'sortOrder',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
 
 export type CategoryScalarFieldEnum = (typeof CategoryScalarFieldEnum)[keyof typeof CategoryScalarFieldEnum]
-
-
-export const ConditionScalarFieldEnum = {
-  id: 'id',
-  name: 'name',
-  colorClass: 'colorClass',
-  createdAt: 'createdAt'
-} as const
-
-export type ConditionScalarFieldEnum = (typeof ConditionScalarFieldEnum)[keyof typeof ConditionScalarFieldEnum]
 
 
 export const ProductScalarFieldEnum = {
@@ -121,10 +109,8 @@ export const ProductScalarFieldEnum = {
   wholesalePrice: 'wholesalePrice',
   imageUrl: 'imageUrl',
   images: 'images',
-  stock: 'stock',
   featured: 'featured',
   active: 'active',
-  showPrice: 'showPrice',
   sortOrder: 'sortOrder',
   videoUrl: 'videoUrl',
   height: 'height',
@@ -132,7 +118,6 @@ export const ProductScalarFieldEnum = {
   length: 'length',
   weight: 'weight',
   categoryId: 'categoryId',
-  conditionId: 'conditionId',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -188,9 +173,9 @@ export type ProductAttributeScalarFieldEnum = (typeof ProductAttributeScalarFiel
 export const ProductStockScalarFieldEnum = {
   id: 'id',
   productId: 'productId',
-  attributeValueId: 'attributeValueId',
+  attributeId: 'attributeId',
+  value: 'value',
   stock: 'stock',
-  sortOrder: 'sortOrder',
   createdAt: 'createdAt'
 } as const
 

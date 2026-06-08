@@ -3,7 +3,7 @@ import { prisma } from '@/lib/prisma'
 export async function POST(request: Request) {
   try {
     const body = await request.json()
-    const { name, slug, description, price, comparePrice, stock, categoryId, featured } = body
+    const { name, slug, description, price, comparePrice, categoryId, featured } = body
 
     if (!name || !slug || price === undefined || !categoryId) {
       return Response.json({ error: 'Faltan campos requeridos: name, slug, price, categoryId' }, { status: 400 })
@@ -16,7 +16,6 @@ export async function POST(request: Request) {
         description: description ?? null,
         price,
         comparePrice: comparePrice ?? null,
-        stock: stock ?? 0,
         categoryId,
         featured: featured ?? false,
       },

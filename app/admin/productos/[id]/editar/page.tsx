@@ -21,8 +21,8 @@ export default async function EditarProductoPage({ params }: Props) {
         orderBy: { createdAt: 'asc' },
       },
       stockItems: {
-        include: { attributeValue: { include: { attribute: true } } },
-        orderBy: { sortOrder: 'asc' },
+        include: { attribute: true },
+        orderBy: { createdAt: 'asc' },
       },
       productImages: { orderBy: { createdAt: 'asc' } },
     },
@@ -30,31 +30,26 @@ export default async function EditarProductoPage({ params }: Props) {
 
   if (!product) notFound()
 
-  const [categories, conditions, attributes] = await Promise.all([
+  const [categories, attributes] = await Promise.all([
     prisma.category.findMany({ orderBy: { name: 'asc' }, select: { id: true, name: true } }),
-    prisma.condition.findMany({ orderBy: { name: 'asc' }, select: { id: true, name: true } }),
     prisma.attribute.findMany({
       where: { active: true },
       orderBy: { position: 'asc' },
-      include: { values: { orderBy: { value: 'asc' } } },
+      select: { id: true, name: true },
     }),
   ])
 
   const serializedProduct = {
     id: product.id,
     name: product.name,
-    stock: product.stock,
     categoryId: product.categoryId,
-    conditionId: product.conditionId,
     description: product.description,
     additionalData: product.additionalData,
     price: dec(product.price)!,
     comparePrice: dec(product.comparePrice),
     cost: dec(product.cost),
     videoUrl: product.videoUrl,
-    showPrice: product.showPrice,
     active: product.active,
-    sortOrder: product.sortOrder,
     height: dec(product.height),
     width: dec(product.width),
     length: dec(product.length),
@@ -69,32 +64,12 @@ export default async function EditarProductoPage({ params }: Props) {
     endDate: c.endDate?.toISOString().slice(0, 10) ?? null,
   }))
 
-  const serializedAttributes = attributes.map((a) => ({
-    id: a.id,
-    name: a.name,
-    values: a.values.map((v) => ({ id: v.id, value: v.value })),
-  }))
-
-  const serializedProductAttributes = product.attributes.map((pa) => ({
-    id: pa.id,
-    attributeValueId: pa.attributeValueId,
-    attributeValue: {
-      id: pa.attributeValue.id,
-      value: pa.attributeValue.value,
-      attribute: { id: pa.attributeValue.attribute.id, name: pa.attributeValue.attribute.name },
-    },
-  }))
-
   const serializedStocks = product.stockItems.map((s) => ({
     id: s.id,
     stock: s.stock,
-    sortOrder: s.sortOrder,
-    attributeValueId: s.attributeValueId,
-    attributeValue: {
-      id: s.attributeValue.id,
-      value: s.attributeValue.value,
-      attribute: { id: s.attributeValue.attribute.id, name: s.attributeValue.attribute.name },
-    },
+    attributeId: s.attributeId,
+    attribute: { id: s.attribute.id, name: s.attribute.name },
+    value: s.value,
   }))
 
   const serializedImages = product.productImages.map((img) => ({
@@ -133,9 +108,7 @@ export default async function EditarProductoPage({ params }: Props) {
           product={serializedProduct}
           comboPrices={serializedCombos}
           categories={categories}
-          conditions={conditions}
-          attributes={serializedAttributes}
-          productAttributes={serializedProductAttributes}
+          attributes={attributes}
           productStocks={serializedStocks}
           productImages={serializedImages}
         />

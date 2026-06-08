@@ -7,7 +7,6 @@ export async function createCategory(data: {
   name: string
   slug: string
   active: boolean
-  wholesaleActive: boolean
   sortOrder: number
 }) {
   await prisma.category.create({ data })
@@ -16,13 +15,7 @@ export async function createCategory(data: {
 
 export async function updateCategory(
   id: string,
-  data: Partial<{
-    name: string
-    slug: string
-    active: boolean
-    wholesaleActive: boolean
-    sortOrder: number
-  }>,
+  data: Partial<{ name: string; slug: string; active: boolean; sortOrder: number }>,
 ) {
   await prisma.category.update({ where: { id }, data })
   revalidatePath('/admin/categorias')

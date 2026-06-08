@@ -47,11 +47,6 @@ export { Prisma }
  */
 export type Category = Prisma.CategoryModel
 /**
- * Model Condition
- * 
- */
-export type Condition = Prisma.ConditionModel
-/**
  * Model Product
  * 
  */

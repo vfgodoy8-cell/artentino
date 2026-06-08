@@ -13,7 +13,6 @@ type Product = {
   price: number
   cost: number | null
   wholesalePrice: number | null
-  stock: number
   featured: boolean
   active: boolean
   sortOrder: number
@@ -28,11 +27,7 @@ export default function ProductsTable({ products }: { products: Product[] }) {
   const router = useRouter()
 
   if (products.length === 0) {
-    return (
-      <div className="py-16 text-center text-sm text-gray-400">
-        No hay productos todavía.
-      </div>
-    )
+    return <div className="py-16 text-center text-sm text-gray-400">No hay productos todavía.</div>
   }
 
   async function handleDelete(id: string, name: string) {
@@ -54,15 +49,11 @@ export default function ProductsTable({ products }: { products: Product[] }) {
               { label: 'Costo', align: 'left' },
               { label: 'Mayorista', align: 'left' },
               { label: 'Precio', align: 'left' },
-              { label: 'Stock', align: 'left' },
               { label: 'Activo', align: 'left' },
               { label: 'Orden', align: 'left' },
               { label: 'Acciones', align: 'right' },
             ].map(({ label, align }) => (
-              <th
-                key={label}
-                className={`px-3 py-3.5 text-xs font-black uppercase tracking-wider text-gray-400 text-${align}`}
-              >
+              <th key={label} className={`px-3 py-3.5 text-xs font-black uppercase tracking-wider text-gray-400 text-${align}`}>
                 {label}
               </th>
             ))}
@@ -91,17 +82,13 @@ function ProductRow({
 
   function handleSortBlur() {
     if (sortOrder === product.sortOrder) return
-    startTransition(async () => {
-      await updateProductSortOrder(product.id, sortOrder)
-    })
+    startTransition(async () => { await updateProductSortOrder(product.id, sortOrder) })
   }
 
   function handleToggleActive() {
     const next = !active
     setActive(next)
-    startTransition(async () => {
-      await updateProductActive(product.id, next)
-    })
+    startTransition(async () => { await updateProductActive(product.id, next) })
   }
 
   const sku = product.id.slice(0, 8).toUpperCase()
@@ -127,7 +114,6 @@ function ProductRow({
         {product.wholesalePrice != null ? fmt(product.wholesalePrice) : <span className="text-gray-300">—</span>}
       </td>
       <td className="px-3 py-3 font-bold text-[#1E1E1E]">{fmt(product.price)}</td>
-      <td className="px-3 py-3 text-gray-500">{product.stock}</td>
       <td className="px-3 py-3">
         <button
           onClick={handleToggleActive}
@@ -149,16 +135,10 @@ function ProductRow({
       </td>
       <td className="px-3 py-3">
         <div className="flex items-center justify-end gap-1">
-          <Link
-            href={`/admin/productos/${product.id}/editar`}
-            className="rounded-lg px-3 py-1.5 text-xs font-bold text-gray-500 transition-colors hover:bg-gray-100 hover:text-[#1E1E1E]"
-          >
+          <Link href={`/admin/productos/${product.id}/editar`} className="rounded-lg px-3 py-1.5 text-xs font-bold text-gray-500 transition-colors hover:bg-gray-100 hover:text-[#1E1E1E]">
             Editar
           </Link>
-          <button
-            onClick={() => onDelete(product.id, product.name)}
-            className="rounded-lg px-3 py-1.5 text-xs font-bold text-red-400 transition-colors hover:bg-red-50 hover:text-red-600"
-          >
+          <button onClick={() => onDelete(product.id, product.name)} className="rounded-lg px-3 py-1.5 text-xs font-bold text-red-400 transition-colors hover:bg-red-50 hover:text-red-600">
             Eliminar
           </button>
         </div>

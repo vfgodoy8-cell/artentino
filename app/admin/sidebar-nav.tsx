@@ -34,7 +34,6 @@ const groups: NavGroup[] = [
       { href: '/admin/productos', label: 'Productos', icon: 'box' },
       { href: '/admin/categorias', label: 'Categorías', icon: 'folder' },
       { href: '/admin/atributos', label: 'Atributos', icon: 'tag' },
-      { href: '/admin/condicion', label: 'Condición', icon: 'badge' },
       { href: '/admin/destacados', label: 'Destacados', icon: 'star' },
       { href: '#', label: 'Import / Export', icon: 'upload', disabled: true },
       { href: '#', label: 'Marcas', icon: 'briefcase', disabled: true },

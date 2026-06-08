@@ -21,6 +21,7 @@ export default async function ProductoPage({ params }: Props) {
     include: {
       category: true,
       comboPrices: { orderBy: { quantity: 'asc' } },
+      stockItems: true,
     },
   })
 
@@ -28,6 +29,7 @@ export default async function ProductoPage({ params }: Props) {
 
   const serialized = serializeProduct(product)
   const price = serialized.price
+  const totalStock = product.stockItems.reduce((sum, s) => sum + s.stock, 0)
 
   // Filter to combos that are currently valid by date
   const now = new Date()
@@ -159,11 +161,11 @@ export default async function ProductoPage({ params }: Props) {
             {/* Stock */}
             <div className="mt-6 flex items-center gap-2">
               <span
-                className={`h-2 w-2 rounded-full ${product.stock > 0 ? 'bg-[#4ade80]' : 'bg-[#f87171]'}`}
+                className={`h-2 w-2 rounded-full ${totalStock > 0 ? 'bg-[#4ade80]' : 'bg-[#f87171]'}`}
               />
               <span className="text-sm text-gray-500">
-                {product.stock > 0
-                  ? `${product.stock} unidades disponibles`
+                {totalStock > 0
+                  ? `${totalStock} unidades disponibles`
                   : 'Sin stock'}
               </span>
             </div>
@@ -175,7 +177,7 @@ export default async function ProductoPage({ params }: Props) {
               price={price}
               imageUrl={product.imageUrl}
               comboPrices={comboPrices}
-              disabled={product.stock === 0}
+              disabled={totalStock === 0}
               size="lg"
             />
 
