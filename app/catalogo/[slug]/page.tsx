@@ -39,9 +39,10 @@ export default async function ProductoPage({ params }: Props) {
   const totalStock = product.stockItems.reduce((sum, s) => sum + s.stock, 0)
   const youtubeId = getYouTubeId(product.videoUrl)
 
-  // Group stock variants for display: { attrName: [value, ...] }
+  // Group stock variants for display — skip hidden (generic) attributes
   const variantGroups: Record<string, string[]> = {}
   for (const item of product.stockItems) {
+    if (item.attribute.hidden) continue
     const name = item.attribute.name
     if (!variantGroups[name]) variantGroups[name] = []
     if (!variantGroups[name].includes(item.value)) variantGroups[name].push(item.value)

@@ -7,11 +7,12 @@ type Attribute = {
   id: string
   name: string
   filter: boolean
+  hidden: boolean
   position: number
   active: boolean
 }
 
-const EMPTY: Omit<Attribute, 'id'> = { name: '', filter: false, position: 0, active: true }
+const EMPTY: Omit<Attribute, 'id'> = { name: '', filter: false, hidden: false, position: 0, active: true }
 
 export default function AtributosTable({ initial }: { initial: Attribute[] }) {
   const [attrs, setAttrs] = useState(initial)
@@ -20,7 +21,12 @@ export default function AtributosTable({ initial }: { initial: Attribute[] }) {
   const [editForm, setEditForm] = useState<Omit<Attribute, 'id'>>(EMPTY)
   const [isAdding, setIsAdding] = useState(false)
   const [newForm, setNewForm] = useState<Omit<Attribute, 'id'>>(EMPTY)
+  const [search, setSearch] = useState('')
   const [, startTransition] = useTransition()
+
+  const filtered = attrs.filter((a) =>
+    a.name.toLowerCase().includes(search.toLowerCase()),
+  )
 
   function toggleSelect(id: string) {
     setSelected((prev) => {
@@ -31,12 +37,12 @@ export default function AtributosTable({ initial }: { initial: Attribute[] }) {
   }
 
   function toggleSelectAll() {
-    setSelected(selected.size === attrs.length ? new Set() : new Set(attrs.map((a) => a.id)))
+    setSelected(selected.size === filtered.length ? new Set() : new Set(filtered.map((a) => a.id)))
   }
 
   function startEdit(a: Attribute) {
     setEditingId(a.id)
-    setEditForm({ name: a.name, filter: a.filter, position: a.position, active: a.active })
+    setEditForm({ name: a.name, filter: a.filter, hidden: a.hidden, position: a.position, active: a.active })
   }
 
   function saveEdit(id: string) {
@@ -81,6 +87,13 @@ export default function AtributosTable({ initial }: { initial: Attribute[] }) {
     })
   }
 
+  function toggleHidden(id: string, hidden: boolean) {
+    startTransition(async () => {
+      await updateAttribute(id, { hidden })
+      setAttrs((prev) => prev.map((a) => (a.id === id ? { ...a, hidden } : a)))
+    })
+  }
+
   function updatePosition(id: string, position: number) {
     startTransition(async () => {
       await updateAttribute(id, { position })
@@ -88,7 +101,7 @@ export default function AtributosTable({ initial }: { initial: Attribute[] }) {
     })
   }
 
-  const allSelected = attrs.length > 0 && selected.size === attrs.length
+  const allSelected = filtered.length > 0 && selected.size === filtered.length
 
   return (
     <div>
@@ -108,6 +121,12 @@ export default function AtributosTable({ initial }: { initial: Attribute[] }) {
             Inactivar selección ({selected.size})
           </button>
         )}
+        <input
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          placeholder="Buscar atributo..."
+          className="ml-auto rounded-xl border border-gray-200 px-3 py-2 text-sm outline-none focus:border-[#0eb1c3] focus:ring-2 focus:ring-[#0eb1c3]/10"
+        />
       </div>
 
       <div className="overflow-hidden rounded-2xl border border-gray-100 bg-white">
@@ -118,7 +137,7 @@ export default function AtributosTable({ initial }: { initial: Attribute[] }) {
                 <th className="px-4 py-3.5">
                   <input type="checkbox" checked={allSelected} onChange={toggleSelectAll} className="rounded" />
                 </th>
-                {['ID', 'Nombre', 'Filtro', 'Posición', 'Estado', 'Acciones'].map((h) => (
+                {['ID', 'Nombre', 'Filtro', 'Oculto', 'Posición', 'Estado', 'Acciones'].map((h) => (
                   <th
                     key={h}
                     className={`px-4 py-3.5 text-xs font-black uppercase tracking-wider text-gray-400 ${h === 'Acciones' ? 'text-right' : 'text-left'}`}
@@ -148,6 +167,14 @@ export default function AtributosTable({ initial }: { initial: Attribute[] }) {
                       className={`rounded-full px-2.5 py-0.5 text-[10px] font-bold uppercase ${newForm.filter ? 'bg-[#0eb1c3]/10 text-[#0eb1c3]' : 'bg-gray-100 text-gray-400'}`}
                     >
                       {newForm.filter ? 'Sí' : 'No'}
+                    </button>
+                  </td>
+                  <td className="px-4 py-3">
+                    <button
+                      onClick={() => setNewForm((f) => ({ ...f, hidden: !f.hidden }))}
+                      className={`rounded-full px-2.5 py-0.5 text-[10px] font-bold uppercase ${newForm.hidden ? 'bg-purple-100 text-purple-600' : 'bg-gray-100 text-gray-400'}`}
+                    >
+                      {newForm.hidden ? 'Sí' : 'No'}
                     </button>
                   </td>
                   <td className="px-4 py-3">
@@ -186,10 +213,10 @@ export default function AtributosTable({ initial }: { initial: Attribute[] }) {
                 </tr>
               )}
 
-              {attrs.map((a) => {
+              {filtered.map((a) => {
                 const isEditing = editingId === a.id
                 return (
-                  <tr key={a.id} className="transition-colors hover:bg-gray-50">
+                  <tr key={a.id} className={`transition-colors hover:bg-gray-50 ${a.hidden ? 'opacity-60' : ''}`}>
                     <td className="px-4 py-3">
                       <input
                         type="checkbox"
@@ -225,6 +252,23 @@ export default function AtributosTable({ initial }: { initial: Attribute[] }) {
                           className={`rounded-full px-2.5 py-0.5 text-[10px] font-bold uppercase transition-colors ${a.filter ? 'bg-[#0eb1c3]/10 text-[#0eb1c3]' : 'bg-gray-100 text-gray-400'}`}
                         >
                           {a.filter ? 'Sí' : 'No'}
+                        </button>
+                      )}
+                    </td>
+                    <td className="px-4 py-3">
+                      {isEditing ? (
+                        <button
+                          onClick={() => setEditForm((f) => ({ ...f, hidden: !f.hidden }))}
+                          className={`rounded-full px-2.5 py-0.5 text-[10px] font-bold uppercase ${editForm.hidden ? 'bg-purple-100 text-purple-600' : 'bg-gray-100 text-gray-400'}`}
+                        >
+                          {editForm.hidden ? 'Sí' : 'No'}
+                        </button>
+                      ) : (
+                        <button
+                          onClick={() => toggleHidden(a.id, !a.hidden)}
+                          className={`rounded-full px-2.5 py-0.5 text-[10px] font-bold uppercase transition-colors ${a.hidden ? 'bg-purple-100 text-purple-600' : 'bg-gray-100 text-gray-400'}`}
+                        >
+                          {a.hidden ? 'Sí' : 'No'}
                         </button>
                       )}
                     </td>
@@ -289,10 +333,10 @@ export default function AtributosTable({ initial }: { initial: Attribute[] }) {
                 )
               })}
 
-              {attrs.length === 0 && !isAdding && (
+              {filtered.length === 0 && !isAdding && (
                 <tr>
-                  <td colSpan={7} className="py-16 text-center text-sm text-gray-400">
-                    No hay atributos todavía.
+                  <td colSpan={8} className="py-16 text-center text-sm text-gray-400">
+                    {search ? 'Sin resultados para esa búsqueda.' : 'No hay atributos todavía.'}
                   </td>
                 </tr>
               )}

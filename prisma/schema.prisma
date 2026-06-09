@@ -110,6 +110,7 @@ model Attribute {
   id           String         @id @default(cuid())
   name         String
   filter       Boolean        @default(false)
+  hidden       Boolean        @default(false)
   position     Int            @default(0)
   active       Boolean        @default(true)
   createdAt    DateTime       @default(now())

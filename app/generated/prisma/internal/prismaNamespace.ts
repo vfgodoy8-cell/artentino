@@ -1478,6 +1478,7 @@ export const AttributeScalarFieldEnum = {
   id: 'id',
   name: 'name',
   filter: 'filter',
+  hidden: 'hidden',
   position: 'position',
   active: 'active',
   createdAt: 'createdAt'

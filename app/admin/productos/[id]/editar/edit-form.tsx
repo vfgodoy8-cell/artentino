@@ -44,7 +44,7 @@ type EditFormProps = {
     id: string
     stock: number
     attributeId: string
-    attribute: { id: string; name: string }
+    attribute: { id: string; name: string; hidden: boolean }
     value: string
   }[]
   productImages: {

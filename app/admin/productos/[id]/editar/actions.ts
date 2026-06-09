@@ -123,6 +123,23 @@ export async function removeProductStock(id: string, productId: string) {
   revalidatePath(`/admin/productos/${productId}/editar`)
 }
 
+export async function upsertGenericStock(
+  productId: string,
+  qty: number,
+): Promise<{ ok: boolean; attributeId?: string }> {
+  let attr = await prisma.attribute.findFirst({ where: { hidden: true } })
+  if (!attr) {
+    attr = await prisma.attribute.create({ data: { name: 'Genérico', hidden: true, active: true } })
+  }
+  await prisma.productStock.upsert({
+    where: { productId_attributeId_value: { productId, attributeId: attr.id, value: 'único' } },
+    create: { productId, attributeId: attr.id, value: 'único', stock: qty },
+    update: { stock: qty },
+  })
+  revalidatePath(`/admin/productos/${productId}/editar`)
+  return { ok: true, attributeId: attr.id }
+}
+
 // ─── Images ──────────────────────────────────────────────────────────────────
 
 export async function deleteProductImage(id: string, productId: string) {

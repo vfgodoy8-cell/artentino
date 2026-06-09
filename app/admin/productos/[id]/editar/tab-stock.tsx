@@ -2,7 +2,7 @@
 
 import { useState, useTransition, useRef } from 'react'
 import { useRouter } from 'next/navigation'
-import { addProductStock, createAttributeAndStock, updateProductStockQty, removeProductStock } from './actions'
+import { addProductStock, createAttributeAndStock, updateProductStockQty, removeProductStock, upsertGenericStock } from './actions'
 
 type Attribute = { id: string; name: string }
 
@@ -10,7 +10,7 @@ type StockItem = {
   id: string
   stock: number
   attributeId: string
-  attribute: { id: string; name: string }
+  attribute: { id: string; name: string; hidden: boolean }
   value: string
 }
 
@@ -71,7 +71,7 @@ export default function TabStock({
         setAttributes((prev) => [...prev, newAttr])
         setItems((prev) => [
           ...prev,
-          { id: crypto.randomUUID(), stock: 0, attributeId: newAttr.id, attribute: newAttr, value: valueInput.trim() },
+          { id: crypto.randomUUID(), stock: 0, attributeId: newAttr.id, attribute: { ...newAttr, hidden: false }, value: valueInput.trim() },
         ])
         setAttrSearch('')
         setSelectedAttr(null)
@@ -84,7 +84,7 @@ export default function TabStock({
         if (!result.ok) { setError(result.error ?? 'Error'); return }
         setItems((prev) => [
           ...prev,
-          { id: crypto.randomUUID(), stock: 0, attributeId: attr.id, attribute: attr, value: valueInput.trim() },
+          { id: crypto.randomUUID(), stock: 0, attributeId: attr.id, attribute: { ...attr, hidden: false }, value: valueInput.trim() },
         ])
         setAttrSearch('')
         setSelectedAttr(null)
@@ -101,9 +101,54 @@ export default function TabStock({
     })
   }
 
+  const genericItem = items.find((i) => i.attribute.hidden)
+  const [genericQty, setGenericQty] = useState(genericItem?.stock ?? 0)
+  const [, startGenericTransition] = useTransition()
+
+  function handleGenericBlur() {
+    startGenericTransition(async () => {
+      const result = await upsertGenericStock(productId, genericQty)
+      if (result.ok && !genericItem) {
+        // reflect new generic item in state so totalStock is accurate
+        setItems((prev) => [
+          ...prev,
+          {
+            id: crypto.randomUUID(),
+            stock: genericQty,
+            attributeId: result.attributeId!,
+            attribute: { id: result.attributeId!, name: 'Genérico', hidden: true },
+            value: 'único',
+          },
+        ])
+      } else if (result.ok && genericItem) {
+        setItems((prev) => prev.map((s) => s.id === genericItem.id ? { ...s, stock: genericQty } : s))
+      }
+    })
+  }
+
+  const visibleItems = items.filter((i) => !i.attribute.hidden)
+
   return (
     <div className="space-y-6">
-      {/* Add row */}
+
+      {/* Stock sin variante */}
+      <div className="rounded-xl border border-gray-100 bg-gray-50 p-4">
+        <p className="mb-1 text-xs font-black uppercase tracking-wider text-gray-400">Stock sin variante</p>
+        <p className="mb-3 text-xs text-gray-400">Para productos sin color, talle u otra variante.</p>
+        <div className="flex items-center gap-3">
+          <label className="text-sm text-gray-500">Unidades disponibles:</label>
+          <input
+            type="number"
+            value={genericQty}
+            onChange={(e) => setGenericQty(Number(e.target.value))}
+            onBlur={handleGenericBlur}
+            min={0}
+            className="w-24 rounded border border-gray-200 px-2 py-1 text-sm focus:border-[#0eb1c3] focus:outline-none"
+          />
+        </div>
+      </div>
+
+      {/* Add variant row */}
       <div className="rounded-xl border border-gray-100 bg-gray-50 p-4">
         <p className="mb-3 text-xs font-black uppercase tracking-wider text-gray-400">Agregar variante</p>
         <div className="flex items-end gap-3">
@@ -182,7 +227,7 @@ export default function TabStock({
         {error && <p className="mt-2 text-sm text-red-500">{error}</p>}
       </div>
 
-      {/* Stock table */}
+      {/* Stock table — only visible (non-hidden) items */}
       <div className="overflow-hidden rounded-xl border border-gray-100 bg-white" id="stock-table">
         <table className="w-full text-sm">
           <thead>
@@ -194,7 +239,7 @@ export default function TabStock({
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-50">
-            {items.map((item) => (
+            {visibleItems.map((item) => (
               <StockRow
                 key={item.id}
                 item={item}
@@ -205,10 +250,10 @@ export default function TabStock({
                 onRemove={handleRemove}
               />
             ))}
-            {items.length === 0 && (
+            {visibleItems.length === 0 && (
               <tr>
                 <td colSpan={4} className="py-12 text-center text-sm text-gray-400">
-                  Sin variantes de stock. Agregá la primera arriba.
+                  Sin variantes. Agregá la primera arriba.
                 </td>
               </tr>
             )}

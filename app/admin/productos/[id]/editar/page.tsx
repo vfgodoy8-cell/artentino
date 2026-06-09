@@ -33,7 +33,7 @@ export default async function EditarProductoPage({ params }: Props) {
   const [categories, attributes] = await Promise.all([
     prisma.category.findMany({ orderBy: { name: 'asc' }, select: { id: true, name: true } }),
     prisma.attribute.findMany({
-      where: { active: true },
+      where: { active: true, hidden: false },
       orderBy: { position: 'asc' },
       select: { id: true, name: true },
     }),
@@ -69,7 +69,7 @@ export default async function EditarProductoPage({ params }: Props) {
     id: s.id,
     stock: s.stock,
     attributeId: s.attributeId,
-    attribute: { id: s.attribute.id, name: s.attribute.name },
+    attribute: { id: s.attribute.id, name: s.attribute.name, hidden: s.attribute.hidden },
     value: s.value,
   }))
 
