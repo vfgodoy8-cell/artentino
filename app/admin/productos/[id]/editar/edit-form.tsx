@@ -16,6 +16,7 @@ type TabId = (typeof TABS)[number]['id']
 type EditFormProps = {
   product: {
     id: string
+    sku: string
     name: string
     categoryId: string
     description: string | null

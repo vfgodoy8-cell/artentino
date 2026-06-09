@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useTransition, useRef } from 'react'
+import { useRouter } from 'next/navigation'
 import { addProductStock, createAttributeAndStock, updateProductStockQty, removeProductStock } from './actions'
 
 type Attribute = { id: string; name: string }
@@ -24,6 +25,7 @@ export default function TabStock({
 }) {
   const [items, setItems] = useState(initial)
   const [attributes, setAttributes] = useState(initialAttributes)
+  const router = useRouter()
 
   // Add-row state
   const [attrSearch, setAttrSearch] = useState('')
@@ -181,7 +183,7 @@ export default function TabStock({
       </div>
 
       {/* Stock table */}
-      <div className="overflow-hidden rounded-xl border border-gray-100 bg-white">
+      <div className="overflow-hidden rounded-xl border border-gray-100 bg-white" id="stock-table">
         <table className="w-full text-sm">
           <thead>
             <tr className="border-b border-gray-100 bg-gray-50">
@@ -212,6 +214,18 @@ export default function TabStock({
             )}
           </tbody>
         </table>
+      </div>
+
+      {/* Guardar */}
+      <div className="flex items-center gap-4 border-t border-gray-100 pt-4">
+        <button
+          type="button"
+          onClick={() => router.push('/admin/productos')}
+          className="rounded-xl px-8 py-3 text-sm font-black uppercase tracking-wider text-white transition-opacity hover:opacity-90"
+          style={{ backgroundColor: '#0eb1c3' }}
+        >
+          Guardar cambios
+        </button>
       </div>
     </div>
   )

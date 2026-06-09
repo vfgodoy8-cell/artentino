@@ -41,6 +41,7 @@ export default async function EditarProductoPage({ params }: Props) {
 
   const serializedProduct = {
     id: product.id,
+    sku: product.sku ?? id.slice(0, 8).toUpperCase(),
     name: product.name,
     categoryId: product.categoryId,
     description: product.description,
@@ -79,8 +80,6 @@ export default async function EditarProductoPage({ params }: Props) {
     size: img.size,
   }))
 
-  const sku = id.slice(0, 8).toUpperCase()
-
   return (
     <div className="mx-auto max-w-5xl p-8">
       <div className="mb-6 flex items-start justify-between">
@@ -92,7 +91,7 @@ export default async function EditarProductoPage({ params }: Props) {
             ← Volver a productos
           </Link>
           <h1 className="text-2xl font-black text-[#1E1E1E]">{product.name}</h1>
-          <p className="mt-0.5 font-mono text-xs text-gray-400">SKU: {sku}</p>
+          <p className="mt-0.5 font-mono text-xs text-gray-400">SKU: {serializedProduct.sku}</p>
         </div>
         <span
           className={`mt-1 inline-flex rounded-full px-3 py-1 text-xs font-bold uppercase ${

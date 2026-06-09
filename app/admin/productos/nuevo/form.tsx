@@ -25,6 +25,7 @@ export default function NuevoProductoForm({ categories }: { categories: Category
   const [error, setError] = useState('')
   const [slugEdited, setSlugEdited] = useState(false)
   const [form, setForm] = useState({
+    sku: '',
     name: '',
     slug: '',
     price: '',
@@ -35,14 +36,15 @@ export default function NuevoProductoForm({ categories }: { categories: Category
     setForm((prev) => ({ ...prev, [field]: value }))
   }
 
-  function handleNameChange(e: React.ChangeEvent<HTMLInputElement>) {
-    const name = e.target.value
-    setForm((prev) => ({ ...prev, name, slug: slugEdited ? prev.slug : toSlug(name) }))
+  function handleSkuChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const sku = e.target.value
+    setForm((prev) => ({ ...prev, sku, slug: slugEdited ? prev.slug : toSlug(sku) }))
   }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     setError('')
+    if (!form.sku.trim()) { setError('El SKU es requerido'); return }
     if (!form.name.trim()) { setError('El nombre es requerido'); return }
     if (!form.slug.trim()) { setError('El slug es requerido'); return }
     if (!form.price || Number(form.price) <= 0) { setError('El precio debe ser mayor a 0'); return }
@@ -54,6 +56,7 @@ export default function NuevoProductoForm({ categories }: { categories: Category
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
+          sku: form.sku.trim().toUpperCase(),
           name: form.name.trim(),
           slug: form.slug.trim(),
           price: Number(form.price),
@@ -73,15 +76,40 @@ export default function NuevoProductoForm({ categories }: { categories: Category
     <form onSubmit={handleSubmit} className="space-y-5 rounded-2xl border border-gray-100 bg-white p-6">
       {error && <div className="rounded-xl bg-red-50 px-4 py-3 text-sm text-red-600">{error}</div>}
 
+      {/* SKU + Slug */}
       <div className="grid gap-5 sm:grid-cols-2">
         <div>
-          <label className="mb-1.5 block text-xs font-bold uppercase tracking-wider text-gray-400">Nombre *</label>
-          <input type="text" value={form.name} onChange={handleNameChange} className={inp} placeholder="Espejo LED Touch 60cm" />
+          <label className="mb-1.5 block text-xs font-bold uppercase tracking-wider text-gray-400">SKU *</label>
+          <input
+            type="text"
+            value={form.sku}
+            onChange={handleSkuChange}
+            className={inp}
+            placeholder="VASOTERM-500"
+          />
         </div>
         <div>
           <label className="mb-1.5 block text-xs font-bold uppercase tracking-wider text-gray-400">Slug *</label>
-          <input type="text" value={form.slug} onChange={(e) => { setSlugEdited(true); set('slug', e.target.value) }} className={inp} placeholder="espejo-led-touch-60cm" />
+          <input
+            type="text"
+            value={form.slug}
+            onChange={(e) => { setSlugEdited(true); set('slug', e.target.value) }}
+            className={inp}
+            placeholder="vasoterm-500"
+          />
         </div>
+      </div>
+
+      {/* Nombre */}
+      <div>
+        <label className="mb-1.5 block text-xs font-bold uppercase tracking-wider text-gray-400">Nombre *</label>
+        <input
+          type="text"
+          value={form.name}
+          onChange={(e) => set('name', e.target.value)}
+          className={inp}
+          placeholder="Vaso Térmico Chopp 500ml"
+        />
       </div>
 
       <div className="grid gap-5 sm:grid-cols-2">

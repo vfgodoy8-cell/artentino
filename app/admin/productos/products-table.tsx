@@ -8,6 +8,7 @@ import { deleteProduct, updateProductSortOrder, updateProductActive } from './ac
 
 type Product = {
   id: string
+  sku: string | null
   name: string
   imageUrl: string | null
   price: number
@@ -91,7 +92,7 @@ function ProductRow({
     startTransition(async () => { await updateProductActive(product.id, next) })
   }
 
-  const sku = product.id.slice(0, 8).toUpperCase()
+  const sku = product.sku ?? product.id.slice(0, 8).toUpperCase()
 
   return (
     <tr className="transition-colors hover:bg-gray-50">

@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useTransition } from 'react'
+import { useRouter } from 'next/navigation'
 import { updateProductInfo, replaceComboP } from './actions'
 
 const MIN_COMBO_ROWS = 2
@@ -10,6 +11,7 @@ type ComboRow = { price: string; quantity: string; startDate: string; endDate: s
 type TabInfoProps = {
   product: {
     id: string
+    sku: string
     name: string
     categoryId: string
     description: string | null
@@ -69,6 +71,7 @@ export default function TabInfo({ product, comboPrices, categories }: TabInfoPro
   const [comboSaved, setComboSaved] = useState(false)
   const [error, setError] = useState('')
   const [isPending, startTransition] = useTransition()
+  const router = useRouter()
 
   function setField<K extends keyof typeof form>(k: K, v: (typeof form)[K]) {
     setForm((prev) => ({ ...prev, [k]: v }))
@@ -102,8 +105,7 @@ export default function TabInfo({ product, comboPrices, categories }: TabInfoPro
         length: form.length !== '' ? Number(form.length) : null,
         weight: form.weight !== '' ? Number(form.weight) : null,
       })
-      setSaved(true)
-      setTimeout(() => setSaved(false), 2000)
+      router.push('/admin/productos')
     })
   }
 
@@ -123,8 +125,6 @@ export default function TabInfo({ product, comboPrices, categories }: TabInfoPro
     })
   }
 
-  const sku = product.id.slice(0, 8).toUpperCase()
-
   return (
     <div className="space-y-6">
       {error && <div className="rounded-xl bg-red-50 px-4 py-3 text-sm text-red-600">{error}</div>}
@@ -133,7 +133,7 @@ export default function TabInfo({ product, comboPrices, categories }: TabInfoPro
       <div className="grid gap-4 sm:grid-cols-4">
         <div>
           <label className={lbl}>SKU</label>
-          <input value={sku} readOnly className={`${inp} cursor-default bg-gray-50 font-mono text-gray-400`} />
+          <input value={product.sku} readOnly className={`${inp} cursor-default bg-gray-50 font-mono text-gray-400`} />
         </div>
         <div className="sm:col-span-3">
           <label className={lbl}>Nombre *</label>
@@ -170,19 +170,19 @@ export default function TabInfo({ product, comboPrices, categories }: TabInfoPro
         </div>
       </div>
 
-      {/* Precios: Costo → Precio tachado → Precio */}
+      {/* Precios: Costo → Precio → Precio tachado */}
       <div className="grid gap-4 sm:grid-cols-3">
         <div>
           <label className={lbl}>Costo ($)</label>
           <input type="number" value={form.cost} onChange={(e) => setField('cost', e.target.value)} min={0} className={inp} placeholder="0" />
         </div>
         <div>
-          <label className={lbl}>Precio tachado ($)</label>
-          <input type="number" value={form.comparePrice} onChange={(e) => setField('comparePrice', e.target.value)} min={0} className={inp} placeholder="0" />
-        </div>
-        <div>
           <label className={lbl}>Precio * ($)</label>
           <input type="number" value={form.price} onChange={(e) => setField('price', Number(e.target.value))} min={0} className={inp} placeholder="0" />
+        </div>
+        <div>
+          <label className={lbl}>Precio tachado ($)</label>
+          <input type="number" value={form.comparePrice} onChange={(e) => setField('comparePrice', e.target.value)} min={0} className={inp} placeholder="0" />
         </div>
       </div>
 
@@ -262,9 +262,8 @@ export default function TabInfo({ product, comboPrices, categories }: TabInfoPro
       {/* Guardar */}
       <div className="flex items-center gap-4 border-t border-gray-100 pt-4">
         <button type="button" onClick={handleSaveInfo} disabled={isPending} className="rounded-xl px-8 py-3 text-sm font-black uppercase tracking-wider text-white transition-opacity disabled:opacity-50" style={{ backgroundColor: '#0eb1c3' }}>
-          {isPending ? 'Guardando...' : saved ? '✓ Guardado' : 'Guardar información'}
+          {isPending ? 'Guardando...' : 'Guardar cambios'}
         </button>
-        {saved && <span className="text-sm font-semibold text-green-600">Cambios guardados</span>}
       </div>
     </div>
   )
