@@ -35,8 +35,6 @@ const groups: NavGroup[] = [
       { href: '/admin/categorias', label: 'Categorías', icon: 'folder' },
       { href: '/admin/atributos', label: 'Atributos', icon: 'tag' },
       { href: '/admin/destacados', label: 'Destacados', icon: 'star' },
-      { href: '#', label: 'Import / Export', icon: 'upload', disabled: true },
-      { href: '#', label: 'Marcas', icon: 'briefcase', disabled: true },
     ],
   },
   {
@@ -48,27 +46,6 @@ const groups: NavGroup[] = [
       { href: '/admin/pedidos', label: 'Pedidos', icon: 'cart' },
       { href: '/admin/turnos', label: 'Turnos', icon: 'calendar' },
     ],
-  },
-  {
-    id: 'extension',
-    label: 'Extensión',
-    icon: 'puzzle',
-    defaultOpen: false,
-    items: [],
-  },
-  {
-    id: 'marketing',
-    label: 'Marketing',
-    icon: 'megaphone',
-    defaultOpen: false,
-    items: [],
-  },
-  {
-    id: 'sistema',
-    label: 'Sistema',
-    icon: 'settings',
-    defaultOpen: false,
-    items: [],
   },
 ]
 
