@@ -12,7 +12,10 @@ export default async function CatalogoPage({ searchParams }: Props) {
 
   const [products, categories] = await Promise.all([
     prisma.product.findMany({
-      where: categoria ? { category: { slug: categoria } } : undefined,
+      where: {
+        active: true,
+        ...(categoria ? { category: { slug: categoria } } : {}),
+      },
       include: { category: true },
       orderBy: { createdAt: 'desc' },
     }),

@@ -9,6 +9,12 @@ function fmt(n: number) {
   return `$${n.toLocaleString('es-AR')}`
 }
 
+function getYouTubeId(url: string | null): string | null {
+  if (!url) return null
+  const m = url.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/|shorts\/))([A-Za-z0-9_-]{11})/)
+  return m ? m[1] : null
+}
+
 type Props = {
   params: Promise<{ slug: string }>
 }
@@ -21,7 +27,7 @@ export default async function ProductoPage({ params }: Props) {
     include: {
       category: true,
       comboPrices: { orderBy: { quantity: 'asc' } },
-      stockItems: true,
+      stockItems: { include: { attribute: true } },
     },
   })
 
@@ -29,9 +35,18 @@ export default async function ProductoPage({ params }: Props) {
 
   const serialized = serializeProduct(product)
   const price = serialized.price
+  const comparePrice = serialized.comparePrice
   const totalStock = product.stockItems.reduce((sum, s) => sum + s.stock, 0)
+  const youtubeId = getYouTubeId(product.videoUrl)
 
-  // Filter to combos that are currently valid by date
+  // Group stock variants for display: { attrName: [value, ...] }
+  const variantGroups: Record<string, string[]> = {}
+  for (const item of product.stockItems) {
+    const name = item.attribute.name
+    if (!variantGroups[name]) variantGroups[name] = []
+    if (!variantGroups[name].includes(item.value)) variantGroups[name].push(item.value)
+  }
+
   const now = new Date()
   const comboPrices = product.comboPrices
     .filter((c) => {
@@ -70,20 +85,41 @@ export default async function ProductoPage({ params }: Props) {
         {/* Product layout */}
         <div className="grid gap-10 lg:grid-cols-2 lg:gap-16">
 
-          {/* Left: image */}
-          <div className="aspect-square overflow-hidden rounded-2xl bg-gray-50">
-            {product.imageUrl ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img
-                src={product.imageUrl}
-                alt={product.name}
-                className="h-full w-full object-cover"
-              />
-            ) : (
-              <div className="flex h-full w-full items-center justify-center">
-                <div className="flex h-32 w-32 items-center justify-center rounded-3xl bg-white shadow-sm">
-                  <CategoryIcon category={product.category.name} />
+          {/* Left: image + variants tooltip */}
+          <div className="flex flex-col gap-4">
+            <div className="relative aspect-square overflow-hidden rounded-2xl bg-gray-50">
+              {product.imageUrl ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={product.imageUrl}
+                  alt={product.name}
+                  className="h-full w-full object-cover"
+                />
+              ) : (
+                <div className="flex h-full w-full items-center justify-center">
+                  <div className="flex h-32 w-32 items-center justify-center rounded-3xl bg-white shadow-sm">
+                    <CategoryIcon category={product.category.name} />
+                  </div>
                 </div>
+              )}
+            </div>
+
+            {/* Variants chips under image */}
+            {Object.entries(variantGroups).length > 0 && (
+              <div className="flex flex-col gap-2">
+                {Object.entries(variantGroups).map(([attr, values]) => (
+                  <div key={attr} className="flex flex-wrap items-center gap-2">
+                    <span className="text-xs font-black uppercase tracking-wider text-gray-400">{attr}:</span>
+                    {values.map((v) => (
+                      <span
+                        key={v}
+                        className="rounded-full border border-gray-200 px-3 py-1 text-xs font-semibold text-[#1E1E1E]"
+                      >
+                        {v}
+                      </span>
+                    ))}
+                  </div>
+                ))}
               </div>
             )}
           </div>
@@ -106,6 +142,11 @@ export default async function ProductoPage({ params }: Props) {
 
             {/* Price */}
             <div className="mt-6">
+              {comparePrice && comparePrice > price && (
+                <p className="mb-1 text-sm font-semibold text-gray-400 line-through">
+                  {fmt(comparePrice)}
+                </p>
+              )}
               <p className="text-4xl font-black leading-none text-[#1E1E1E]">
                 {fmt(price)}
               </p>
@@ -153,9 +194,20 @@ export default async function ProductoPage({ params }: Props) {
             {/* Divider */}
             <div className="my-6 border-t border-gray-100" />
 
-            {/* Description */}
+            {/* Description — more prominent */}
             {product.description && (
-              <p className="leading-relaxed text-[#555]">{product.description}</p>
+              <div className="rounded-xl bg-gray-50 px-4 py-4">
+                <p className="mb-1.5 text-[10px] font-black uppercase tracking-widest text-gray-400">Descripción</p>
+                <p className="leading-relaxed text-[#1E1E1E]">{product.description}</p>
+              </div>
+            )}
+
+            {/* Additional data */}
+            {product.additionalData && (
+              <div className="mt-3 rounded-xl bg-gray-50 px-4 py-4">
+                <p className="mb-1.5 text-[10px] font-black uppercase tracking-widest text-gray-400">Información adicional</p>
+                <p className="leading-relaxed text-sm text-gray-500">{product.additionalData}</p>
+              </div>
             )}
 
             {/* Stock */}
@@ -190,6 +242,23 @@ export default async function ProductoPage({ params }: Props) {
             </Link>
           </div>
         </div>
+
+        {/* YouTube embed */}
+        {youtubeId && (
+          <div className="mt-12">
+            <p className="mb-4 text-[10px] font-black uppercase tracking-widest text-gray-400">Video del producto</p>
+            <div className="aspect-video w-full overflow-hidden rounded-2xl bg-gray-100">
+              <iframe
+                src={`https://www.youtube.com/embed/${youtubeId}`}
+                title={`Video de ${product.name}`}
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+                className="h-full w-full"
+              />
+            </div>
+          </div>
+        )}
+
       </div>
     </main>
   )

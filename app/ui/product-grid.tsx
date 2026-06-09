@@ -4,9 +4,9 @@ import ProductCard from './product-card'
 
 export default async function ProductGrid() {
   const products = await prisma.product.findMany({
-    where: { featured: true },
+    where: { featured: true, active: true },
     include: { category: true },
-    orderBy: { createdAt: 'desc' },
+    orderBy: { sortOrder: 'asc' },
     take: 6,
   })
 
