@@ -45,6 +45,7 @@ const groups: NavGroup[] = [
     items: [
       { href: '/admin/pedidos', label: 'Pedidos', icon: 'cart' },
       { href: '/admin/turnos', label: 'Turnos', icon: 'calendar' },
+      { href: '/admin/contactos', label: 'Contactos', icon: 'mail' },
     ],
   },
 ]
@@ -208,6 +209,8 @@ function NavIcon({ name, size = 17 }: { name: string; size?: number }) {
       return <svg {...p}><circle cx="9" cy="21" r="1" /><circle cx="20" cy="21" r="1" /><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6" /></svg>
     case 'calendar':
       return <svg {...p}><rect x="3" y="4" width="18" height="18" rx="2" /><line x1="16" y1="2" x2="16" y2="6" /><line x1="8" y1="2" x2="8" y2="6" /><line x1="3" y1="10" x2="21" y2="10" /></svg>
+    case 'mail':
+      return <svg {...p}><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" /><polyline points="22,6 12,13 2,6" /></svg>
     case 'puzzle':
       return <svg {...p}><path d="M20.24 12.24a6 6 0 0 0-8.49-8.49L5 10.5V19h8.5z" /><line x1="16" y1="8" x2="2" y2="22" /><line x1="17.5" y1="15" x2="9" y2="15" /></svg>
     case 'megaphone':
