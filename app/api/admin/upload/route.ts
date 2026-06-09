@@ -44,6 +44,12 @@ export async function POST(req: NextRequest) {
       },
     })
 
+    // Set as main image only if product has none yet
+    await prisma.product.updateMany({
+      where: { id: productId, imageUrl: null },
+      data: { imageUrl: result.secure_url },
+    })
+
     return NextResponse.json(image, { status: 201 })
   } catch (err) {
     console.error('Upload error:', err)

@@ -28,6 +28,7 @@ export default async function ProductoPage({ params }: Props) {
       category: true,
       comboPrices: { orderBy: { quantity: 'asc' } },
       stockItems: { include: { attribute: true } },
+      productImages: { orderBy: { createdAt: 'asc' } },
     },
   })
 
@@ -37,6 +38,7 @@ export default async function ProductoPage({ params }: Props) {
   const price = serialized.price
   const comparePrice = serialized.comparePrice
   const totalStock = product.stockItems.reduce((sum, s) => sum + s.stock, 0)
+  const mainImage = product.imageUrl ?? product.productImages[0]?.url ?? null
   const youtubeId = getYouTubeId(product.videoUrl)
 
   // Group stock variants for display — skip hidden (generic) attributes
@@ -89,10 +91,10 @@ export default async function ProductoPage({ params }: Props) {
           {/* Left: image + variants tooltip */}
           <div className="flex flex-col gap-4">
             <div className="relative aspect-square overflow-hidden rounded-2xl bg-gray-50">
-              {product.imageUrl ? (
+              {mainImage ? (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img
-                  src={product.imageUrl}
+                  src={mainImage}
                   alt={product.name}
                   className="h-full w-full object-cover"
                 />
@@ -228,7 +230,7 @@ export default async function ProductoPage({ params }: Props) {
               productId={product.id}
               name={product.name}
               price={price}
-              imageUrl={product.imageUrl}
+              imageUrl={mainImage}
               comboPrices={comboPrices}
               disabled={totalStock === 0}
               size="lg"
