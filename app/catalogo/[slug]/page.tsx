@@ -3,7 +3,8 @@ import { notFound } from 'next/navigation'
 import { prisma } from '@/lib/prisma'
 import { serializeProduct } from '@/lib/serialize'
 import { CategoryIcon } from '@/app/ui/product-card'
-import AddToCartButton from '@/app/ui/add-to-cart-button'
+import VariantSelector from './variant-selector'
+import ProductActions from './product-actions'
 
 function fmt(n: number) {
   return `$${n.toLocaleString('es-AR')}`
@@ -41,7 +42,7 @@ export default async function ProductoPage({ params }: Props) {
   const mainImage = product.imageUrl ?? product.productImages[0]?.url ?? null
   const youtubeId = getYouTubeId(product.videoUrl)
 
-  // Group stock variants for display — skip hidden (generic) attributes
+  // Group stock variants — skip hidden (generic) attributes
   const variantGroups: Record<string, string[]> = {}
   for (const item of product.stockItems) {
     if (item.attribute.hidden) continue
@@ -88,7 +89,7 @@ export default async function ProductoPage({ params }: Props) {
         {/* Product layout */}
         <div className="grid gap-10 lg:grid-cols-2 lg:gap-16">
 
-          {/* Left: image + variants tooltip */}
+          {/* Left: image + color/variant selector */}
           <div className="flex flex-col gap-4">
             <div className="relative aspect-square overflow-hidden rounded-2xl bg-gray-50">
               {mainImage ? (
@@ -107,24 +108,8 @@ export default async function ProductoPage({ params }: Props) {
               )}
             </div>
 
-            {/* Variants chips under image */}
-            {Object.entries(variantGroups).length > 0 && (
-              <div className="flex flex-col gap-2">
-                {Object.entries(variantGroups).map(([attr, values]) => (
-                  <div key={attr} className="flex flex-wrap items-center gap-2">
-                    <span className="text-xs font-black uppercase tracking-wider text-gray-400">{attr}:</span>
-                    {values.map((v) => (
-                      <span
-                        key={v}
-                        className="rounded-full border border-gray-200 px-3 py-1 text-xs font-semibold text-[#1E1E1E]"
-                      >
-                        {v}
-                      </span>
-                    ))}
-                  </div>
-                ))}
-              </div>
-            )}
+            {/* Interactive variant/color selector */}
+            <VariantSelector variantGroups={variantGroups} />
           </div>
 
           {/* Right: details */}
@@ -158,50 +143,24 @@ export default async function ProductoPage({ params }: Props) {
               </p>
             </div>
 
-            {/* Volume pricing table */}
-            {comboPrices.length > 0 && (
-              <div className="mt-5 overflow-hidden rounded-xl border border-[#0eb1c3]/30 bg-[#f0fbfc]">
-                <div className="border-b border-[#0eb1c3]/20 px-4 py-2.5">
-                  <p className="text-xs font-black uppercase tracking-wider text-[#0eb1c3]">
-                    Precios por volumen
-                  </p>
-                </div>
-                <table className="w-full text-sm">
-                  <thead>
-                    <tr className="border-b border-[#0eb1c3]/10">
-                      <th className="px-4 py-2 text-left text-[10px] font-black uppercase tracking-wider text-gray-400">Cantidad</th>
-                      <th className="px-4 py-2 text-left text-[10px] font-black uppercase tracking-wider text-gray-400">Precio unitario</th>
-                      <th className="px-4 py-2 text-left text-[10px] font-black uppercase tracking-wider text-gray-400">Ahorrás</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-[#0eb1c3]/10">
-                    {comboPrices.map((c) => {
-                      const pct = Math.round((1 - c.price / price) * 100)
-                      return (
-                        <tr key={c.id}>
-                          <td className="px-4 py-2.5 font-bold text-[#1E1E1E]">{c.quantity}+ unidades</td>
-                          <td className="px-4 py-2.5 font-black text-[#1E1E1E]">{fmt(c.price)}</td>
-                          <td className="px-4 py-2.5">
-                            <span className="rounded-full bg-[#0eb1c3] px-2.5 py-0.5 text-xs font-black text-white">
-                              {pct}% off
-                            </span>
-                          </td>
-                        </tr>
-                      )
-                    })}
-                  </tbody>
-                </table>
-              </div>
-            )}
+            {/* Combo table + qty selector + add to cart */}
+            <ProductActions
+              productId={product.id}
+              name={product.name}
+              price={price}
+              imageUrl={mainImage}
+              comboPrices={comboPrices}
+              disabled={totalStock === 0}
+            />
 
             {/* Divider */}
             <div className="my-6 border-t border-gray-100" />
 
-            {/* Description — more prominent */}
+            {/* Description — 2pt bigger font */}
             {product.description && (
               <div className="rounded-xl bg-gray-50 px-4 py-4">
                 <p className="mb-1.5 text-[10px] font-black uppercase tracking-widest text-gray-400">Descripción</p>
-                <p className="leading-relaxed text-[#1E1E1E]">{product.description}</p>
+                <p className="text-lg leading-relaxed text-[#1E1E1E]">{product.description}</p>
               </div>
             )}
 
@@ -209,7 +168,7 @@ export default async function ProductoPage({ params }: Props) {
             {product.additionalData && (
               <div className="mt-3 rounded-xl bg-gray-50 px-4 py-4">
                 <p className="mb-1.5 text-[10px] font-black uppercase tracking-widest text-gray-400">Información adicional</p>
-                <p className="leading-relaxed text-sm text-gray-500">{product.additionalData}</p>
+                <p className="leading-relaxed text-gray-500">{product.additionalData}</p>
               </div>
             )}
 
@@ -225,21 +184,10 @@ export default async function ProductoPage({ params }: Props) {
               </span>
             </div>
 
-            {/* CTA */}
-            <AddToCartButton
-              productId={product.id}
-              name={product.name}
-              price={price}
-              imageUrl={mainImage}
-              comboPrices={comboPrices}
-              disabled={totalStock === 0}
-              size="lg"
-            />
-
             {/* Back link */}
             <Link
               href="/catalogo"
-              className="mt-4 text-center text-sm font-semibold text-gray-400 transition-colors hover:text-[#0eb1c3]"
+              className="mt-6 text-center text-sm font-semibold text-gray-400 transition-colors hover:text-[#0eb1c3]"
             >
               ← Volver al catálogo
             </Link>

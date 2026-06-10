@@ -35,7 +35,7 @@ export function getEffectivePrice(item: CartItem): number {
 
 type CartContextType = {
   items: CartItem[]
-  addItem: (item: Omit<CartItem, 'quantity'>) => void
+  addItem: (item: Omit<CartItem, 'quantity'>, qty?: number) => void
   removeItem: (productId: string) => void
   updateQuantity: (productId: string, quantity: number) => void
   clearCart: () => void
@@ -61,15 +61,15 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     if (hydrated) localStorage.setItem('artentino-cart', JSON.stringify(items))
   }, [items, hydrated])
 
-  function addItem(product: Omit<CartItem, 'quantity'>) {
+  function addItem(product: Omit<CartItem, 'quantity'>, qty = 1) {
     setItems((prev) => {
       const existing = prev.find((i) => i.productId === product.productId)
       if (existing) {
         return prev.map((i) =>
-          i.productId === product.productId ? { ...i, quantity: i.quantity + 1 } : i
+          i.productId === product.productId ? { ...i, quantity: i.quantity + qty } : i
         )
       }
-      return [...prev, { ...product, quantity: 1 }]
+      return [...prev, { ...product, quantity: qty }]
     })
   }
 
