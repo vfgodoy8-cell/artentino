@@ -9,11 +9,10 @@ const navLinks = [
 ]
 
 const helpLinks = [
-  { href: '/faq#envio', label: 'Envíos y entregas' },
+  { href: '/faq#envio', label: 'Envío y seguimiento' },
   { href: '/faq#pago', label: 'Formas de pago' },
-  { href: '/faq#registro', label: 'Registro y cuenta' },
-  { href: '/faq#regalos', label: 'Regalos corporativos' },
-  { href: '/faq#cambios', label: 'Cambios y devoluciones' },
+  { href: '/faq#registro', label: 'Registro y Compras' },
+  { href: '/faq#regalos', label: 'Regalos Corporativos' },
 ]
 
 export default function Footer() {
@@ -35,7 +34,7 @@ export default function Footer() {
             {/* Redes sociales */}
             <div className="mt-5 flex flex-wrap gap-2">
               <a
-                href="https://instagram.com/artentino"
+                href="https://www.instagram.com/artentino"
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="Instagram"
@@ -44,7 +43,7 @@ export default function Footer() {
                 <InstagramIcon />
               </a>
               <a
-                href="https://facebook.com/artentino"
+                href="https://www.facebook.com/artentino"
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="Facebook"
@@ -53,7 +52,7 @@ export default function Footer() {
                 <FacebookIcon />
               </a>
               <a
-                href="https://tiktok.com/@artentino"
+                href="https://www.tiktok.com/@artentino"
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="TikTok"
@@ -62,7 +61,7 @@ export default function Footer() {
                 <TikTokIcon />
               </a>
               <a
-                href="https://youtube.com/@artentino"
+                href="https://www.youtube.com/@artentino_oficial"
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="YouTube"
@@ -71,7 +70,7 @@ export default function Footer() {
                 <YouTubeIcon />
               </a>
               <a
-                href="https://wa.me/5491139363333"
+                href="https://api.whatsapp.com/send?phone=5491139363333"
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="WhatsApp"
@@ -130,23 +129,28 @@ export default function Footer() {
                 <span className="mt-0.5 shrink-0 text-[#0eb1c3]">
                   <PinIcon />
                 </span>
-                <span className="text-sm leading-relaxed text-[#555]">
-                  Cramer 886, Colegiales
+                <a
+                  href="https://maps.app.goo.gl/vYdUfZ1vPTeStfdWA"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-sm leading-relaxed text-[#555] transition-colors hover:text-[#0eb1c3]"
+                >
+                  Cramer 886 — Av. Federico Lacroze
                   <br />
-                  CABA, Argentina
-                </span>
+                  Colegiales, CABA CP 1426
+                </a>
               </li>
               <li className="flex items-center gap-3">
                 <span className="shrink-0 text-[#0eb1c3]">
                   <WhatsAppIcon />
                 </span>
                 <a
-                  href="https://wa.me/5491139363333"
+                  href="https://api.whatsapp.com/send?phone=5491139363333"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-sm text-[#555] transition-colors hover:text-[#0eb1c3]"
                 >
-                  +54 9 11 3936-3333
+                  +54 9 11 3936 3333
                 </a>
               </li>
               <li className="flex items-center gap-3">
