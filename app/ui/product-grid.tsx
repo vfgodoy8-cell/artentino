@@ -6,7 +6,7 @@ export default async function ProductGrid() {
   const products = await prisma.product.findMany({
     where: { featured: true, active: true },
     include: { category: true },
-    orderBy: { sortOrder: 'asc' },
+    orderBy: [{ sortOrder: 'asc' }, { createdAt: 'desc' }],
     take: 6,
   })
 
