@@ -4,19 +4,31 @@ import type { NextAuthRequest } from 'next-auth'
 
 export default auth((req: NextAuthRequest) => {
   const { pathname } = req.nextUrl
+  const isAdminPage = pathname.startsWith('/admin')
+  const isAdminApi = pathname.startsWith('/api/admin')
 
-  if (pathname.startsWith('/admin')) {
-    if (!req.auth) {
-      return NextResponse.redirect(new URL('/login', req.url))
+  if (!isAdminPage && !isAdminApi) return NextResponse.next()
+
+  if (!req.auth) {
+    if (isAdminApi) {
+      return NextResponse.json({ error: 'No autorizado' }, { status: 401 })
     }
-    if (req.auth.user?.role !== 'ADMIN') {
-      return NextResponse.redirect(new URL('/', req.url))
+    const loginUrl = new URL('/login', req.nextUrl)
+    loginUrl.searchParams.set('callbackUrl', pathname)
+    return NextResponse.redirect(loginUrl)
+  }
+
+  const role = (req.auth.user as { role?: string })?.role
+  if (role !== 'ADMIN') {
+    if (isAdminApi) {
+      return NextResponse.json({ error: 'Acceso denegado' }, { status: 403 })
     }
+    return NextResponse.redirect(new URL('/', req.nextUrl))
   }
 
   return NextResponse.next()
 })
 
 export const config = {
-  matcher: ['/((?!api|_next/static|_next/image|.*\\.png$).*)'],
+  matcher: ['/admin/:path*', '/api/admin/:path*'],
 }
