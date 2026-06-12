@@ -16,10 +16,6 @@ export default async function EditarProductoPage({ params }: Props) {
     where: { id },
     include: {
       comboPrices: { orderBy: { quantity: 'asc' } },
-      attributes: {
-        include: { attributeValue: { include: { attribute: true } } },
-        orderBy: { createdAt: 'asc' },
-      },
       stockItems: {
         include: { attribute: true },
         orderBy: { createdAt: 'asc' },
@@ -42,6 +38,7 @@ export default async function EditarProductoPage({ params }: Props) {
   const serializedProduct = {
     id: product.id,
     sku: product.sku ?? id.slice(0, 8).toUpperCase(),
+    slug: product.slug,
     name: product.name,
     categoryId: product.categoryId,
     description: product.description,

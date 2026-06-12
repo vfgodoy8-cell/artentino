@@ -12,6 +12,7 @@ type TabInfoProps = {
   product: {
     id: string
     sku: string
+    slug: string
     name: string
     categoryId: string
     description: string | null
@@ -104,7 +105,7 @@ export default function TabInfo({ product, comboPrices, categories }: TabInfoPro
         width: form.width !== '' ? Number(form.width) : null,
         length: form.length !== '' ? Number(form.length) : null,
         weight: form.weight !== '' ? Number(form.weight) : null,
-      })
+      }, product.slug)
       router.push('/admin/productos')
     })
   }

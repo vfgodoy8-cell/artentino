@@ -11,6 +11,8 @@ export async function createCategory(data: {
 }) {
   await prisma.category.create({ data })
   revalidatePath('/admin/categorias')
+  revalidatePath('/')
+  revalidatePath('/catalogo')
 }
 
 export async function updateCategory(
@@ -19,9 +21,13 @@ export async function updateCategory(
 ) {
   await prisma.category.update({ where: { id }, data })
   revalidatePath('/admin/categorias')
+  revalidatePath('/')
+  revalidatePath('/catalogo')
 }
 
 export async function deleteCategories(ids: string[]) {
   await prisma.category.deleteMany({ where: { id: { in: ids } } })
   revalidatePath('/admin/categorias')
+  revalidatePath('/')
+  revalidatePath('/catalogo')
 }

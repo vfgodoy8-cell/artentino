@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { MercadoPagoConfig, Preference } from 'mercadopago'
-import { sendEmail, purchaseConfirmationEmail } from '@/app/lib/email'
+import { auth } from '@/auth'
+import { prisma } from '@/lib/prisma'
 
 type CartItem = {
   productId: string
@@ -20,8 +21,13 @@ type CheckoutBody = {
   shipping: 'pickup' | 'delivery'
 }
 
+const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL!
+
 export async function POST(req: Request) {
-  console.log('MP Token:', process.env.MP_ACCESS_TOKEN?.substring(0, 20))
+  const session = await auth()
+  if (!session?.user?.id) {
+    return NextResponse.json({ error: 'No autorizado' }, { status: 401 })
+  }
 
   const { items, payer, shipping } = (await req.json()) as CheckoutBody
 
@@ -29,10 +35,26 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: 'Datos incompletos' }, { status: 400 })
   }
 
+  const total = items.reduce((sum, item) => sum + item.price * item.quantity, 0)
+
+  const order = await prisma.order.create({
+    data: {
+      userId: session.user.id,
+      total,
+      shippingMethod: shipping,
+      status: 'PENDING',
+      items: {
+        create: items.map((item) => ({
+          productId: item.productId,
+          quantity: item.quantity,
+          price: item.price,
+        })),
+      },
+    },
+  })
+
   try {
-    const client = new MercadoPagoConfig({
-      accessToken: process.env.MP_ACCESS_TOKEN!,
-    })
+    const client = new MercadoPagoConfig({ accessToken: process.env.MP_ACCESS_TOKEN! })
     const preference = new Preference(client)
 
     const mpItems = items.map((item) => ({
@@ -53,39 +75,30 @@ export async function POST(req: Request) {
       })
     }
 
-    const body = {
-      items: mpItems,
-      payer: {
-        name: payer.name,
-        email: payer.email,
-        phone: { number: payer.phone },
+    const result = await preference.create({
+      body: {
+        items: mpItems,
+        payer: {
+          name: payer.name,
+          email: payer.email,
+          phone: { number: payer.phone },
+        },
+        back_urls: {
+          success: `${BASE_URL}/checkout/success`,
+          failure: `${BASE_URL}/checkout/failure`,
+          pending: `${BASE_URL}/checkout/pending`,
+        },
+        auto_return: 'approved',
+        notification_url: `${BASE_URL}/api/webhook/mercadopago`,
+        external_reference: order.id,
       },
-      back_urls: {
-        success: 'http://localhost:3000/checkout/success',
-        failure: 'http://localhost:3000/checkout/failure',
-        pending: 'http://localhost:3000/checkout/pending',
-      },
-    }
+    })
 
-    console.log('Creating preference with body:', JSON.stringify(body, null, 2))
-
-    const result = await preference.create({ body })
-
-    // In sandbox, init_point redirects to the real MP payment page.
-    // sandbox_init_point stays inside the sandbox environment.
     const initPoint = result.sandbox_init_point ?? result.init_point
-    console.log('Preference created, initPoint:', initPoint?.substring(0, 60))
-
-    const total = items.reduce((sum, item) => sum + item.price * item.quantity, 0)
-    sendEmail({
-      to: payer.email,
-      subject: '¡Gracias por tu compra en Artentino!',
-      html: purchaseConfirmationEmail({ name: payer.name, items, total, shipping }),
-    }).catch((err) => console.error('[email] purchase confirmation failed:', err))
-
     return NextResponse.json({ initPoint })
   } catch (error) {
+    await prisma.order.delete({ where: { id: order.id } })
     console.error('MercadoPago error:', JSON.stringify(error, null, 2))
-    return NextResponse.json({ error: JSON.stringify(error) }, { status: 500 })
+    return NextResponse.json({ error: 'Error al crear la preferencia de pago' }, { status: 500 })
   }
 }

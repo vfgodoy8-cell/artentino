@@ -1,116 +1,84 @@
-# Proyecto Artentino — Contexto
+# Proyecto Artentino — Contexto actualizado 2026-06-10
 
-E-commerce de decoración, hogar y regalos con diseño argentino. Cuotas sin interés, envíos a todo el país.
+E-commerce de decoración, hogar y regalos con diseño argentino.
 
-**Repo:** `C:\proyectos\bardot\artentino\`  
-**Branch activo:** `main`  
-**Último commit:** `a9faf36` — "logo real Artentino integrado en header, footer y admin" (22 mayo 2026)
+**Repo:** `C:\proyectos\bardot\artentino\` · Branch: `main`  
+**Último commit:** `9c6ea6b` — Fix destacados: revalidar home + desempate sortOrder
 
 ---
 
 ## Stack
 
-- **Framework:** Next.js 16.2.5 (App Router) + React 19 + TypeScript
-- **Estilos:** Tailwind CSS 4
-- **DB:** PostgreSQL en Railway vía Prisma (cliente generado en `app/generated/prisma/`)
-- **Auth:** NextAuth con credenciales (email/password, bcrypt)
-- **Pagos:** MercadoPago (modo TEST activo)
-- **Imágenes:** Cloudinary para subida de imágenes de productos
-- **Email:** Resend para confirmaciones y contacto
-- **Deploy:** Vercel (con `prisma generate` en build)
+- Next.js 16.2.5 (App Router) + React 19 + TypeScript
+- Tailwind CSS 4
+- PostgreSQL en Railway · Prisma (cliente en `app/generated/prisma/`)
+- NextAuth (credenciales email/password, bcryptjs)
+- MercadoPago (modo TEST)
+- Cloudinary (imágenes productos, cloud: `dgz7bquai`)
+- Resend (emails)
+- Deploy: Vercel
 
 ---
 
-## Estructura de rutas
+## Rutas públicas
 
-### Públicas
-- `/` — Home con hero, productos destacados, promo cards, marquee
-- `/catalogo` — Listado de productos con barra de categorías
-- `/catalogo/[slug]` — Detalle de producto
-- `/checkout` — Carrito + MercadoPago
-- `/checkout/success|failure|pending` — Resultados del pago
-- `/turnos` — Formulario de turnos (presencial/WhatsApp)
-- `/contacto` — Formulario de contacto (tipo: general/trabajo)
-- `/login`, `/registro`, `/recuperar-contrasena`
-- `/perfil` — Datos del usuario (protegida)
-- `/perfil/pedidos` — Historial de pedidos
-- `/perfil/pedidos/[id]` — Detalle de pedido
+- `/` — Home: hero, destacados (featured+active, `[sortOrder asc, createdAt desc]`, take:6), promo cards
+- `/catalogo` — Listado activos, filtro por categoría
+- `/catalogo/[slug]` — Detalle: variantes, combos "comprá más pagá menos", qty selector, carrito
+- `/faq` — 5 secciones: envío, pago, registro, regalos corporativos, cambios y devoluciones
+- `/checkout`, `/checkout/success|failure|pending`
+- `/turnos`, `/contacto`, `/login`, `/registro`, `/recuperar-contrasena`
+- `/perfil`, `/perfil/pedidos`, `/perfil/pedidos/[id]`
 
-### Admin (protegidas, rol ADMIN)
-- `/admin` — Dashboard con métricas
-- `/admin/productos` — Lista + búsqueda
-- `/admin/productos/nuevo` — Formulario con tabs
-- `/admin/productos/[id]/editar` — Tabs: info, atributos, stock, imágenes
-- `/admin/categorias` — CRUD
-- `/admin/atributos` — CRUD (con flag `filter` para catálogo)
-- `/admin/condicion` — CRUD (badges de estado del producto)
-- `/admin/destacados` — Gestión de productos destacados
+## Rutas admin
 
-### Admin — SIN IMPLEMENTAR (aparecen en sidebar)
-- `/admin/pedidos` — **FALTA** lista + cambio de estado
-- `/admin/turnos` — **FALTA** lista + confirmar/cancelar turno
-- `/admin/contactos` — **FALTA** (modelo Contact existe en DB)
+- `/admin` — Dashboard
+- `/admin/productos` — Lista paginada, filtro activos/inactivos
+- `/admin/productos/nuevo` — Form básico → redirect a editar
+- `/admin/productos/[id]/editar` — Tabs: Información | Stock | Imágenes
+- `/admin/categorias`, `/admin/atributos` (flags filter/hidden, buscador)
+- `/admin/destacados` — Agregar/quitar/reordenar
+- `/admin/pedidos`, `/admin/pedidos/[id]`
+- `/admin/turnos`, `/admin/turnos/[id]`
+- `/admin/contactos` — Bandeja por tipo, mailto
 
 ---
 
-## Modelos Prisma (`prisma/schema.prisma`)
+## Modelos Prisma clave
 
 | Modelo | Notas |
 |---|---|
-| `Category` | `wholesaleActive`, `sortOrder`, `active` |
-| `Product` | precio, comparePrice, cost, wholesalePrice, stock, featured, showPrice, dimensiones, videoUrl |
-| `ProductComboPrice` | precios por cantidad con fechas opcionales |
-| `Attribute` + `AttributeValue` | atributos con flag `filter` para filtrado en catálogo |
-| `ProductAttribute` | relación producto-atributo |
-| `ProductStock` | stock por variante (attributeValue) |
-| `ProductImage` | imágenes extra via Cloudinary |
-| `User` | roles: USER / ADMIN |
-| `Order` + `OrderItem` | estados: PENDING/CONFIRMED/SHIPPED/DELIVERED/CANCELLED |
-| `Appointment` | turnos: PRESENCIAL/WHATSAPP, estados: PENDING/CONFIRMED/CANCELLED |
-| `Contact` | tipos: GENERAL/JOB |
-| `Condition` | badges visuales con colorClass |
+| `Product` | imageUrl (String?), featured, sortOrder, wholesalePrice |
+| `ProductImage` | tabla `product_images`, url, filename — relación 1:N con Product |
+| `Attribute` | `filter` (catálogo público), `hidden` (stock genérico sin variante) |
+| `ProductStock` | unique [productId, attributeId, value] |
+| `Condition` | **ELIMINADO** |
 
 ---
 
-## Componentes UI clave
+## Notas importantes
 
-- `app/ui/header.tsx` — logo `/logo.png`, nav desktop, dropdown usuario, carrito
-- `app/ui/footer.tsx` — logo, links, redes
-- `app/ui/cart-drawer.tsx` — carrito lateral
-- `app/ui/product-card.tsx` — tarjeta de producto
-- `app/ui/whatsapp-button.tsx` — botón flotante
-- `app/context/cart-context.tsx` — estado global del carrito
-- `app/providers.tsx` — SessionProvider de NextAuth
-- `app/admin/sidebar-nav.tsx` — sidebar colapsable con grupos
+**Imágenes:**
+- `product.imageUrl` es la imagen principal (thumbnails admin, cards catálogo).
+- Upload route `/api/admin/upload` → Cloudinary → crea `ProductImage` → sincroniza `imageUrl` si null.
+- Backfill aplicado 2026-06-10: los 2 productos con fotos ya tienen `imageUrl` poblado.
+- 5 productos demo sin imágenes subidas → fallback correcto.
+- `product-card.tsx` usa `<img>` nativo; admin usa `<Image>` (remotePatterns: `res.cloudinary.com`).
 
----
+**Destacados / revalidación:**
+- `addDestacado` y `removeDestacado` llaman `revalidatePath('/')` + `revalidatePath('/admin/destacados')`.
+- Toda acción que cambie datos visibles en el home DEBE revalidar `/`.
 
-## Variables de entorno (.env local)
+**Prisma en scripts Node:**
+- El cliente generado es TypeScript puro, no importable con `require`. Para queries de diagnóstico usar `pg` directo con `DATABASE_URL`.
 
-```
-DATABASE_URL         → Railway PostgreSQL
-AUTH_SECRET          → NextAuth
-MP_ACCESS_TOKEN      → MercadoPago (modo TEST)
-NEXT_PUBLIC_BASE_URL → http://localhost:3001
-RESEND_API_KEY       → Resend
-CLOUDINARY_*         → Cloudinary (cloud, api_key, api_secret)
-```
+**Stock sin variante:**
+- `upsertGenericStock(productId, qty)` crea automáticamente un `Attribute` con `hidden:true` llamado "Genérico".
 
 ---
 
-## Pendientes priorizados
+## Dev
 
-### Alta (funcional para operar el negocio)
-1. **`/admin/pedidos`** — lista, filtro por estado, cambio de estado, detalle
-2. **`/admin/turnos`** — lista, confirmar/cancelar, vista por fecha
-
-### Media
-3. **`/admin/contactos`** — ver mensajes recibidos
-4. **Filtros por atributos en catálogo** — el flag `filter` en `Attribute` ya está listo en DB
-
-### "Pronto" (sidebar placeholders)
-5. **Marcas** — requiere nuevo modelo en Prisma
-6. **Import / Export** de productos (CSV)
-
-### Grupos vacíos en sidebar
-7. **Extensión**, **Marketing** (banners, cupones), **Sistema** (config de tienda)
+- Puerto local: 3001 (`npm run dev`)
+- Admin de prueba: `admin@test.com` / `admin1234` / ADMIN
+- DB push: `npx prisma db push --accept-data-loss`

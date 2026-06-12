@@ -18,4 +18,5 @@ export async function removeDestacado(id: string) {
 export async function updateDestacadoOrder(id: string, sortOrder: number) {
   await prisma.product.update({ where: { id }, data: { sortOrder } })
   revalidatePath('/admin/destacados')
+  revalidatePath('/')
 }

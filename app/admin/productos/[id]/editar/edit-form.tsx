@@ -17,6 +17,7 @@ type EditFormProps = {
   product: {
     id: string
     sku: string
+    slug: string
     name: string
     categoryId: string
     description: string | null

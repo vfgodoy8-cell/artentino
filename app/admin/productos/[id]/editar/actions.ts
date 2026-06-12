@@ -22,6 +22,7 @@ export async function updateProductInfo(
     length: number | null
     weight: number | null
   },
+  slug: string,
 ) {
   await prisma.product.update({
     where: { id },
@@ -43,6 +44,9 @@ export async function updateProductInfo(
   })
   revalidatePath('/admin/productos')
   revalidatePath(`/admin/productos/${id}/editar`)
+  revalidatePath('/')
+  revalidatePath('/catalogo')
+  revalidatePath(`/catalogo/${slug}`)
 }
 
 // ─── Combo prices ────────────────────────────────────────────────────────────
