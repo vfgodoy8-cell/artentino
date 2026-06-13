@@ -16,7 +16,7 @@ export default async function globalSetup() {
   const cwd = path.resolve(__dirname, '..')
 
   console.log('\n[setup] Reseteando base de datos de test...')
-  execSync('npx prisma db push --force-reset --skip-generate', { env, cwd, stdio: 'inherit' })
+  execSync(`npx prisma db push --force-reset --url "${testDbUrl}"`, { env, cwd, stdio: 'inherit' })
 
   console.log('[setup] Ejecutando seed de test...')
   execSync('npx tsx prisma/seed-test.ts', { env, cwd, stdio: 'inherit' })
