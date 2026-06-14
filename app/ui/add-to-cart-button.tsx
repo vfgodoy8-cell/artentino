@@ -10,7 +10,7 @@ type Props = {
   imageUrl: string | null
   comboPrices?: ComboPrice[]
   disabled?: boolean
-  size?: 'sm' | 'lg'
+  size?: 'sm' | 'lg' | 'icon'
 }
 
 // Shared transition for the crossfading content spans
@@ -33,6 +33,27 @@ export default function AddToCartButton({
     addItem({ productId, name, price, imageUrl, comboPrices })
     setAdded(true)
     setTimeout(() => setAdded(false), 1500)
+  }
+
+  if (size === 'icon') {
+    return (
+      <button
+        onClick={handleClick}
+        disabled={disabled}
+        aria-label="Agregar al carrito"
+        className={`relative flex h-9 w-9 items-center justify-center rounded-full bg-white shadow-[0_2px_8px_rgba(0,0,0,0.12)]
+          transition-[transform,color,background-color] duration-[160ms] [transition-timing-function:cubic-bezier(0.23,1,0.32,1)]
+          active:scale-[0.90] disabled:opacity-40
+          ${added ? 'bg-[#0eb1c3] text-white' : 'text-[#1E1E1E] hover:text-[#0eb1c3]'}`}
+      >
+        <span className={`absolute inset-0 flex items-center justify-center transition-[opacity,transform] duration-[150ms] ${added ? 'scale-90 opacity-0' : 'scale-100 opacity-100'}`}>
+          <PlusIcon />
+        </span>
+        <span className={`absolute inset-0 flex items-center justify-center transition-[opacity,transform] duration-[150ms] ${added ? 'scale-100 opacity-100' : 'scale-90 opacity-0'}`}>
+          <CheckIcon size={12} />
+        </span>
+      </button>
+    )
   }
 
   if (size === 'lg') {
@@ -99,6 +120,15 @@ export default function AddToCartButton({
         Agregado
       </span>
     </button>
+  )
+}
+
+function PlusIcon() {
+  return (
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
+      <line x1="12" y1="5" x2="12" y2="19" />
+      <line x1="5" y1="12" x2="19" y2="12" />
+    </svg>
   )
 }
 

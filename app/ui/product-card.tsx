@@ -1,4 +1,4 @@
-﻿import Link from 'next/link'
+import Link from 'next/link'
 import AddToCartButton from './add-to-cart-button'
 
 type ProductCardProps = {
@@ -6,6 +6,7 @@ type ProductCardProps = {
   name: string
   slug: string
   price: number
+  comparePrice?: number | null
   imageUrl: string | null
   category: { name: string; slug: string }
 }
@@ -14,23 +15,20 @@ function fmt(n: number) {
   return `$${n.toLocaleString('es-AR')}`
 }
 
-export default function ProductCard({ id, name, slug, price, imageUrl, category }: ProductCardProps) {
-  const priceNum = price
+export default function ProductCard({ id, name, slug, price, comparePrice, imageUrl, category }: ProductCardProps) {
+  const hasDiscount = comparePrice != null && comparePrice > price
 
   return (
-    <article
-      key={id}
-      className="group flex flex-col overflow-hidden rounded-2xl border border-gray-100 bg-white transition-[transform,box-shadow] duration-[300ms] [transition-timing-function:var(--ease-out)] hover:-translate-y-1 hover:shadow-[0_12px_32px_-4px_rgba(0,0,0,0.08)]"
-    >
+    <article className="group flex flex-col overflow-hidden rounded-2xl bg-white transition-[transform,box-shadow] duration-[300ms] [transition-timing-function:var(--ease-out)] hover:-translate-y-1 hover:shadow-[0_16px_40px_rgba(0,0,0,0.10)]">
+
       {/* Image area */}
       <Link href={`/catalogo/${slug}`} className="block">
-        <div className="relative aspect-square overflow-hidden bg-gray-50">
-          <span
-            className="absolute left-3 top-3 z-10 rounded-full px-2.5 py-1 text-[10px] font-black uppercase text-white"
-            style={{ backgroundColor: '#0eb1c3' }}
-          >
-            {category.name}
-          </span>
+        <div className="relative aspect-[3/4] overflow-hidden bg-[#f5f3f0]">
+
+          {/* Quick-add button — aparece en hover */}
+          <div className="absolute right-3 top-3 z-10 opacity-0 transition-opacity duration-200 group-hover:opacity-100">
+            <AddToCartButton productId={id} name={name} price={price} imageUrl={imageUrl} size="icon" />
+          </div>
 
           {imageUrl ? (
             // eslint-disable-next-line @next/next/no-img-element
@@ -46,23 +44,33 @@ export default function ProductCard({ id, name, slug, price, imageUrl, category 
               </div>
             </div>
           )}
+
+          {/* Category label — bottom glassmorphism */}
+          <span className="absolute bottom-3 left-3 z-10 rounded-[6px] bg-[#0eb1c3]/90 px-2.5 py-1 text-[10px] font-black uppercase tracking-[0.12em] text-white backdrop-blur-sm">
+            {category.name}
+          </span>
         </div>
       </Link>
 
       {/* Card body */}
       <div className="flex flex-1 flex-col p-4">
         <Link href={`/catalogo/${slug}`}>
-          <p className="mb-4 line-clamp-2 text-sm font-bold leading-snug text-[#1E1E1E] transition-colors hover:text-[#0eb1c3]">
+          <p className="mb-3 line-clamp-2 text-sm font-bold leading-snug text-[#1E1E1E] transition-colors hover:text-[#0eb1c3]">
             {name}
           </p>
         </Link>
 
         <div className="mt-auto">
-          <p className="text-2xl font-black leading-none text-[#1E1E1E]">{fmt(priceNum)}</p>
-          <p className="mt-1.5 text-xs text-gray-400">
-            6x {fmt(Math.round(priceNum / 6))} sin interés
+          <div className="flex items-baseline gap-2">
+            <p className="text-xl font-black leading-none text-[#1E1E1E]">{fmt(price)}</p>
+            {hasDiscount && (
+              <p className="text-xs font-semibold text-[#9ca3af] line-through">{fmt(comparePrice!)}</p>
+            )}
+          </div>
+          <p className="mt-1.5 text-xs text-[#9ca3af]">
+            6x {fmt(Math.round(price / 6))} sin interés
           </p>
-          <AddToCartButton productId={id} name={name} price={priceNum} imageUrl={imageUrl} />
+          <AddToCartButton productId={id} name={name} price={price} imageUrl={imageUrl} />
         </div>
       </div>
     </article>

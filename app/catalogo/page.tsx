@@ -27,19 +27,23 @@ export default async function CatalogoPage({ searchParams }: Props) {
   return (
     <main className="min-h-dvh bg-white">
 
-      {/* Page header */}
-      <div className="border-b border-gray-100">
-        <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
-          <p
-            className="mb-1 text-[11px] font-black uppercase tracking-[0.25em]"
-            style={{ color: '#0eb1c3' }}
-          >
+      {/* Atmospheric header */}
+      <div className="relative h-[200px] overflow-hidden">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src="/hero-product.jpg"
+          alt="Catálogo Artentino"
+          className="h-full w-full object-cover object-center"
+        />
+        <div className="absolute inset-0 bg-gradient-to-r from-white/[0.98] via-white/70 to-white/10" />
+        <div className="absolute inset-0 flex flex-col justify-center px-6 sm:px-10 lg:px-16">
+          <p className="mb-2 text-[10px] font-black uppercase tracking-[0.3em] text-[#0eb1c3]">
             Artentino
           </p>
-          <h1 className="text-balance text-3xl font-black uppercase tracking-wide text-[#1E1E1E] sm:text-4xl">
+          <h1 className="text-balance text-3xl font-black tracking-[-0.02em] text-[#1E1E1E] sm:text-4xl">
             {activeCategory ? activeCategory.name : 'Catálogo'}
           </h1>
-          <p className="mt-1 text-sm text-gray-400">
+          <p className="mt-1.5 text-sm text-[#9ca3af]">
             {products.length} {products.length === 1 ? 'producto' : 'productos'}
           </p>
         </div>
