@@ -26,7 +26,7 @@ export default function ProductCard({ id, name, slug, price, imageUrl, category 
       <Link href={`/catalogo/${slug}`} className="block">
         <div className="relative aspect-square overflow-hidden bg-gray-50">
           <span
-            className="absolute left-3 top-3 z-10 rounded-full px-2.5 py-1 text-[9px] font-black uppercase tracking-wider text-white"
+            className="absolute left-3 top-3 z-10 rounded-full px-2.5 py-1 text-[10px] font-black uppercase text-white"
             style={{ backgroundColor: '#0eb1c3' }}
           >
             {category.name}

@@ -82,7 +82,7 @@ export default function CheckoutClient() {
   }
 
   return (
-    <main className="min-h-screen bg-[#F7F7F7]">
+    <main className="min-h-dvh bg-[#F7F7F7]">
       <div className="mx-auto max-w-3xl px-4 py-10 sm:px-6">
 
         {/* Header */}
@@ -142,7 +142,7 @@ export default function CheckoutClient() {
                       required
                       value={contact.name}
                       onChange={(e) => setContact({ ...contact, name: e.target.value })}
-                      className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm font-semibold text-[#1E1E1E] outline-none focus:border-[#0eb1c3]"
+                      className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm font-semibold text-[#1E1E1E] outline-none focus:border-[#0eb1c3] focus:ring-2 focus:ring-[#0eb1c3]/20"
                     />
                   </div>
                   <div>
@@ -152,7 +152,7 @@ export default function CheckoutClient() {
                       required
                       value={contact.surname}
                       onChange={(e) => setContact({ ...contact, surname: e.target.value })}
-                      className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm font-semibold text-[#1E1E1E] outline-none focus:border-[#0eb1c3]"
+                      className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm font-semibold text-[#1E1E1E] outline-none focus:border-[#0eb1c3] focus:ring-2 focus:ring-[#0eb1c3]/20"
                     />
                   </div>
                   <div className="col-span-2">
@@ -162,7 +162,7 @@ export default function CheckoutClient() {
                       required
                       value={contact.email}
                       onChange={(e) => setContact({ ...contact, email: e.target.value })}
-                      className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm font-semibold text-[#1E1E1E] outline-none focus:border-[#0eb1c3]"
+                      className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm font-semibold text-[#1E1E1E] outline-none focus:border-[#0eb1c3] focus:ring-2 focus:ring-[#0eb1c3]/20"
                     />
                   </div>
                   <div className="col-span-2">
@@ -171,7 +171,7 @@ export default function CheckoutClient() {
                       type="tel"
                       value={contact.phone}
                       onChange={(e) => setContact({ ...contact, phone: e.target.value })}
-                      className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm font-semibold text-[#1E1E1E] outline-none focus:border-[#0eb1c3]"
+                      className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm font-semibold text-[#1E1E1E] outline-none focus:border-[#0eb1c3] focus:ring-2 focus:ring-[#0eb1c3]/20"
                     />
                   </div>
                 </div>
@@ -389,7 +389,14 @@ export default function CheckoutClient() {
                     className="flex-[2] rounded-2xl py-4 text-sm font-black uppercase tracking-widest text-white transition-opacity disabled:opacity-60 hover:opacity-85"
                     style={{ backgroundColor: '#0eb1c3' }}
                   >
-                    {loading ? 'Procesando...' : 'Pagar con MercadoPago'}
+                    {loading ? (
+                    <span className="flex items-center justify-center gap-2">
+                      <svg className="h-4 w-4 animate-spin" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
+                        <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83" />
+                      </svg>
+                      Procesando...
+                    </span>
+                  ) : 'Pagar con MercadoPago'}
                   </button>
                 </div>
               </div>

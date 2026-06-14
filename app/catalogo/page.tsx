@@ -25,7 +25,7 @@ export default async function CatalogoPage({ searchParams }: Props) {
   const activeCategory = categories.find((c) => c.slug === categoria)
 
   return (
-    <main className="min-h-screen bg-white">
+    <main className="min-h-dvh bg-white">
 
       {/* Page header */}
       <div className="border-b border-gray-100">
@@ -36,7 +36,7 @@ export default async function CatalogoPage({ searchParams }: Props) {
           >
             Artentino
           </p>
-          <h1 className="text-3xl font-black uppercase tracking-wide text-[#1E1E1E] sm:text-4xl">
+          <h1 className="text-balance text-3xl font-black uppercase tracking-wide text-[#1E1E1E] sm:text-4xl">
             {activeCategory ? activeCategory.name : 'Catálogo'}
           </h1>
           <p className="mt-1 text-sm text-gray-400">

@@ -76,7 +76,7 @@ export default function AddToCartButton({
       className={`relative mt-4 w-full overflow-hidden rounded-xl py-3 text-xs font-black uppercase tracking-widest text-white
         transition-[transform,background-color] duration-[180ms] [transition-timing-function:cubic-bezier(0.23,1,0.32,1)]
         active:scale-[0.97] disabled:opacity-40
-        ${added ? 'bg-[#1E1E1E]' : 'bg-[#1E1E1E] hover:bg-[#0eb1c3]'}`}
+        ${added ? 'bg-[#1E1E1E]' : 'bg-[#0eb1c3] hover:bg-[#0a8f9e]'}`}
     >
       {/* Default label */}
       <span

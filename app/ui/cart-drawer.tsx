@@ -64,12 +64,13 @@ export default function CartDrawer({ open, onClose }: Props) {
                 <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6" />
               </svg>
               <p className="text-sm font-bold text-gray-400">Tu carrito está vacío</p>
-              <button
+              <Link
+                href="/catalogo"
                 onClick={onClose}
                 className="mt-2 rounded-xl bg-[#0eb1c3] px-6 py-2.5 text-sm font-black uppercase tracking-widest text-white transition-[transform,background-color] duration-[160ms] [transition-timing-function:var(--ease-out)] hover:bg-[#0ca3b4] active:scale-[0.97]"
               >
                 Ver catálogo
-              </button>
+              </Link>
             </div>
           ) : (
             <ul className="space-y-4">

@@ -6,8 +6,8 @@ import ProductGrid from './ui/product-grid'
 export default function Home() {
   return (
     <>
-      <CategoryBar />
       <Hero />
+      <CategoryBar />
       <ProductGrid />
       <PromoCards />
     </>

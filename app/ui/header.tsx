@@ -3,6 +3,7 @@
 import { useState, useRef, useEffect } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
+import { usePathname } from 'next/navigation'
 import { useSession } from 'next-auth/react'
 import { useCart } from '@/app/context/cart-context'
 import { logout } from '@/app/actions/auth'
@@ -22,7 +23,9 @@ export default function Header() {
   const dropdownRef = useRef<HTMLDivElement>(null)
   const { getItemCount } = useCart()
   const { data: session } = useSession()
+  const pathname = usePathname()
   const cartCount = getItemCount()
+  const isActive = (href: string) => href === '/' ? pathname === '/' : pathname.startsWith(href)
   const firstName = session?.user?.name?.split(' ')[0] ?? ''
 
   useEffect(() => {
@@ -52,7 +55,9 @@ export default function Header() {
                 <Link
                   key={link.href}
                   href={link.href}
-                  className="text-sm font-bold uppercase tracking-widest text-[#1E1E1E] transition-colors hover:text-[#0eb1c3]"
+                  className={`text-sm font-bold uppercase tracking-widest transition-colors hover:text-[#0eb1c3] ${
+                    isActive(link.href) ? 'text-[#0eb1c3]' : 'text-[#1E1E1E]'
+                  }`}
                 >
                   {link.label}
                 </Link>
@@ -158,7 +163,9 @@ export default function Header() {
                 key={link.href}
                 href={link.href}
                 onClick={() => setMenuOpen(false)}
-                className="flex items-center border-b border-gray-50 py-4 text-sm font-bold uppercase tracking-widest text-[#1E1E1E] transition-colors hover:text-[#0eb1c3] last:border-0"
+                className={`flex items-center border-b border-gray-50 py-4 text-sm font-bold uppercase tracking-widest transition-colors hover:text-[#0eb1c3] last:border-0 ${
+                  isActive(link.href) ? 'text-[#0eb1c3]' : 'text-[#1E1E1E]'
+                }`}
               >
                 {link.label}
               </Link>

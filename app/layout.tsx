@@ -24,6 +24,21 @@ export const metadata: Metadata = {
   title: "Artentino — Deco, hogar y regalos únicos",
   description:
     "Explorá nuestro catálogo de deco, hogar y regalos únicos. Cuotas sin interés, envíos a todo el país y showroom en Colegiales CABA.",
+  openGraph: {
+    title: "Artentino — Deco, hogar y regalos únicos",
+    description:
+      "Explorá nuestro catálogo de deco, hogar y regalos únicos. Cuotas sin interés, envíos a todo el país y showroom en Colegiales CABA.",
+    images: [{ url: "/og-image.jpg", width: 1200, height: 630, alt: "Artentino" }],
+    locale: "es_AR",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Artentino — Deco, hogar y regalos únicos",
+    description:
+      "Explorá nuestro catálogo de deco, hogar y regalos únicos. Cuotas sin interés, envíos a todo el país y showroom en Colegiales CABA.",
+    images: ["/og-image.jpg"],
+  },
 };
 
 export default function RootLayout({

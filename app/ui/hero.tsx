@@ -19,11 +19,13 @@ export default function Hero() {
         >
           Arte · Diseño · Hogar
         </p>
-        <h1 className="mb-5 text-4xl font-black leading-[1.1] text-white sm:text-6xl">
-          Deco, hogar y
-          <br className="hidden sm:block" /> regalos únicos
+        <h1 className="mb-5 text-balance text-4xl font-black leading-[1.1] text-white sm:text-6xl">
+          Deco, hogar y<br />
+          <span className="font-[family-name:var(--font-script)] text-5xl font-normal sm:text-7xl">
+            regalos únicos
+          </span>
         </h1>
-        <p className="mx-auto mb-10 max-w-md text-base leading-relaxed text-white/50">
+        <p className="mx-auto mb-10 max-w-md text-base leading-relaxed text-white/75">
           Descubrí piezas únicas para tu hogar. Envíos a todo el país, cuotas
           sin interés y showroom en Colegiales CABA.
         </p>
@@ -52,7 +54,7 @@ export default function Hero() {
               <div className="text-2xl font-black text-white sm:text-3xl">
                 {stat.value}
               </div>
-              <div className="mt-1 text-[10px] font-semibold uppercase tracking-widest text-white/35">
+              <div className="mt-1 text-[10px] font-semibold uppercase tracking-widest text-white/55">
                 {stat.label}
               </div>
             </div>
