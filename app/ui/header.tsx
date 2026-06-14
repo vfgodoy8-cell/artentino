@@ -68,7 +68,7 @@ export default function Header() {
                   <>
                     <button
                       onClick={() => setDropdownOpen((v) => !v)}
-                      className="flex items-center gap-2 rounded-full border border-gray-200 px-4 py-2 text-sm font-black text-[#1E1E1E] transition-colors hover:border-[#0eb1c3] hover:text-[#0eb1c3]"
+                      className="flex items-center gap-2 rounded-full border border-gray-200 px-4 py-2 text-sm font-black text-[#1E1E1E] transition-[transform,color,border-color] duration-[160ms] [transition-timing-function:var(--ease-out)] hover:border-[#0eb1c3] hover:text-[#0eb1c3] active:scale-[0.97]"
                     >
                       <UserIcon />
                       {firstName}
@@ -112,7 +112,7 @@ export default function Header() {
                 ) : (
                   <Link
                     href="/login"
-                    className="rounded-full border border-gray-200 px-4 py-2 text-sm font-black text-[#1E1E1E] transition-colors hover:border-[#0eb1c3] hover:text-[#0eb1c3]"
+                    className="rounded-full border border-gray-200 px-4 py-2 text-sm font-black text-[#1E1E1E] transition-[transform,color,border-color] duration-[160ms] [transition-timing-function:var(--ease-out)] hover:border-[#0eb1c3] hover:text-[#0eb1c3] active:scale-[0.97]"
                   >
                     Ingresar
                   </Link>
@@ -123,8 +123,7 @@ export default function Header() {
               <button
                 aria-label="Ver carrito"
                 onClick={() => setCartOpen(true)}
-                className="relative flex h-10 w-10 items-center justify-center rounded-full text-white transition-opacity hover:opacity-85"
-                style={{ backgroundColor: '#0eb1c3' }}
+                className="relative flex h-10 w-10 items-center justify-center rounded-full bg-[#0eb1c3] text-white transition-[transform,background-color] duration-[160ms] [transition-timing-function:var(--ease-out)] hover:bg-[#0ca3b4] active:scale-[0.90]"
               >
                 <CartIcon />
                 {cartCount > 0 && (

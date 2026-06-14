@@ -69,7 +69,7 @@ export default function EditForm(props: EditFormProps) {
               key={tab.id}
               type="button"
               onClick={() => setActiveTab(tab.id)}
-              className={`border-b-2 px-6 py-3 text-sm font-bold transition-colors ${
+              className={`border-b-2 px-6 py-3 text-sm font-bold transition-[transform,color,border-color] duration-[160ms] [transition-timing-function:var(--ease-out)] active:scale-[0.97] ${
                 activeTab === tab.id
                   ? 'border-[#0eb1c3] text-[#0eb1c3]'
                   : 'border-transparent text-gray-400 hover:text-[#1E1E1E]'
@@ -81,7 +81,7 @@ export default function EditForm(props: EditFormProps) {
         </nav>
       </div>
 
-      <div>
+      <div key={activeTab} className="animate-tab-enter">
         {activeTab === 'info' && (
           <TabInfo
             product={props.product}

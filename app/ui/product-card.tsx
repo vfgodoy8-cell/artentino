@@ -20,7 +20,7 @@ export default function ProductCard({ id, name, slug, price, imageUrl, category 
   return (
     <article
       key={id}
-      className="group flex flex-col overflow-hidden rounded-2xl border border-gray-100 bg-white transition-all duration-300 hover:-translate-y-1 hover:shadow-xl"
+      className="group flex flex-col overflow-hidden rounded-2xl border border-gray-100 bg-white transition-[transform,box-shadow] duration-[300ms] [transition-timing-function:var(--ease-out)] hover:-translate-y-1 hover:shadow-[0_12px_32px_-4px_rgba(0,0,0,0.08)]"
     >
       {/* Image area */}
       <Link href={`/catalogo/${slug}`} className="block">
@@ -34,7 +34,11 @@ export default function ProductCard({ id, name, slug, price, imageUrl, category 
 
           {imageUrl ? (
             // eslint-disable-next-line @next/next/no-img-element
-            <img src={imageUrl} alt={name} className="h-full w-full object-cover" />
+            <img
+              src={imageUrl}
+              alt={name}
+              className="h-full w-full object-cover transition-[transform] duration-[400ms] [transition-timing-function:var(--ease-out)] group-hover:scale-[1.04]"
+            />
           ) : (
             <div className="flex h-full w-full items-center justify-center">
               <div className="flex h-20 w-20 items-center justify-center rounded-2xl bg-white shadow-sm">

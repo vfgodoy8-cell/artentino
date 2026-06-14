@@ -18,18 +18,18 @@ export default function CartDrawer({ open, onClose }: Props) {
 
   return (
     <>
-      {/* Overlay */}
+      {/* Overlay — fades faster than the drawer slides in */}
       <div
         onClick={onClose}
-        className={`fixed inset-0 z-[100] bg-black/40 transition-opacity duration-300 ${
-          open ? 'opacity-100' : 'pointer-events-none opacity-0'
+        className={`fixed inset-0 z-[100] bg-black/40 transition-[opacity] [transition-timing-function:var(--ease-out)] ${
+          open ? 'opacity-100 duration-[260ms]' : 'pointer-events-none opacity-0 duration-[200ms]'
         }`}
       />
 
-      {/* Drawer */}
+      {/* Drawer — iOS-weight easing, asymmetric enter/exit durations */}
       <div
-        className={`fixed inset-y-0 right-0 z-[101] flex w-full max-w-sm flex-col bg-white shadow-2xl transition-transform duration-300 ${
-          open ? 'translate-x-0' : 'translate-x-full'
+        className={`fixed inset-y-0 right-0 z-[101] flex w-full max-w-sm flex-col bg-white shadow-2xl transition-[transform] [transition-timing-function:var(--ease-drawer)] ${
+          open ? 'translate-x-0 duration-[380ms]' : 'translate-x-full duration-[280ms]'
         }`}
       >
         {/* Header */}
@@ -45,7 +45,7 @@ export default function CartDrawer({ open, onClose }: Props) {
           <button
             onClick={onClose}
             aria-label="Cerrar carrito"
-            className="flex h-9 w-9 items-center justify-center rounded-full border border-gray-200 text-gray-400 transition-colors hover:border-[#1E1E1E] hover:text-[#1E1E1E]"
+            className="flex h-9 w-9 items-center justify-center rounded-full border border-gray-200 text-gray-400 transition-[transform,color,border-color] duration-[160ms] [transition-timing-function:var(--ease-out)] hover:border-[#1E1E1E] hover:text-[#1E1E1E] active:scale-[0.90]"
           >
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
               <line x1="18" y1="6" x2="6" y2="18" />
@@ -66,8 +66,7 @@ export default function CartDrawer({ open, onClose }: Props) {
               <p className="text-sm font-bold text-gray-400">Tu carrito está vacío</p>
               <button
                 onClick={onClose}
-                className="mt-2 text-sm font-black uppercase tracking-widest text-white rounded-xl px-6 py-2.5 transition-opacity hover:opacity-85"
-                style={{ backgroundColor: '#0eb1c3' }}
+                className="mt-2 rounded-xl bg-[#0eb1c3] px-6 py-2.5 text-sm font-black uppercase tracking-widest text-white transition-[transform,background-color] duration-[160ms] [transition-timing-function:var(--ease-out)] hover:bg-[#0ca3b4] active:scale-[0.97]"
               >
                 Ver catálogo
               </button>
@@ -117,7 +116,7 @@ export default function CartDrawer({ open, onClose }: Props) {
                         <div className="flex items-center rounded-lg border border-gray-200">
                           <button
                             onClick={() => updateQuantity(item.productId, item.quantity - 1)}
-                            className="flex h-7 w-7 items-center justify-center text-gray-500 transition-colors hover:text-[#1E1E1E]"
+                            className="flex h-7 w-7 items-center justify-center text-gray-500 transition-[transform,color] duration-[160ms] [transition-timing-function:var(--ease-out)] hover:text-[#1E1E1E] active:scale-[0.85]"
                           >
                             <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><line x1="5" y1="12" x2="19" y2="12" /></svg>
                           </button>
@@ -126,14 +125,14 @@ export default function CartDrawer({ open, onClose }: Props) {
                           </span>
                           <button
                             onClick={() => updateQuantity(item.productId, item.quantity + 1)}
-                            className="flex h-7 w-7 items-center justify-center text-gray-500 transition-colors hover:text-[#1E1E1E]"
+                            className="flex h-7 w-7 items-center justify-center text-gray-500 transition-[transform,color] duration-[160ms] [transition-timing-function:var(--ease-out)] hover:text-[#1E1E1E] active:scale-[0.85]"
                           >
                             <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" /></svg>
                           </button>
                         </div>
                         <button
                           onClick={() => removeItem(item.productId)}
-                          className="text-xs font-semibold text-red-400 transition-colors hover:text-red-600"
+                          className="text-xs font-semibold text-red-400 transition-[transform,color] duration-[160ms] [transition-timing-function:var(--ease-out)] hover:text-red-600 active:scale-[0.90]"
                         >
                           Eliminar
                         </button>
@@ -161,14 +160,13 @@ export default function CartDrawer({ open, onClose }: Props) {
             <Link
               href="/checkout"
               onClick={onClose}
-              className="block w-full rounded-2xl py-4 text-center text-sm font-black uppercase tracking-widest text-white transition-opacity hover:opacity-85"
-              style={{ backgroundColor: '#0eb1c3' }}
+              className="block w-full rounded-2xl bg-[#0eb1c3] py-4 text-center text-sm font-black uppercase tracking-widest text-white transition-[transform,background-color] duration-[180ms] [transition-timing-function:var(--ease-out)] hover:bg-[#0ca3b4] active:scale-[0.97]"
             >
               Ir al checkout
             </Link>
             <button
               onClick={onClose}
-              className="mt-3 w-full rounded-2xl border border-gray-200 py-3.5 text-sm font-bold text-[#1E1E1E] transition-colors hover:border-[#0eb1c3] hover:text-[#0eb1c3]"
+              className="mt-3 w-full rounded-2xl border border-gray-200 py-3.5 text-sm font-bold text-[#1E1E1E] transition-[transform,color,border-color] duration-[160ms] [transition-timing-function:var(--ease-out)] hover:border-[#0eb1c3] hover:text-[#0eb1c3] active:scale-[0.97]"
             >
               Seguir comprando
             </button>
