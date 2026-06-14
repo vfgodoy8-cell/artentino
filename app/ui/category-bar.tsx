@@ -1,3 +1,4 @@
+import { Suspense } from 'react'
 import { prisma } from '@/lib/prisma'
 import CategoryBarPills from './category-bar-pills'
 
@@ -11,7 +12,9 @@ export default async function CategoryBar() {
   return (
     <div className="border-b border-gray-100 bg-white">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <CategoryBarPills categories={categories} />
+        <Suspense fallback={<div className="py-3 h-[46px]" />}>
+          <CategoryBarPills categories={categories} />
+        </Suspense>
       </div>
     </div>
   )

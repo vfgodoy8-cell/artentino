@@ -21,6 +21,7 @@ const dancingScript = Dancing_Script({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL(process.env.NEXT_PUBLIC_BASE_URL ?? 'https://artentino.com'),
   title: "Artentino — Deco, hogar y regalos únicos",
   description:
     "Explorá nuestro catálogo de deco, hogar y regalos únicos. Cuotas sin interés, envíos a todo el país y showroom en Colegiales CABA.",
