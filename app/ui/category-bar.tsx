@@ -3,7 +3,10 @@ import CategoryBarPills from './category-bar-pills'
 
 export default async function CategoryBar() {
   const dbCategories = await prisma.category.findMany({ orderBy: { name: 'asc' } })
-  const categories = ['Todos', ...dbCategories.map((c) => c.name)]
+  const categories = [
+    { name: 'Todos', slug: null },
+    ...dbCategories.map((c) => ({ name: c.name, slug: c.slug })),
+  ]
 
   return (
     <div className="border-b border-gray-100 bg-white">

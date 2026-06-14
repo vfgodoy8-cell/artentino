@@ -10,7 +10,7 @@ test.describe('Catálogo — listado, filtro y detalle', () => {
 
   test('filtra por categoría al hacer click en el pill', async ({ page }) => {
     await page.goto('/catalogo')
-    await page.getByRole('link', { name: 'Espejos LED' }).click()
+    await page.locator('a[href="/catalogo?categoria=espejos-led"]').click()
     await expect(page).toHaveURL(/categoria=espejos-led/)
     await expect(page.getByRole('heading', { name: 'Espejos LED' })).toBeVisible()
     await expect(page.getByText('Espejo LED Touch 60cm')).toBeVisible()
@@ -23,15 +23,16 @@ test.describe('Catálogo — listado, filtro y detalle', () => {
 
   test('navega al detalle del producto', async ({ page }) => {
     await page.goto('/catalogo')
-    await page.locator('a[href*="/catalogo/"]').first().click()
+    await expect(page.locator('article').first()).toBeVisible()
+    await page.locator('article a').first().click()
     await expect(page).toHaveURL(/\/catalogo\/.+/)
     // La página de detalle muestra el precio
-    await expect(page.getByText(/\$\d/)).toBeVisible()
+    await expect(page.getByText(/\$\d/).first()).toBeVisible()
   })
 
   test('la página de detalle del espejo muestra el producto', async ({ page }) => {
     await page.goto('/catalogo/espejo-led-touch-60cm')
-    await expect(page.getByText('Espejo LED Touch 60cm')).toBeVisible()
+    await expect(page.getByRole('heading', { name: 'Espejo LED Touch 60cm' })).toBeVisible()
     await expect(page.getByText('$266.000')).toBeVisible()
   })
 })

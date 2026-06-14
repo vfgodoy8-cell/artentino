@@ -17,7 +17,7 @@ test.describe('Checkout — carrito y pago', () => {
     // Limpiar carrito primero vaciando localStorage
     await page.evaluate(() => localStorage.clear())
     await page.goto('/checkout')
-    await expect(page.getByText('Tu carrito está vacío')).toBeVisible()
+    await expect(page.getByText('Tu carrito está vacío').first()).toBeVisible()
     await expect(page.getByRole('link', { name: /ver catálogo/i })).toBeVisible()
   })
 
@@ -32,7 +32,7 @@ test.describe('Checkout — carrito y pago', () => {
     })
 
     await page.goto('/checkout')
-    await expect(page.getByText('Checkout')).toBeVisible()
+    await expect(page.getByRole('heading', { name: 'Checkout' })).toBeVisible()
 
     // Paso 0: Datos de contacto
     const inputs = page.locator('input')

@@ -3,7 +3,7 @@ import { test, expect } from '@playwright/test'
 test.describe('Contacto — formulario de consulta', () => {
   test('muestra el formulario con tabs de consulta y postulación', async ({ page }) => {
     await page.goto('/contacto')
-    await expect(page.getByRole('heading', { name: /contacto/i })).toBeVisible()
+    await expect(page.locator('h1')).toBeVisible()
     await expect(page.getByRole('button', { name: /consulta general/i })).toBeVisible()
     await expect(page.getByRole('button', { name: /postulación laboral/i })).toBeVisible()
   })

@@ -10,7 +10,7 @@ test.describe('Home — destacados y categorías', () => {
 
   test('muestra la barra de categorías con Espejos LED', async ({ page }) => {
     await page.goto('/')
-    await expect(page.getByText('Espejos LED')).toBeVisible()
+    await expect(page.getByText('Espejos LED').first()).toBeVisible()
   })
 
   test('el link de una categoría navega al catálogo filtrado', async ({ page }) => {

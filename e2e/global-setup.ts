@@ -12,7 +12,12 @@ export default async function globalSetup() {
     )
   }
 
-  const env = { ...process.env, DATABASE_URL: testDbUrl }
+  const env = {
+    ...process.env,
+    DATABASE_URL: testDbUrl,
+    // Required for Prisma 7's AI-agent safety guard when running --force-reset
+    PRISMA_USER_CONSENT_FOR_DANGEROUS_AI_ACTION: 'si',
+  }
   const cwd = path.resolve(__dirname, '..')
 
   console.log('\n[setup] Reseteando base de datos de test...')

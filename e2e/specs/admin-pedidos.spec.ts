@@ -8,7 +8,7 @@ test.describe('Admin — gestión de pedidos', () => {
     await page.goto('/admin/pedidos')
     await expect(page.getByRole('heading', { name: /pedidos/i })).toBeVisible()
     // Debe haber al menos 1 pedido del seed de test
-    await expect(page.getByText('Pendiente')).toBeVisible()
+    await expect(page.locator('tbody span', { hasText: /^Pendiente$/ })).toBeVisible()
   })
 
   test('navega al detalle de un pedido', async ({ page }) => {
@@ -42,7 +42,7 @@ test.describe('Admin — gestión de pedidos', () => {
   test('el filtro de estado muestra sólo los pedidos del estado seleccionado', async ({ page }) => {
     await page.goto('/admin/pedidos?estado=PENDING')
     // Todos los badges deben decir "Pendiente" (o la lista estar vacía si no hay más PENDING)
-    const badges = page.getByText('Confirmado')
+    const badges = page.locator('tbody span', { hasText: /^Confirmado$/ })
     await expect(badges).toHaveCount(0)
   })
 })
