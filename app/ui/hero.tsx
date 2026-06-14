@@ -49,7 +49,7 @@ export default function Hero() {
     <section className="-mt-16 grid min-h-[calc(90vh+4rem)] bg-white lg:grid-cols-[46%_54%]">
 
       {/* Left — text */}
-      <div className="relative flex flex-col justify-start overflow-hidden px-8 pb-14 pt-28 sm:px-12 sm:pt-36 lg:pl-14 lg:pr-8 lg:pt-44">
+      <div className="relative flex flex-col justify-center overflow-hidden px-8 py-20 sm:px-12 lg:py-24 lg:pl-14 lg:pr-8">
 
         {/* Teal glow blob — decorative bg */}
         <div className="pointer-events-none absolute -bottom-28 -left-28 h-[460px] w-[460px] rounded-full bg-[#0eb1c3] opacity-[0.07] blur-[90px]" />
