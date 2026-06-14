@@ -46,13 +46,16 @@ const benefits = [
 
 export default function Hero() {
   return (
-    <section className="grid bg-white lg:min-h-[540px] lg:grid-cols-[46%_54%]">
+    <section className="-mt-16 grid min-h-[calc(90vh+4rem)] bg-white lg:grid-cols-[46%_54%]">
 
       {/* Left — text */}
-      <div className="flex flex-col justify-center px-8 py-14 sm:px-12 lg:py-16 lg:pl-14 lg:pr-10">
+      <div className="relative flex flex-col justify-start overflow-hidden px-8 pb-14 pt-28 sm:px-12 sm:pt-36 lg:pl-14 lg:pr-8 lg:pt-44">
+
+        {/* Teal glow blob — decorative bg */}
+        <div className="pointer-events-none absolute -bottom-28 -left-28 h-[460px] w-[460px] rounded-full bg-[#0eb1c3] opacity-[0.07] blur-[90px]" />
 
         {/* Eyebrow */}
-        <div className="mb-[18px] flex items-center gap-2 text-[11px] font-black uppercase tracking-[0.3em] text-[#0eb1c3]">
+        <div className="mb-5 flex items-center gap-2 text-[11px] font-black uppercase tracking-[0.3em] text-[#0eb1c3]">
           Arte
           <span className="h-1 w-1 rounded-full bg-[#0eb1c3] opacity-50" />
           Diseño
@@ -61,15 +64,15 @@ export default function Hero() {
         </div>
 
         {/* Headline */}
-        <h1 className="mb-5 text-4xl font-black leading-[1.05] tracking-[-0.02em] text-[#1E1E1E] sm:text-5xl">
+        <h1 className="mb-6 text-6xl font-black leading-[1.02] tracking-[-0.03em] text-[#1E1E1E] lg:text-[76px]">
           Espacios que<br />
           <span className="italic text-[#0eb1c3]">reflejan</span> tu estilo
         </h1>
 
         {/* Subtitle */}
-        <p className="mb-8 max-w-[340px] text-[15px] leading-[1.65] text-[#6b7280]">
-          Espejos LED, muebles y deco que transforman cada rincón de tu hogar.
-          Cuotas sin interés, envíos a todo el país.
+        <p className="mb-8 max-w-[380px] text-[15px] leading-[1.65] text-[#6b7280]">
+          Espejos LED, muebles y deco que transforman
+          cada rincón de tu hogar.
         </p>
 
         {/* CTAs */}
@@ -107,7 +110,7 @@ export default function Hero() {
       </div>
 
       {/* Right — image + floating cards */}
-      <div className="relative min-h-[300px] overflow-hidden lg:min-h-0">
+      <div className="relative min-h-[320px] overflow-hidden lg:min-h-0">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src="/hero-product.jpg"
@@ -115,11 +118,16 @@ export default function Hero() {
           className="h-full w-full object-cover object-center"
         />
 
+        {/* Dots grid — top-right decoration */}
+        <div className="pointer-events-none absolute right-0 top-24 z-10 opacity-75">
+          <DotsGrid />
+        </div>
+
         {/* Bottom gradient overlay */}
         <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-black/[0.18]" />
 
         {/* Floating category cards */}
-        <div className="absolute bottom-7 right-5 flex flex-col gap-2.5">
+        <div className="absolute bottom-8 right-6 flex flex-col gap-2.5">
 
           {/* White card — Espejos LED */}
           <Link
@@ -183,6 +191,19 @@ function FurnitureIcon() {
       <rect x="18" y="10" width="3" height="6" rx="1" />
       <line x1="7" y1="14" x2="7" y2="18" />
       <line x1="17" y1="14" x2="17" y2="18" />
+    </svg>
+  )
+}
+
+function DotsGrid() {
+  return (
+    <svg width="110" height="130" viewBox="0 0 110 130" fill="none" aria-hidden="true">
+      <defs>
+        <pattern id="hero-dots" x="0" y="0" width="14" height="14" patternUnits="userSpaceOnUse">
+          <circle cx="3" cy="3" r="1.6" fill="#0eb1c3" opacity="0.5" />
+        </pattern>
+      </defs>
+      <rect width="110" height="130" fill="url(#hero-dots)" />
     </svg>
   )
 }
