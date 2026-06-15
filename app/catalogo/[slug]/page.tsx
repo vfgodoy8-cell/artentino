@@ -2,8 +2,7 @@ import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { prisma } from '@/lib/prisma'
 import { serializeProduct } from '@/lib/serialize'
-import { CategoryIcon } from '@/app/ui/product-card'
-import VariantSelector from './variant-selector'
+import ProductGallery from './product-gallery'
 import ProductActions from './product-actions'
 
 function fmt(n: number) {
@@ -43,13 +42,22 @@ export default async function ProductoPage({ params }: Props) {
   const youtubeId = getYouTubeId(product.videoUrl)
 
   // Group stock variants — skip hidden (generic) attributes
-  const variantGroups: Record<string, string[]> = {}
+  const variantGroups: Record<string, { id: string; value: string }[]> = {}
   for (const item of product.stockItems) {
     if (item.attribute.hidden) continue
     const name = item.attribute.name
-    const val = item.attributeValue.value
     if (!variantGroups[name]) variantGroups[name] = []
-    if (!variantGroups[name].includes(val)) variantGroups[name].push(val)
+    if (!variantGroups[name].find((e) => e.id === item.attributeValueId)) {
+      variantGroups[name].push({ id: item.attributeValueId, value: item.attributeValue.value })
+    }
+  }
+
+  // Map attributeValueId → first image URL for that color
+  const imagesByColor: Record<string, string> = {}
+  for (const img of product.productImages) {
+    if (img.attributeValueId && !imagesByColor[img.attributeValueId]) {
+      imagesByColor[img.attributeValueId] = img.url
+    }
   }
 
   const now = new Date()
@@ -90,28 +98,14 @@ export default async function ProductoPage({ params }: Props) {
         {/* Product layout */}
         <div className="grid gap-10 lg:grid-cols-2 lg:gap-16">
 
-          {/* Left: image + color/variant selector */}
-          <div className="flex flex-col gap-4">
-            <div className="relative aspect-square overflow-hidden rounded-2xl bg-gray-50">
-              {mainImage ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img
-                  src={mainImage}
-                  alt={product.name}
-                  className="h-full w-full object-cover"
-                />
-              ) : (
-                <div className="flex h-full w-full items-center justify-center">
-                  <div className="flex h-32 w-32 items-center justify-center rounded-3xl bg-white shadow-sm">
-                    <CategoryIcon category={product.category.name} />
-                  </div>
-                </div>
-              )}
-            </div>
-
-            {/* Interactive variant/color selector */}
-            <VariantSelector variantGroups={variantGroups} />
-          </div>
+          {/* Left: image + variant selector (client island handles color swap) */}
+          <ProductGallery
+            defaultImage={mainImage}
+            imagesByColor={imagesByColor}
+            variantGroups={variantGroups}
+            productName={product.name}
+            categoryName={product.category.name}
+          />
 
           {/* Right: details */}
           <div className="flex flex-col">

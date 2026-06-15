@@ -2,50 +2,59 @@
 
 import { useState } from 'react'
 
+type VariantEntry = { id: string; value: string }
+
 type Props = {
-  variantGroups: Record<string, string[]>
+  variantGroups: Record<string, VariantEntry[]>
+  onSelect?: (attrName: string, valueId: string) => void
 }
 
-export default function VariantSelector({ variantGroups }: Props) {
-  const [selected, setSelected] = useState<Record<string, string>>({})
+export default function VariantSelector({ variantGroups, onSelect }: Props) {
+  const [selectedIds, setSelectedIds] = useState<Record<string, string>>({})
   const entries = Object.entries(variantGroups)
   if (entries.length === 0) return null
 
   return (
     <div className="flex flex-col gap-3">
-      {entries.map(([attr, values]) => (
-        <div key={attr}>
-          <p className="mb-1.5 text-xs font-black uppercase tracking-wider text-gray-400">
-            {attr}
-            {selected[attr] && (
-              <span className="ml-1.5 font-semibold normal-case tracking-normal text-[#1E1E1E]">
-                — {selected[attr]}
-              </span>
-            )}
-          </p>
-          <div className="flex flex-wrap gap-2">
-            {values.map((v) => {
-              const isSelected = selected[attr] === v
-              return (
-                <button
-                  key={v}
-                  type="button"
-                  onClick={() =>
-                    setSelected((s) => ({ ...s, [attr]: isSelected ? '' : v }))
-                  }
-                  className={`rounded-full border px-3 py-1 text-xs font-semibold transition-all ${
-                    isSelected
-                      ? 'border-[#0eb1c3] bg-[#0eb1c3] text-white'
-                      : 'border-gray-200 text-[#1E1E1E] hover:border-[#0eb1c3] hover:text-[#0eb1c3]'
-                  }`}
-                >
-                  {v}
-                </button>
-              )
-            })}
+      {entries.map(([attr, values]) => {
+        const selectedId = selectedIds[attr] ?? ''
+        const selectedEntry = values.find((v) => v.id === selectedId)
+        return (
+          <div key={attr}>
+            <p className="mb-1.5 text-xs font-black uppercase tracking-wider text-gray-400">
+              {attr}
+              {selectedEntry && (
+                <span className="ml-1.5 font-semibold normal-case tracking-normal text-[#1E1E1E]">
+                  — {selectedEntry.value}
+                </span>
+              )}
+            </p>
+            <div className="flex flex-wrap gap-2">
+              {values.map((v) => {
+                const isSelected = selectedId === v.id
+                return (
+                  <button
+                    key={v.id}
+                    type="button"
+                    onClick={() => {
+                      const newId = isSelected ? '' : v.id
+                      setSelectedIds((s) => ({ ...s, [attr]: newId }))
+                      onSelect?.(attr, newId)
+                    }}
+                    className={`rounded-full border px-3 py-1 text-xs font-semibold transition-all ${
+                      isSelected
+                        ? 'border-[#0eb1c3] bg-[#0eb1c3] text-white'
+                        : 'border-gray-200 text-[#1E1E1E] hover:border-[#0eb1c3] hover:text-[#0eb1c3]'
+                    }`}
+                  >
+                    {v.value}
+                  </button>
+                )
+              })}
+            </div>
           </div>
-        </div>
-      ))}
+        )
+      })}
     </div>
   )
 }
