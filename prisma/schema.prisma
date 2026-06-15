@@ -107,14 +107,14 @@ model ProductComboPrice {
 }
 
 model Attribute {
-  id           String         @id @default(cuid())
-  name         String
-  filter       Boolean        @default(false)
-  hidden       Boolean        @default(false)
-  position     Int            @default(0)
-  active       Boolean        @default(true)
-  createdAt    DateTime       @default(now())
-  values       AttributeValue[]
+  id            String           @id @default(cuid())
+  name          String           @unique
+  filter        Boolean          @default(false)
+  hidden        Boolean          @default(false)
+  position      Int              @default(0)
+  active        Boolean          @default(true)
+  createdAt     DateTime         @default(now())
+  values        AttributeValue[]
   productStocks ProductStock[]
 
   @@map("attributes")
@@ -127,7 +127,9 @@ model AttributeValue {
   value             String
   createdAt         DateTime           @default(now())
   productAttributes ProductAttribute[]
+  productStocks     ProductStock[]
 
+  @@unique([attributeId, value])
   @@index([attributeId])
   @@map("attribute_values")
 }
@@ -146,16 +148,18 @@ model ProductAttribute {
 }
 
 model ProductStock {
-  id          String    @id @default(cuid())
-  productId   String
-  product     Product   @relation(fields: [productId], references: [id], onDelete: Cascade)
-  attributeId String
-  attribute   Attribute @relation(fields: [attributeId], references: [id])
-  value       String
-  stock       Int       @default(0)
-  createdAt   DateTime  @default(now())
+  id               String         @id @default(cuid())
+  productId        String
+  product          Product        @relation(fields: [productId], references: [id], onDelete: Cascade)
+  attributeId      String
+  attribute        Attribute      @relation(fields: [attributeId], references: [id])
+  value            String?
+  attributeValueId String
+  attributeValue   AttributeValue @relation(fields: [attributeValueId], references: [id])
+  stock            Int            @default(0)
+  createdAt        DateTime       @default(now())
 
-  @@unique([productId, attributeId, value])
+  @@unique([productId, attributeValueId])
   @@index([productId])
   @@map("product_stocks")
 }

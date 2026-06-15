@@ -250,10 +250,10 @@ export type AttributeOrderByWithRelationInput = {
 
 export type AttributeWhereUniqueInput = Prisma.AtLeast<{
   id?: string
+  name?: string
   AND?: Prisma.AttributeWhereInput | Prisma.AttributeWhereInput[]
   OR?: Prisma.AttributeWhereInput[]
   NOT?: Prisma.AttributeWhereInput | Prisma.AttributeWhereInput[]
-  name?: Prisma.StringFilter<"Attribute"> | string
   filter?: Prisma.BoolFilter<"Attribute"> | boolean
   hidden?: Prisma.BoolFilter<"Attribute"> | boolean
   position?: Prisma.IntFilter<"Attribute"> | number
@@ -261,7 +261,7 @@ export type AttributeWhereUniqueInput = Prisma.AtLeast<{
   createdAt?: Prisma.DateTimeFilter<"Attribute"> | Date | string
   values?: Prisma.AttributeValueListRelationFilter
   productStocks?: Prisma.ProductStockListRelationFilter
-}, "id">
+}, "id" | "name">
 
 export type AttributeOrderByWithAggregationInput = {
   id?: Prisma.SortOrder

@@ -71,50 +71,77 @@ export async function replaceComboP(
   revalidatePath(`/admin/productos/${productId}/editar`)
 }
 
-// ─── Product stock (new schema: attributeId + value text) ────────────────────
+// ─── Product stock (schema: Attribute → AttributeValue → ProductStock) ───────
 
-export async function addProductStock(
-  productId: string,
-  attributeId: string,
-  value: string,
-): Promise<{ ok: boolean; error?: string }> {
-  value = value.trim()
-  if (!value) return { ok: false, error: 'El valor no puede estar vacío' }
-
-  try {
-    await prisma.productStock.create({
-      data: { productId, attributeId, value, stock: 0 },
-    })
-  } catch {
-    return { ok: false, error: 'Esa combinación ya existe para este producto' }
-  }
-
-  revalidatePath(`/admin/productos/${productId}/editar`)
-  return { ok: true }
+function toTitleCase(s: string): string {
+  return s
+    .trim()
+    .replace(/\s+/g, ' ')
+    .replace(/\b\w/g, (c) => c.toUpperCase())
+    .replace(/\B\w/g, (c) => c.toLowerCase())
 }
 
-export async function createAttributeAndStock(
+export async function addStockVariant(
   productId: string,
   attributeName: string,
-  value: string,
-): Promise<{ ok: boolean; error?: string; attributeId?: string; attributeName?: string }> {
-  attributeName = attributeName.trim()
-  value = value.trim()
-  if (!attributeName) return { ok: false, error: 'El nombre del atributo es requerido' }
+  valueInput: string,
+): Promise<{
+  ok: boolean
+  error?: string
+  attributeId?: string
+  attributeName?: string
+  attributeValueId?: string
+  value?: string
+}> {
+  const attrName = attributeName.trim()
+  const value = toTitleCase(valueInput)
+  if (!attrName) return { ok: false, error: 'El nombre del atributo es requerido' }
   if (!value) return { ok: false, error: 'El valor no puede estar vacío' }
 
-  const attribute = await prisma.attribute.create({ data: { name: attributeName } })
+  // Find-or-create Attribute (case-insensitive, server-side)
+  let attribute = await prisma.attribute.findFirst({
+    where: { name: { equals: attrName, mode: 'insensitive' } },
+  })
+  if (!attribute) {
+    try {
+      attribute = await prisma.attribute.create({ data: { name: attrName } })
+    } catch {
+      // Race condition: another request created it; fetch it
+      attribute = await prisma.attribute.findFirst({
+        where: { name: { equals: attrName, mode: 'insensitive' } },
+      })
+      if (!attribute) return { ok: false, error: 'Error al crear el atributo' }
+    }
+  }
 
+  // Find-or-create AttributeValue (case-insensitive, normalized to Title Case)
+  let av = await prisma.attributeValue.findFirst({
+    where: { attributeId: attribute.id, value: { equals: value, mode: 'insensitive' } },
+  })
+  if (!av) {
+    try {
+      av = await prisma.attributeValue.create({
+        data: { attributeId: attribute.id, value },
+      })
+    } catch {
+      av = await prisma.attributeValue.findFirst({
+        where: { attributeId: attribute.id, value: { equals: value, mode: 'insensitive' } },
+      })
+      if (!av) return { ok: false, error: 'Error al crear el valor' }
+    }
+  }
+
+  // Create ProductStock linked by FK
   try {
     await prisma.productStock.create({
-      data: { productId, attributeId: attribute.id, value, stock: 0 },
+      data: { productId, attributeId: attribute.id, attributeValueId: av.id, stock: 0 },
     })
   } catch {
-    return { ok: false, error: 'Error al crear el stock' }
+    return { ok: false, error: 'Esa variante ya existe para este producto' }
   }
 
   revalidatePath(`/admin/productos/${productId}/editar`)
-  return { ok: true, attributeId: attribute.id, attributeName: attribute.name }
+  return { ok: true, attributeId: attribute.id, attributeName: attribute.name, attributeValueId: av.id, value: av.value }
 }
 
 export async function updateProductStockQty(id: string, stock: number, productId: string) {
@@ -130,18 +157,24 @@ export async function removeProductStock(id: string, productId: string) {
 export async function upsertGenericStock(
   productId: string,
   qty: number,
-): Promise<{ ok: boolean; attributeId?: string }> {
+): Promise<{ ok: boolean; attributeId?: string; attributeValueId?: string }> {
   let attr = await prisma.attribute.findFirst({ where: { hidden: true } })
   if (!attr) {
     attr = await prisma.attribute.create({ data: { name: 'Genérico', hidden: true, active: true } })
   }
+  let av = await prisma.attributeValue.findFirst({
+    where: { attributeId: attr.id, value: { equals: 'único', mode: 'insensitive' } },
+  })
+  if (!av) {
+    av = await prisma.attributeValue.create({ data: { attributeId: attr.id, value: 'único' } })
+  }
   await prisma.productStock.upsert({
-    where: { productId_attributeId_value: { productId, attributeId: attr.id, value: 'único' } },
-    create: { productId, attributeId: attr.id, value: 'único', stock: qty },
+    where: { productId_attributeValueId: { productId, attributeValueId: av.id } },
+    create: { productId, attributeId: attr.id, attributeValueId: av.id, stock: qty },
     update: { stock: qty },
   })
   revalidatePath(`/admin/productos/${productId}/editar`)
-  return { ok: true, attributeId: attr.id }
+  return { ok: true, attributeId: attr.id, attributeValueId: av.id }
 }
 
 // ─── Images ──────────────────────────────────────────────────────────────────

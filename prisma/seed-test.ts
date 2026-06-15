@@ -70,12 +70,16 @@ async function main() {
     data: { name: 'Genérico', hidden: true, active: true },
   })
 
-  await prisma.productStock.create({
-    data: { productId: productA.id, attributeId: attr.id, value: 'único', stock: 10 },
+  const avUnico = await prisma.attributeValue.create({
+    data: { attributeId: attr.id, value: 'único' },
   })
 
   await prisma.productStock.create({
-    data: { productId: productB.id, attributeId: attr.id, value: 'único', stock: 5 },
+    data: { productId: productA.id, attributeId: attr.id, attributeValueId: avUnico.id, stock: 10 },
+  })
+
+  await prisma.productStock.create({
+    data: { productId: productB.id, attributeId: attr.id, attributeValueId: avUnico.id, stock: 5 },
   })
 
   // Test order for admin tests

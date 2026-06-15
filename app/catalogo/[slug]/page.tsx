@@ -28,7 +28,7 @@ export default async function ProductoPage({ params }: Props) {
     include: {
       category: true,
       comboPrices: { orderBy: { quantity: 'asc' } },
-      stockItems: { include: { attribute: true } },
+      stockItems: { include: { attribute: true, attributeValue: true } },
       productImages: { orderBy: { createdAt: 'asc' } },
     },
   })
@@ -47,8 +47,9 @@ export default async function ProductoPage({ params }: Props) {
   for (const item of product.stockItems) {
     if (item.attribute.hidden) continue
     const name = item.attribute.name
+    const val = item.attributeValue.value
     if (!variantGroups[name]) variantGroups[name] = []
-    if (!variantGroups[name].includes(item.value)) variantGroups[name].push(item.value)
+    if (!variantGroups[name].includes(val)) variantGroups[name].push(val)
   }
 
   const now = new Date()

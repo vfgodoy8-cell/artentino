@@ -40,13 +40,14 @@ type EditFormProps = {
     endDate: string | null
   }[]
   categories: { id: string; name: string }[]
-  attributes: { id: string; name: string }[]
+  attributes: { id: string; name: string; values: { id: string; value: string }[] }[]
   productStocks: {
     id: string
     stock: number
     attributeId: string
     attribute: { id: string; name: string; hidden: boolean }
-    value: string
+    attributeValueId: string
+    attributeValue: { id: string; value: string }
   }[]
   productImages: {
     id: string

@@ -2,16 +2,18 @@
 
 import { useState, useTransition, useRef } from 'react'
 import { useRouter } from 'next/navigation'
-import { addProductStock, createAttributeAndStock, updateProductStockQty, removeProductStock, upsertGenericStock } from './actions'
+import { addStockVariant, updateProductStockQty, removeProductStock, upsertGenericStock } from './actions'
 
-type Attribute = { id: string; name: string }
+type AttributeValue = { id: string; value: string }
+type Attribute = { id: string; name: string; values: AttributeValue[] }
 
 type StockItem = {
   id: string
   stock: number
   attributeId: string
   attribute: { id: string; name: string; hidden: boolean }
-  value: string
+  attributeValueId: string
+  attributeValue: { id: string; value: string }
 }
 
 export default function TabStock({
@@ -27,70 +29,118 @@ export default function TabStock({
   const [attributes, setAttributes] = useState(initialAttributes)
   const router = useRouter()
 
-  // Add-row state
+  // ── Attribute combobox ──────────────────────────────────────────────────
   const [attrSearch, setAttrSearch] = useState('')
   const [attrDropdownOpen, setAttrDropdownOpen] = useState(false)
   const [selectedAttr, setSelectedAttr] = useState<Attribute | null>(null)
-  const [valueInput, setValueInput] = useState('')
-  const [error, setError] = useState('')
-  const [, startTransition] = useTransition()
   const attrRef = useRef<HTMLDivElement>(null)
 
-  const filtered = attributes.filter((a) =>
+  const filteredAttrs = attributes.filter((a) =>
     a.name.toLowerCase().includes(attrSearch.toLowerCase()),
   )
-  const exactMatch = attributes.find(
+  const exactAttrMatch = attributes.find(
     (a) => a.name.toLowerCase() === attrSearch.trim().toLowerCase(),
   )
-  const isNew = attrSearch.trim() !== '' && !exactMatch
+  const isNewAttr = attrSearch.trim() !== '' && !exactAttrMatch
 
   function selectAttr(attr: Attribute) {
     setSelectedAttr(attr)
     setAttrSearch(attr.name)
     setAttrDropdownOpen(false)
+    setValueSearch('')
+    setSelectedValue(null)
   }
 
   function handleAttrInput(val: string) {
     setAttrSearch(val)
     setSelectedAttr(null)
     setAttrDropdownOpen(true)
+    setValueSearch('')
+    setSelectedValue(null)
   }
 
+  // ── Value combobox ──────────────────────────────────────────────────────
+  const [valueSearch, setValueSearch] = useState('')
+  const [valueDropdownOpen, setValueDropdownOpen] = useState(false)
+  const [selectedValue, setSelectedValue] = useState<AttributeValue | null>(null)
+  const valueRef = useRef<HTMLDivElement>(null)
+
+  // Resolved attribute (either selected from dropdown or matched by name)
+  const resolvedAttr = selectedAttr ?? exactAttrMatch ?? null
+  const existingValues = resolvedAttr?.values ?? []
+
+  const filteredValues = existingValues.filter((v) =>
+    v.value.toLowerCase().includes(valueSearch.toLowerCase()),
+  )
+  const exactValueMatch = existingValues.find(
+    (v) => v.value.toLowerCase() === valueSearch.trim().toLowerCase(),
+  )
+  const isNewValue = valueSearch.trim() !== '' && !exactValueMatch
+
+  function selectValue(av: AttributeValue) {
+    setSelectedValue(av)
+    setValueSearch(av.value)
+    setValueDropdownOpen(false)
+  }
+
+  function handleValueInput(val: string) {
+    setValueSearch(val)
+    setSelectedValue(null)
+    setValueDropdownOpen(true)
+  }
+
+  // ── Add variant ─────────────────────────────────────────────────────────
+  const [error, setError] = useState('')
+  const [, startTransition] = useTransition()
+
   function handleAdd() {
-    if (!attrSearch.trim() || !valueInput.trim()) {
+    if (!attrSearch.trim() || !valueSearch.trim()) {
       setError('Completá el atributo y el valor')
       return
     }
     setError('')
 
-    if (isNew) {
-      startTransition(async () => {
-        const result = await createAttributeAndStock(productId, attrSearch.trim(), valueInput.trim())
-        if (!result.ok) { setError(result.error ?? 'Error'); return }
-        const newAttr = { id: result.attributeId!, name: result.attributeName! }
-        setAttributes((prev) => [...prev, newAttr])
-        setItems((prev) => [
-          ...prev,
-          { id: crypto.randomUUID(), stock: 0, attributeId: newAttr.id, attribute: { ...newAttr, hidden: false }, value: valueInput.trim() },
-        ])
-        setAttrSearch('')
-        setSelectedAttr(null)
-        setValueInput('')
+    startTransition(async () => {
+      const result = await addStockVariant(productId, attrSearch.trim(), valueSearch.trim())
+      if (!result.ok) { setError(result.error ?? 'Error'); return }
+
+      // If attribute is new, add it to local state
+      const attrId = result.attributeId!
+      const attrName = result.attributeName!
+      const avId = result.attributeValueId!
+      const avValue = result.value!
+
+      setAttributes((prev) => {
+        const existing = prev.find((a) => a.id === attrId)
+        if (existing) {
+          // Add value if not already present
+          if (!existing.values.find((v) => v.id === avId)) {
+            return prev.map((a) =>
+              a.id === attrId ? { ...a, values: [...a.values, { id: avId, value: avValue }].sort((a, b) => a.value.localeCompare(b.value)) } : a,
+            )
+          }
+          return prev
+        }
+        return [...prev, { id: attrId, name: attrName, values: [{ id: avId, value: avValue }] }]
       })
-    } else {
-      const attr = selectedAttr ?? exactMatch!
-      startTransition(async () => {
-        const result = await addProductStock(productId, attr.id, valueInput.trim())
-        if (!result.ok) { setError(result.error ?? 'Error'); return }
-        setItems((prev) => [
-          ...prev,
-          { id: crypto.randomUUID(), stock: 0, attributeId: attr.id, attribute: { ...attr, hidden: false }, value: valueInput.trim() },
-        ])
-        setAttrSearch('')
-        setSelectedAttr(null)
-        setValueInput('')
-      })
-    }
+
+      setItems((prev) => [
+        ...prev,
+        {
+          id: crypto.randomUUID(),
+          stock: 0,
+          attributeId: attrId,
+          attribute: { id: attrId, name: attrName, hidden: false },
+          attributeValueId: avId,
+          attributeValue: { id: avId, value: avValue },
+        },
+      ])
+
+      setAttrSearch('')
+      setSelectedAttr(null)
+      setValueSearch('')
+      setSelectedValue(null)
+    })
   }
 
   function handleRemove(id: string) {
@@ -101,6 +151,7 @@ export default function TabStock({
     })
   }
 
+  // ── Generic stock ───────────────────────────────────────────────────────
   const genericItem = items.find((i) => i.attribute.hidden)
   const [genericQty, setGenericQty] = useState(genericItem?.stock ?? 0)
   const [, startGenericTransition] = useTransition()
@@ -109,7 +160,6 @@ export default function TabStock({
     startGenericTransition(async () => {
       const result = await upsertGenericStock(productId, genericQty)
       if (result.ok && !genericItem) {
-        // reflect new generic item in state so totalStock is accurate
         setItems((prev) => [
           ...prev,
           {
@@ -117,7 +167,8 @@ export default function TabStock({
             stock: genericQty,
             attributeId: result.attributeId!,
             attribute: { id: result.attributeId!, name: 'Genérico', hidden: true },
-            value: 'único',
+            attributeValueId: result.attributeValueId!,
+            attributeValue: { id: result.attributeValueId!, value: 'único' },
           },
         ])
       } else if (result.ok && genericItem) {
@@ -152,6 +203,7 @@ export default function TabStock({
       <div className="rounded-xl border border-gray-100 bg-gray-50 p-4">
         <p className="mb-3 text-xs font-black uppercase tracking-wider text-gray-400">Agregar variante</p>
         <div className="flex items-end gap-3">
+
           {/* Attribute combobox */}
           <div className="relative flex-1" ref={attrRef}>
             <label className="mb-1.5 block text-xs font-bold uppercase tracking-wider text-gray-400">
@@ -165,9 +217,9 @@ export default function TabStock({
               placeholder="Buscar o crear atributo..."
               className="w-full rounded-xl border border-gray-200 px-3 py-2.5 text-sm outline-none focus:border-[#0eb1c3] focus:ring-2 focus:ring-[#0eb1c3]/10"
             />
-            {attrDropdownOpen && (attrSearch.trim() !== '' || filtered.length > 0) && (
+            {attrDropdownOpen && (attrSearch.trim() !== '' || filteredAttrs.length > 0) && (
               <div className="absolute z-20 mt-1 w-full overflow-hidden rounded-xl border border-gray-100 bg-white shadow-lg">
-                {filtered.map((a) => (
+                {filteredAttrs.map((a) => (
                   <button
                     key={a.id}
                     type="button"
@@ -175,39 +227,65 @@ export default function TabStock({
                     className="flex w-full items-center px-3 py-2.5 text-left text-sm text-[#1E1E1E] hover:bg-gray-50"
                   >
                     {a.name}
+                    <span className="ml-auto text-[11px] text-gray-300">{a.values.length} valores</span>
                   </button>
                 ))}
-                {isNew && (
+                {isNewAttr && (
                   <button
                     type="button"
-                    onMouseDown={() => {
-                      setAttrDropdownOpen(false)
-                    }}
+                    onMouseDown={() => setAttrDropdownOpen(false)}
                     className="flex w-full items-center gap-2 border-t border-gray-100 px-3 py-2.5 text-left text-sm font-semibold text-[#0eb1c3] hover:bg-[#0eb1c3]/5"
                   >
                     <span className="text-base font-black">+</span>
                     Crear &quot;{attrSearch.trim()}&quot;
                   </button>
                 )}
-                {filtered.length === 0 && !isNew && (
+                {filteredAttrs.length === 0 && !isNewAttr && (
                   <p className="px-3 py-2.5 text-sm text-gray-400">Sin resultados</p>
                 )}
               </div>
             )}
           </div>
 
-          {/* Value */}
-          <div className="flex-1">
+          {/* Value combobox */}
+          <div className="relative flex-1" ref={valueRef}>
             <label className="mb-1.5 block text-xs font-bold uppercase tracking-wider text-gray-400">
               Valor
             </label>
             <input
-              value={valueInput}
-              onChange={(e) => setValueInput(e.target.value)}
+              value={valueSearch}
+              onChange={(e) => handleValueInput(e.target.value)}
+              onFocus={() => setValueDropdownOpen(true)}
+              onBlur={() => setTimeout(() => setValueDropdownOpen(false), 150)}
               onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); handleAdd() } }}
-              placeholder="Ej: Rojo, XL, 1L..."
-              className="w-full rounded-xl border border-gray-200 px-3 py-2.5 text-sm outline-none focus:border-[#0eb1c3] focus:ring-2 focus:ring-[#0eb1c3]/10"
+              placeholder={resolvedAttr ? `Ej: Rojo, XL…` : 'Elegí un atributo primero'}
+              disabled={!attrSearch.trim()}
+              className="w-full rounded-xl border border-gray-200 px-3 py-2.5 text-sm outline-none focus:border-[#0eb1c3] focus:ring-2 focus:ring-[#0eb1c3]/10 disabled:bg-gray-100 disabled:text-gray-300"
             />
+            {valueDropdownOpen && attrSearch.trim() && (filteredValues.length > 0 || isNewValue) && (
+              <div className="absolute z-20 mt-1 w-full overflow-hidden rounded-xl border border-gray-100 bg-white shadow-lg">
+                {filteredValues.map((v) => (
+                  <button
+                    key={v.id}
+                    type="button"
+                    onMouseDown={() => selectValue(v)}
+                    className="flex w-full items-center px-3 py-2.5 text-left text-sm text-[#1E1E1E] hover:bg-gray-50"
+                  >
+                    {v.value}
+                  </button>
+                ))}
+                {isNewValue && (
+                  <button
+                    type="button"
+                    onMouseDown={() => setValueDropdownOpen(false)}
+                    className="flex w-full items-center gap-2 border-t border-gray-100 px-3 py-2.5 text-left text-sm font-semibold text-[#0eb1c3] hover:bg-[#0eb1c3]/5"
+                  >
+                    <span className="text-base font-black">+</span>
+                    Crear &quot;{valueSearch.trim()}&quot;
+                  </button>
+                )}
+              </div>
+            )}
           </div>
 
           <button
@@ -219,15 +297,21 @@ export default function TabStock({
             Agregar
           </button>
         </div>
-        {isNew && attrSearch.trim() && (
+
+        {isNewAttr && attrSearch.trim() && (
           <p className="mt-2 text-xs text-[#0eb1c3]">
-            Se creará el atributo &quot;{attrSearch.trim()}&quot; en la tabla general.
+            Se creará el atributo &quot;{attrSearch.trim()}&quot;.
+          </p>
+        )}
+        {isNewValue && valueSearch.trim() && resolvedAttr && (
+          <p className="mt-2 text-xs text-[#0eb1c3]">
+            Se creará el valor &quot;{valueSearch.trim()}&quot; bajo {resolvedAttr.name} y quedará disponible para otros productos.
           </p>
         )}
         {error && <p className="mt-2 text-sm text-red-500">{error}</p>}
       </div>
 
-      {/* Stock table — only visible (non-hidden) items */}
+      {/* Stock table */}
       <div className="overflow-hidden rounded-xl border border-gray-100 bg-white" id="stock-table">
         <table className="w-full text-sm">
           <thead>
@@ -301,7 +385,7 @@ function StockRow({
   return (
     <tr className="hover:bg-gray-50">
       <td className="px-5 py-3 text-sm text-gray-500">{item.attribute.name}</td>
-      <td className="px-5 py-3 font-semibold text-[#1E1E1E]">{item.value}</td>
+      <td className="px-5 py-3 font-semibold text-[#1E1E1E]">{item.attributeValue.value}</td>
       <td className="px-5 py-3">
         <input
           type="number"

@@ -17,7 +17,7 @@ export default async function EditarProductoPage({ params }: Props) {
     include: {
       comboPrices: { orderBy: { quantity: 'asc' } },
       stockItems: {
-        include: { attribute: true },
+        include: { attribute: true, attributeValue: true },
         orderBy: { createdAt: 'asc' },
       },
       productImages: { orderBy: { createdAt: 'asc' } },
@@ -31,7 +31,11 @@ export default async function EditarProductoPage({ params }: Props) {
     prisma.attribute.findMany({
       where: { active: true, hidden: false },
       orderBy: { position: 'asc' },
-      select: { id: true, name: true },
+      select: {
+        id: true,
+        name: true,
+        values: { select: { id: true, value: true }, orderBy: { value: 'asc' } },
+      },
     }),
   ])
 
@@ -67,7 +71,8 @@ export default async function EditarProductoPage({ params }: Props) {
     stock: s.stock,
     attributeId: s.attributeId,
     attribute: { id: s.attribute.id, name: s.attribute.name, hidden: s.attribute.hidden },
-    value: s.value,
+    attributeValueId: s.attributeValueId,
+    attributeValue: { id: s.attributeValue.id, value: s.attributeValue.value },
   }))
 
   const serializedImages = product.productImages.map((img) => ({
