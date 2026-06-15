@@ -2,9 +2,29 @@ import { prisma } from '@/lib/prisma'
 import AtributosTable from './atributos-table'
 
 export default async function AdminAtributos() {
-  const attributes = await prisma.attribute.findMany({
+  const raw = await prisma.attribute.findMany({
     orderBy: [{ position: 'asc' }, { name: 'asc' }],
+    include: {
+      values: {
+        orderBy: { value: 'asc' },
+        include: { _count: { select: { productStocks: true } } },
+      },
+    },
   })
+
+  const attributes = raw.map((a) => ({
+    id: a.id,
+    name: a.name,
+    filter: a.filter,
+    hidden: a.hidden,
+    position: a.position,
+    active: a.active,
+    values: a.values.map((v) => ({
+      id: v.id,
+      value: v.value,
+      stockCount: v._count.productStocks,
+    })),
+  }))
 
   return (
     <div className="p-8">

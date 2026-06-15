@@ -1,7 +1,16 @@
 'use client'
 
 import { useState, useTransition } from 'react'
-import { createAttribute, updateAttribute, inactivateAttributes } from './actions'
+import {
+  createAttribute,
+  updateAttribute,
+  inactivateAttributes,
+  createAttributeValue,
+  updateAttributeValue,
+  deleteAttributeValue,
+} from './actions'
+
+type AttributeValueItem = { id: string; value: string; stockCount: number }
 
 type Attribute = {
   id: string
@@ -10,23 +19,33 @@ type Attribute = {
   hidden: boolean
   position: number
   active: boolean
+  values: AttributeValueItem[]
 }
 
-const EMPTY: Omit<Attribute, 'id'> = { name: '', filter: false, hidden: false, position: 0, active: true }
+const EMPTY: Omit<Attribute, 'id' | 'values'> = { name: '', filter: false, hidden: false, position: 0, active: true }
 
 export default function AtributosTable({ initial }: { initial: Attribute[] }) {
   const [attrs, setAttrs] = useState(initial)
   const [selected, setSelected] = useState<Set<string>>(new Set())
   const [editingId, setEditingId] = useState<string | null>(null)
-  const [editForm, setEditForm] = useState<Omit<Attribute, 'id'>>(EMPTY)
+  const [editForm, setEditForm] = useState<Omit<Attribute, 'id' | 'values'>>(EMPTY)
   const [isAdding, setIsAdding] = useState(false)
-  const [newForm, setNewForm] = useState<Omit<Attribute, 'id'>>(EMPTY)
+  const [newForm, setNewForm] = useState<Omit<Attribute, 'id' | 'values'>>(EMPTY)
   const [search, setSearch] = useState('')
+  const [expandedIds, setExpandedIds] = useState<Set<string>>(new Set())
   const [, startTransition] = useTransition()
 
   const filtered = attrs.filter((a) =>
     a.name.toLowerCase().includes(search.toLowerCase()),
   )
+
+  function toggleExpand(id: string) {
+    setExpandedIds((prev) => {
+      const next = new Set(prev)
+      next.has(id) ? next.delete(id) : next.add(id)
+      return next
+    })
+  }
 
   function toggleSelect(id: string) {
     setSelected((prev) => {
@@ -101,6 +120,40 @@ export default function AtributosTable({ initial }: { initial: Attribute[] }) {
     })
   }
 
+  // Value mutations — update local state without full page reload
+  function handleValueCreated(attrId: string, av: AttributeValueItem) {
+    setAttrs((prev) =>
+      prev.map((a) =>
+        a.id === attrId
+          ? { ...a, values: [...a.values, av].sort((x, y) => x.value.localeCompare(y.value)) }
+          : a,
+      ),
+    )
+  }
+
+  function handleValueUpdated(attrId: string, id: string, newValue: string) {
+    setAttrs((prev) =>
+      prev.map((a) =>
+        a.id === attrId
+          ? {
+              ...a,
+              values: a.values
+                .map((v) => (v.id === id ? { ...v, value: newValue } : v))
+                .sort((x, y) => x.value.localeCompare(y.value)),
+            }
+          : a,
+      ),
+    )
+  }
+
+  function handleValueDeleted(attrId: string, id: string) {
+    setAttrs((prev) =>
+      prev.map((a) =>
+        a.id === attrId ? { ...a, values: a.values.filter((v) => v.id !== id) } : a,
+      ),
+    )
+  }
+
   const allSelected = filtered.length > 0 && selected.size === filtered.length
 
   return (
@@ -162,20 +215,14 @@ export default function AtributosTable({ initial }: { initial: Attribute[] }) {
                     />
                   </td>
                   <td className="px-4 py-3">
-                    <button
-                      onClick={() => setNewForm((f) => ({ ...f, filter: !f.filter }))}
-                      className={`rounded-full px-2.5 py-0.5 text-[10px] font-bold uppercase ${newForm.filter ? 'bg-[#0eb1c3]/10 text-[#0eb1c3]' : 'bg-gray-100 text-gray-400'}`}
-                    >
+                    <ToggleButton active={newForm.filter} activeClass="bg-[#0eb1c3]/10 text-[#0eb1c3]" onClick={() => setNewForm((f) => ({ ...f, filter: !f.filter }))}>
                       {newForm.filter ? 'Sí' : 'No'}
-                    </button>
+                    </ToggleButton>
                   </td>
                   <td className="px-4 py-3">
-                    <button
-                      onClick={() => setNewForm((f) => ({ ...f, hidden: !f.hidden }))}
-                      className={`rounded-full px-2.5 py-0.5 text-[10px] font-bold uppercase ${newForm.hidden ? 'bg-purple-100 text-purple-600' : 'bg-gray-100 text-gray-400'}`}
-                    >
+                    <ToggleButton active={newForm.hidden} activeClass="bg-purple-100 text-purple-600" onClick={() => setNewForm((f) => ({ ...f, hidden: !f.hidden }))}>
                       {newForm.hidden ? 'Sí' : 'No'}
-                    </button>
+                    </ToggleButton>
                   </td>
                   <td className="px-4 py-3">
                     <input
@@ -186,28 +233,14 @@ export default function AtributosTable({ initial }: { initial: Attribute[] }) {
                     />
                   </td>
                   <td className="px-4 py-3">
-                    <button
-                      onClick={() => setNewForm((f) => ({ ...f, active: !f.active }))}
-                      className={`rounded-full px-2.5 py-0.5 text-[10px] font-bold uppercase ${newForm.active ? 'bg-green-100 text-green-600' : 'bg-gray-100 text-gray-400'}`}
-                    >
+                    <ToggleButton active={newForm.active} activeClass="bg-green-100 text-green-600" onClick={() => setNewForm((f) => ({ ...f, active: !f.active }))}>
                       {newForm.active ? 'Activo' : 'Inactivo'}
-                    </button>
+                    </ToggleButton>
                   </td>
                   <td className="px-4 py-3">
                     <div className="flex items-center justify-end gap-1">
-                      <button
-                        onClick={saveNew}
-                        className="rounded-lg px-3 py-1.5 text-xs font-bold text-white"
-                        style={{ backgroundColor: '#0eb1c3' }}
-                      >
-                        Guardar
-                      </button>
-                      <button
-                        onClick={() => setIsAdding(false)}
-                        className="rounded-lg px-3 py-1.5 text-xs font-bold text-gray-500 hover:bg-gray-100"
-                      >
-                        Cancelar
-                      </button>
+                      <button onClick={saveNew} className="rounded-lg px-3 py-1.5 text-xs font-bold text-white" style={{ backgroundColor: '#0eb1c3' }}>Guardar</button>
+                      <button onClick={() => setIsAdding(false)} className="rounded-lg px-3 py-1.5 text-xs font-bold text-gray-500 hover:bg-gray-100">Cancelar</button>
                     </div>
                   </td>
                 </tr>
@@ -215,121 +248,109 @@ export default function AtributosTable({ initial }: { initial: Attribute[] }) {
 
               {filtered.map((a) => {
                 const isEditing = editingId === a.id
+                const isExpanded = expandedIds.has(a.id)
                 return (
-                  <tr key={a.id} className={`transition-colors hover:bg-gray-50 ${a.hidden ? 'opacity-60' : ''}`}>
-                    <td className="px-4 py-3">
-                      <input
-                        type="checkbox"
-                        checked={selected.has(a.id)}
-                        onChange={() => toggleSelect(a.id)}
-                        className="rounded"
-                      />
-                    </td>
-                    <td className="px-4 py-3 font-mono text-xs text-gray-300">{a.id.slice(0, 6)}</td>
-                    <td className="px-4 py-3">
-                      {isEditing ? (
-                        <input
-                          autoFocus
-                          value={editForm.name}
-                          onChange={(e) => setEditForm((f) => ({ ...f, name: e.target.value }))}
-                          className="w-full rounded border border-gray-200 px-2 py-1 text-xs focus:border-[#0eb1c3] focus:outline-none"
-                        />
-                      ) : (
-                        <span className="font-semibold text-[#1E1E1E]">{a.name}</span>
-                      )}
-                    </td>
-                    <td className="px-4 py-3">
-                      {isEditing ? (
-                        <button
-                          onClick={() => setEditForm((f) => ({ ...f, filter: !f.filter }))}
-                          className={`rounded-full px-2.5 py-0.5 text-[10px] font-bold uppercase ${editForm.filter ? 'bg-[#0eb1c3]/10 text-[#0eb1c3]' : 'bg-gray-100 text-gray-400'}`}
-                        >
-                          {editForm.filter ? 'Sí' : 'No'}
-                        </button>
-                      ) : (
-                        <button
-                          onClick={() => toggleFilter(a.id, !a.filter)}
-                          className={`rounded-full px-2.5 py-0.5 text-[10px] font-bold uppercase transition-colors ${a.filter ? 'bg-[#0eb1c3]/10 text-[#0eb1c3]' : 'bg-gray-100 text-gray-400'}`}
-                        >
-                          {a.filter ? 'Sí' : 'No'}
-                        </button>
-                      )}
-                    </td>
-                    <td className="px-4 py-3">
-                      {isEditing ? (
-                        <button
-                          onClick={() => setEditForm((f) => ({ ...f, hidden: !f.hidden }))}
-                          className={`rounded-full px-2.5 py-0.5 text-[10px] font-bold uppercase ${editForm.hidden ? 'bg-purple-100 text-purple-600' : 'bg-gray-100 text-gray-400'}`}
-                        >
-                          {editForm.hidden ? 'Sí' : 'No'}
-                        </button>
-                      ) : (
-                        <button
-                          onClick={() => toggleHidden(a.id, !a.hidden)}
-                          className={`rounded-full px-2.5 py-0.5 text-[10px] font-bold uppercase transition-colors ${a.hidden ? 'bg-purple-100 text-purple-600' : 'bg-gray-100 text-gray-400'}`}
-                        >
-                          {a.hidden ? 'Sí' : 'No'}
-                        </button>
-                      )}
-                    </td>
-                    <td className="px-4 py-3">
-                      {isEditing ? (
-                        <input
-                          type="number"
-                          value={editForm.position}
-                          onChange={(e) => setEditForm((f) => ({ ...f, position: Number(e.target.value) }))}
-                          className="w-16 rounded border border-gray-200 px-2 py-1 text-center text-xs focus:border-[#0eb1c3] focus:outline-none"
-                        />
-                      ) : (
-                        <PosInput value={a.position} onSave={(v) => updatePosition(a.id, v)} />
-                      )}
-                    </td>
-                    <td className="px-4 py-3">
-                      {isEditing ? (
-                        <button
-                          onClick={() => setEditForm((f) => ({ ...f, active: !f.active }))}
-                          className={`rounded-full px-2.5 py-0.5 text-[10px] font-bold uppercase ${editForm.active ? 'bg-green-100 text-green-600' : 'bg-gray-100 text-gray-400'}`}
-                        >
-                          {editForm.active ? 'Activo' : 'Inactivo'}
-                        </button>
-                      ) : (
-                        <button
-                          onClick={() => toggleActive(a.id, !a.active)}
-                          className={`rounded-full px-2.5 py-0.5 text-[10px] font-bold uppercase transition-colors ${a.active ? 'bg-green-100 text-green-600' : 'bg-gray-100 text-gray-400'}`}
-                        >
-                          {a.active ? 'Activo' : 'Inactivo'}
-                        </button>
-                      )}
-                    </td>
-                    <td className="px-4 py-3">
-                      <div className="flex items-center justify-end gap-1">
+                  <>
+                    <tr key={a.id} className={`transition-colors hover:bg-gray-50 ${a.hidden ? 'opacity-60' : ''}`}>
+                      <td className="px-4 py-3">
+                        <input type="checkbox" checked={selected.has(a.id)} onChange={() => toggleSelect(a.id)} className="rounded" />
+                      </td>
+                      <td className="px-4 py-3 font-mono text-xs text-gray-300">{a.id.slice(0, 6)}</td>
+                      <td className="px-4 py-3">
                         {isEditing ? (
-                          <>
-                            <button
-                              onClick={() => saveEdit(a.id)}
-                              className="rounded-lg px-3 py-1.5 text-xs font-bold text-white"
-                              style={{ backgroundColor: '#0eb1c3' }}
-                            >
-                              Guardar
-                            </button>
-                            <button
-                              onClick={() => setEditingId(null)}
-                              className="rounded-lg px-3 py-1.5 text-xs font-bold text-gray-500 hover:bg-gray-100"
-                            >
-                              Cancelar
-                            </button>
-                          </>
+                          <input
+                            autoFocus
+                            value={editForm.name}
+                            onChange={(e) => setEditForm((f) => ({ ...f, name: e.target.value }))}
+                            className="w-full rounded border border-gray-200 px-2 py-1 text-xs focus:border-[#0eb1c3] focus:outline-none"
+                          />
                         ) : (
-                          <button
-                            onClick={() => startEdit(a)}
-                            className="rounded-lg px-3 py-1.5 text-xs font-bold text-gray-500 transition-colors hover:bg-gray-100 hover:text-[#1E1E1E]"
-                          >
-                            Editar
-                          </button>
+                          <span className="font-semibold text-[#1E1E1E]">{a.name}</span>
                         )}
-                      </div>
-                    </td>
-                  </tr>
+                      </td>
+                      <td className="px-4 py-3">
+                        {isEditing ? (
+                          <ToggleButton active={editForm.filter} activeClass="bg-[#0eb1c3]/10 text-[#0eb1c3]" onClick={() => setEditForm((f) => ({ ...f, filter: !f.filter }))}>
+                            {editForm.filter ? 'Sí' : 'No'}
+                          </ToggleButton>
+                        ) : (
+                          <ToggleButton active={a.filter} activeClass="bg-[#0eb1c3]/10 text-[#0eb1c3]" onClick={() => toggleFilter(a.id, !a.filter)}>
+                            {a.filter ? 'Sí' : 'No'}
+                          </ToggleButton>
+                        )}
+                      </td>
+                      <td className="px-4 py-3">
+                        {isEditing ? (
+                          <ToggleButton active={editForm.hidden} activeClass="bg-purple-100 text-purple-600" onClick={() => setEditForm((f) => ({ ...f, hidden: !f.hidden }))}>
+                            {editForm.hidden ? 'Sí' : 'No'}
+                          </ToggleButton>
+                        ) : (
+                          <ToggleButton active={a.hidden} activeClass="bg-purple-100 text-purple-600" onClick={() => toggleHidden(a.id, !a.hidden)}>
+                            {a.hidden ? 'Sí' : 'No'}
+                          </ToggleButton>
+                        )}
+                      </td>
+                      <td className="px-4 py-3">
+                        {isEditing ? (
+                          <input
+                            type="number"
+                            value={editForm.position}
+                            onChange={(e) => setEditForm((f) => ({ ...f, position: Number(e.target.value) }))}
+                            className="w-16 rounded border border-gray-200 px-2 py-1 text-center text-xs focus:border-[#0eb1c3] focus:outline-none"
+                          />
+                        ) : (
+                          <PosInput value={a.position} onSave={(v) => updatePosition(a.id, v)} />
+                        )}
+                      </td>
+                      <td className="px-4 py-3">
+                        {isEditing ? (
+                          <ToggleButton active={editForm.active} activeClass="bg-green-100 text-green-600" onClick={() => setEditForm((f) => ({ ...f, active: !f.active }))}>
+                            {editForm.active ? 'Activo' : 'Inactivo'}
+                          </ToggleButton>
+                        ) : (
+                          <ToggleButton active={a.active} activeClass="bg-green-100 text-green-600" onClick={() => toggleActive(a.id, !a.active)}>
+                            {a.active ? 'Activo' : 'Inactivo'}
+                          </ToggleButton>
+                        )}
+                      </td>
+                      <td className="px-4 py-3">
+                        <div className="flex items-center justify-end gap-1">
+                          {isEditing ? (
+                            <>
+                              <button onClick={() => saveEdit(a.id)} className="rounded-lg px-3 py-1.5 text-xs font-bold text-white" style={{ backgroundColor: '#0eb1c3' }}>Guardar</button>
+                              <button onClick={() => setEditingId(null)} className="rounded-lg px-3 py-1.5 text-xs font-bold text-gray-500 hover:bg-gray-100">Cancelar</button>
+                            </>
+                          ) : (
+                            <>
+                              <button onClick={() => startEdit(a)} className="rounded-lg px-3 py-1.5 text-xs font-bold text-gray-500 transition-colors hover:bg-gray-100 hover:text-[#1E1E1E]">Editar</button>
+                              <button
+                                onClick={() => toggleExpand(a.id)}
+                                className={`flex items-center gap-1 rounded-lg px-3 py-1.5 text-xs font-bold transition-colors ${isExpanded ? 'bg-[#0eb1c3]/10 text-[#0eb1c3]' : 'text-gray-400 hover:bg-gray-100 hover:text-[#1E1E1E]'}`}
+                              >
+                                <span>{a.values.length}</span>
+                                <ChevronIcon open={isExpanded} />
+                              </button>
+                            </>
+                          )}
+                        </div>
+                      </td>
+                    </tr>
+
+                    {isExpanded && (
+                      <tr key={`${a.id}-values`}>
+                        <td colSpan={8} className="border-t border-[#0eb1c3]/10 bg-[#f0fdfc] px-6 py-4">
+                          <ValuesPanel
+                            attributeId={a.id}
+                            attributeName={a.name}
+                            values={a.values}
+                            onCreated={(av) => handleValueCreated(a.id, av)}
+                            onUpdated={(id, val) => handleValueUpdated(a.id, id, val)}
+                            onDeleted={(id) => handleValueDeleted(a.id, id)}
+                          />
+                        </td>
+                      </tr>
+                    )}
+                  </>
                 )
               })}
 
@@ -348,6 +369,197 @@ export default function AtributosTable({ initial }: { initial: Attribute[] }) {
   )
 }
 
+// ─── ValuesPanel ──────────────────────────────────────────────────────────────
+
+function ValuesPanel({
+  attributeId,
+  attributeName,
+  values: initialValues,
+  onCreated,
+  onUpdated,
+  onDeleted,
+}: {
+  attributeId: string
+  attributeName: string
+  values: AttributeValueItem[]
+  onCreated: (av: AttributeValueItem) => void
+  onUpdated: (id: string, value: string) => void
+  onDeleted: (id: string) => void
+}) {
+  const [values, setValues] = useState(initialValues)
+  const [editingId, setEditingId] = useState<string | null>(null)
+  const [editInput, setEditInput] = useState('')
+  const [newInput, setNewInput] = useState('')
+  const [error, setError] = useState('')
+  const [, startTransition] = useTransition()
+
+  function startEditValue(v: AttributeValueItem) {
+    setEditingId(v.id)
+    setEditInput(v.value)
+    setError('')
+  }
+
+  function saveEditValue(v: AttributeValueItem) {
+    if (!editInput.trim()) return
+    startTransition(async () => {
+      const result = await updateAttributeValue(v.id, attributeId, editInput)
+      if (!result.ok) { setError(result.error ?? 'Error'); return }
+      const updated = result.value!
+      setValues((prev) =>
+        prev.map((x) => (x.id === v.id ? { ...x, value: updated } : x))
+            .sort((a, b) => a.value.localeCompare(b.value)),
+      )
+      onUpdated(v.id, updated)
+      setEditingId(null)
+      setError('')
+    })
+  }
+
+  function handleDelete(v: AttributeValueItem) {
+    if (!confirm(`¿Eliminar el valor "${v.value}"?`)) return
+    startTransition(async () => {
+      const result = await deleteAttributeValue(v.id)
+      if (!result.ok) { setError(result.error ?? 'Error'); return }
+      setValues((prev) => prev.filter((x) => x.id !== v.id))
+      onDeleted(v.id)
+      setError('')
+    })
+  }
+
+  function handleCreate() {
+    if (!newInput.trim()) return
+    startTransition(async () => {
+      const result = await createAttributeValue(attributeId, newInput)
+      if (!result.ok) { setError(result.error ?? 'Error'); return }
+      const av: AttributeValueItem = { id: result.id!, value: result.value!, stockCount: 0 }
+      setValues((prev) => [...prev, av].sort((a, b) => a.value.localeCompare(b.value)))
+      onCreated(av)
+      setNewInput('')
+      setError('')
+    })
+  }
+
+  return (
+    <div>
+      <p className="mb-3 text-[10px] font-black uppercase tracking-widest text-[#0eb1c3]">
+        Valores de {attributeName}
+      </p>
+
+      {values.length === 0 && (
+        <p className="mb-3 text-xs text-gray-400">Sin valores todavía.</p>
+      )}
+
+      {values.length > 0 && (
+        <div className="mb-3 overflow-hidden rounded-xl border border-[#0eb1c3]/15 bg-white">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="border-b border-gray-100 bg-gray-50">
+                <th className="px-4 py-2 text-left text-[10px] font-black uppercase tracking-wider text-gray-400">Valor</th>
+                <th className="px-4 py-2 text-left text-[10px] font-black uppercase tracking-wider text-gray-400">En uso</th>
+                <th className="px-4 py-2 text-right text-[10px] font-black uppercase tracking-wider text-gray-400">Acciones</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-50">
+              {values.map((v) => (
+                <tr key={v.id} className="hover:bg-gray-50">
+                  <td className="px-4 py-2">
+                    {editingId === v.id ? (
+                      <input
+                        autoFocus
+                        value={editInput}
+                        onChange={(e) => setEditInput(e.target.value)}
+                        onKeyDown={(e) => { if (e.key === 'Enter') saveEditValue(v); if (e.key === 'Escape') setEditingId(null) }}
+                        className="rounded border border-gray-200 px-2 py-1 text-xs focus:border-[#0eb1c3] focus:outline-none"
+                      />
+                    ) : (
+                      <span className="font-semibold text-[#1E1E1E]">{v.value}</span>
+                    )}
+                  </td>
+                  <td className="px-4 py-2">
+                    {v.stockCount > 0 ? (
+                      <span className="rounded-full bg-[#0eb1c3]/10 px-2 py-0.5 text-[10px] font-bold text-[#0eb1c3]">
+                        {v.stockCount} producto{v.stockCount > 1 ? 's' : ''}
+                      </span>
+                    ) : (
+                      <span className="text-xs text-gray-300">—</span>
+                    )}
+                  </td>
+                  <td className="px-4 py-2">
+                    <div className="flex items-center justify-end gap-1">
+                      {editingId === v.id ? (
+                        <>
+                          <button onClick={() => saveEditValue(v)} className="rounded-lg px-2.5 py-1 text-[11px] font-bold text-white" style={{ backgroundColor: '#0eb1c3' }}>Guardar</button>
+                          <button onClick={() => { setEditingId(null); setError('') }} className="rounded-lg px-2.5 py-1 text-[11px] font-bold text-gray-500 hover:bg-gray-100">Cancelar</button>
+                        </>
+                      ) : (
+                        <>
+                          <button onClick={() => startEditValue(v)} className="rounded-lg px-2.5 py-1 text-[11px] font-bold text-gray-400 hover:bg-gray-100 hover:text-[#1E1E1E]">Renombrar</button>
+                          <button
+                            onClick={() => handleDelete(v)}
+                            disabled={v.stockCount > 0}
+                            title={v.stockCount > 0 ? `En uso en ${v.stockCount} ítem(s) de stock` : 'Eliminar'}
+                            className="rounded-lg px-2.5 py-1 text-[11px] font-bold text-red-400 transition-colors hover:bg-red-50 hover:text-red-600 disabled:cursor-not-allowed disabled:opacity-30"
+                          >
+                            Eliminar
+                          </button>
+                        </>
+                      )}
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+
+      {/* Add value */}
+      <div className="flex items-center gap-2">
+        <input
+          value={newInput}
+          onChange={(e) => setNewInput(e.target.value)}
+          onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); handleCreate() } }}
+          placeholder="Nuevo valor (ej: Azul)..."
+          className="rounded-xl border border-gray-200 px-3 py-2 text-sm outline-none focus:border-[#0eb1c3] focus:ring-2 focus:ring-[#0eb1c3]/10"
+        />
+        <button
+          onClick={handleCreate}
+          disabled={!newInput.trim()}
+          className="rounded-xl px-4 py-2 text-sm font-black uppercase tracking-wider text-white transition-opacity hover:opacity-90 disabled:opacity-40"
+          style={{ backgroundColor: '#0eb1c3' }}
+        >
+          + Agregar
+        </button>
+      </div>
+
+      {error && <p className="mt-2 text-xs text-red-500">{error}</p>}
+    </div>
+  )
+}
+
+// ─── Helpers ──────────────────────────────────────────────────────────────────
+
+function ToggleButton({
+  active,
+  activeClass,
+  onClick,
+  children,
+}: {
+  active: boolean
+  activeClass: string
+  onClick: () => void
+  children: React.ReactNode
+}) {
+  return (
+    <button
+      onClick={onClick}
+      className={`rounded-full px-2.5 py-0.5 text-[10px] font-bold uppercase transition-colors ${active ? activeClass : 'bg-gray-100 text-gray-400'}`}
+    >
+      {children}
+    </button>
+  )
+}
+
 function PosInput({ value, onSave }: { value: number; onSave: (v: number) => void }) {
   const [v, setV] = useState(value)
   return (
@@ -358,5 +570,22 @@ function PosInput({ value, onSave }: { value: number; onSave: (v: number) => voi
       onBlur={() => { if (v !== value) onSave(v) }}
       className="w-16 rounded border border-gray-200 px-2 py-1 text-center text-xs focus:border-[#0eb1c3] focus:outline-none"
     />
+  )
+}
+
+function ChevronIcon({ open }: { open: boolean }) {
+  return (
+    <svg
+      width="12"
+      height="12"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2.5"
+      strokeLinecap="round"
+      className={`transition-transform duration-150 ${open ? 'rotate-180' : ''}`}
+    >
+      <polyline points="6 9 12 15 18 9" />
+    </svg>
   )
 }
