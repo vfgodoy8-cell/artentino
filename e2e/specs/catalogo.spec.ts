@@ -35,4 +35,26 @@ test.describe('Catálogo — listado, filtro y detalle', () => {
     await expect(page.getByRole('heading', { name: 'Espejo LED Touch 60cm' })).toBeVisible()
     await expect(page.getByText('$266.000')).toBeVisible()
   })
+
+  test('seleccionar color cambia la imagen; color sin imagen cae al fallback', async ({ page }) => {
+    await page.goto('/catalogo/espejo-led-touch-60cm')
+    const img = page.getByAltText('Espejo LED Touch 60cm')
+    await expect(img).toBeVisible()
+    const defaultSrc = await img.getAttribute('src')
+    expect(defaultSrc).toBeTruthy()
+
+    // Azul tiene imagen propia
+    await page.getByRole('button', { name: 'Azul' }).click()
+    await expect(img).not.toHaveAttribute('src', defaultSrc!)
+    const azulSrc = await img.getAttribute('src')
+
+    // Rojo tiene imagen distinta
+    await page.getByRole('button', { name: 'Rojo' }).click()
+    await expect(img).not.toHaveAttribute('src', azulSrc!)
+    await expect(img).not.toHaveAttribute('src', defaultSrc!)
+
+    // Verde no tiene imagen → vuelve a la imagen general
+    await page.getByRole('button', { name: 'Verde' }).click()
+    await expect(img).toHaveAttribute('src', defaultSrc!)
+  })
 })

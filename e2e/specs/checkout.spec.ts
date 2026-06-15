@@ -17,8 +17,8 @@ test.describe('Checkout — carrito y pago', () => {
     // Limpiar carrito primero vaciando localStorage
     await page.evaluate(() => localStorage.clear())
     await page.goto('/checkout')
-    await expect(page.getByText('Tu carrito está vacío').first()).toBeVisible()
-    await expect(page.getByRole('link', { name: /ver catálogo/i })).toBeVisible()
+    await expect(page.locator('main p', { hasText: 'Tu carrito está vacío' })).toBeVisible()
+    await expect(page.locator('main').getByRole('link', { name: /ver catálogo/i })).toBeVisible()
   })
 
   test('completa el flujo de checkout hasta el pago (mock MP)', async ({ page }) => {

@@ -15,7 +15,7 @@ test.describe('Home — destacados y categorías', () => {
 
   test('el link de una categoría navega al catálogo filtrado', async ({ page }) => {
     await page.goto('/')
-    await page.getByText('Espejos LED').first().click()
+    await page.getByRole('button', { name: 'Espejos LED' }).click()
     await expect(page).toHaveURL(/\/catalogo\?categoria=espejos-led/)
   })
 })

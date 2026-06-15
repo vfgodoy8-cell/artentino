@@ -82,6 +82,54 @@ async function main() {
     data: { productId: productB.id, attributeId: attr.id, attributeValueId: avUnico.id, stock: 5 },
   })
 
+  // COLOR attribute with imageDriven — for color-swap E2E tests
+  const attrColor = await prisma.attribute.create({
+    data: { name: 'COLOR', imageDriven: true, active: true },
+  })
+  const avAzul = await prisma.attributeValue.create({ data: { attributeId: attrColor.id, value: 'Azul' } })
+  const avRojo = await prisma.attributeValue.create({ data: { attributeId: attrColor.id, value: 'Rojo' } })
+  const avVerde = await prisma.attributeValue.create({ data: { attributeId: attrColor.id, value: 'Verde' } })
+
+  await prisma.productStock.create({
+    data: { productId: productA.id, attributeId: attrColor.id, attributeValueId: avAzul.id, stock: 3 },
+  })
+  await prisma.productStock.create({
+    data: { productId: productA.id, attributeId: attrColor.id, attributeValueId: avRojo.id, stock: 2 },
+  })
+  await prisma.productStock.create({
+    data: { productId: productA.id, attributeId: attrColor.id, attributeValueId: avVerde.id, stock: 1 },
+  })
+
+  // ProductImages: general first (becomes defaultImage), then color-specific
+  await prisma.productImage.create({
+    data: {
+      productId: productA.id,
+      url: 'https://placehold.co/400x400/e5e7eb/374151?text=Espejo',
+      filename: 'espejo-general.jpg',
+      size: 10,
+      attributeValueId: null,
+    },
+  })
+  await prisma.productImage.create({
+    data: {
+      productId: productA.id,
+      url: 'https://placehold.co/400x400/3b82f6/ffffff?text=Azul',
+      filename: 'espejo-azul.jpg',
+      size: 10,
+      attributeValueId: avAzul.id,
+    },
+  })
+  await prisma.productImage.create({
+    data: {
+      productId: productA.id,
+      url: 'https://placehold.co/400x400/ef4444/ffffff?text=Rojo',
+      filename: 'espejo-rojo.jpg',
+      size: 10,
+      attributeValueId: avRojo.id,
+    },
+  })
+  // Verde has no image — used to test fallback to defaultImage
+
   // Test order for admin tests
   await prisma.order.create({
     data: {

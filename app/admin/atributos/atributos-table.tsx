@@ -10,7 +10,7 @@ import {
   deleteAttributeValue,
 } from './actions'
 
-type AttributeValueItem = { id: string; value: string; stockCount: number }
+type AttributeValueItem = { id: string; value: string; stockCount: number; imageCount: number }
 
 type Attribute = {
   id: string
@@ -416,7 +416,10 @@ function ValuesPanel({
   }
 
   function handleDelete(v: AttributeValueItem) {
-    if (!confirm(`¿Eliminar el valor "${v.value}"?`)) return
+    const imageNote = v.imageCount > 0
+      ? ` ${v.imageCount} imagen${v.imageCount > 1 ? 'es' : ''} quedarán como generales.`
+      : ''
+    if (!confirm(`¿Eliminar el valor "${v.value}"?${imageNote}`)) return
     startTransition(async () => {
       const result = await deleteAttributeValue(v.id)
       if (!result.ok) { setError(result.error ?? 'Error'); return }
@@ -431,7 +434,7 @@ function ValuesPanel({
     startTransition(async () => {
       const result = await createAttributeValue(attributeId, newInput)
       if (!result.ok) { setError(result.error ?? 'Error'); return }
-      const av: AttributeValueItem = { id: result.id!, value: result.value!, stockCount: 0 }
+      const av: AttributeValueItem = { id: result.id!, value: result.value!, stockCount: 0, imageCount: 0 }
       setValues((prev) => [...prev, av].sort((a, b) => a.value.localeCompare(b.value)))
       onCreated(av)
       setNewInput('')
@@ -476,13 +479,21 @@ function ValuesPanel({
                     )}
                   </td>
                   <td className="px-4 py-2">
-                    {v.stockCount > 0 ? (
-                      <span className="rounded-full bg-[#0eb1c3]/10 px-2 py-0.5 text-[10px] font-bold text-[#0eb1c3]">
-                        {v.stockCount} producto{v.stockCount > 1 ? 's' : ''}
-                      </span>
-                    ) : (
-                      <span className="text-xs text-gray-300">—</span>
-                    )}
+                    <div className="flex items-center gap-1.5">
+                      {v.stockCount > 0 && (
+                        <span className="rounded-full bg-[#0eb1c3]/10 px-2 py-0.5 text-[10px] font-bold text-[#0eb1c3]">
+                          {v.stockCount} stock
+                        </span>
+                      )}
+                      {v.imageCount > 0 && (
+                        <span className="rounded-full bg-purple-50 px-2 py-0.5 text-[10px] font-bold text-purple-400">
+                          {v.imageCount} img
+                        </span>
+                      )}
+                      {v.stockCount === 0 && v.imageCount === 0 && (
+                        <span className="text-xs text-gray-300">—</span>
+                      )}
+                    </div>
                   </td>
                   <td className="px-4 py-2">
                     <div className="flex items-center justify-end gap-1">
