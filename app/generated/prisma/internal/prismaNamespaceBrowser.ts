@@ -56,7 +56,6 @@ export const ModelName = {
   ProductComboPrice: 'ProductComboPrice',
   Attribute: 'Attribute',
   AttributeValue: 'AttributeValue',
-  ProductAttribute: 'ProductAttribute',
   ProductStock: 'ProductStock',
   ProductImage: 'ProductImage',
   User: 'User',
@@ -162,21 +161,10 @@ export const AttributeValueScalarFieldEnum = {
 export type AttributeValueScalarFieldEnum = (typeof AttributeValueScalarFieldEnum)[keyof typeof AttributeValueScalarFieldEnum]
 
 
-export const ProductAttributeScalarFieldEnum = {
-  id: 'id',
-  productId: 'productId',
-  attributeValueId: 'attributeValueId',
-  createdAt: 'createdAt'
-} as const
-
-export type ProductAttributeScalarFieldEnum = (typeof ProductAttributeScalarFieldEnum)[keyof typeof ProductAttributeScalarFieldEnum]
-
-
 export const ProductStockScalarFieldEnum = {
   id: 'id',
   productId: 'productId',
   attributeId: 'attributeId',
-  value: 'value',
   attributeValueId: 'attributeValueId',
   stock: 'stock',
   createdAt: 'createdAt'

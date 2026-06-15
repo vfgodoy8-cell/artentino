@@ -80,7 +80,6 @@ model Product {
   category       Category            @relation(fields: [categoryId], references: [id])
   orderItems     OrderItem[]
   comboPrices    ProductComboPrice[]
-  attributes     ProductAttribute[]
   stockItems     ProductStock[]
   productImages  ProductImage[]
   createdAt      DateTime            @default(now())
@@ -126,25 +125,11 @@ model AttributeValue {
   attribute         Attribute          @relation(fields: [attributeId], references: [id], onDelete: Cascade)
   value             String
   createdAt         DateTime           @default(now())
-  productAttributes ProductAttribute[]
   productStocks     ProductStock[]
 
   @@unique([attributeId, value])
   @@index([attributeId])
   @@map("attribute_values")
-}
-
-model ProductAttribute {
-  id               String         @id @default(cuid())
-  productId        String
-  product          Product        @relation(fields: [productId], references: [id], onDelete: Cascade)
-  attributeValueId String
-  attributeValue   AttributeValue @relation(fields: [attributeValueId], references: [id])
-  createdAt        DateTime       @default(now())
-
-  @@unique([productId, attributeValueId])
-  @@index([productId])
-  @@map("product_attributes")
 }
 
 model ProductStock {
@@ -153,7 +138,6 @@ model ProductStock {
   product          Product        @relation(fields: [productId], references: [id], onDelete: Cascade)
   attributeId      String
   attribute        Attribute      @relation(fields: [attributeId], references: [id])
-  value            String?
   attributeValueId String
   attributeValue   AttributeValue @relation(fields: [attributeValueId], references: [id])
   stock            Int            @default(0)

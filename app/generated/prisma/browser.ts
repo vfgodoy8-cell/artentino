@@ -43,11 +43,6 @@ export type Attribute = Prisma.AttributeModel
  */
 export type AttributeValue = Prisma.AttributeValueModel
 /**
- * Model ProductAttribute
- * 
- */
-export type ProductAttribute = Prisma.ProductAttributeModel
-/**
  * Model ProductStock
  * 
  */

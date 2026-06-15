@@ -48,7 +48,6 @@ const productData = [
     description:
       'Espejo inteligente con iluminación LED regulable y función touch. Ideal para baño o vestidor. Luz cálida y fría seleccionable.',
     price: 266000,
-    stock: 15,
     featured: true,
     categorySlug: 'espejos-led',
   },
@@ -58,7 +57,6 @@ const productData = [
     description:
       'Lámpara de pie con estructura metálica negra mate. Diseño minimalista que combina con cualquier ambientación. Altura 165cm.',
     price: 189000,
-    stock: 8,
     featured: true,
     categorySlug: 'lamparas',
   },
@@ -68,7 +66,6 @@ const productData = [
     description:
       'Sillón ergonómico tapizado en tela gris premium. Estructura de madera maciza. Perfecto para sala de estar o lectura.',
     price: 298000,
-    stock: 5,
     featured: true,
     categorySlug: 'muebles',
   },
@@ -78,7 +75,6 @@ const productData = [
     description:
       'Set de 6 tazas de cerámica artesanal. Capacidad 300ml c/u. Apta lavavajillas y microondas. Colores surtidos.',
     price: 8500,
-    stock: 40,
     featured: true,
     categorySlug: 'tazas',
   },
@@ -88,7 +84,6 @@ const productData = [
     description:
       'Kit completo: mate de acero inoxidable 300ml + bombilla de acero + cepillo de limpieza. Apto lavavajillas.',
     price: 18500,
-    stock: 30,
     featured: true,
     categorySlug: 'mate',
   },
@@ -98,7 +93,6 @@ const productData = [
     description:
       'Vaso térmico estilo chopp con doble pared de acero inoxidable. Mantiene frío 24hs y calor 12hs. Tapa a presión.',
     price: 12900,
-    stock: 25,
     featured: true,
     categorySlug: 'vasos-termicos',
   },

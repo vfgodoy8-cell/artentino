@@ -389,7 +389,6 @@ export const ModelName = {
   ProductComboPrice: 'ProductComboPrice',
   Attribute: 'Attribute',
   AttributeValue: 'AttributeValue',
-  ProductAttribute: 'ProductAttribute',
   ProductStock: 'ProductStock',
   ProductImage: 'ProductImage',
   User: 'User',
@@ -412,7 +411,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "category" | "product" | "productComboPrice" | "attribute" | "attributeValue" | "productAttribute" | "productStock" | "productImage" | "user" | "order" | "orderItem" | "appointment" | "contact"
+    modelProps: "category" | "product" | "productComboPrice" | "attribute" | "attributeValue" | "productStock" | "productImage" | "user" | "order" | "orderItem" | "appointment" | "contact"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -783,80 +782,6 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.AttributeValueCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.AttributeValueCountAggregateOutputType> | number
-        }
-      }
-    }
-    ProductAttribute: {
-      payload: Prisma.$ProductAttributePayload<ExtArgs>
-      fields: Prisma.ProductAttributeFieldRefs
-      operations: {
-        findUnique: {
-          args: Prisma.ProductAttributeFindUniqueArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductAttributePayload> | null
-        }
-        findUniqueOrThrow: {
-          args: Prisma.ProductAttributeFindUniqueOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductAttributePayload>
-        }
-        findFirst: {
-          args: Prisma.ProductAttributeFindFirstArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductAttributePayload> | null
-        }
-        findFirstOrThrow: {
-          args: Prisma.ProductAttributeFindFirstOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductAttributePayload>
-        }
-        findMany: {
-          args: Prisma.ProductAttributeFindManyArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductAttributePayload>[]
-        }
-        create: {
-          args: Prisma.ProductAttributeCreateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductAttributePayload>
-        }
-        createMany: {
-          args: Prisma.ProductAttributeCreateManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        createManyAndReturn: {
-          args: Prisma.ProductAttributeCreateManyAndReturnArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductAttributePayload>[]
-        }
-        delete: {
-          args: Prisma.ProductAttributeDeleteArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductAttributePayload>
-        }
-        update: {
-          args: Prisma.ProductAttributeUpdateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductAttributePayload>
-        }
-        deleteMany: {
-          args: Prisma.ProductAttributeDeleteManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        updateMany: {
-          args: Prisma.ProductAttributeUpdateManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        updateManyAndReturn: {
-          args: Prisma.ProductAttributeUpdateManyAndReturnArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductAttributePayload>[]
-        }
-        upsert: {
-          args: Prisma.ProductAttributeUpsertArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductAttributePayload>
-        }
-        aggregate: {
-          args: Prisma.ProductAttributeAggregateArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.AggregateProductAttribute>
-        }
-        groupBy: {
-          args: Prisma.ProductAttributeGroupByArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.ProductAttributeGroupByOutputType>[]
-        }
-        count: {
-          args: Prisma.ProductAttributeCountArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.ProductAttributeCountAggregateOutputType> | number
         }
       }
     }
@@ -1497,21 +1422,10 @@ export const AttributeValueScalarFieldEnum = {
 export type AttributeValueScalarFieldEnum = (typeof AttributeValueScalarFieldEnum)[keyof typeof AttributeValueScalarFieldEnum]
 
 
-export const ProductAttributeScalarFieldEnum = {
-  id: 'id',
-  productId: 'productId',
-  attributeValueId: 'attributeValueId',
-  createdAt: 'createdAt'
-} as const
-
-export type ProductAttributeScalarFieldEnum = (typeof ProductAttributeScalarFieldEnum)[keyof typeof ProductAttributeScalarFieldEnum]
-
-
 export const ProductStockScalarFieldEnum = {
   id: 'id',
   productId: 'productId',
   attributeId: 'attributeId',
-  value: 'value',
   attributeValueId: 'attributeValueId',
   stock: 'stock',
   createdAt: 'createdAt'
@@ -1922,7 +1836,6 @@ export type GlobalOmitConfig = {
   productComboPrice?: Prisma.ProductComboPriceOmit
   attribute?: Prisma.AttributeOmit
   attributeValue?: Prisma.AttributeValueOmit
-  productAttribute?: Prisma.ProductAttributeOmit
   productStock?: Prisma.ProductStockOmit
   productImage?: Prisma.ProductImageOmit
   user?: Prisma.UserOmit
