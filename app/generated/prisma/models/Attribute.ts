@@ -39,6 +39,7 @@ export type AttributeMinAggregateOutputType = {
   name: string | null
   filter: boolean | null
   hidden: boolean | null
+  imageDriven: boolean | null
   position: number | null
   active: boolean | null
   createdAt: Date | null
@@ -49,6 +50,7 @@ export type AttributeMaxAggregateOutputType = {
   name: string | null
   filter: boolean | null
   hidden: boolean | null
+  imageDriven: boolean | null
   position: number | null
   active: boolean | null
   createdAt: Date | null
@@ -59,6 +61,7 @@ export type AttributeCountAggregateOutputType = {
   name: number
   filter: number
   hidden: number
+  imageDriven: number
   position: number
   active: number
   createdAt: number
@@ -79,6 +82,7 @@ export type AttributeMinAggregateInputType = {
   name?: true
   filter?: true
   hidden?: true
+  imageDriven?: true
   position?: true
   active?: true
   createdAt?: true
@@ -89,6 +93,7 @@ export type AttributeMaxAggregateInputType = {
   name?: true
   filter?: true
   hidden?: true
+  imageDriven?: true
   position?: true
   active?: true
   createdAt?: true
@@ -99,6 +104,7 @@ export type AttributeCountAggregateInputType = {
   name?: true
   filter?: true
   hidden?: true
+  imageDriven?: true
   position?: true
   active?: true
   createdAt?: true
@@ -196,6 +202,7 @@ export type AttributeGroupByOutputType = {
   name: string
   filter: boolean
   hidden: boolean
+  imageDriven: boolean
   position: number
   active: boolean
   createdAt: Date
@@ -229,6 +236,7 @@ export type AttributeWhereInput = {
   name?: Prisma.StringFilter<"Attribute"> | string
   filter?: Prisma.BoolFilter<"Attribute"> | boolean
   hidden?: Prisma.BoolFilter<"Attribute"> | boolean
+  imageDriven?: Prisma.BoolFilter<"Attribute"> | boolean
   position?: Prisma.IntFilter<"Attribute"> | number
   active?: Prisma.BoolFilter<"Attribute"> | boolean
   createdAt?: Prisma.DateTimeFilter<"Attribute"> | Date | string
@@ -241,6 +249,7 @@ export type AttributeOrderByWithRelationInput = {
   name?: Prisma.SortOrder
   filter?: Prisma.SortOrder
   hidden?: Prisma.SortOrder
+  imageDriven?: Prisma.SortOrder
   position?: Prisma.SortOrder
   active?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -256,6 +265,7 @@ export type AttributeWhereUniqueInput = Prisma.AtLeast<{
   NOT?: Prisma.AttributeWhereInput | Prisma.AttributeWhereInput[]
   filter?: Prisma.BoolFilter<"Attribute"> | boolean
   hidden?: Prisma.BoolFilter<"Attribute"> | boolean
+  imageDriven?: Prisma.BoolFilter<"Attribute"> | boolean
   position?: Prisma.IntFilter<"Attribute"> | number
   active?: Prisma.BoolFilter<"Attribute"> | boolean
   createdAt?: Prisma.DateTimeFilter<"Attribute"> | Date | string
@@ -268,6 +278,7 @@ export type AttributeOrderByWithAggregationInput = {
   name?: Prisma.SortOrder
   filter?: Prisma.SortOrder
   hidden?: Prisma.SortOrder
+  imageDriven?: Prisma.SortOrder
   position?: Prisma.SortOrder
   active?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -286,6 +297,7 @@ export type AttributeScalarWhereWithAggregatesInput = {
   name?: Prisma.StringWithAggregatesFilter<"Attribute"> | string
   filter?: Prisma.BoolWithAggregatesFilter<"Attribute"> | boolean
   hidden?: Prisma.BoolWithAggregatesFilter<"Attribute"> | boolean
+  imageDriven?: Prisma.BoolWithAggregatesFilter<"Attribute"> | boolean
   position?: Prisma.IntWithAggregatesFilter<"Attribute"> | number
   active?: Prisma.BoolWithAggregatesFilter<"Attribute"> | boolean
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Attribute"> | Date | string
@@ -296,6 +308,7 @@ export type AttributeCreateInput = {
   name: string
   filter?: boolean
   hidden?: boolean
+  imageDriven?: boolean
   position?: number
   active?: boolean
   createdAt?: Date | string
@@ -308,6 +321,7 @@ export type AttributeUncheckedCreateInput = {
   name: string
   filter?: boolean
   hidden?: boolean
+  imageDriven?: boolean
   position?: number
   active?: boolean
   createdAt?: Date | string
@@ -320,6 +334,7 @@ export type AttributeUpdateInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   filter?: Prisma.BoolFieldUpdateOperationsInput | boolean
   hidden?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  imageDriven?: Prisma.BoolFieldUpdateOperationsInput | boolean
   position?: Prisma.IntFieldUpdateOperationsInput | number
   active?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -332,6 +347,7 @@ export type AttributeUncheckedUpdateInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   filter?: Prisma.BoolFieldUpdateOperationsInput | boolean
   hidden?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  imageDriven?: Prisma.BoolFieldUpdateOperationsInput | boolean
   position?: Prisma.IntFieldUpdateOperationsInput | number
   active?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -344,6 +360,7 @@ export type AttributeCreateManyInput = {
   name: string
   filter?: boolean
   hidden?: boolean
+  imageDriven?: boolean
   position?: number
   active?: boolean
   createdAt?: Date | string
@@ -354,6 +371,7 @@ export type AttributeUpdateManyMutationInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   filter?: Prisma.BoolFieldUpdateOperationsInput | boolean
   hidden?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  imageDriven?: Prisma.BoolFieldUpdateOperationsInput | boolean
   position?: Prisma.IntFieldUpdateOperationsInput | number
   active?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -364,6 +382,7 @@ export type AttributeUncheckedUpdateManyInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   filter?: Prisma.BoolFieldUpdateOperationsInput | boolean
   hidden?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  imageDriven?: Prisma.BoolFieldUpdateOperationsInput | boolean
   position?: Prisma.IntFieldUpdateOperationsInput | number
   active?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -374,6 +393,7 @@ export type AttributeCountOrderByAggregateInput = {
   name?: Prisma.SortOrder
   filter?: Prisma.SortOrder
   hidden?: Prisma.SortOrder
+  imageDriven?: Prisma.SortOrder
   position?: Prisma.SortOrder
   active?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -388,6 +408,7 @@ export type AttributeMaxOrderByAggregateInput = {
   name?: Prisma.SortOrder
   filter?: Prisma.SortOrder
   hidden?: Prisma.SortOrder
+  imageDriven?: Prisma.SortOrder
   position?: Prisma.SortOrder
   active?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -398,6 +419,7 @@ export type AttributeMinOrderByAggregateInput = {
   name?: Prisma.SortOrder
   filter?: Prisma.SortOrder
   hidden?: Prisma.SortOrder
+  imageDriven?: Prisma.SortOrder
   position?: Prisma.SortOrder
   active?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -445,6 +467,7 @@ export type AttributeCreateWithoutValuesInput = {
   name: string
   filter?: boolean
   hidden?: boolean
+  imageDriven?: boolean
   position?: number
   active?: boolean
   createdAt?: Date | string
@@ -456,6 +479,7 @@ export type AttributeUncheckedCreateWithoutValuesInput = {
   name: string
   filter?: boolean
   hidden?: boolean
+  imageDriven?: boolean
   position?: number
   active?: boolean
   createdAt?: Date | string
@@ -483,6 +507,7 @@ export type AttributeUpdateWithoutValuesInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   filter?: Prisma.BoolFieldUpdateOperationsInput | boolean
   hidden?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  imageDriven?: Prisma.BoolFieldUpdateOperationsInput | boolean
   position?: Prisma.IntFieldUpdateOperationsInput | number
   active?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -494,6 +519,7 @@ export type AttributeUncheckedUpdateWithoutValuesInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   filter?: Prisma.BoolFieldUpdateOperationsInput | boolean
   hidden?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  imageDriven?: Prisma.BoolFieldUpdateOperationsInput | boolean
   position?: Prisma.IntFieldUpdateOperationsInput | number
   active?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -505,6 +531,7 @@ export type AttributeCreateWithoutProductStocksInput = {
   name: string
   filter?: boolean
   hidden?: boolean
+  imageDriven?: boolean
   position?: number
   active?: boolean
   createdAt?: Date | string
@@ -516,6 +543,7 @@ export type AttributeUncheckedCreateWithoutProductStocksInput = {
   name: string
   filter?: boolean
   hidden?: boolean
+  imageDriven?: boolean
   position?: number
   active?: boolean
   createdAt?: Date | string
@@ -543,6 +571,7 @@ export type AttributeUpdateWithoutProductStocksInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   filter?: Prisma.BoolFieldUpdateOperationsInput | boolean
   hidden?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  imageDriven?: Prisma.BoolFieldUpdateOperationsInput | boolean
   position?: Prisma.IntFieldUpdateOperationsInput | number
   active?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -554,6 +583,7 @@ export type AttributeUncheckedUpdateWithoutProductStocksInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   filter?: Prisma.BoolFieldUpdateOperationsInput | boolean
   hidden?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  imageDriven?: Prisma.BoolFieldUpdateOperationsInput | boolean
   position?: Prisma.IntFieldUpdateOperationsInput | number
   active?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -605,6 +635,7 @@ export type AttributeSelect<ExtArgs extends runtime.Types.Extensions.InternalArg
   name?: boolean
   filter?: boolean
   hidden?: boolean
+  imageDriven?: boolean
   position?: boolean
   active?: boolean
   createdAt?: boolean
@@ -618,6 +649,7 @@ export type AttributeSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Ext
   name?: boolean
   filter?: boolean
   hidden?: boolean
+  imageDriven?: boolean
   position?: boolean
   active?: boolean
   createdAt?: boolean
@@ -628,6 +660,7 @@ export type AttributeSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Ext
   name?: boolean
   filter?: boolean
   hidden?: boolean
+  imageDriven?: boolean
   position?: boolean
   active?: boolean
   createdAt?: boolean
@@ -638,12 +671,13 @@ export type AttributeSelectScalar = {
   name?: boolean
   filter?: boolean
   hidden?: boolean
+  imageDriven?: boolean
   position?: boolean
   active?: boolean
   createdAt?: boolean
 }
 
-export type AttributeOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "filter" | "hidden" | "position" | "active" | "createdAt", ExtArgs["result"]["attribute"]>
+export type AttributeOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "filter" | "hidden" | "imageDriven" | "position" | "active" | "createdAt", ExtArgs["result"]["attribute"]>
 export type AttributeInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   values?: boolean | Prisma.Attribute$valuesArgs<ExtArgs>
   productStocks?: boolean | Prisma.Attribute$productStocksArgs<ExtArgs>
@@ -663,6 +697,7 @@ export type $AttributePayload<ExtArgs extends runtime.Types.Extensions.InternalA
     name: string
     filter: boolean
     hidden: boolean
+    imageDriven: boolean
     position: number
     active: boolean
     createdAt: Date
@@ -1095,6 +1130,7 @@ export interface AttributeFieldRefs {
   readonly name: Prisma.FieldRef<"Attribute", 'String'>
   readonly filter: Prisma.FieldRef<"Attribute", 'Boolean'>
   readonly hidden: Prisma.FieldRef<"Attribute", 'Boolean'>
+  readonly imageDriven: Prisma.FieldRef<"Attribute", 'Boolean'>
   readonly position: Prisma.FieldRef<"Attribute", 'Int'>
   readonly active: Prisma.FieldRef<"Attribute", 'Boolean'>
   readonly createdAt: Prisma.FieldRef<"Attribute", 'DateTime'>

@@ -176,6 +176,7 @@ export type AttributeValueWhereInput = {
   createdAt?: Prisma.DateTimeFilter<"AttributeValue"> | Date | string
   attribute?: Prisma.XOR<Prisma.AttributeScalarRelationFilter, Prisma.AttributeWhereInput>
   productStocks?: Prisma.ProductStockListRelationFilter
+  productImages?: Prisma.ProductImageListRelationFilter
 }
 
 export type AttributeValueOrderByWithRelationInput = {
@@ -185,6 +186,7 @@ export type AttributeValueOrderByWithRelationInput = {
   createdAt?: Prisma.SortOrder
   attribute?: Prisma.AttributeOrderByWithRelationInput
   productStocks?: Prisma.ProductStockOrderByRelationAggregateInput
+  productImages?: Prisma.ProductImageOrderByRelationAggregateInput
 }
 
 export type AttributeValueWhereUniqueInput = Prisma.AtLeast<{
@@ -198,6 +200,7 @@ export type AttributeValueWhereUniqueInput = Prisma.AtLeast<{
   createdAt?: Prisma.DateTimeFilter<"AttributeValue"> | Date | string
   attribute?: Prisma.XOR<Prisma.AttributeScalarRelationFilter, Prisma.AttributeWhereInput>
   productStocks?: Prisma.ProductStockListRelationFilter
+  productImages?: Prisma.ProductImageListRelationFilter
 }, "id" | "attributeId_value">
 
 export type AttributeValueOrderByWithAggregationInput = {
@@ -226,6 +229,7 @@ export type AttributeValueCreateInput = {
   createdAt?: Date | string
   attribute: Prisma.AttributeCreateNestedOneWithoutValuesInput
   productStocks?: Prisma.ProductStockCreateNestedManyWithoutAttributeValueInput
+  productImages?: Prisma.ProductImageCreateNestedManyWithoutAttributeValueInput
 }
 
 export type AttributeValueUncheckedCreateInput = {
@@ -234,6 +238,7 @@ export type AttributeValueUncheckedCreateInput = {
   value: string
   createdAt?: Date | string
   productStocks?: Prisma.ProductStockUncheckedCreateNestedManyWithoutAttributeValueInput
+  productImages?: Prisma.ProductImageUncheckedCreateNestedManyWithoutAttributeValueInput
 }
 
 export type AttributeValueUpdateInput = {
@@ -242,6 +247,7 @@ export type AttributeValueUpdateInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   attribute?: Prisma.AttributeUpdateOneRequiredWithoutValuesNestedInput
   productStocks?: Prisma.ProductStockUpdateManyWithoutAttributeValueNestedInput
+  productImages?: Prisma.ProductImageUpdateManyWithoutAttributeValueNestedInput
 }
 
 export type AttributeValueUncheckedUpdateInput = {
@@ -250,6 +256,7 @@ export type AttributeValueUncheckedUpdateInput = {
   value?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   productStocks?: Prisma.ProductStockUncheckedUpdateManyWithoutAttributeValueNestedInput
+  productImages?: Prisma.ProductImageUncheckedUpdateManyWithoutAttributeValueNestedInput
 }
 
 export type AttributeValueCreateManyInput = {
@@ -313,6 +320,11 @@ export type AttributeValueScalarRelationFilter = {
   isNot?: Prisma.AttributeValueWhereInput
 }
 
+export type AttributeValueNullableScalarRelationFilter = {
+  is?: Prisma.AttributeValueWhereInput | null
+  isNot?: Prisma.AttributeValueWhereInput | null
+}
+
 export type AttributeValueCreateNestedManyWithoutAttributeInput = {
   create?: Prisma.XOR<Prisma.AttributeValueCreateWithoutAttributeInput, Prisma.AttributeValueUncheckedCreateWithoutAttributeInput> | Prisma.AttributeValueCreateWithoutAttributeInput[] | Prisma.AttributeValueUncheckedCreateWithoutAttributeInput[]
   connectOrCreate?: Prisma.AttributeValueCreateOrConnectWithoutAttributeInput | Prisma.AttributeValueCreateOrConnectWithoutAttributeInput[]
@@ -369,11 +381,28 @@ export type AttributeValueUpdateOneRequiredWithoutProductStocksNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.AttributeValueUpdateToOneWithWhereWithoutProductStocksInput, Prisma.AttributeValueUpdateWithoutProductStocksInput>, Prisma.AttributeValueUncheckedUpdateWithoutProductStocksInput>
 }
 
+export type AttributeValueCreateNestedOneWithoutProductImagesInput = {
+  create?: Prisma.XOR<Prisma.AttributeValueCreateWithoutProductImagesInput, Prisma.AttributeValueUncheckedCreateWithoutProductImagesInput>
+  connectOrCreate?: Prisma.AttributeValueCreateOrConnectWithoutProductImagesInput
+  connect?: Prisma.AttributeValueWhereUniqueInput
+}
+
+export type AttributeValueUpdateOneWithoutProductImagesNestedInput = {
+  create?: Prisma.XOR<Prisma.AttributeValueCreateWithoutProductImagesInput, Prisma.AttributeValueUncheckedCreateWithoutProductImagesInput>
+  connectOrCreate?: Prisma.AttributeValueCreateOrConnectWithoutProductImagesInput
+  upsert?: Prisma.AttributeValueUpsertWithoutProductImagesInput
+  disconnect?: Prisma.AttributeValueWhereInput | boolean
+  delete?: Prisma.AttributeValueWhereInput | boolean
+  connect?: Prisma.AttributeValueWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.AttributeValueUpdateToOneWithWhereWithoutProductImagesInput, Prisma.AttributeValueUpdateWithoutProductImagesInput>, Prisma.AttributeValueUncheckedUpdateWithoutProductImagesInput>
+}
+
 export type AttributeValueCreateWithoutAttributeInput = {
   id?: string
   value: string
   createdAt?: Date | string
   productStocks?: Prisma.ProductStockCreateNestedManyWithoutAttributeValueInput
+  productImages?: Prisma.ProductImageCreateNestedManyWithoutAttributeValueInput
 }
 
 export type AttributeValueUncheckedCreateWithoutAttributeInput = {
@@ -381,6 +410,7 @@ export type AttributeValueUncheckedCreateWithoutAttributeInput = {
   value: string
   createdAt?: Date | string
   productStocks?: Prisma.ProductStockUncheckedCreateNestedManyWithoutAttributeValueInput
+  productImages?: Prisma.ProductImageUncheckedCreateNestedManyWithoutAttributeValueInput
 }
 
 export type AttributeValueCreateOrConnectWithoutAttributeInput = {
@@ -424,6 +454,7 @@ export type AttributeValueCreateWithoutProductStocksInput = {
   value: string
   createdAt?: Date | string
   attribute: Prisma.AttributeCreateNestedOneWithoutValuesInput
+  productImages?: Prisma.ProductImageCreateNestedManyWithoutAttributeValueInput
 }
 
 export type AttributeValueUncheckedCreateWithoutProductStocksInput = {
@@ -431,6 +462,7 @@ export type AttributeValueUncheckedCreateWithoutProductStocksInput = {
   attributeId: string
   value: string
   createdAt?: Date | string
+  productImages?: Prisma.ProductImageUncheckedCreateNestedManyWithoutAttributeValueInput
 }
 
 export type AttributeValueCreateOrConnectWithoutProductStocksInput = {
@@ -454,6 +486,7 @@ export type AttributeValueUpdateWithoutProductStocksInput = {
   value?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   attribute?: Prisma.AttributeUpdateOneRequiredWithoutValuesNestedInput
+  productImages?: Prisma.ProductImageUpdateManyWithoutAttributeValueNestedInput
 }
 
 export type AttributeValueUncheckedUpdateWithoutProductStocksInput = {
@@ -461,6 +494,55 @@ export type AttributeValueUncheckedUpdateWithoutProductStocksInput = {
   attributeId?: Prisma.StringFieldUpdateOperationsInput | string
   value?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  productImages?: Prisma.ProductImageUncheckedUpdateManyWithoutAttributeValueNestedInput
+}
+
+export type AttributeValueCreateWithoutProductImagesInput = {
+  id?: string
+  value: string
+  createdAt?: Date | string
+  attribute: Prisma.AttributeCreateNestedOneWithoutValuesInput
+  productStocks?: Prisma.ProductStockCreateNestedManyWithoutAttributeValueInput
+}
+
+export type AttributeValueUncheckedCreateWithoutProductImagesInput = {
+  id?: string
+  attributeId: string
+  value: string
+  createdAt?: Date | string
+  productStocks?: Prisma.ProductStockUncheckedCreateNestedManyWithoutAttributeValueInput
+}
+
+export type AttributeValueCreateOrConnectWithoutProductImagesInput = {
+  where: Prisma.AttributeValueWhereUniqueInput
+  create: Prisma.XOR<Prisma.AttributeValueCreateWithoutProductImagesInput, Prisma.AttributeValueUncheckedCreateWithoutProductImagesInput>
+}
+
+export type AttributeValueUpsertWithoutProductImagesInput = {
+  update: Prisma.XOR<Prisma.AttributeValueUpdateWithoutProductImagesInput, Prisma.AttributeValueUncheckedUpdateWithoutProductImagesInput>
+  create: Prisma.XOR<Prisma.AttributeValueCreateWithoutProductImagesInput, Prisma.AttributeValueUncheckedCreateWithoutProductImagesInput>
+  where?: Prisma.AttributeValueWhereInput
+}
+
+export type AttributeValueUpdateToOneWithWhereWithoutProductImagesInput = {
+  where?: Prisma.AttributeValueWhereInput
+  data: Prisma.XOR<Prisma.AttributeValueUpdateWithoutProductImagesInput, Prisma.AttributeValueUncheckedUpdateWithoutProductImagesInput>
+}
+
+export type AttributeValueUpdateWithoutProductImagesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  value?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  attribute?: Prisma.AttributeUpdateOneRequiredWithoutValuesNestedInput
+  productStocks?: Prisma.ProductStockUpdateManyWithoutAttributeValueNestedInput
+}
+
+export type AttributeValueUncheckedUpdateWithoutProductImagesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  attributeId?: Prisma.StringFieldUpdateOperationsInput | string
+  value?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  productStocks?: Prisma.ProductStockUncheckedUpdateManyWithoutAttributeValueNestedInput
 }
 
 export type AttributeValueCreateManyAttributeInput = {
@@ -474,6 +556,7 @@ export type AttributeValueUpdateWithoutAttributeInput = {
   value?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   productStocks?: Prisma.ProductStockUpdateManyWithoutAttributeValueNestedInput
+  productImages?: Prisma.ProductImageUpdateManyWithoutAttributeValueNestedInput
 }
 
 export type AttributeValueUncheckedUpdateWithoutAttributeInput = {
@@ -481,6 +564,7 @@ export type AttributeValueUncheckedUpdateWithoutAttributeInput = {
   value?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   productStocks?: Prisma.ProductStockUncheckedUpdateManyWithoutAttributeValueNestedInput
+  productImages?: Prisma.ProductImageUncheckedUpdateManyWithoutAttributeValueNestedInput
 }
 
 export type AttributeValueUncheckedUpdateManyWithoutAttributeInput = {
@@ -496,10 +580,12 @@ export type AttributeValueUncheckedUpdateManyWithoutAttributeInput = {
 
 export type AttributeValueCountOutputType = {
   productStocks: number
+  productImages: number
 }
 
 export type AttributeValueCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   productStocks?: boolean | AttributeValueCountOutputTypeCountProductStocksArgs
+  productImages?: boolean | AttributeValueCountOutputTypeCountProductImagesArgs
 }
 
 /**
@@ -519,6 +605,13 @@ export type AttributeValueCountOutputTypeCountProductStocksArgs<ExtArgs extends 
   where?: Prisma.ProductStockWhereInput
 }
 
+/**
+ * AttributeValueCountOutputType without action
+ */
+export type AttributeValueCountOutputTypeCountProductImagesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.ProductImageWhereInput
+}
+
 
 export type AttributeValueSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -527,6 +620,7 @@ export type AttributeValueSelect<ExtArgs extends runtime.Types.Extensions.Intern
   createdAt?: boolean
   attribute?: boolean | Prisma.AttributeDefaultArgs<ExtArgs>
   productStocks?: boolean | Prisma.AttributeValue$productStocksArgs<ExtArgs>
+  productImages?: boolean | Prisma.AttributeValue$productImagesArgs<ExtArgs>
   _count?: boolean | Prisma.AttributeValueCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["attributeValue"]>
 
@@ -557,6 +651,7 @@ export type AttributeValueOmit<ExtArgs extends runtime.Types.Extensions.Internal
 export type AttributeValueInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   attribute?: boolean | Prisma.AttributeDefaultArgs<ExtArgs>
   productStocks?: boolean | Prisma.AttributeValue$productStocksArgs<ExtArgs>
+  productImages?: boolean | Prisma.AttributeValue$productImagesArgs<ExtArgs>
   _count?: boolean | Prisma.AttributeValueCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type AttributeValueIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -571,6 +666,7 @@ export type $AttributeValuePayload<ExtArgs extends runtime.Types.Extensions.Inte
   objects: {
     attribute: Prisma.$AttributePayload<ExtArgs>
     productStocks: Prisma.$ProductStockPayload<ExtArgs>[]
+    productImages: Prisma.$ProductImagePayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -973,6 +1069,7 @@ export interface Prisma__AttributeValueClient<T, Null = never, ExtArgs extends r
   readonly [Symbol.toStringTag]: "PrismaPromise"
   attribute<T extends Prisma.AttributeDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.AttributeDefaultArgs<ExtArgs>>): Prisma.Prisma__AttributeClient<runtime.Types.Result.GetResult<Prisma.$AttributePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   productStocks<T extends Prisma.AttributeValue$productStocksArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.AttributeValue$productStocksArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ProductStockPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  productImages<T extends Prisma.AttributeValue$productImagesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.AttributeValue$productImagesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ProductImagePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1428,6 +1525,30 @@ export type AttributeValue$productStocksArgs<ExtArgs extends runtime.Types.Exten
   take?: number
   skip?: number
   distinct?: Prisma.ProductStockScalarFieldEnum | Prisma.ProductStockScalarFieldEnum[]
+}
+
+/**
+ * AttributeValue.productImages
+ */
+export type AttributeValue$productImagesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the ProductImage
+   */
+  select?: Prisma.ProductImageSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the ProductImage
+   */
+  omit?: Prisma.ProductImageOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ProductImageInclude<ExtArgs> | null
+  where?: Prisma.ProductImageWhereInput
+  orderBy?: Prisma.ProductImageOrderByWithRelationInput | Prisma.ProductImageOrderByWithRelationInput[]
+  cursor?: Prisma.ProductImageWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.ProductImageScalarFieldEnum | Prisma.ProductImageScalarFieldEnum[]
 }
 
 /**

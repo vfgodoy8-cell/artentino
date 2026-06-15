@@ -143,6 +143,7 @@ export const AttributeScalarFieldEnum = {
   name: 'name',
   filter: 'filter',
   hidden: 'hidden',
+  imageDriven: 'imageDriven',
   position: 'position',
   active: 'active',
   createdAt: 'createdAt'
@@ -179,6 +180,7 @@ export const ProductImageScalarFieldEnum = {
   url: 'url',
   filename: 'filename',
   size: 'size',
+  attributeValueId: 'attributeValueId',
   createdAt: 'createdAt'
 } as const
 
