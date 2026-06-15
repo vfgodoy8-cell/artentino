@@ -54,7 +54,9 @@ type EditFormProps = {
     url: string
     filename: string
     size: number
+    attributeValueId: string | null
   }[]
+  colorValues: { id: string; value: string }[]
 }
 
 export default function EditForm(props: EditFormProps) {
@@ -101,6 +103,7 @@ export default function EditForm(props: EditFormProps) {
           <TabImagenes
             productId={props.product.id}
             initial={props.productImages}
+            colorValues={props.colorValues}
           />
         )}
       </div>

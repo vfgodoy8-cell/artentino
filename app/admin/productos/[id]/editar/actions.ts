@@ -183,3 +183,12 @@ export async function deleteProductImage(id: string, productId: string) {
   await prisma.productImage.delete({ where: { id } })
   revalidatePath(`/admin/productos/${productId}/editar`)
 }
+
+export async function assignImageColor(
+  imageId: string,
+  attributeValueId: string | null,
+  productId: string,
+) {
+  await prisma.productImage.update({ where: { id: imageId }, data: { attributeValueId } })
+  revalidatePath(`/admin/productos/${productId}/editar`)
+}

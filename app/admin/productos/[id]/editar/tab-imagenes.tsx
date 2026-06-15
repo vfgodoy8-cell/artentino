@@ -2,17 +2,25 @@
 
 import { useState, useRef, useTransition } from 'react'
 import Image from 'next/image'
-import { deleteProductImage } from './actions'
+import { deleteProductImage, assignImageColor } from './actions'
 
-type ProductImage = { id: string; url: string; filename: string; size: number }
+type ProductImage = {
+  id: string
+  url: string
+  filename: string
+  size: number
+  attributeValueId: string | null
+}
 type PendingFile = { file: File; preview: string }
 
 export default function TabImagenes({
   productId,
   initial,
+  colorValues,
 }: {
   productId: string
   initial: ProductImage[]
+  colorValues: { id: string; value: string }[]
 }) {
   const [images, setImages] = useState(initial)
   const [pending, setPending] = useState<PendingFile[]>([])
@@ -20,6 +28,7 @@ export default function TabImagenes({
   const [selected, setSelected] = useState<Set<string>>(new Set())
   const fileInputRef = useRef<HTMLInputElement>(null)
   const [, startTransition] = useTransition()
+  const [, startColorTransition] = useTransition()
 
   function handleFileSelect(e: React.ChangeEvent<HTMLInputElement>) {
     const files = Array.from(e.target.files ?? [])
@@ -79,6 +88,15 @@ export default function TabImagenes({
       await deleteProductImage(id, productId)
       setImages((prev) => prev.filter((img) => img.id !== id))
       setSelected((prev) => { const next = new Set(prev); next.delete(id); return next })
+    })
+  }
+
+  function handleColorChange(imageId: string, attributeValueId: string | null) {
+    setImages((prev) =>
+      prev.map((img) => (img.id === imageId ? { ...img, attributeValueId } : img)),
+    )
+    startColorTransition(async () => {
+      await assignImageColor(imageId, attributeValueId, productId)
     })
   }
 
@@ -165,31 +183,56 @@ export default function TabImagenes({
           <div className="grid grid-cols-3 gap-3 sm:grid-cols-4 lg:grid-cols-6">
             {images.map((img) => {
               const isSelected = selected.has(img.id)
+              const assignedColor = colorValues.find((cv) => cv.id === img.attributeValueId)
               return (
-                <div
-                  key={img.id}
-                  className={`group relative aspect-square cursor-pointer overflow-hidden rounded-xl border-2 transition-all ${
-                    isSelected ? 'border-[#0eb1c3] ring-2 ring-[#0eb1c3]/30' : 'border-gray-100 hover:border-gray-300'
-                  }`}
-                  onClick={() => toggleSelect(img.id)}
-                >
-                  <Image src={img.url} alt={img.filename} fill className="object-cover" sizes="160px" />
-                  {/* Checkbox overlay */}
-                  <div className={`absolute left-2 top-2 flex h-5 w-5 items-center justify-center rounded-full border-2 bg-white transition-opacity ${isSelected ? 'border-[#0eb1c3] opacity-100' : 'border-gray-300 opacity-0 group-hover:opacity-100'}`}>
-                    {isSelected && <div className="h-2.5 w-2.5 rounded-full bg-[#0eb1c3]" />}
-                  </div>
-                  {/* Delete button */}
-                  <button
-                    type="button"
-                    onClick={(e) => { e.stopPropagation(); handleDeleteOne(img.id) }}
-                    className="absolute right-1 top-1 flex h-6 w-6 items-center justify-center rounded-full bg-black/60 text-xs text-white opacity-0 transition-opacity group-hover:opacity-100"
+                <div key={img.id} className="flex flex-col gap-1.5">
+                  {/* Image card */}
+                  <div
+                    className={`group relative aspect-square cursor-pointer overflow-hidden rounded-xl border-2 transition-all ${
+                      isSelected ? 'border-[#0eb1c3] ring-2 ring-[#0eb1c3]/30' : 'border-gray-100 hover:border-gray-300'
+                    }`}
+                    onClick={() => toggleSelect(img.id)}
                   >
-                    ✕
-                  </button>
-                  {/* Filename */}
-                  <div className="absolute bottom-0 left-0 right-0 bg-black/50 px-1.5 py-1">
-                    <p className="truncate text-[10px] text-white">{img.filename}</p>
+                    <Image src={img.url} alt={img.filename} fill className="object-cover" sizes="160px" />
+                    {/* Checkbox overlay */}
+                    <div className={`absolute left-2 top-2 flex h-5 w-5 items-center justify-center rounded-full border-2 bg-white transition-opacity ${isSelected ? 'border-[#0eb1c3] opacity-100' : 'border-gray-300 opacity-0 group-hover:opacity-100'}`}>
+                      {isSelected && <div className="h-2.5 w-2.5 rounded-full bg-[#0eb1c3]" />}
+                    </div>
+                    {/* Delete button */}
+                    <button
+                      type="button"
+                      onClick={(e) => { e.stopPropagation(); handleDeleteOne(img.id) }}
+                      className="absolute right-1 top-1 flex h-6 w-6 items-center justify-center rounded-full bg-black/60 text-xs text-white opacity-0 transition-opacity group-hover:opacity-100"
+                    >
+                      ✕
+                    </button>
+                    {/* Bottom overlay: filename + color badge */}
+                    <div className="absolute bottom-0 left-0 right-0 bg-black/50 px-1.5 py-1">
+                      <p className="truncate text-[10px] text-white">{img.filename}</p>
+                      {assignedColor && (
+                        <p className="text-[9px] font-black uppercase tracking-wide text-[#0eb1c3]">
+                          ● {assignedColor.value}
+                        </p>
+                      )}
+                    </div>
                   </div>
+
+                  {/* Color selector — only when product has imageDriven values */}
+                  {colorValues.length > 0 && (
+                    <select
+                      value={img.attributeValueId ?? ''}
+                      onClick={(e) => e.stopPropagation()}
+                      onChange={(e) => handleColorChange(img.id, e.target.value || null)}
+                      className="w-full rounded-lg border border-gray-200 px-2 py-1 text-xs text-[#1E1E1E] focus:border-[#0eb1c3] focus:outline-none"
+                    >
+                      <option value="">Sin color</option>
+                      {colorValues.map((cv) => (
+                        <option key={cv.id} value={cv.id}>
+                          {cv.value}
+                        </option>
+                      ))}
+                    </select>
+                  )}
                 </div>
               )
             })}

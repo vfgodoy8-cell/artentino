@@ -20,7 +20,10 @@ export default async function EditarProductoPage({ params }: Props) {
         include: { attribute: true, attributeValue: true },
         orderBy: { createdAt: 'asc' },
       },
-      productImages: { orderBy: { createdAt: 'asc' } },
+      productImages: {
+        orderBy: { createdAt: 'asc' },
+        include: { attributeValue: { select: { id: true, value: true } } },
+      },
     },
   })
 
@@ -80,7 +83,18 @@ export default async function EditarProductoPage({ params }: Props) {
     url: img.url,
     filename: img.filename,
     size: img.size,
+    attributeValueId: img.attributeValueId,
   }))
+
+  // AttributeValues of imageDriven attributes that this product has in stock
+  const seenAvIds = new Set<string>()
+  const colorValues: { id: string; value: string }[] = []
+  for (const s of product.stockItems) {
+    if (s.attribute.imageDriven && !s.attribute.hidden && !seenAvIds.has(s.attributeValueId)) {
+      colorValues.push({ id: s.attributeValue.id, value: s.attributeValue.value })
+      seenAvIds.add(s.attributeValueId)
+    }
+  }
 
   return (
     <div className="mx-auto max-w-5xl p-8">
@@ -112,6 +126,7 @@ export default async function EditarProductoPage({ params }: Props) {
           attributes={attributes}
           productStocks={serializedStocks}
           productImages={serializedImages}
+          colorValues={colorValues}
         />
       </div>
     </div>
