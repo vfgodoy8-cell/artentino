@@ -143,6 +143,7 @@ model ProductStock {
   attributeValueId String
   attributeValue   AttributeValue @relation(fields: [attributeValueId], references: [id])
   stock            Int            @default(0)
+  sortOrder        Int            @default(0)
   createdAt        DateTime       @default(now())
 
   @@unique([productId, attributeValueId])

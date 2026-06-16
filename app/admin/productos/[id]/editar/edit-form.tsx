@@ -44,6 +44,7 @@ type EditFormProps = {
   productStocks: {
     id: string
     stock: number
+    sortOrder: number
     attributeId: string
     attribute: { id: string; name: string; hidden: boolean }
     attributeValueId: string
@@ -56,6 +57,7 @@ type EditFormProps = {
     size: number
     attributeValueId: string | null
   }[]
+  imagesByAvId: Record<string, string>
   colorValues: { id: string; value: string }[]
 }
 
@@ -97,6 +99,7 @@ export default function EditForm(props: EditFormProps) {
             productId={props.product.id}
             attributes={props.attributes}
             initial={props.productStocks}
+            imagesByAvId={props.imagesByAvId}
           />
         )}
         {activeTab === 'imagenes' && (

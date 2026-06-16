@@ -18,7 +18,7 @@ export default async function EditarProductoPage({ params }: Props) {
       comboPrices: { orderBy: { quantity: 'asc' } },
       stockItems: {
         include: { attribute: true, attributeValue: true },
-        orderBy: { createdAt: 'asc' },
+        orderBy: [{ sortOrder: 'asc' }, { createdAt: 'asc' }],
       },
       productImages: {
         orderBy: { createdAt: 'asc' },
@@ -72,6 +72,7 @@ export default async function EditarProductoPage({ params }: Props) {
   const serializedStocks = product.stockItems.map((s) => ({
     id: s.id,
     stock: s.stock,
+    sortOrder: s.sortOrder,
     attributeId: s.attributeId,
     attribute: { id: s.attribute.id, name: s.attribute.name, hidden: s.attribute.hidden },
     attributeValueId: s.attributeValueId,
@@ -85,6 +86,13 @@ export default async function EditarProductoPage({ params }: Props) {
     size: img.size,
     attributeValueId: img.attributeValueId,
   }))
+
+  const imagesByAvId: Record<string, string> = {}
+  for (const img of serializedImages) {
+    if (img.attributeValueId && !imagesByAvId[img.attributeValueId]) {
+      imagesByAvId[img.attributeValueId] = img.url
+    }
+  }
 
   // AttributeValues of imageDriven attributes that this product has in stock
   const seenAvIds = new Set<string>()
@@ -126,6 +134,7 @@ export default async function EditarProductoPage({ params }: Props) {
           attributes={attributes}
           productStocks={serializedStocks}
           productImages={serializedImages}
+          imagesByAvId={imagesByAvId}
           colorValues={colorValues}
         />
       </div>

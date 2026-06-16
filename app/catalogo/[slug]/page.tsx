@@ -22,7 +22,10 @@ export default async function ProductoPage({ params }: Props) {
     include: {
       category: true,
       comboPrices: { orderBy: { quantity: 'asc' } },
-      stockItems: { include: { attribute: true, attributeValue: true } },
+      stockItems: {
+        include: { attribute: true, attributeValue: true },
+        orderBy: [{ sortOrder: 'asc' }, { createdAt: 'asc' }],
+      },
       productImages: { orderBy: { createdAt: 'asc' } },
     },
   })

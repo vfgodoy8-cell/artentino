@@ -149,6 +149,11 @@ export async function updateProductStockQty(id: string, stock: number, productId
   revalidatePath(`/admin/productos/${productId}/editar`)
 }
 
+export async function updateProductStockSortOrder(id: string, sortOrder: number, productId: string) {
+  await prisma.productStock.update({ where: { id }, data: { sortOrder } })
+  revalidatePath(`/admin/productos/${productId}/editar`)
+}
+
 export async function removeProductStock(id: string, productId: string) {
   await prisma.productStock.delete({ where: { id } })
   revalidatePath(`/admin/productos/${productId}/editar`)

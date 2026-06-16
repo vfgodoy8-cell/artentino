@@ -2,7 +2,7 @@
 
 import { useState, useTransition, useRef } from 'react'
 import { useRouter } from 'next/navigation'
-import { addStockVariant, updateProductStockQty, removeProductStock, upsertGenericStock } from './actions'
+import { addStockVariant, updateProductStockQty, updateProductStockSortOrder, removeProductStock, upsertGenericStock } from './actions'
 
 type AttributeValue = { id: string; value: string }
 type Attribute = { id: string; name: string; values: AttributeValue[] }
@@ -10,6 +10,7 @@ type Attribute = { id: string; name: string; values: AttributeValue[] }
 type StockItem = {
   id: string
   stock: number
+  sortOrder: number
   attributeId: string
   attribute: { id: string; name: string; hidden: boolean }
   attributeValueId: string
@@ -20,10 +21,12 @@ export default function TabStock({
   productId,
   attributes: initialAttributes,
   initial,
+  imagesByAvId,
 }: {
   productId: string
   attributes: Attribute[]
   initial: StockItem[]
+  imagesByAvId: Record<string, string>
 }) {
   const [items, setItems] = useState(initial)
   const [attributes, setAttributes] = useState(initialAttributes)
@@ -129,6 +132,7 @@ export default function TabStock({
         {
           id: crypto.randomUUID(),
           stock: 0,
+          sortOrder: 0,
           attributeId: attrId,
           attribute: { id: attrId, name: attrName, hidden: false },
           attributeValueId: avId,
@@ -165,6 +169,7 @@ export default function TabStock({
           {
             id: crypto.randomUUID(),
             stock: genericQty,
+            sortOrder: 0,
             attributeId: result.attributeId!,
             attribute: { id: result.attributeId!, name: 'Genérico', hidden: true },
             attributeValueId: result.attributeValueId!,
@@ -316,6 +321,8 @@ export default function TabStock({
         <table className="w-full text-sm">
           <thead>
             <tr className="border-b border-gray-100 bg-gray-50">
+              <th className="w-16 px-3 py-3 text-left text-xs font-black uppercase tracking-wider text-gray-400">Pos</th>
+              <th className="w-12 px-3 py-3 text-left text-xs font-black uppercase tracking-wider text-gray-400">Img</th>
               <th className="px-5 py-3 text-left text-xs font-black uppercase tracking-wider text-gray-400">Atributo</th>
               <th className="px-5 py-3 text-left text-xs font-black uppercase tracking-wider text-gray-400">Valor</th>
               <th className="px-5 py-3 text-left text-xs font-black uppercase tracking-wider text-gray-400">Stock</th>
@@ -328,15 +335,19 @@ export default function TabStock({
                 key={item.id}
                 item={item}
                 productId={productId}
+                imageUrl={imagesByAvId[item.attributeValueId]}
                 onUpdate={(id, stock) =>
                   setItems((prev) => prev.map((s) => (s.id === id ? { ...s, stock } : s)))
+                }
+                onUpdateSortOrder={(id, sortOrder) =>
+                  setItems((prev) => prev.map((s) => (s.id === id ? { ...s, sortOrder } : s)))
                 }
                 onRemove={handleRemove}
               />
             ))}
             {visibleItems.length === 0 && (
               <tr>
-                <td colSpan={4} className="py-12 text-center text-sm text-gray-400">
+                <td colSpan={6} className="py-12 text-center text-sm text-gray-400">
                   Sin variantes. Agregá la primera arriba.
                 </td>
               </tr>
@@ -363,18 +374,23 @@ export default function TabStock({
 function StockRow({
   item,
   productId,
+  imageUrl,
   onUpdate,
+  onUpdateSortOrder,
   onRemove,
 }: {
   item: StockItem
   productId: string
+  imageUrl?: string
   onUpdate: (id: string, stock: number) => void
+  onUpdateSortOrder: (id: string, sortOrder: number) => void
   onRemove: (id: string) => void
 }) {
   const [stock, setStock] = useState(item.stock)
+  const [sortOrder, setSortOrder] = useState(item.sortOrder)
   const [, startTransition] = useTransition()
 
-  function handleBlur() {
+  function handleStockBlur() {
     if (stock === item.stock) return
     startTransition(async () => {
       await updateProductStockQty(item.id, stock, productId)
@@ -382,8 +398,37 @@ function StockRow({
     })
   }
 
+  function handleSortOrderBlur() {
+    if (sortOrder === item.sortOrder) return
+    startTransition(async () => {
+      await updateProductStockSortOrder(item.id, sortOrder, productId)
+      onUpdateSortOrder(item.id, sortOrder)
+    })
+  }
+
   return (
     <tr className="hover:bg-gray-50">
+      <td className="px-3 py-3">
+        <input
+          type="number"
+          value={sortOrder}
+          onChange={(e) => setSortOrder(Number(e.target.value))}
+          onBlur={handleSortOrderBlur}
+          min={0}
+          className="w-14 rounded border border-gray-200 px-2 py-1 text-center text-sm focus:border-[#0eb1c3] focus:outline-none"
+        />
+      </td>
+      <td className="px-3 py-3">
+        {imageUrl ? (
+          <img
+            src={imageUrl}
+            alt={item.attributeValue.value}
+            className="h-8 w-8 rounded object-cover"
+          />
+        ) : (
+          <div className="h-8 w-8 rounded bg-gray-100" />
+        )}
+      </td>
       <td className="px-5 py-3 text-sm text-gray-500">{item.attribute.name}</td>
       <td className="px-5 py-3 font-semibold text-[#1E1E1E]">{item.attributeValue.value}</td>
       <td className="px-5 py-3">
@@ -391,7 +436,7 @@ function StockRow({
           type="number"
           value={stock}
           onChange={(e) => setStock(Number(e.target.value))}
-          onBlur={handleBlur}
+          onBlur={handleStockBlur}
           min={0}
           className="w-24 rounded border border-gray-200 px-2 py-1 text-sm focus:border-[#0eb1c3] focus:outline-none"
         />
