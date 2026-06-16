@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useCart, type ComboPrice } from '@/app/context/cart-context'
 
 function fmt(n: number) {
@@ -27,6 +27,9 @@ type Props = {
   imageUrl: string | null
   comboPrices: ComboPrice[]
   disabled: boolean
+  disabledReason: 'no-stock' | 'no-color' | null
+  maxQty: number
+  selectedColorId: string | null
 }
 
 export default function ProductActions({
@@ -36,14 +39,32 @@ export default function ProductActions({
   imageUrl,
   comboPrices,
   disabled,
+  disabledReason,
+  maxQty,
+  selectedColorId,
 }: Props) {
   const { addItem } = useCart()
   const [qty, setQty] = useState(1)
   const [added, setAdded] = useState(false)
   const [comboAddedId, setComboAddedId] = useState<string | null>(null)
 
+  // Reset quantity when color changes
+  useEffect(() => {
+    setQty(1)
+  }, [selectedColorId])
+
   function handleAddToCart() {
-    addItem({ productId, name, price, imageUrl, comboPrices }, qty)
+    addItem(
+      {
+        productId,
+        name,
+        price,
+        imageUrl,
+        comboPrices,
+        attributeValueId: selectedColorId ?? undefined,
+      },
+      qty,
+    )
     setAdded(true)
     setTimeout(() => setAdded(false), 1200)
   }
@@ -53,6 +74,14 @@ export default function ProductActions({
     setComboAddedId(combo.id)
     setTimeout(() => setComboAddedId(null), 1200)
   }
+
+  const buttonLabel = added
+    ? '¡Agregado!'
+    : disabledReason === 'no-color'
+      ? 'Seleccioná un color'
+      : disabledReason === 'no-stock'
+        ? 'Sin stock'
+        : 'Agregar al carrito'
 
   return (
     <div>
@@ -128,7 +157,7 @@ export default function ProductActions({
           <span className="w-10 text-center text-sm font-black text-[#1E1E1E]">{qty}</span>
           <button
             type="button"
-            onClick={() => setQty((q) => q + 1)}
+            onClick={() => setQty((q) => Math.min(maxQty, q + 1))}
             className="flex h-9 w-9 items-center justify-center text-lg text-gray-500 transition-colors hover:bg-gray-50"
           >
             +
@@ -143,7 +172,7 @@ export default function ProductActions({
         className="mt-4 w-full rounded-2xl py-4 text-sm font-black uppercase tracking-widest text-white transition-all disabled:opacity-40"
         style={{ backgroundColor: added ? '#1E1E1E' : '#0eb1c3' }}
       >
-        {disabled ? 'Sin stock' : added ? '¡Agregado!' : 'Agregar al carrito'}
+        {buttonLabel}
       </button>
     </div>
   )

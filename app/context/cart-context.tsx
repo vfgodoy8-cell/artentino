@@ -17,6 +17,7 @@ export type CartItem = {
   imageUrl: string | null
   quantity: number
   comboPrices?: ComboPrice[]
+  attributeValueId?: string
 }
 
 export function getEffectivePrice(item: CartItem): number {
@@ -33,11 +34,16 @@ export function getEffectivePrice(item: CartItem): number {
   return applicable.length > 0 ? applicable[0].price : item.price
 }
 
+// Stable key for deduplication — same product + same variant = same cart line
+export function cartItemKey(item: Pick<CartItem, 'productId' | 'attributeValueId'>): string {
+  return `${item.productId}:${item.attributeValueId ?? ''}`
+}
+
 type CartContextType = {
   items: CartItem[]
   addItem: (item: Omit<CartItem, 'quantity'>, qty?: number) => void
-  removeItem: (productId: string) => void
-  updateQuantity: (productId: string, quantity: number) => void
+  removeItem: (productId: string, attributeValueId?: string) => void
+  updateQuantity: (productId: string, quantity: number, attributeValueId?: string) => void
   clearCart: () => void
   getTotal: () => number
   getItemCount: () => number
@@ -63,27 +69,30 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
 
   function addItem(product: Omit<CartItem, 'quantity'>, qty = 1) {
     setItems((prev) => {
-      const existing = prev.find((i) => i.productId === product.productId)
+      const key = cartItemKey(product)
+      const existing = prev.find((i) => cartItemKey(i) === key)
       if (existing) {
         return prev.map((i) =>
-          i.productId === product.productId ? { ...i, quantity: i.quantity + qty } : i
+          cartItemKey(i) === key ? { ...i, quantity: i.quantity + qty } : i,
         )
       }
       return [...prev, { ...product, quantity: qty }]
     })
   }
 
-  function removeItem(productId: string) {
-    setItems((prev) => prev.filter((i) => i.productId !== productId))
+  function removeItem(productId: string, attributeValueId?: string) {
+    const key = cartItemKey({ productId, attributeValueId })
+    setItems((prev) => prev.filter((i) => cartItemKey(i) !== key))
   }
 
-  function updateQuantity(productId: string, quantity: number) {
+  function updateQuantity(productId: string, quantity: number, attributeValueId?: string) {
+    const key = cartItemKey({ productId, attributeValueId })
     if (quantity <= 0) {
-      removeItem(productId)
+      setItems((prev) => prev.filter((i) => cartItemKey(i) !== key))
       return
     }
     setItems((prev) =>
-      prev.map((i) => (i.productId === productId ? { ...i, quantity } : i))
+      prev.map((i) => (cartItemKey(i) === key ? { ...i, quantity } : i)),
     )
   }
 

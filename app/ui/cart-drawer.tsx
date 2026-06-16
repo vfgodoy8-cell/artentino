@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { useCart, getEffectivePrice } from '@/app/context/cart-context'
+import { useCart, getEffectivePrice, cartItemKey } from '@/app/context/cart-context'
 import { CategoryIcon } from './product-card'
 
 function fmt(n: number) {
@@ -78,7 +78,7 @@ export default function CartDrawer({ open, onClose }: Props) {
                 const effectivePrice = getEffectivePrice(item)
                 const hasCombo = effectivePrice < item.price
                 return (
-                  <li key={item.productId} className="flex gap-3">
+                  <li key={cartItemKey(item)} className="flex gap-3">
                     {/* Thumbnail */}
                     <div className="h-16 w-16 shrink-0 overflow-hidden rounded-xl bg-gray-50">
                       {item.imageUrl ? (
@@ -116,7 +116,7 @@ export default function CartDrawer({ open, onClose }: Props) {
                       <div className="mt-auto flex items-center gap-2">
                         <div className="flex items-center rounded-lg border border-gray-200">
                           <button
-                            onClick={() => updateQuantity(item.productId, item.quantity - 1)}
+                            onClick={() => updateQuantity(item.productId, item.quantity - 1, item.attributeValueId)}
                             className="flex h-7 w-7 items-center justify-center text-gray-500 transition-[transform,color] duration-[160ms] [transition-timing-function:var(--ease-out)] hover:text-[#1E1E1E] active:scale-[0.85]"
                           >
                             <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><line x1="5" y1="12" x2="19" y2="12" /></svg>
@@ -125,14 +125,14 @@ export default function CartDrawer({ open, onClose }: Props) {
                             {item.quantity}
                           </span>
                           <button
-                            onClick={() => updateQuantity(item.productId, item.quantity + 1)}
+                            onClick={() => updateQuantity(item.productId, item.quantity + 1, item.attributeValueId)}
                             className="flex h-7 w-7 items-center justify-center text-gray-500 transition-[transform,color] duration-[160ms] [transition-timing-function:var(--ease-out)] hover:text-[#1E1E1E] active:scale-[0.85]"
                           >
                             <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" /></svg>
                           </button>
                         </div>
                         <button
-                          onClick={() => removeItem(item.productId)}
+                          onClick={() => removeItem(item.productId, item.attributeValueId)}
                           className="text-xs font-semibold text-red-400 transition-[transform,color] duration-[160ms] [transition-timing-function:var(--ease-out)] hover:text-red-600 active:scale-[0.90]"
                         >
                           Eliminar

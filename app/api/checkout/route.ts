@@ -8,6 +8,7 @@ type CartItem = {
   name: string
   price: number
   quantity: number
+  attributeValueId?: string
 }
 
 type CheckoutBody = {
@@ -33,6 +34,37 @@ export async function POST(req: Request) {
 
   if (!items?.length || !payer?.email) {
     return NextResponse.json({ error: 'Datos incompletos' }, { status: 400 })
+  }
+
+  // Server-side stock validation — prevents overselling even if front-end is bypassed
+  for (const item of items) {
+    if (item.attributeValueId) {
+      const stockEntry = await prisma.productStock.findUnique({
+        where: {
+          productId_attributeValueId: {
+            productId: item.productId,
+            attributeValueId: item.attributeValueId,
+          },
+        },
+      })
+      if (!stockEntry || stockEntry.stock < item.quantity) {
+        return NextResponse.json(
+          { error: `Sin stock suficiente para "${item.name}". Actualizá tu carrito.` },
+          { status: 400 },
+        )
+      }
+    } else {
+      const stocks = await prisma.productStock.findMany({
+        where: { productId: item.productId },
+      })
+      const total = stocks.reduce((s, st) => s + st.stock, 0)
+      if (total < item.quantity) {
+        return NextResponse.json(
+          { error: `Sin stock suficiente para "${item.name}". Actualizá tu carrito.` },
+          { status: 400 },
+        )
+      }
+    }
   }
 
   const total = items.reduce((sum, item) => sum + item.price * item.quantity, 0)

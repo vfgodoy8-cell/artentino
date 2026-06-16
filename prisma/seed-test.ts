@@ -89,6 +89,7 @@ async function main() {
   const avAzul = await prisma.attributeValue.create({ data: { attributeId: attrColor.id, value: 'Azul' } })
   const avRojo = await prisma.attributeValue.create({ data: { attributeId: attrColor.id, value: 'Rojo' } })
   const avVerde = await prisma.attributeValue.create({ data: { attributeId: attrColor.id, value: 'Verde' } })
+  const avNegro = await prisma.attributeValue.create({ data: { attributeId: attrColor.id, value: 'Negro' } })
 
   await prisma.productStock.create({
     data: { productId: productA.id, attributeId: attrColor.id, attributeValueId: avAzul.id, stock: 3 },
@@ -98,6 +99,9 @@ async function main() {
   })
   await prisma.productStock.create({
     data: { productId: productA.id, attributeId: attrColor.id, attributeValueId: avVerde.id, stock: 1 },
+  })
+  await prisma.productStock.create({
+    data: { productId: productA.id, attributeId: attrColor.id, attributeValueId: avNegro.id, stock: 0 },
   })
 
   // ProductImages: general first (becomes defaultImage), then color-specific

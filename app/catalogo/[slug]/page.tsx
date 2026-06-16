@@ -2,12 +2,7 @@ import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { prisma } from '@/lib/prisma'
 import { serializeProduct } from '@/lib/serialize'
-import ProductGallery from './product-gallery'
-import ProductActions from './product-actions'
-
-function fmt(n: number) {
-  return `$${n.toLocaleString('es-AR')}`
-}
+import ProductDetailShell from './product-detail-shell'
 
 function getYouTubeId(url: string | null): string | null {
   if (!url) return null
@@ -37,11 +32,16 @@ export default async function ProductoPage({ params }: Props) {
   const serialized = serializeProduct(product)
   const price = serialized.price
   const comparePrice = serialized.comparePrice
-  const totalStock = product.stockItems.reduce((sum, s) => sum + s.stock, 0)
   const mainImage = product.imageUrl ?? product.productImages[0]?.url ?? null
   const youtubeId = getYouTubeId(product.videoUrl)
 
-  // Group stock variants — skip hidden (generic) attributes
+  // stockByValueId — attributeValueId → stock, consumed by the client shell
+  const stockByValueId: Record<string, number> = {}
+  for (const s of product.stockItems) {
+    stockByValueId[s.attributeValueId] = s.stock
+  }
+
+  // Variant groups — skip hidden (generic) attributes
   const variantGroups: Record<string, { id: string; value: string }[]> = {}
   for (const item of product.stockItems) {
     if (item.attribute.hidden) continue
@@ -95,99 +95,22 @@ export default async function ProductoPage({ params }: Props) {
           <span className="text-[#1E1E1E]">{product.name}</span>
         </nav>
 
-        {/* Product layout */}
-        <div className="grid gap-10 lg:grid-cols-2 lg:gap-16">
-
-          {/* Left: image + variant selector (client island handles color swap) */}
-          <ProductGallery
-            defaultImage={mainImage}
-            imagesByColor={imagesByColor}
-            variantGroups={variantGroups}
-            productName={product.name}
-            categoryName={product.category.name}
-          />
-
-          {/* Right: details */}
-          <div className="flex flex-col">
-
-            {/* Category badge */}
-            <span
-              className="mb-4 inline-flex w-fit rounded-full px-3 py-1 text-[10px] font-black uppercase tracking-widest text-white"
-              style={{ backgroundColor: '#0eb1c3' }}
-            >
-              {product.category.name}
-            </span>
-
-            {/* Name */}
-            <h1 className="text-2xl font-black leading-tight text-[#1E1E1E] sm:text-3xl lg:text-4xl">
-              {product.name}
-            </h1>
-
-            {/* Price */}
-            <div className="mt-6">
-              {comparePrice && comparePrice > price && (
-                <p className="mb-1 text-sm font-semibold text-gray-400 line-through">
-                  {fmt(comparePrice)}
-                </p>
-              )}
-              <p className="text-4xl font-black leading-none text-[#1E1E1E]">
-                {fmt(price)}
-              </p>
-              <p className="mt-2 text-sm text-gray-400">
-                6x {fmt(Math.round(price / 6))} sin interés
-              </p>
-            </div>
-
-            {/* Combo table + qty selector + add to cart */}
-            <ProductActions
-              productId={product.id}
-              name={product.name}
-              price={price}
-              imageUrl={mainImage}
-              comboPrices={comboPrices}
-              disabled={totalStock === 0}
-            />
-
-            {/* Divider */}
-            <div className="my-6 border-t border-gray-100" />
-
-            {/* Description — 2pt bigger font */}
-            {product.description && (
-              <div className="rounded-xl bg-gray-50 px-4 py-4">
-                <p className="mb-1.5 text-[10px] font-black uppercase tracking-widest text-gray-400">Descripción</p>
-                <p className="text-lg leading-relaxed text-[#1E1E1E]">{product.description}</p>
-              </div>
-            )}
-
-            {/* Additional data */}
-            {product.additionalData && (
-              <div className="mt-3 rounded-xl bg-gray-50 px-4 py-4">
-                <p className="mb-1.5 text-[10px] font-black uppercase tracking-widest text-gray-400">Información adicional</p>
-                <p className="leading-relaxed text-gray-500">{product.additionalData}</p>
-              </div>
-            )}
-
-            {/* Stock */}
-            <div className="mt-6 flex items-center gap-2">
-              <span
-                className={`h-2 w-2 rounded-full ${totalStock > 0 ? 'bg-[#4ade80]' : 'bg-[#f87171]'}`}
-              />
-              <span className="text-sm text-gray-500">
-                {totalStock > 0
-                  ? `${totalStock} unidades disponibles`
-                  : 'Sin stock'}
-              </span>
-            </div>
-
-            {/* Back link */}
-            <Link
-              href="/catalogo"
-              className="mt-6 text-center text-sm font-semibold text-[#0eb1c3] transition-colors hover:underline"
-            >
-              ← Volver al catálogo
-            </Link>
-          </div>
-        </div>
+        {/* Product detail — client shell manages color ↔ stock state */}
+        <ProductDetailShell
+          defaultImage={mainImage}
+          imagesByColor={imagesByColor}
+          variantGroups={variantGroups}
+          stockByValueId={stockByValueId}
+          productName={product.name}
+          categoryName={product.category.name}
+          productId={product.id}
+          price={price}
+          comparePrice={comparePrice}
+          imageUrl={mainImage}
+          comboPrices={comboPrices}
+          description={product.description ?? null}
+          additionalData={product.additionalData ?? null}
+        />
 
         {/* YouTube embed */}
         {youtubeId && (

@@ -36,6 +36,29 @@ test.describe('Catálogo — listado, filtro y detalle', () => {
     await expect(page.getByText('$266.000')).toBeVisible()
   })
 
+  test('sin color elegido muestra prompt; color sin stock bloquea la compra', async ({ page }) => {
+    await page.goto('/catalogo/espejo-led-touch-60cm')
+
+    // Before selecting any color: informative prompt, button disabled
+    await expect(page.getByText('Elegí un color para ver el stock disponible')).toBeVisible()
+    const addBtn = page.getByRole('button', { name: /seleccioná un color/i })
+    await expect(addBtn).toBeDisabled()
+
+    // Negro has stock 0 — chip should be visually disabled (line-through)
+    const negroBtn = page.getByRole('button', { name: 'Negro' })
+    await expect(negroBtn).toBeDisabled()
+
+    // Selecting Azul (stock 3) enables the button and shows available units
+    await page.getByRole('button', { name: 'Azul' }).click()
+    await expect(page.getByText('3 unidades disponibles')).toBeVisible()
+    await expect(page.getByRole('button', { name: /agregar al carrito/i })).toBeEnabled()
+
+    // Switching to Verde (stock 1)
+    await page.getByRole('button', { name: 'Verde' }).click()
+    await expect(page.getByText('1 unidades disponibles')).toBeVisible()
+    await expect(page.getByRole('button', { name: /agregar al carrito/i })).toBeEnabled()
+  })
+
   test('seleccionar color cambia la imagen; color sin imagen cae al fallback', async ({ page }) => {
     await page.goto('/catalogo/espejo-led-touch-60cm')
     const img = page.getByAltText('Espejo LED Touch 60cm')

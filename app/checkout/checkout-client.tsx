@@ -60,6 +60,7 @@ export default function CheckoutClient() {
             name: i.name,
             price: getEffectivePrice(i),
             quantity: i.quantity,
+            attributeValueId: i.attributeValueId,
           })),
           payer: contact,
           shipping,

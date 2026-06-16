@@ -5,10 +5,10 @@ test.use({ storageState: '.playwright/user.json' })
 
 test.describe('Checkout — carrito y pago', () => {
   test.beforeEach(async ({ page }) => {
-    // Agrega el producto al carrito navegando al detalle
+    // Agrega el producto al carrito — hay que elegir un color primero
     await page.goto('/catalogo/espejo-led-touch-60cm')
-    // Busca el botón de agregar al carrito
-    const addBtn = page.getByRole('button', { name: /agregar/i })
+    await page.getByRole('button', { name: 'Azul' }).click()
+    const addBtn = page.getByRole('button', { name: /agregar al carrito/i })
     await expect(addBtn).toBeVisible()
     await addBtn.click()
   })

@@ -10,16 +10,20 @@ type Props = {
   defaultImage: string | null
   imagesByColor: Record<string, string>
   variantGroups: Record<string, VariantEntry[]>
+  stockByValueId: Record<string, number>
   productName: string
   categoryName: string
+  onColorSelect?: (id: string | null) => void
 }
 
 export default function ProductGallery({
   defaultImage,
   imagesByColor,
   variantGroups,
+  stockByValueId,
   productName,
   categoryName,
+  onColorSelect,
 }: Props) {
   const [selectedIds, setSelectedIds] = useState<Record<string, string>>({})
 
@@ -34,6 +38,7 @@ export default function ProductGallery({
 
   function handleSelect(attrName: string, valueId: string) {
     setSelectedIds((s) => ({ ...s, [attrName]: valueId }))
+    onColorSelect?.(valueId || null)
   }
 
   return (
@@ -58,7 +63,11 @@ export default function ProductGallery({
       </div>
 
       {/* Variant selector */}
-      <VariantSelector variantGroups={variantGroups} onSelect={handleSelect} />
+      <VariantSelector
+        variantGroups={variantGroups}
+        stockByValueId={stockByValueId}
+        onSelect={handleSelect}
+      />
     </div>
   )
 }
