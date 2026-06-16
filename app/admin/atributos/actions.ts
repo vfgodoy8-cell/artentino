@@ -15,6 +15,7 @@ export async function createAttribute(data: {
   name: string
   filter: boolean
   hidden: boolean
+  imageDriven: boolean
   position: number
   active: boolean
 }) {
@@ -24,7 +25,7 @@ export async function createAttribute(data: {
 
 export async function updateAttribute(
   id: string,
-  data: Partial<{ name: string; filter: boolean; hidden: boolean; position: number; active: boolean }>,
+  data: Partial<{ name: string; filter: boolean; hidden: boolean; imageDriven: boolean; position: number; active: boolean }>,
 ) {
   await prisma.attribute.update({ where: { id }, data })
   revalidatePath('/admin/atributos')

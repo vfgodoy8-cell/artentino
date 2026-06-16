@@ -46,125 +46,129 @@ const benefits = [
 
 export default function Hero() {
   return (
-    <section className="-mt-16 grid min-h-[calc(90vh+4rem)] bg-white lg:grid-cols-[46%_54%]">
+    <section className="relative -mt-16 min-h-[calc(90vh+4rem)] overflow-hidden bg-[#f2f0ed]">
 
-      {/* Left — text */}
-      <div className="relative flex flex-col justify-center overflow-hidden px-8 py-20 sm:px-12 lg:py-24 lg:pl-14 lg:pr-8">
+      {/* Background image — full bleed */}
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        src="/hero-bg.jpg"
+        alt=""
+        aria-hidden="true"
+        className="absolute inset-0 h-full w-full object-cover object-left lg:object-[60%_center]"
+      />
 
-        {/* Teal glow blob — decorative bg */}
-        <div className="pointer-events-none absolute -bottom-28 -left-28 h-[460px] w-[460px] rounded-full bg-[#0eb1c3] opacity-[0.07] blur-[90px]" />
+      {/* Gradient veil — white left → transparent right, ensures text legibility */}
+      <div className="absolute inset-0 bg-gradient-to-r from-white/[0.97] via-white/75 to-transparent lg:via-white/55" />
 
-        {/* Eyebrow */}
-        <div className="mb-5 flex items-center gap-2 text-[11px] font-black uppercase tracking-[0.3em] text-[#0eb1c3]">
-          Arte
-          <span className="h-1 w-1 rounded-full bg-[#0eb1c3] opacity-50" />
-          Diseño
-          <span className="h-1 w-1 rounded-full bg-[#0eb1c3] opacity-50" />
-          Hogar
-        </div>
+      {/* Teal glow blob — decorative */}
+      <div className="pointer-events-none absolute -bottom-28 -left-28 z-[1] h-[460px] w-[460px] rounded-full bg-[#0eb1c3] opacity-[0.07] blur-[90px]" />
 
-        {/* Headline */}
-        <h1 className="mb-6 text-6xl font-black leading-[1.02] tracking-[-0.03em] text-[#1E1E1E] lg:text-[76px]">
-          Espacios que<br />
-          <span className="italic text-[#0eb1c3]">reflejan</span> tu estilo
-        </h1>
+      {/* Dots grid — top-right decoration */}
+      <div className="pointer-events-none absolute right-0 top-24 z-10 opacity-75">
+        <DotsGrid />
+      </div>
 
-        {/* Subtitle */}
-        <p className="mb-8 max-w-[380px] text-[15px] leading-[1.65] text-[#6b7280]">
-          Espejos LED, muebles y deco que transforman
-          cada rincón de tu hogar.
-        </p>
+      {/* Bottom gradient overlay */}
+      <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-black/[0.15]" />
 
-        {/* CTAs */}
-        <div className="mb-10 flex flex-wrap gap-3">
-          <Link
-            href="/catalogo"
-            className="inline-flex h-12 items-center justify-center rounded-[10px] bg-[#0eb1c3] px-7 text-xs font-black uppercase tracking-[0.12em] text-white transition-colors hover:bg-[#0a8f9e]"
-          >
-            Ver catálogo
-          </Link>
-          <Link
-            href="/catalogo?categoria=espejos-led"
-            className="inline-flex h-12 items-center justify-center rounded-[10px] border-[1.5px] border-[#e5e7eb] px-7 text-xs font-black uppercase tracking-[0.12em] text-[#1E1E1E] transition-colors hover:border-[#0eb1c3] hover:text-[#0eb1c3]"
-          >
-            Ver espejos LED
-          </Link>
-        </div>
+      {/* Text content — left column */}
+      <div className="relative z-10 flex min-h-[calc(90vh+4rem)] items-center">
+        <div className="flex flex-col justify-center px-8 py-20 sm:px-12 lg:max-w-[52%] lg:py-24 lg:pl-14 lg:pr-8">
 
-        {/* Benefits */}
-        <div className="flex flex-wrap gap-5">
-          {benefits.map((b) => (
-            <div key={b.label} className="flex items-center gap-2">
-              <div className="flex h-[34px] w-[34px] shrink-0 items-center justify-center rounded-lg bg-[#f0fdfc] text-[#0eb1c3]">
-                {b.icon}
+          {/* Eyebrow */}
+          <div className="mb-5 flex items-center gap-2 text-[11px] font-black uppercase tracking-[0.3em] text-[#0eb1c3]">
+            Arte
+            <span className="h-1 w-1 rounded-full bg-[#0eb1c3] opacity-50" />
+            Diseño
+            <span className="h-1 w-1 rounded-full bg-[#0eb1c3] opacity-50" />
+            Hogar
+          </div>
+
+          {/* Headline */}
+          <h1 className="mb-6 text-6xl font-black leading-[1.02] tracking-[-0.03em] text-[#1E1E1E] lg:text-[76px]">
+            Espacios que<br />
+            <span className="italic text-[#0eb1c3]">reflejan</span> tu estilo
+          </h1>
+
+          {/* Subtitle */}
+          <p className="mb-8 max-w-[380px] text-[15px] leading-[1.65] text-[#6b7280]">
+            Espejos LED, muebles y deco que transforman
+            cada rincón de tu hogar.
+          </p>
+
+          {/* CTAs */}
+          <div className="mb-10 flex flex-wrap gap-3">
+            <Link
+              href="/catalogo"
+              className="inline-flex h-12 items-center justify-center rounded-[10px] bg-[#0eb1c3] px-7 text-xs font-black uppercase tracking-[0.12em] text-white transition-colors hover:bg-[#0a8f9e]"
+            >
+              Ver catálogo
+            </Link>
+            <Link
+              href="/catalogo?categoria=espejos-led"
+              className="inline-flex h-12 items-center justify-center rounded-[10px] border-[1.5px] border-[#e5e7eb] px-7 text-xs font-black uppercase tracking-[0.12em] text-[#1E1E1E] transition-colors hover:border-[#0eb1c3] hover:text-[#0eb1c3]"
+            >
+              Ver espejos LED
+            </Link>
+          </div>
+
+          {/* Benefits */}
+          <div className="flex flex-wrap gap-5">
+            {benefits.map((b) => (
+              <div key={b.label} className="flex items-center gap-2">
+                <div className="flex h-[34px] w-[34px] shrink-0 items-center justify-center rounded-lg bg-[#f0fdfc] text-[#0eb1c3]">
+                  {b.icon}
+                </div>
+                <div className="flex flex-col gap-px">
+                  <span className="text-[9px] font-black uppercase leading-none tracking-[0.12em] text-[#1E1E1E]">
+                    {b.label}
+                  </span>
+                  <span className="text-[9px] leading-[1.3] text-[#9ca3af]">{b.desc}</span>
+                </div>
               </div>
-              <div className="flex flex-col gap-px">
-                <span className="text-[9px] font-black uppercase leading-none tracking-[0.12em] text-[#1E1E1E]">
-                  {b.label}
-                </span>
-                <span className="text-[9px] leading-[1.3] text-[#9ca3af]">{b.desc}</span>
-              </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
       </div>
 
-      {/* Right — image + floating cards */}
-      <div className="relative min-h-[320px] overflow-hidden lg:min-h-0">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src="/hero-product.jpg"
-          alt="Deco y hogar Artentino"
-          className="h-full w-full object-cover object-center"
-        />
+      {/* Floating category cards — bottom right */}
+      <div className="absolute bottom-8 right-6 z-20 flex flex-col gap-2.5">
 
-        {/* Dots grid — top-right decoration */}
-        <div className="pointer-events-none absolute right-0 top-24 z-10 opacity-75">
-          <DotsGrid />
-        </div>
+        {/* White card — Espejos LED */}
+        <Link
+          href="/catalogo?categoria=espejos-led"
+          className="flex min-w-[210px] items-center gap-3 rounded-xl bg-white px-4 py-3 shadow-[0_4px_20px_rgba(0,0,0,0.15)] transition-shadow hover:shadow-[0_6px_28px_rgba(0,0,0,0.2)]"
+        >
+          <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-[#f3f4f6] text-[#0eb1c3]">
+            <MirrorIcon />
+          </div>
+          <div className="flex flex-col gap-0.5">
+            <span className="text-[12px] font-black uppercase tracking-[0.05em] text-[#1E1E1E]">
+              Espejos LED
+            </span>
+            <span className="text-[11px] leading-[1.3] text-[#6b7280]">
+              Redondos, rectangulares<br />y a medida
+            </span>
+          </div>
+        </Link>
 
-        {/* Bottom gradient overlay */}
-        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-black/[0.18]" />
-
-        {/* Floating category cards */}
-        <div className="absolute bottom-8 right-6 flex flex-col gap-2.5">
-
-          {/* White card — Espejos LED */}
-          <Link
-            href="/catalogo?categoria=espejos-led"
-            className="flex min-w-[210px] items-center gap-3 rounded-xl bg-white px-4 py-3 shadow-[0_4px_20px_rgba(0,0,0,0.15)] transition-shadow hover:shadow-[0_6px_28px_rgba(0,0,0,0.2)]"
-          >
-            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-[#f3f4f6] text-[#0eb1c3]">
-              <MirrorIcon />
-            </div>
-            <div className="flex flex-col gap-0.5">
-              <span className="text-[12px] font-black uppercase tracking-[0.05em] text-[#1E1E1E]">
-                Espejos LED
-              </span>
-              <span className="text-[11px] leading-[1.3] text-[#6b7280]">
-                Redondos, rectangulares<br />y a medida
-              </span>
-            </div>
-          </Link>
-
-          {/* Teal card — Muebles y Deco */}
-          <Link
-            href="/catalogo"
-            className="flex min-w-[210px] items-center gap-3 rounded-xl bg-[#0eb1c3] px-4 py-3 shadow-[0_4px_20px_rgba(0,0,0,0.15)] transition-shadow hover:shadow-[0_6px_28px_rgba(0,0,0,0.2)]"
-          >
-            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-white/20">
-              <FurnitureIcon />
-            </div>
-            <div className="flex flex-col gap-0.5">
-              <span className="text-[12px] font-black uppercase tracking-[0.05em] text-white">
-                Muebles y Deco
-              </span>
-              <span className="text-[11px] leading-[1.3] text-white/80">
-                Diseño funcional para<br />cada ambiente
-              </span>
-            </div>
-          </Link>
-        </div>
+        {/* Teal card — Muebles y Deco */}
+        <Link
+          href="/catalogo"
+          className="flex min-w-[210px] items-center gap-3 rounded-xl bg-[#0eb1c3] px-4 py-3 shadow-[0_4px_20px_rgba(0,0,0,0.15)] transition-shadow hover:shadow-[0_6px_28px_rgba(0,0,0,0.2)]"
+        >
+          <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-white/20">
+            <FurnitureIcon />
+          </div>
+          <div className="flex flex-col gap-0.5">
+            <span className="text-[12px] font-black uppercase tracking-[0.05em] text-white">
+              Muebles y Deco
+            </span>
+            <span className="text-[11px] leading-[1.3] text-white/80">
+              Diseño funcional para<br />cada ambiente
+            </span>
+          </div>
+        </Link>
       </div>
     </section>
   )

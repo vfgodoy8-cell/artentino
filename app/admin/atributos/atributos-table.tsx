@@ -17,12 +17,13 @@ type Attribute = {
   name: string
   filter: boolean
   hidden: boolean
+  imageDriven: boolean
   position: number
   active: boolean
   values: AttributeValueItem[]
 }
 
-const EMPTY: Omit<Attribute, 'id' | 'values'> = { name: '', filter: false, hidden: false, position: 0, active: true }
+const EMPTY: Omit<Attribute, 'id' | 'values'> = { name: '', filter: false, hidden: false, imageDriven: false, position: 0, active: true }
 
 export default function AtributosTable({ initial }: { initial: Attribute[] }) {
   const [attrs, setAttrs] = useState(initial)
@@ -61,7 +62,7 @@ export default function AtributosTable({ initial }: { initial: Attribute[] }) {
 
   function startEdit(a: Attribute) {
     setEditingId(a.id)
-    setEditForm({ name: a.name, filter: a.filter, hidden: a.hidden, position: a.position, active: a.active })
+    setEditForm({ name: a.name, filter: a.filter, hidden: a.hidden, imageDriven: a.imageDriven, position: a.position, active: a.active })
   }
 
   function saveEdit(id: string) {
@@ -110,6 +111,13 @@ export default function AtributosTable({ initial }: { initial: Attribute[] }) {
     startTransition(async () => {
       await updateAttribute(id, { hidden })
       setAttrs((prev) => prev.map((a) => (a.id === id ? { ...a, hidden } : a)))
+    })
+  }
+
+  function toggleImageDriven(id: string, imageDriven: boolean) {
+    startTransition(async () => {
+      await updateAttribute(id, { imageDriven })
+      setAttrs((prev) => prev.map((a) => (a.id === id ? { ...a, imageDriven } : a)))
     })
   }
 
@@ -190,7 +198,7 @@ export default function AtributosTable({ initial }: { initial: Attribute[] }) {
                 <th className="px-4 py-3.5">
                   <input type="checkbox" checked={allSelected} onChange={toggleSelectAll} className="rounded" />
                 </th>
-                {['ID', 'Nombre', 'Filtro', 'Oculto', 'Posición', 'Estado', 'Acciones'].map((h) => (
+                {['ID', 'Nombre', 'Filtro', 'Oculto', 'Img', 'Posición', 'Estado', 'Acciones'].map((h) => (
                   <th
                     key={h}
                     className={`px-4 py-3.5 text-xs font-black uppercase tracking-wider text-gray-400 ${h === 'Acciones' ? 'text-right' : 'text-left'}`}
@@ -222,6 +230,11 @@ export default function AtributosTable({ initial }: { initial: Attribute[] }) {
                   <td className="px-4 py-3">
                     <ToggleButton active={newForm.hidden} activeClass="bg-purple-100 text-purple-600" onClick={() => setNewForm((f) => ({ ...f, hidden: !f.hidden }))}>
                       {newForm.hidden ? 'Sí' : 'No'}
+                    </ToggleButton>
+                  </td>
+                  <td className="px-4 py-3">
+                    <ToggleButton active={newForm.imageDriven} activeClass="bg-amber-100 text-amber-600" onClick={() => setNewForm((f) => ({ ...f, imageDriven: !f.imageDriven }))}>
+                      {newForm.imageDriven ? 'Sí' : 'No'}
                     </ToggleButton>
                   </td>
                   <td className="px-4 py-3">
@@ -292,6 +305,17 @@ export default function AtributosTable({ initial }: { initial: Attribute[] }) {
                       </td>
                       <td className="px-4 py-3">
                         {isEditing ? (
+                          <ToggleButton active={editForm.imageDriven} activeClass="bg-amber-100 text-amber-600" onClick={() => setEditForm((f) => ({ ...f, imageDriven: !f.imageDriven }))}>
+                            {editForm.imageDriven ? 'Sí' : 'No'}
+                          </ToggleButton>
+                        ) : (
+                          <ToggleButton active={a.imageDriven} activeClass="bg-amber-100 text-amber-600" onClick={() => toggleImageDriven(a.id, !a.imageDriven)}>
+                            {a.imageDriven ? 'Sí' : 'No'}
+                          </ToggleButton>
+                        )}
+                      </td>
+                      <td className="px-4 py-3">
+                        {isEditing ? (
                           <input
                             type="number"
                             value={editForm.position}
@@ -338,7 +362,7 @@ export default function AtributosTable({ initial }: { initial: Attribute[] }) {
 
                     {isExpanded && (
                       <tr key={`${a.id}-values`}>
-                        <td colSpan={8} className="border-t border-[#0eb1c3]/10 bg-[#f0fdfc] px-6 py-4">
+                        <td colSpan={9} className="border-t border-[#0eb1c3]/10 bg-[#f0fdfc] px-6 py-4">
                           <ValuesPanel
                             attributeId={a.id}
                             attributeName={a.name}
@@ -356,7 +380,7 @@ export default function AtributosTable({ initial }: { initial: Attribute[] }) {
 
               {filtered.length === 0 && !isAdding && (
                 <tr>
-                  <td colSpan={8} className="py-16 text-center text-sm text-gray-400">
+                  <td colSpan={9} className="py-16 text-center text-sm text-gray-400">
                     {search ? 'Sin resultados para esa búsqueda.' : 'No hay atributos todavía.'}
                   </td>
                 </tr>

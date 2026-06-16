@@ -17,6 +17,7 @@ export default async function AdminAtributos() {
     name: a.name,
     filter: a.filter,
     hidden: a.hidden,
+    imageDriven: a.imageDriven,
     position: a.position,
     active: a.active,
     values: a.values.map((v) => ({
