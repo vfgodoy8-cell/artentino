@@ -20,12 +20,6 @@ export default function CategoryPills({
   const activePillRef = useRef<HTMLAnchorElement | null>(null)
   const isFirstRender = useRef(true)
 
-  // Drag refs — no state to avoid re-renders during drag
-  const isDragging = useRef(false)
-  const startX = useRef(0)
-  const startScrollLeft = useRef(0)
-  const hasDragged = useRef(false)
-
   // ── Fades ─────────────────────────────────────────────────────────────
   const updateFades = useCallback(() => {
     const el = scrollRef.current
@@ -49,49 +43,22 @@ export default function CategoryPills({
     activePillRef.current?.scrollIntoView({ inline: 'center', block: 'nearest', behavior })
   }, [activeSlug])
 
-  // ── Suppress click after drag (capture phase, before Link receives it) ─
-  useEffect(() => {
+  // ── Arrow scroll handlers ─────────────────────────────────────────────
+  function handleScrollLeft() {
     const el = scrollRef.current
     if (!el) return
-    const suppressClick = (e: MouseEvent) => {
-      if (hasDragged.current) {
-        e.preventDefault()
-        e.stopPropagation()
-        hasDragged.current = false
-      }
-    }
-    el.addEventListener('click', suppressClick, true)
-    return () => el.removeEventListener('click', suppressClick, true)
-  }, [])
-
-  // ── Drag handlers ──────────────────────────────────────────────────────
-  function handleMouseDown(e: React.MouseEvent<HTMLDivElement>) {
-    isDragging.current = true
-    hasDragged.current = false
-    startX.current = e.pageX
-    startScrollLeft.current = scrollRef.current?.scrollLeft ?? 0
-    if (scrollRef.current) scrollRef.current.style.cursor = 'grabbing'
+    el.scrollBy({ left: -Math.round(el.clientWidth * 0.75), behavior: 'smooth' })
   }
 
-  function handleMouseMove(e: React.MouseEvent<HTMLDivElement>) {
-    if (!isDragging.current || !scrollRef.current) return
-    e.preventDefault()
-    const delta = e.pageX - startX.current
-    if (Math.abs(delta) > 8) hasDragged.current = true
-    scrollRef.current.scrollLeft = startScrollLeft.current - delta
+  function handleScrollRight() {
+    const el = scrollRef.current
+    if (!el) return
+    el.scrollBy({ left: Math.round(el.clientWidth * 0.75), behavior: 'smooth' })
   }
 
-  function handleMouseUp() {
-    isDragging.current = false
-    if (scrollRef.current) scrollRef.current.style.cursor = 'grab'
-  }
-
-  function handleMouseLeave() {
-    if (isDragging.current) {
-      isDragging.current = false
-      if (scrollRef.current) scrollRef.current.style.cursor = 'grab'
-    }
-  }
+  const arrowBase = 'hidden sm:flex absolute top-1/2 -translate-y-1/2 z-20 h-7 w-7 items-center justify-center rounded-full border bg-white text-lg font-semibold leading-none shadow-sm transition-all duration-150'
+  const arrowVisible = 'opacity-100 pointer-events-auto'
+  const arrowHidden = 'opacity-0 pointer-events-none'
 
   return (
     <div className="relative">
@@ -106,15 +73,27 @@ export default function CategoryPills({
         style={{ opacity: showRight ? 1 : 0 }}
       />
 
+      {/* Left arrow */}
+      <button
+        onClick={handleScrollLeft}
+        aria-label="Desplazar izquierda"
+        className={`${arrowBase} left-1 border-gray-200 text-[#1E1E1E] hover:border-[#0eb1c3] hover:text-[#0eb1c3] ${showLeft ? arrowVisible : arrowHidden}`}
+      >
+        ‹
+      </button>
+      {/* Right arrow */}
+      <button
+        onClick={handleScrollRight}
+        aria-label="Desplazar derecha"
+        className={`${arrowBase} right-1 border-gray-200 text-[#1E1E1E] hover:border-[#0eb1c3] hover:text-[#0eb1c3] ${showRight ? arrowVisible : arrowHidden}`}
+      >
+        ›
+      </button>
+
       {/* Scrollable pills row */}
       <div
         ref={scrollRef}
-        className="flex select-none gap-2 overflow-x-auto py-3 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
-        style={{ cursor: 'grab' }}
-        onMouseDown={handleMouseDown}
-        onMouseMove={handleMouseMove}
-        onMouseUp={handleMouseUp}
-        onMouseLeave={handleMouseLeave}
+        className="flex gap-2 overflow-x-auto py-3 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
       >
         <Link
           href="/catalogo"
