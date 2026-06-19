@@ -2,6 +2,7 @@
 import { prisma } from '@/lib/prisma'
 import { serializeProduct } from '@/lib/serialize'
 import ProductCard from '@/app/ui/product-card'
+import CategoryPills from './category-pills'
 
 type Props = {
   searchParams: Promise<{ categoria?: string }>
@@ -49,39 +50,10 @@ export default async function CatalogoPage({ searchParams }: Props) {
         </div>
       </div>
 
-      {/* Category filter pills */}
+      {/* Category filter pills — client island (scroll + fades) */}
       <div className="border-b border-gray-100 bg-white">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="scrollbar-hide flex gap-2 overflow-x-auto py-3">
-
-            <Link
-              href="/catalogo"
-              className={`shrink-0 rounded-full border px-4 py-1.5 text-sm font-semibold transition-all duration-150 ${
-                !categoria
-                  ? 'border-[#0eb1c3] bg-[#0eb1c3] text-white'
-                  : 'border-gray-200 bg-white text-[#1E1E1E] hover:border-[#0eb1c3] hover:bg-[#0eb1c3] hover:text-white'
-              }`}
-            >
-              Todos
-            </Link>
-
-            {categories.map((cat) => {
-              const isActive = categoria === cat.slug
-              return (
-                <Link
-                  key={cat.id}
-                  href={`/catalogo?categoria=${cat.slug}`}
-                  className={`shrink-0 rounded-full border px-4 py-1.5 text-sm font-semibold transition-all duration-150 ${
-                    isActive
-                      ? 'border-[#0eb1c3] bg-[#0eb1c3] text-white'
-                      : 'border-gray-200 bg-white text-[#1E1E1E] hover:border-[#0eb1c3] hover:bg-[#0eb1c3] hover:text-white'
-                  }`}
-                >
-                  {cat.name}
-                </Link>
-              )
-            })}
-          </div>
+          <CategoryPills categories={categories} activeSlug={categoria} />
         </div>
       </div>
 
