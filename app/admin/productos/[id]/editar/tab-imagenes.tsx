@@ -297,7 +297,7 @@ export default function TabImagenes({
               </div>
             </SortableContext>
             {createPortal(
-              <DragOverlay>
+              <DragOverlay zIndex={10000}>
                 {activeImage && (
                   <div className="relative aspect-square scale-[1.03] overflow-hidden rounded-xl shadow-2xl ring-2 ring-[#0eb1c3]">
                     <Image
