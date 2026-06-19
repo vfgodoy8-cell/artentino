@@ -26,7 +26,10 @@ export default async function ProductoPage({ params }: Props) {
         include: { attribute: true, attributeValue: true },
         orderBy: [{ sortOrder: 'asc' }, { createdAt: 'asc' }],
       },
-      productImages: { orderBy: { createdAt: 'asc' } },
+      productImages: {
+        orderBy: [{ sortOrder: 'asc' }, { createdAt: 'asc' }],
+        include: { imageAttributeValues: { select: { attributeValueId: true } } },
+      },
     },
   })
 
@@ -35,7 +38,6 @@ export default async function ProductoPage({ params }: Props) {
   const serialized = serializeProduct(product)
   const price = serialized.price
   const comparePrice = serialized.comparePrice
-  const mainImage = product.imageUrl ?? product.productImages[0]?.url ?? null
   const youtubeId = getYouTubeId(product.videoUrl)
 
   // stockByValueId — attributeValueId → stock, consumed by the client shell
@@ -55,13 +57,14 @@ export default async function ProductoPage({ params }: Props) {
     }
   }
 
-  // Map attributeValueId → first image URL for that color
-  const imagesByColor: Record<string, string> = {}
-  for (const img of product.productImages) {
-    if (img.attributeValueId && !imagesByColor[img.attributeValueId]) {
-      imagesByColor[img.attributeValueId] = img.url
-    }
-  }
+  // Gallery images — ordered by sortOrder, each with its color tags
+  const galleryImages = product.productImages.map((img) => ({
+    id: img.id,
+    url: img.url,
+    sortOrder: img.sortOrder,
+    isCover: img.isCover,
+    attributeValueIds: img.imageAttributeValues.map((jv) => jv.attributeValueId),
+  }))
 
   const now = new Date()
   const comboPrices = product.comboPrices
@@ -100,8 +103,7 @@ export default async function ProductoPage({ params }: Props) {
 
         {/* Product detail — client shell manages color ↔ stock state */}
         <ProductDetailShell
-          defaultImage={mainImage}
-          imagesByColor={imagesByColor}
+          galleryImages={galleryImages}
           variantGroups={variantGroups}
           stockByValueId={stockByValueId}
           productName={product.name}
@@ -109,7 +111,7 @@ export default async function ProductoPage({ params }: Props) {
           productId={product.id}
           price={price}
           comparePrice={comparePrice}
-          imageUrl={mainImage}
+          imageUrl={product.imageUrl}
           comboPrices={comboPrices}
           description={product.description ?? null}
           additionalData={product.additionalData ?? null}

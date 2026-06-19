@@ -7,7 +7,7 @@ export default async function AdminAtributos() {
     include: {
       values: {
         orderBy: { value: 'asc' },
-        include: { _count: { select: { productStocks: true, productImages: true } } },
+        include: { _count: { select: { productStocks: true, imageAttributeValues: true } } },
       },
     },
   })
@@ -24,7 +24,7 @@ export default async function AdminAtributos() {
       id: v.id,
       value: v.value,
       stockCount: v._count.productStocks,
-      imageCount: v._count.productImages,
+      imageCount: v._count.imageAttributeValues,
     })),
   }))
 

@@ -21,8 +21,8 @@ export default async function EditarProductoPage({ params }: Props) {
         orderBy: [{ sortOrder: 'asc' }, { createdAt: 'asc' }],
       },
       productImages: {
-        orderBy: { createdAt: 'asc' },
-        include: { attributeValue: { select: { id: true, value: true } } },
+        orderBy: [{ sortOrder: 'asc' }, { createdAt: 'asc' }],
+        include: { imageAttributeValues: { select: { attributeValueId: true } } },
       },
     },
   })
@@ -84,13 +84,18 @@ export default async function EditarProductoPage({ params }: Props) {
     url: img.url,
     filename: img.filename,
     size: img.size,
-    attributeValueId: img.attributeValueId,
+    sortOrder: img.sortOrder,
+    isCover: img.isCover,
+    attributeValueIds: img.imageAttributeValues.map((jv) => jv.attributeValueId),
   }))
 
+  // attributeValueId → first image URL for that color (first by sortOrder)
   const imagesByAvId: Record<string, string> = {}
-  for (const img of serializedImages) {
-    if (img.attributeValueId && !imagesByAvId[img.attributeValueId]) {
-      imagesByAvId[img.attributeValueId] = img.url
+  for (const img of product.productImages) {
+    for (const jv of img.imageAttributeValues) {
+      if (!imagesByAvId[jv.attributeValueId]) {
+        imagesByAvId[jv.attributeValueId] = img.url
+      }
     }
   }
 

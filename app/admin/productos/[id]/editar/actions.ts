@@ -185,15 +185,54 @@ export async function upsertGenericStock(
 // ─── Images ──────────────────────────────────────────────────────────────────
 
 export async function deleteProductImage(id: string, productId: string) {
+  const img = await prisma.productImage.findUnique({ where: { id }, select: { isCover: true } })
   await prisma.productImage.delete({ where: { id } })
+
+  if (img?.isCover) {
+    const next = await prisma.productImage.findFirst({
+      where: { productId },
+      orderBy: { sortOrder: 'asc' },
+      select: { id: true, url: true },
+    })
+    if (next) {
+      await prisma.$transaction([
+        prisma.productImage.update({ where: { id: next.id }, data: { isCover: true } }),
+        prisma.product.update({ where: { id: productId }, data: { imageUrl: next.url } }),
+      ])
+    } else {
+      await prisma.product.update({ where: { id: productId }, data: { imageUrl: null } })
+    }
+  }
+
+  revalidatePath(`/admin/productos/${productId}/editar`)
+  revalidatePath('/')
+  revalidatePath('/catalogo')
+}
+
+export async function updateImageSortOrder(imageId: string, sortOrder: number, productId: string) {
+  await prisma.productImage.update({ where: { id: imageId }, data: { sortOrder } })
   revalidatePath(`/admin/productos/${productId}/editar`)
 }
 
-export async function assignImageColor(
-  imageId: string,
-  attributeValueId: string | null,
-  productId: string,
-) {
-  await prisma.productImage.update({ where: { id: imageId }, data: { attributeValueId } })
+export async function setCoverImage(productId: string, imageId: string) {
+  const image = await prisma.productImage.findUnique({ where: { id: imageId }, select: { url: true } })
+  if (!image) return
+  await prisma.$transaction([
+    prisma.productImage.updateMany({ where: { productId }, data: { isCover: false } }),
+    prisma.productImage.update({ where: { id: imageId }, data: { isCover: true } }),
+    prisma.product.update({ where: { id: productId }, data: { imageUrl: image.url } }),
+  ])
+  revalidatePath(`/admin/productos/${productId}/editar`)
+  revalidatePath('/')
+  revalidatePath('/catalogo')
+}
+
+export async function setImageAttributeValues(imageId: string, valueIds: string[], productId: string) {
+  await prisma.$transaction([
+    prisma.productImageAttributeValue.deleteMany({ where: { imageId } }),
+    prisma.productImageAttributeValue.createMany({
+      data: valueIds.map((attributeValueId) => ({ imageId, attributeValueId })),
+    }),
+  ])
   revalidatePath(`/admin/productos/${productId}/editar`)
 }

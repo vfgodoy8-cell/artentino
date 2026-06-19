@@ -55,7 +55,9 @@ type EditFormProps = {
     url: string
     filename: string
     size: number
-    attributeValueId: string | null
+    sortOrder: number
+    isCover: boolean
+    attributeValueIds: string[]
   }[]
   imagesByAvId: Record<string, string>
   colorValues: { id: string; value: string }[]

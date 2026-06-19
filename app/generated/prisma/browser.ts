@@ -53,6 +53,11 @@ export type ProductStock = Prisma.ProductStockModel
  */
 export type ProductImage = Prisma.ProductImageModel
 /**
+ * Model ProductImageAttributeValue
+ * 
+ */
+export type ProductImageAttributeValue = Prisma.ProductImageAttributeValueModel
+/**
  * Model User
  * 
  */

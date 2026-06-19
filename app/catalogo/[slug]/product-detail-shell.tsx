@@ -6,11 +6,18 @@ import ProductGallery from './product-gallery'
 import ProductActions from './product-actions'
 import { type ComboPrice } from '@/app/context/cart-context'
 
+type GalleryImage = {
+  id: string
+  url: string
+  sortOrder: number
+  isCover: boolean
+  attributeValueIds: string[]
+}
+
 type VariantEntry = { id: string; value: string }
 
 type Props = {
-  defaultImage: string | null
-  imagesByColor: Record<string, string>
+  galleryImages: GalleryImage[]
   variantGroups: Record<string, VariantEntry[]>
   stockByValueId: Record<string, number>
   productName: string
@@ -29,8 +36,7 @@ function fmt(n: number) {
 }
 
 export default function ProductDetailShell({
-  defaultImage,
-  imagesByColor,
+  galleryImages,
   variantGroups,
   stockByValueId,
   productName,
@@ -67,8 +73,7 @@ export default function ProductDetailShell({
     <div className="grid gap-10 lg:grid-cols-2 lg:gap-16">
       {/* Left: gallery + variant selector */}
       <ProductGallery
-        defaultImage={defaultImage}
-        imagesByColor={imagesByColor}
+        galleryImages={galleryImages}
         variantGroups={variantGroups}
         stockByValueId={stockByValueId}
         productName={productName}

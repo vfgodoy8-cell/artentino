@@ -46,6 +46,7 @@ async function main() {
       slug: 'espejo-led-touch-60cm',
       description: 'Espejo con iluminación LED regulable y función touch.',
       price: 266000,
+      imageUrl: 'https://placehold.co/400x400/e5e7eb/374151?text=Espejo',
       featured: true,
       active: true,
       sortOrder: 0,
@@ -104,33 +105,40 @@ async function main() {
     data: { productId: productA.id, attributeId: attrColor.id, attributeValueId: avNegro.id, stock: 0 },
   })
 
-  // ProductImages: general first (becomes defaultImage), then color-specific
+  // ProductImages: general first (isCover=true), then color-specific via join table
   await prisma.productImage.create({
     data: {
       productId: productA.id,
       url: 'https://placehold.co/400x400/e5e7eb/374151?text=Espejo',
       filename: 'espejo-general.jpg',
       size: 10,
-      attributeValueId: null,
+      sortOrder: 0,
+      isCover: true,
     },
   })
-  await prisma.productImage.create({
+  const imgAzul = await prisma.productImage.create({
     data: {
       productId: productA.id,
       url: 'https://placehold.co/400x400/3b82f6/ffffff?text=Azul',
       filename: 'espejo-azul.jpg',
       size: 10,
-      attributeValueId: avAzul.id,
+      sortOrder: 1,
     },
   })
-  await prisma.productImage.create({
+  await prisma.productImageAttributeValue.create({
+    data: { imageId: imgAzul.id, attributeValueId: avAzul.id },
+  })
+  const imgRojo = await prisma.productImage.create({
     data: {
       productId: productA.id,
       url: 'https://placehold.co/400x400/ef4444/ffffff?text=Rojo',
       filename: 'espejo-rojo.jpg',
       size: 10,
-      attributeValueId: avRojo.id,
+      sortOrder: 2,
     },
+  })
+  await prisma.productImageAttributeValue.create({
+    data: { imageId: imgRojo.id, attributeValueId: avRojo.id },
   })
   // Verde has no image — used to test fallback to defaultImage
 
