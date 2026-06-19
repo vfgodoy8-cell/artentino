@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useRef, useTransition } from 'react'
+import { createPortal } from 'react-dom'
 import Image from 'next/image'
 import {
   DndContext,
@@ -295,22 +296,25 @@ export default function TabImagenes({
                 ))}
               </div>
             </SortableContext>
-            <DragOverlay>
-              {activeImage && (
-                <div className="relative aspect-square scale-[1.03] overflow-hidden rounded-xl shadow-2xl ring-2 ring-[#0eb1c3]">
-                  <Image
-                    src={activeImage.url}
-                    alt={activeImage.filename}
-                    fill
-                    className="object-cover"
-                    sizes="220px"
-                  />
-                  <div className="absolute bottom-0 left-0 right-0 bg-black/50 px-1.5 py-1">
-                    <p className="truncate text-[10px] text-white">{activeImage.filename}</p>
+            {createPortal(
+              <DragOverlay>
+                {activeImage && (
+                  <div className="relative aspect-square scale-[1.03] overflow-hidden rounded-xl shadow-2xl ring-2 ring-[#0eb1c3]">
+                    <Image
+                      src={activeImage.url}
+                      alt={activeImage.filename}
+                      fill
+                      className="object-cover"
+                      sizes="220px"
+                    />
+                    <div className="absolute bottom-0 left-0 right-0 bg-black/50 px-1.5 py-1">
+                      <p className="truncate text-[10px] text-white">{activeImage.filename}</p>
+                    </div>
                   </div>
-                </div>
-              )}
-            </DragOverlay>
+                )}
+              </DragOverlay>,
+              document.body,
+            )}
           </DndContext>
         )}
       </div>
