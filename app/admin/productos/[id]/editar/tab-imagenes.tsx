@@ -3,10 +3,23 @@
 import { useState, useRef, useTransition } from 'react'
 import Image from 'next/image'
 import {
+  DndContext,
+  DragOverlay,
+  PointerSensor,
+  TouchSensor,
+  useSensor,
+  useSensors,
+  closestCenter,
+  type DragStartEvent,
+  type DragEndEvent,
+} from '@dnd-kit/core'
+import { SortableContext, useSortable, rectSortingStrategy, arrayMove } from '@dnd-kit/sortable'
+import { CSS } from '@dnd-kit/utilities'
+import {
   deleteProductImage,
-  updateImageSortOrder,
   setCoverImage,
   setImageAttributeValues,
+  reorderProductImages,
 } from './actions'
 
 type ProductImage = {
@@ -35,8 +48,34 @@ export default function TabImagenes({
   const [pending, setPending] = useState<PendingFile[]>([])
   const [uploading, setUploading] = useState(false)
   const [selected, setSelected] = useState<Set<string>>(new Set())
+  const [activeId, setActiveId] = useState<string | null>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
   const [, startTransition] = useTransition()
+
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
+    useSensor(TouchSensor, { activationConstraint: { delay: 200, tolerance: 5 } }),
+  )
+
+  const activeImage = activeId ? (images.find((img) => img.id === activeId) ?? null) : null
+
+  // ── Drag & drop ────────────────────────────────────────────────────────
+  function handleDragStart(event: DragStartEvent) {
+    setActiveId(event.active.id as string)
+  }
+
+  function handleDragEnd(event: DragEndEvent) {
+    const { active, over } = event
+    setActiveId(null)
+    if (!over || active.id === over.id) return
+    const oldIndex = images.findIndex((img) => img.id === active.id)
+    const newIndex = images.findIndex((img) => img.id === over.id)
+    const reordered = arrayMove(images, oldIndex, newIndex)
+    setImages(reordered)
+    startTransition(async () => {
+      await reorderProductImages(productId, reordered.map((img) => img.id))
+    })
+  }
 
   // ── File select ────────────────────────────────────────────────────────
   function handleFileSelect(e: React.ChangeEvent<HTMLInputElement>) {
@@ -117,11 +156,6 @@ export default function TabImagenes({
     })
   }
 
-  // ── sortOrder callback (called from ImageCard on blur) ─────────────────
-  function handleSortOrderUpdate(imageId: string, sortOrder: number) {
-    setImages((prev) => prev.map((img) => (img.id === imageId ? { ...img, sortOrder } : img)))
-  }
-
   // ── Color chips ────────────────────────────────────────────────────────
   function handleChipToggle(imageId: string, colorValueId: string) {
     const img = images.find((i) => i.id === imageId)!
@@ -129,7 +163,6 @@ export default function TabImagenes({
     const newIds = has
       ? img.attributeValueIds.filter((id) => id !== colorValueId)
       : [...img.attributeValueIds, colorValueId]
-
     setImages((prev) =>
       prev.map((i) => (i.id === imageId ? { ...i, attributeValueIds: newIds } : i)),
     )
@@ -229,7 +262,7 @@ export default function TabImagenes({
         </div>
       )}
 
-      {/* Uploaded images grid — ordered by sortOrder */}
+      {/* Uploaded images grid */}
       <div>
         <p className="mb-3 text-xs font-bold uppercase tracking-wider text-gray-400">
           Imágenes subidas ({images.length})
@@ -239,22 +272,46 @@ export default function TabImagenes({
             Sin imágenes todavía. Seleccioná archivos y hacé clic en &quot;Subir&quot;.
           </div>
         ) : (
-          <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
-            {images.map((img) => (
-              <ImageCard
-                key={img.id}
-                img={img}
-                productId={productId}
-                isSelected={selected.has(img.id)}
-                colorValues={colorValues}
-                onToggleSelect={() => toggleSelect(img.id)}
-                onDeleteOne={() => handleDeleteOne(img.id)}
-                onCover={() => handleCover(img.id)}
-                onSortOrderUpdate={(so) => handleSortOrderUpdate(img.id, so)}
-                onChipToggle={(cvId) => handleChipToggle(img.id, cvId)}
-              />
-            ))}
-          </div>
+          <DndContext
+            sensors={sensors}
+            collisionDetection={closestCenter}
+            onDragStart={handleDragStart}
+            onDragEnd={handleDragEnd}
+          >
+            <SortableContext items={images.map((img) => img.id)} strategy={rectSortingStrategy}>
+              <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
+                {images.map((img, index) => (
+                  <ImageCard
+                    key={img.id}
+                    img={img}
+                    index={index}
+                    isSelected={selected.has(img.id)}
+                    colorValues={colorValues}
+                    onToggleSelect={() => toggleSelect(img.id)}
+                    onDeleteOne={() => handleDeleteOne(img.id)}
+                    onCover={() => handleCover(img.id)}
+                    onChipToggle={(cvId) => handleChipToggle(img.id, cvId)}
+                  />
+                ))}
+              </div>
+            </SortableContext>
+            <DragOverlay>
+              {activeImage && (
+                <div className="relative aspect-square overflow-hidden rounded-xl shadow-2xl ring-2 ring-[#0eb1c3]">
+                  <Image
+                    src={activeImage.url}
+                    alt={activeImage.filename}
+                    fill
+                    className="object-cover"
+                    sizes="220px"
+                  />
+                  <div className="absolute bottom-0 left-0 right-0 bg-black/50 px-1.5 py-1">
+                    <p className="truncate text-[10px] text-white">{activeImage.filename}</p>
+                  </div>
+                </div>
+              )}
+            </DragOverlay>
+          </DndContext>
         )}
       </div>
     </div>
@@ -263,41 +320,40 @@ export default function TabImagenes({
 
 function ImageCard({
   img,
-  productId,
+  index,
   isSelected,
   colorValues,
   onToggleSelect,
   onDeleteOne,
   onCover,
-  onSortOrderUpdate,
   onChipToggle,
 }: {
   img: ProductImage
-  productId: string
+  index: number
   isSelected: boolean
   colorValues: { id: string; value: string }[]
   onToggleSelect: () => void
   onDeleteOne: () => void
   onCover: () => void
-  onSortOrderUpdate: (sortOrder: number) => void
   onChipToggle: (colorValueId: string) => void
 }) {
-  const [sortOrder, setSortOrder] = useState(img.sortOrder)
-  const [, startTransition] = useTransition()
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
+    id: img.id,
+  })
 
-  function handleSortOrderBlur() {
-    if (sortOrder === img.sortOrder) return
-    startTransition(async () => {
-      await updateImageSortOrder(img.id, sortOrder, productId)
-      onSortOrderUpdate(sortOrder)
-    })
+  const style: React.CSSProperties = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.3 : 1,
   }
 
   return (
-    <div className="flex flex-col gap-2">
-      {/* Image thumbnail */}
+    <div ref={setNodeRef} style={style} className="flex flex-col gap-2">
+      {/* Image thumbnail — drag handle */}
       <div
-        className={`group relative aspect-square cursor-pointer overflow-hidden rounded-xl border-2 transition-all ${
+        {...attributes}
+        {...listeners}
+        className={`group relative aspect-square cursor-grab overflow-hidden rounded-xl border-2 transition-all active:cursor-grabbing ${
           isSelected
             ? 'border-[#0eb1c3] ring-2 ring-[#0eb1c3]/30'
             : 'border-gray-100 hover:border-gray-300'
@@ -342,17 +398,14 @@ function ImageCard({
         </div>
       </div>
 
-      {/* Pos + Portada controls */}
+      {/* Pos (read-only) + Portada controls */}
       <div className="flex items-center gap-2">
         <span className="text-[11px] font-bold uppercase tracking-wider text-gray-400">Pos</span>
         <input
           type="number"
-          value={sortOrder}
-          onChange={(e) => setSortOrder(Number(e.target.value))}
-          onBlur={handleSortOrderBlur}
-          onClick={(e) => e.stopPropagation()}
-          min={0}
-          className="w-14 rounded border border-gray-200 px-2 py-1 text-center text-xs focus:border-[#0eb1c3] focus:outline-none"
+          value={index}
+          readOnly
+          className="w-14 rounded border border-gray-100 bg-gray-50 px-2 py-1 text-center text-xs text-gray-400"
         />
         <label
           className="ml-auto flex cursor-pointer items-center gap-1.5 text-[11px] text-gray-500"

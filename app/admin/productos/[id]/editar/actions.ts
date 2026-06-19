@@ -236,3 +236,12 @@ export async function setImageAttributeValues(imageId: string, valueIds: string[
   ])
   revalidatePath(`/admin/productos/${productId}/editar`)
 }
+
+export async function reorderProductImages(productId: string, orderedImageIds: string[]) {
+  await prisma.$transaction(
+    orderedImageIds.map((id, index) =>
+      prisma.productImage.update({ where: { id }, data: { sortOrder: index } }),
+    ),
+  )
+  revalidatePath(`/admin/productos/${productId}/editar`)
+}
