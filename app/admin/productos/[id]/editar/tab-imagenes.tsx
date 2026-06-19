@@ -297,7 +297,7 @@ export default function TabImagenes({
             </SortableContext>
             <DragOverlay>
               {activeImage && (
-                <div className="relative aspect-square overflow-hidden rounded-xl shadow-2xl ring-2 ring-[#0eb1c3]">
+                <div className="relative aspect-square scale-[1.03] overflow-hidden rounded-xl shadow-2xl ring-2 ring-[#0eb1c3]">
                   <Image
                     src={activeImage.url}
                     alt={activeImage.filename}
@@ -342,9 +342,10 @@ function ImageCard({
   })
 
   const style: React.CSSProperties = {
-    transform: CSS.Transform.toString(transform),
-    transition,
-    opacity: isDragging ? 0.3 : 1,
+    // When dragging: stay in place (DragOverlay is the sole moving element)
+    transform: isDragging ? undefined : CSS.Transform.toString(transform),
+    transition: isDragging ? undefined : transition,
+    opacity: isDragging ? 0.4 : 1,
   }
 
   return (
