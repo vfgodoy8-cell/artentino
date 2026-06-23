@@ -125,27 +125,12 @@ export default function Footer() {
               Contacto
             </h3>
             <ul className="space-y-4">
-              <li className="flex items-start gap-3">
-                <span className="mt-0.5 shrink-0 text-[#0eb1c3]">
-                  <PinIcon />
-                </span>
-                <a
-                  href="https://maps.app.goo.gl/vYdUfZ1vPTeStfdWA"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-sm leading-relaxed text-[#555] transition-colors hover:text-[#0eb1c3]"
-                >
-                  Cramer 886 — Av. Federico Lacroze
-                  <br />
-                  Colegiales, CABA CP 1426
-                </a>
-              </li>
               <li className="flex items-center gap-3">
                 <span className="shrink-0 text-[#0eb1c3]">
                   <WhatsAppIcon />
                 </span>
                 <a
-                  href="https://api.whatsapp.com/send?phone=5491139363333"
+                  href="https://wa.me/5491139363333"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-sm text-[#555] transition-colors hover:text-[#0eb1c3]"
@@ -162,6 +147,21 @@ export default function Footer() {
                   className="text-sm text-[#555] transition-colors hover:text-[#0eb1c3]"
                 >
                   info@artentino.com
+                </a>
+              </li>
+              <li className="flex items-start gap-3">
+                <span className="mt-0.5 shrink-0 text-[#0eb1c3]">
+                  <PinIcon />
+                </span>
+                <a
+                  href="https://maps.app.goo.gl/vYdUfZ1vPTeStfdWA"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-sm leading-relaxed text-[#555] transition-colors hover:text-[#0eb1c3]"
+                >
+                  Cramer 886 — Av. Federico Lacroze
+                  <br />
+                  Colegiales, CABA CP 1426
                 </a>
               </li>
               <li className="flex items-center gap-3">
