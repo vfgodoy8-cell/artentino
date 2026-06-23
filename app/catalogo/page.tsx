@@ -15,7 +15,11 @@ export default async function CatalogoPage({ searchParams }: Props) {
     prisma.product.findMany({
       where: {
         active: true,
-        ...(categoria ? { category: { slug: categoria } } : {}),
+        ...(categoria === 'espejos'
+          ? { category: { slug: { startsWith: 'espejos-' } } }
+          : categoria
+            ? { category: { slug: categoria } }
+            : {}),
       },
       include: { category: true },
       orderBy: { createdAt: 'desc' },
@@ -42,7 +46,7 @@ export default async function CatalogoPage({ searchParams }: Props) {
             Artentino
           </p>
           <h1 className="text-balance text-3xl font-black tracking-[-0.02em] text-[#1E1E1E] sm:text-4xl">
-            {activeCategory ? activeCategory.name : 'Catálogo'}
+            {categoria === 'espejos' ? 'Espejos' : activeCategory ? activeCategory.name : 'Catálogo'}
           </h1>
           <p className="mt-1.5 text-sm text-[#9ca3af]">
             {products.length} {products.length === 1 ? 'producto' : 'productos'}
