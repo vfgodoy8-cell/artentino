@@ -97,6 +97,21 @@ npx prisma db seed
 - `CategoryBarPills` (home) navega con `router.push` a `/catalogo?categoria=<slug>`. `CategoryBar` le pasa objetos `{ name, slug }` desde la DB.
 - `product-grid.tsx` ordena destacados por `[sortOrder asc, createdAt desc]` para desempatar productos con el mismo sortOrder.
 
+### CategoryPills — drill-down de dos niveles (`app/catalogo/category-pills.tsx`)
+
+- **Nivel raíz:** muestra "Todos" + pill "Espejos" (split body/caret) + categorías sueltas. Las 8 subcategorías `espejos-*` no aparecen aquí.
+- **Nivel espejos:** al tocar el caret `›`, la barra se reemplaza por `‹ Volver` + las 8 subcategorías. Estado local `'root' | 'espejos'`, sin cambio de URL.
+- **Pill "Espejos" — comportamiento híbrido:** cuerpo navega a `/catalogo?categoria=espejos`; caret entra al sub-nivel.
+- **Sentinel `?categoria=espejos`:** `page.tsx` detecta este slug ficticio y filtra con `category: { slug: { startsWith: 'espejos-' } }` en Prisma. El h1 muestra "Espejos".
+- **Agrupación dinámica:** constante `ESPEJOS_PREFIX = 'espejos-'` — si se agregan más categorías `espejos-*` a la DB, se agrupan automáticamente.
+- **Auto-entrada al sub-nivel:** si `activeSlug.startsWith('espejos-')`, el componente inicializa en nivel `'espejos'` (cold load) y sincroniza por `useEffect([activeSlug])` (client-side nav).
+
+### Detalle de producto — caminos de compra (`app/catalogo/[slug]/`)
+
+Dos caminos **mutuamente excluyentes**:
+- **Por unidad (con color):** `disabled` y `disabledReason` se computan en `product-detail-shell.tsx` y se pasan a `ProductActions`. El botón principal hereda `disabled`; muestra "Seleccioná un color" cuando `disabledReason === 'no-color'`.
+- **Por pack (surtido):** botones Pack x4/x24 **siempre habilitados** — no reciben el prop `disabled`. Al clickear un pack con color elegido: `onClearColor()` (prop callback) limpia `selectedColorId` en el shell E incrementa `colorResetKey`, que está como `key` en `<ProductGallery>` → re-monta el subárbol, reseteando visualmente `VariantSelector` y `selectedIds` de la galería.
+
 ### Serialización RSC → Client
 
 `lib/serialize.ts` convierte tipos no serializables (`Decimal`, `Date`) antes de pasar datos de Server Components a Client Components.
