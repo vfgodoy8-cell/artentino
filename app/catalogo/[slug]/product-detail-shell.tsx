@@ -50,6 +50,7 @@ export default function ProductDetailShell({
   additionalData,
 }: Props) {
   const [selectedColorId, setSelectedColorId] = useState<string | null>(null)
+  const [colorResetKey, setColorResetKey] = useState(0)
 
   const hasColorVariants = Object.keys(variantGroups).length > 0
   const totalStock = Object.values(stockByValueId).reduce((a, b) => a + b, 0)
@@ -73,6 +74,7 @@ export default function ProductDetailShell({
     <div className="grid gap-10 lg:grid-cols-2 lg:gap-16">
       {/* Left: gallery + variant selector */}
       <ProductGallery
+        key={colorResetKey}
         galleryImages={galleryImages}
         variantGroups={variantGroups}
         stockByValueId={stockByValueId}
@@ -118,6 +120,10 @@ export default function ProductDetailShell({
           disabledReason={disabledReason}
           maxQty={maxQty}
           selectedColorId={selectedColorId}
+          onClearColor={() => {
+              setSelectedColorId(null)
+              setColorResetKey((k) => k + 1)
+            }}
         />
 
         {/* Divider */}

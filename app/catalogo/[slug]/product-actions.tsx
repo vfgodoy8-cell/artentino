@@ -30,6 +30,7 @@ type Props = {
   disabledReason: 'no-stock' | 'no-color' | null
   maxQty: number
   selectedColorId: string | null
+  onClearColor: () => void
 }
 
 export default function ProductActions({
@@ -42,11 +43,13 @@ export default function ProductActions({
   disabledReason,
   maxQty,
   selectedColorId,
+  onClearColor,
 }: Props) {
   const { addItem } = useCart()
   const [qty, setQty] = useState(1)
   const [added, setAdded] = useState(false)
   const [comboAddedId, setComboAddedId] = useState<string | null>(null)
+  const [showPackNote, setShowPackNote] = useState(false)
 
   // Reset quantity when color changes
   useEffect(() => {
@@ -70,6 +73,11 @@ export default function ProductActions({
   }
 
   function handleComboAdd(combo: ComboPrice) {
+    if (selectedColorId !== null) {
+      onClearColor()
+      setShowPackNote(true)
+      setTimeout(() => setShowPackNote(false), 3000)
+    }
     addItem({ productId, name, price, imageUrl, comboPrices }, combo.quantity)
     setComboAddedId(combo.id)
     setTimeout(() => setComboAddedId(null), 1200)
@@ -124,8 +132,7 @@ export default function ProductActions({
                     <td className="px-3 py-2.5 text-right">
                       <button
                         onClick={() => handleComboAdd(c)}
-                        disabled={disabled}
-                        className="inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-bold text-white transition-colors disabled:opacity-40"
+                        className="inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-bold text-white transition-colors"
                         style={{ backgroundColor: isAdded ? '#1E1E1E' : '#0eb1c3' }}
                       >
                         <CartIcon />
@@ -137,8 +144,10 @@ export default function ProductActions({
               })}
             </tbody>
           </table>
-          <p className="px-4 py-2 text-[11px] text-gray-400">
-            * Al comprar pack no se puede elegir color.
+          <p className={`px-4 py-2 text-[11px] transition-colors duration-300 ${showPackNote ? 'font-bold text-[#0eb1c3]' : 'text-gray-400'}`}>
+            {showPackNote
+              ? '✓ Color deseleccionado — los packs son surtidos.'
+              : '* Los packs vienen surtidos — no se elige color.'}
           </p>
         </div>
       )}
