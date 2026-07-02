@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 import { MercadoPagoConfig, Payment } from 'mercadopago'
 import { prisma } from '@/lib/prisma'
-import { sendEmail, purchaseConfirmationEmail } from '@/app/lib/email'
+import { sendEmail, purchaseConfirmationEmail, interpolate } from '@/app/lib/email'
 
 const MP_STATUS_MAP: Record<string, 'CONFIRMED' | 'CANCELLED'> = {
   approved: 'CONFIRMED',
@@ -43,7 +43,6 @@ export async function POST(req: Request) {
     })
 
     if (!order) return NextResponse.json({ ok: true })
-    // Idempotency: skip if already in target status
     if (order.status === newStatus) return NextResponse.json({ ok: true })
 
     await prisma.order.update({
@@ -52,20 +51,54 @@ export async function POST(req: Request) {
     })
 
     if (newStatus === 'CONFIRMED') {
-      sendEmail({
-        to: order.user.email,
-        subject: '¡Gracias por tu compra en Artentino!',
-        html: purchaseConfirmationEmail({
-          name: order.user.name,
-          items: order.items.map((i) => ({
-            name: i.product.name,
-            quantity: i.quantity,
-            price: Number(i.price),
-          })),
-          total: Number(order.total),
-          shipping: (order.shippingMethod as 'pickup' | 'delivery') ?? 'pickup',
-        }),
-      }).catch((err) => console.error('[webhook] email failed:', err))
+      const shippingLabel =
+        order.shippingMethod === 'pickup'
+          ? 'Retiro en tienda — Colegiales, CABA'
+          : 'Envío a domicilio'
+
+      const itemsData = order.items.map((i) => ({
+        name: i.product.name,
+        quantity: i.quantity,
+        price: Number(i.price),
+      }))
+
+      // Fire-and-forget: look up DB template, fall back to hardcoded HTML
+      ;(async () => {
+        try {
+          const template = await prisma.emailTemplate.findUnique({
+            where: { key: 'ORDER_PRE_CONFIRMATION' },
+          })
+
+          const html = template
+            ? interpolate(template.htmlBody, {
+                nombreCliente: order.user.name,
+                itemsHtml: itemsData
+                  .map(
+                    (item) =>
+                      `<tr>
+                        <td style="padding:10px 0;color:#1E1E1E;border-bottom:1px solid #eee;">${item.name}</td>
+                        <td style="padding:10px 0;color:#888;text-align:center;border-bottom:1px solid #eee;">×${item.quantity}</td>
+                        <td style="padding:10px 0;color:#1E1E1E;font-weight:700;text-align:right;border-bottom:1px solid #eee;">$${(item.price * item.quantity).toLocaleString('es-AR')}</td>
+                      </tr>`,
+                  )
+                  .join(''),
+                total: Number(order.total).toLocaleString('es-AR'),
+                envio: shippingLabel,
+              })
+            : purchaseConfirmationEmail({
+                name: order.user.name,
+                items: itemsData,
+                total: Number(order.total),
+                shipping: (order.shippingMethod as 'pickup' | 'delivery') ?? 'pickup',
+              })
+
+          const subject = template?.subject ?? '¡Gracias por tu compra en Artentino!'
+
+          await sendEmail({ to: order.user.email, subject, html })
+        } catch (err) {
+          console.error('[webhook] email failed:', err)
+        }
+      })()
     }
 
     return NextResponse.json({ ok: true })

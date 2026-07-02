@@ -63,7 +63,11 @@ export const ModelName = {
   Order: 'Order',
   OrderItem: 'OrderItem',
   Appointment: 'Appointment',
-  Contact: 'Contact'
+  Contact: 'Contact',
+  HeroSlide: 'HeroSlide',
+  HeroBadge: 'HeroBadge',
+  EmailTemplate: 'EmailTemplate',
+  SiteConfig: 'SiteConfig'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -265,6 +269,56 @@ export const ContactScalarFieldEnum = {
 } as const
 
 export type ContactScalarFieldEnum = (typeof ContactScalarFieldEnum)[keyof typeof ContactScalarFieldEnum]
+
+
+export const HeroSlideScalarFieldEnum = {
+  id: 'id',
+  order: 'order',
+  imageUrl: 'imageUrl',
+  imageUrlMobile: 'imageUrlMobile',
+  eyebrowText: 'eyebrowText',
+  title: 'title',
+  titleHighlightWord: 'titleHighlightWord',
+  description: 'description',
+  isActive: 'isActive',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type HeroSlideScalarFieldEnum = (typeof HeroSlideScalarFieldEnum)[keyof typeof HeroSlideScalarFieldEnum]
+
+
+export const HeroBadgeScalarFieldEnum = {
+  id: 'id',
+  order: 'order',
+  categoryId: 'categoryId',
+  customLabel: 'customLabel',
+  customSubtitle: 'customSubtitle',
+  icon: 'icon',
+  isActive: 'isActive'
+} as const
+
+export type HeroBadgeScalarFieldEnum = (typeof HeroBadgeScalarFieldEnum)[keyof typeof HeroBadgeScalarFieldEnum]
+
+
+export const EmailTemplateScalarFieldEnum = {
+  id: 'id',
+  key: 'key',
+  name: 'name',
+  subject: 'subject',
+  htmlBody: 'htmlBody',
+  updatedAt: 'updatedAt'
+} as const
+
+export type EmailTemplateScalarFieldEnum = (typeof EmailTemplateScalarFieldEnum)[keyof typeof EmailTemplateScalarFieldEnum]
+
+
+export const SiteConfigScalarFieldEnum = {
+  id: 'id',
+  heroIntervalSeconds: 'heroIntervalSeconds'
+} as const
+
+export type SiteConfigScalarFieldEnum = (typeof SiteConfigScalarFieldEnum)[keyof typeof SiteConfigScalarFieldEnum]
 
 
 export const SortOrder = {

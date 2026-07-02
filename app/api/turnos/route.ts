@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
-import { sendEmail, appointmentConfirmationEmail } from '@/app/lib/email'
+import { sendEmail, appointmentConfirmationEmail, interpolate } from '@/app/lib/email'
 
 export async function POST(req: Request) {
   const body = await req.json()
@@ -24,7 +24,7 @@ export async function POST(req: Request) {
   if (conflict) {
     return NextResponse.json(
       { error: 'El horario seleccionado ya no está disponible. Por favor elegí otro.' },
-      { status: 409 }
+      { status: 409 },
     )
   }
 
@@ -47,11 +47,31 @@ export async function POST(req: Request) {
     timeZone: 'UTC',
   })
 
-  sendEmail({
-    to: email,
-    subject: 'Tu turno en Artentino está confirmado',
-    html: appointmentConfirmationEmail({ name, date: formattedDate, time, modality }),
-  }).catch((err) => console.error('[email] appointment confirmation failed:', err))
+  const modalityLabel = modality === 'PRESENCIAL' ? 'Presencial en showroom' : 'WhatsApp por cámara'
+
+  // Fire-and-forget: look up DB template, fall back to hardcoded HTML
+  ;(async () => {
+    try {
+      const template = await prisma.emailTemplate.findUnique({
+        where: { key: 'APPOINTMENT_CONFIRMATION' },
+      })
+
+      const html = template
+        ? interpolate(template.htmlBody, {
+            nombreCliente: name,
+            fecha: formattedDate,
+            hora: time,
+            modalidad: modalityLabel,
+          })
+        : appointmentConfirmationEmail({ name, date: formattedDate, time, modality })
+
+      const subject = template?.subject ?? 'Tu turno en Artentino está confirmado'
+
+      await sendEmail({ to: email, subject, html })
+    } catch (err) {
+      console.error('[email] appointment confirmation failed:', err)
+    }
+  })()
 
   return NextResponse.json({ success: true, id: appointment.id })
 }

@@ -1,5 +1,12 @@
 ﻿import { Resend } from 'resend'
 
+export function interpolate(template: string, vars: Record<string, string>): string {
+  return Object.entries(vars).reduce(
+    (html, [key, val]) => html.replaceAll(`{{${key}}}`, val),
+    template,
+  )
+}
+
 const resend = new Resend(process.env.RESEND_API_KEY)
 
 type SendEmailParams = {

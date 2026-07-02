@@ -26,6 +26,16 @@ const standaloneItems: NavItem[] = [
 
 const groups: NavGroup[] = [
   {
+    id: 'contenido',
+    label: 'Contenido',
+    icon: 'image',
+    defaultOpen: true,
+    items: [
+      { href: '/admin/home', label: 'Hero / Home', icon: 'home' },
+      { href: '/admin/emails', label: 'Templates de email', icon: 'mail' },
+    ],
+  },
+  {
     id: 'catalogo',
     label: 'Catálogo',
     icon: 'layers',
@@ -213,6 +223,10 @@ function NavIcon({ name, size = 17 }: { name: string; size?: number }) {
       return <svg {...p}><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" /><polyline points="22,6 12,13 2,6" /></svg>
     case 'puzzle':
       return <svg {...p}><path d="M20.24 12.24a6 6 0 0 0-8.49-8.49L5 10.5V19h8.5z" /><line x1="16" y1="8" x2="2" y2="22" /><line x1="17.5" y1="15" x2="9" y2="15" /></svg>
+    case 'image':
+      return <svg {...p}><rect x="3" y="3" width="18" height="18" rx="2" /><circle cx="8.5" cy="8.5" r="1.5" /><polyline points="21 15 16 10 5 21" /></svg>
+    case 'home':
+      return <svg {...p}><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" /><polyline points="9 22 9 12 15 12 15 22" /></svg>
     case 'megaphone':
       return <svg {...p}><path d="M3 11l19-9-9 19-2-8-8-2z" /></svg>
     case 'settings':

@@ -41,16 +41,17 @@ enum ContactType {
 // ─── Models ──────────────────────────────────────────────────────────────────
 
 model Category {
-  id          String    @id @default(cuid())
+  id          String      @id @default(cuid())
   name        String
-  slug        String    @unique
+  slug        String      @unique
   description String?
   imageUrl    String?
   products    Product[]
-  active      Boolean   @default(true)
-  sortOrder   Int       @default(0)
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
+  heroBadges  HeroBadge[]
+  active      Boolean     @default(true)
+  sortOrder   Int         @default(0)
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
 
   @@map("categories")
 }
@@ -251,4 +252,58 @@ model Contact {
   createdAt DateTime    @default(now())
 
   @@map("contacts")
+}
+
+// ─── Hero / Home ──────────────────────────────────────────────────────────────
+
+model HeroSlide {
+  id                 String   @id @default(cuid())
+  order              Int      @default(0)
+  imageUrl           String
+  imageUrlMobile     String?
+  eyebrowText        String
+  title              String
+  titleHighlightWord String?
+  description        String
+  isActive           Boolean  @default(true)
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  @@map("hero_slides")
+}
+
+model HeroBadge {
+  id             String   @id @default(cuid())
+  order          Int
+  categoryId     String
+  category       Category @relation(fields: [categoryId], references: [id])
+  customLabel    String?
+  customSubtitle String
+  icon           String
+  isActive       Boolean  @default(true)
+
+  @@unique([order])
+  @@map("hero_badges")
+}
+
+// ─── Email Templates ──────────────────────────────────────────────────────────
+
+model EmailTemplate {
+  id        String   @id @default(cuid())
+  key       String   @unique
+  name      String
+  subject   String
+  htmlBody  String   @db.Text
+  updatedAt DateTime @updatedAt
+
+  @@map("email_templates")
+}
+
+// ─── Site Config ──────────────────────────────────────────────────────────────
+
+model SiteConfig {
+  id                  String @id @default("singleton")
+  heroIntervalSeconds Int    @default(6)
+
+  @@map("site_config")
 }

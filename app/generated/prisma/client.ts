@@ -106,3 +106,23 @@ export type Appointment = Prisma.AppointmentModel
  * 
  */
 export type Contact = Prisma.ContactModel
+/**
+ * Model HeroSlide
+ * 
+ */
+export type HeroSlide = Prisma.HeroSlideModel
+/**
+ * Model HeroBadge
+ * 
+ */
+export type HeroBadge = Prisma.HeroBadgeModel
+/**
+ * Model EmailTemplate
+ * 
+ */
+export type EmailTemplate = Prisma.EmailTemplateModel
+/**
+ * Model SiteConfig
+ * 
+ */
+export type SiteConfig = Prisma.SiteConfigModel
