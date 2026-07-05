@@ -20,7 +20,7 @@ export default async function ProductoPage({ params }: Props) {
   const product = await prisma.product.findUnique({
     where: { slug },
     include: {
-      category: true,
+      category: { include: { category: true } },
       comboPrices: { orderBy: { quantity: 'asc' } },
       stockItems: {
         include: { attribute: true, attributeValue: true },
@@ -92,6 +92,13 @@ export default async function ProductoPage({ params }: Props) {
           <Link href="/catalogo" className="transition-colors hover:text-[#0eb1c3]">Catálogo</Link>
           <span>/</span>
           <Link
+            href={`/catalogo?categoria=${product.category.category.slug}`}
+            className="transition-colors hover:text-[#0eb1c3]"
+          >
+            {product.category.category.name}
+          </Link>
+          <span>/</span>
+          <Link
             href={`/catalogo?categoria=${product.category.slug}`}
             className="transition-colors hover:text-[#0eb1c3]"
           >
@@ -115,23 +122,8 @@ export default async function ProductoPage({ params }: Props) {
           comboPrices={comboPrices}
           description={product.description ?? null}
           additionalData={product.additionalData ?? null}
+          youtubeId={youtubeId}
         />
-
-        {/* YouTube embed */}
-        {youtubeId && (
-          <div className="mt-12">
-            <p className="mb-4 text-[10px] font-black uppercase tracking-widest text-gray-400">Video del producto</p>
-            <div className="aspect-video w-full overflow-hidden rounded-2xl bg-gray-100">
-              <iframe
-                src={`https://www.youtube.com/embed/${youtubeId}`}
-                title={`Video de ${product.name}`}
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                allowFullScreen
-                className="h-full w-full"
-              />
-            </div>
-          </div>
-        )}
 
       </div>
     </main>

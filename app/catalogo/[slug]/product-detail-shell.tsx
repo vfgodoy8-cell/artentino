@@ -29,6 +29,7 @@ type Props = {
   comboPrices: ComboPrice[]
   description: string | null
   additionalData: string | null
+  youtubeId: string | null
 }
 
 function fmt(n: number) {
@@ -48,6 +49,7 @@ export default function ProductDetailShell({
   comboPrices,
   description,
   additionalData,
+  youtubeId,
 }: Props) {
   const [selectedColorId, setSelectedColorId] = useState<string | null>(null)
   const [colorResetKey, setColorResetKey] = useState(0)
@@ -71,114 +73,122 @@ export default function ProductDetailShell({
   const maxQty = (effectiveStock ?? 0) > 0 ? (effectiveStock ?? 0) : 1
 
   return (
-    <div className="grid gap-10 lg:grid-cols-2 lg:gap-16">
-      {/* Left: gallery + variant selector */}
-      <ProductGallery
-        key={colorResetKey}
-        galleryImages={galleryImages}
-        variantGroups={variantGroups}
-        stockByValueId={stockByValueId}
-        productName={productName}
-        categoryName={categoryName}
-        onColorSelect={setSelectedColorId}
-      />
-
-      {/* Right: details */}
-      <div className="flex flex-col">
-        {/* Category badge */}
-        <span
-          className="mb-4 inline-flex w-fit rounded-full px-3 py-1 text-[10px] font-black uppercase tracking-widest text-white"
-          style={{ backgroundColor: '#0eb1c3' }}
-        >
-          {categoryName}
-        </span>
-
-        {/* Name */}
-        <h1 className="text-2xl font-black leading-tight text-[#1E1E1E] sm:text-3xl lg:text-4xl">
-          {productName}
-        </h1>
-
-        {/* Price */}
-        <div className="mt-6">
-          {comparePrice !== null && comparePrice > price && (
-            <p className="mb-1 text-sm font-semibold text-gray-400 line-through">
-              {fmt(comparePrice)}
-            </p>
-          )}
-          <p className="text-4xl font-black leading-none text-[#1E1E1E]">{fmt(price)}</p>
-          <p className="mt-2 text-sm text-gray-400">6x {fmt(Math.round(price / 6))} sin interés</p>
-        </div>
-
-        {/* Qty selector + add to cart */}
-        <ProductActions
-          productId={productId}
-          name={productName}
-          price={price}
-          imageUrl={imageUrl}
-          comboPrices={comboPrices}
-          disabled={disabled}
-          disabledReason={disabledReason}
-          maxQty={maxQty}
+    <>
+      {/* Two-column product detail */}
+      <div className="grid gap-10 lg:grid-cols-2 lg:gap-16">
+        {/* Left: gallery */}
+        <ProductGallery
+          key={colorResetKey}
+          galleryImages={galleryImages}
+          productName={productName}
+          categoryName={categoryName}
           selectedColorId={selectedColorId}
-          onClearColor={() => {
+          youtubeId={youtubeId}
+        />
+
+        {/* Right: info + actions */}
+        <div className="flex flex-col">
+          {/* Category badge */}
+          <span
+            className="mb-4 inline-flex w-fit rounded-full px-3 py-1 text-[10px] font-black uppercase tracking-widest text-white"
+            style={{ backgroundColor: '#0eb1c3' }}
+          >
+            {categoryName}
+          </span>
+
+          {/* Name */}
+          <h1 className="text-2xl font-black leading-tight text-[#1E1E1E] sm:text-3xl lg:text-4xl">
+            {productName}
+          </h1>
+
+          {/* Price */}
+          <div className="mt-6">
+            {comparePrice !== null && comparePrice > price && (
+              <p className="mb-1 text-sm font-semibold text-gray-400 line-through">
+                {fmt(comparePrice)}
+              </p>
+            )}
+            <p className="text-4xl font-black leading-none text-[#1E1E1E]">{fmt(price)}</p>
+            <p className="mt-2 text-sm text-gray-400">6x {fmt(Math.round(price / 6))} sin interés</p>
+          </div>
+
+          {/* Actions: combos + qty + variant selector + add to cart */}
+          <ProductActions
+            productId={productId}
+            name={productName}
+            price={price}
+            imageUrl={imageUrl}
+            comboPrices={comboPrices}
+            disabled={disabled}
+            disabledReason={disabledReason}
+            maxQty={maxQty}
+            selectedColorId={selectedColorId}
+            onClearColor={() => {
               setSelectedColorId(null)
               setColorResetKey((k) => k + 1)
             }}
-        />
+            variantGroups={variantGroups}
+            stockByValueId={stockByValueId}
+            onColorSelect={setSelectedColorId}
+            colorResetKey={colorResetKey}
+          />
 
-        {/* Divider */}
-        <div className="my-6 border-t border-gray-100" />
+          {/* Divider */}
+          <div className="my-6 border-t border-gray-100" />
 
-        {/* Description */}
-        {description && (
-          <div className="rounded-xl bg-gray-50 px-4 py-4">
-            <p className="mb-1.5 text-[10px] font-black uppercase tracking-widest text-gray-400">
-              Descripción
-            </p>
-            <p className="text-lg leading-relaxed text-[#1E1E1E]">{description}</p>
-          </div>
-        )}
-
-        {/* Additional data */}
-        {additionalData && (
-          <div className="mt-3 rounded-xl bg-gray-50 px-4 py-4">
-            <p className="mb-1.5 text-[10px] font-black uppercase tracking-widest text-gray-400">
-              Información adicional
-            </p>
-            <p className="leading-relaxed text-gray-500">{additionalData}</p>
-          </div>
-        )}
-
-        {/* Stock display — reactive to color selection */}
-        <div className="mt-6 flex items-center gap-2" data-testid="stock-info">
-          {hasColorVariants && selectedColorId === null ? (
-            <span className="text-sm text-gray-400">
-              Elegí un color para ver el stock disponible
-            </span>
-          ) : (
-            <>
-              <span
-                className={`h-2 w-2 rounded-full ${
-                  (effectiveStock ?? 0) > 0 ? 'bg-[#4ade80]' : 'bg-[#f87171]'
-                }`}
-              />
-              <span className="text-sm text-gray-500">
-                {(effectiveStock ?? 0) > 0
-                  ? `${effectiveStock} unidades disponibles`
-                  : 'Sin stock'}
+          {/* Stock indicator */}
+          <div className="flex items-center gap-2" data-testid="stock-info">
+            {hasColorVariants && selectedColorId === null ? (
+              <span className="text-sm text-gray-400">
+                Elegí una variante para ver el stock disponible
               </span>
-            </>
+            ) : (
+              <>
+                <span
+                  className={`h-2 w-2 rounded-full ${
+                    (effectiveStock ?? 0) > 0 ? 'bg-[#4ade80]' : 'bg-[#f87171]'
+                  }`}
+                />
+                <span className="text-sm text-gray-500">
+                  {(effectiveStock ?? 0) > 0
+                    ? `${effectiveStock} unidades disponibles`
+                    : 'Sin stock'}
+                </span>
+              </>
+            )}
+          </div>
+
+          {/* Back link */}
+          <Link
+            href="/catalogo"
+            className="mt-6 text-center text-sm font-semibold text-[#0eb1c3] transition-colors hover:underline"
+          >
+            ← Volver al catálogo
+          </Link>
+        </div>
+      </div>
+
+      {/* Description — full width below the two-column grid */}
+      {(description || additionalData) && (
+        <div className="mt-12 grid gap-6 md:grid-cols-2">
+          {description && (
+            <div className="rounded-xl bg-gray-50 px-5 py-5">
+              <p className="mb-2 text-[10px] font-black uppercase tracking-widest text-gray-400">
+                Descripción
+              </p>
+              <p className="text-lg leading-relaxed text-[#1E1E1E]">{description}</p>
+            </div>
+          )}
+          {additionalData && (
+            <div className="rounded-xl bg-gray-50 px-5 py-5">
+              <p className="mb-2 text-[10px] font-black uppercase tracking-widest text-gray-400">
+                Información adicional
+              </p>
+              <p className="leading-relaxed text-gray-500">{additionalData}</p>
+            </div>
           )}
         </div>
-
-        {/* Back link */}
-        <Link
-          href="/catalogo"
-          className="mt-6 text-center text-sm font-semibold text-[#0eb1c3] transition-colors hover:underline"
-        >
-          ← Volver al catálogo
-        </Link>
-      </div>
-    </div>
+      )}
+    </>
   )
 }

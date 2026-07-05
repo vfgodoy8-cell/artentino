@@ -1,8 +1,7 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { CategoryIcon } from '@/app/ui/product-card'
-import VariantSelector from './variant-selector'
 
 type GalleryImage = {
   id: string
@@ -12,60 +11,61 @@ type GalleryImage = {
   attributeValueIds: string[]
 }
 
-type VariantEntry = { id: string; value: string }
-
 type Props = {
   galleryImages: GalleryImage[]
-  variantGroups: Record<string, VariantEntry[]>
-  stockByValueId: Record<string, number>
   productName: string
   categoryName: string
-  onColorSelect?: (id: string | null) => void
+  selectedColorId: string | null
+  youtubeId: string | null
 }
 
 export default function ProductGallery({
   galleryImages,
-  variantGroups,
-  stockByValueId,
   productName,
   categoryName,
-  onColorSelect,
+  selectedColorId,
+  youtubeId,
 }: Props) {
-  const [selectedIds, setSelectedIds] = useState<Record<string, string>>({})
-  // null = follow cover/filter logic; set = user explicitly chose a thumbnail
   const [preferredUrl, setPreferredUrl] = useState<string | null>(null)
+  const [isVideoActive, setIsVideoActive] = useState(false)
 
-  // First selected attribute value that is actually used in image tags
+  // Reset thumbnail choice + video when selected color changes
+  useEffect(() => {
+    setPreferredUrl(null)
+    setIsVideoActive(false)
+  }, [selectedColorId])
+
+  // imageDriven: use selectedColorId to filter images if it appears in any image tags
   const imageDrivenId =
-    Object.values(selectedIds).find((valueId) =>
-      valueId && galleryImages.some((img) => img.attributeValueIds.includes(valueId)),
-    ) ?? null
+    selectedColorId &&
+    galleryImages.some((img) => img.attributeValueIds.includes(selectedColorId))
+      ? selectedColorId
+      : null
 
-  // Visible images: filter by selected imageDriven value, or show all
-  // OR semantics: image is visible if its tag set includes the selected value
   const visibleImages = imageDrivenId
     ? galleryImages.filter((img) => img.attributeValueIds.includes(imageDrivenId))
     : galleryImages
 
-  // Cover of the visible set (isCover=true if in set, else first by sortOrder)
   const coverInVisible = visibleImages.find((img) => img.isCover) ?? visibleImages[0] ?? null
-
-  // Active URL: use preferredUrl if it's still visible; otherwise fall back to cover
   const isPreferredVisible =
     preferredUrl !== null && visibleImages.some((img) => img.url === preferredUrl)
   const currentUrl = isPreferredVisible ? preferredUrl : coverInVisible?.url ?? null
 
-  function handleSelect(attrName: string, valueId: string) {
-    setSelectedIds((s) => ({ ...s, [attrName]: valueId }))
-    setPreferredUrl(null) // reset thumbnail choice on filter change
-    onColorSelect?.(valueId || null)
-  }
+  const showThumbnails = visibleImages.length > 1 || youtubeId !== null
 
   return (
     <div className="flex flex-col gap-4">
-      {/* Main image */}
+      {/* Main image or video */}
       <div className="relative aspect-square overflow-hidden rounded-2xl bg-gray-50">
-        {currentUrl ? (
+        {isVideoActive && youtubeId ? (
+          <iframe
+            src={`https://www.youtube.com/embed/${youtubeId}?autoplay=1`}
+            title={`Video de ${productName}`}
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            allowFullScreen
+            className="h-full w-full"
+          />
+        ) : currentUrl ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img
             key={currentUrl}
@@ -82,16 +82,19 @@ export default function ProductGallery({
         )}
       </div>
 
-      {/* Thumbnails — shown only when more than one image is visible */}
-      {visibleImages.length > 1 && (
+      {/* Thumbnails */}
+      {showThumbnails && (
         <div className="flex gap-2 overflow-x-auto pb-1">
           {visibleImages.map((img) => (
             <button
               key={img.id}
               type="button"
-              onClick={() => setPreferredUrl(img.url)}
+              onClick={() => {
+                setPreferredUrl(img.url)
+                setIsVideoActive(false)
+              }}
               className={`relative h-16 w-16 shrink-0 overflow-hidden rounded-lg border-2 transition-all ${
-                img.url === currentUrl
+                !isVideoActive && img.url === currentUrl
                   ? 'border-[#0eb1c3]'
                   : 'border-gray-100 hover:border-gray-300'
               }`}
@@ -100,15 +103,27 @@ export default function ProductGallery({
               <img src={img.url} alt={productName} className="h-full w-full object-cover" />
             </button>
           ))}
+
+          {/* Video thumbnail — last item */}
+          {youtubeId && (
+            <button
+              type="button"
+              onClick={() => {
+                setIsVideoActive(true)
+                setPreferredUrl(null)
+              }}
+              aria-label="Ver video del producto"
+              className={`flex h-16 w-16 shrink-0 items-center justify-center rounded-lg border-2 bg-[#1E1E1E] transition-all ${
+                isVideoActive ? 'border-[#0eb1c3]' : 'border-gray-100 hover:border-gray-300'
+              }`}
+            >
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="white">
+                <path d="M8 5v14l11-7z" />
+              </svg>
+            </button>
+          )}
         </div>
       )}
-
-      {/* Variant selector */}
-      <VariantSelector
-        variantGroups={variantGroups}
-        stockByValueId={stockByValueId}
-        onSelect={handleSelect}
-      />
     </div>
   )
 }

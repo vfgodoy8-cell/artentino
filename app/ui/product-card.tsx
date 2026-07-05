@@ -46,7 +46,7 @@ export default function ProductCard({ id, name, slug, price, comparePrice, image
           )}
 
           {/* Category label — top-left glassmorphism */}
-          <span className="absolute left-3 top-3 z-10 rounded-[6px] bg-[#0eb1c3]/90 px-2.5 py-1 text-[10px] font-black uppercase tracking-[0.12em] text-white backdrop-blur-sm">
+          <span className="absolute left-3 top-3 z-10 rounded-[6px] bg-[#0eb1c3]/30 px-2.5 py-1 text-[10px] font-black uppercase tracking-[0.12em] text-white backdrop-blur-sm">
             {category.name}
           </span>
         </div>

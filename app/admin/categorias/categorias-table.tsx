@@ -1,193 +1,257 @@
 'use client'
 
 import { useState, useTransition } from 'react'
-import { createCategory, updateCategory, deleteCategories } from './actions'
+import { useRouter } from 'next/navigation'
+import {
+  createCategory, updateCategory, deleteCategory,
+  createSubcategory, updateSubcategory, deleteSubcategory,
+} from './actions'
 
-type Category = { id: string; name: string; slug: string; active: boolean; sortOrder: number }
-type EditForm = { name: string; slug: string; active: boolean; sortOrder: number }
+type Subcat = { id: string; name: string; slug: string; order: number; categoryId: string }
+type Cat = { id: string; name: string; slug: string; order: number; isSpecial: boolean; subcategories: Subcat[] }
 
 function toSlug(s: string) {
   return s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9\s-]/g, '').trim().replace(/\s+/g, '-')
 }
 
-const EMPTY: EditForm = { name: '', slug: '', active: true, sortOrder: 0 }
+const inp = 'w-full rounded border border-[#e5e7eb] px-2 py-1 text-xs focus:border-[#0eb1c3] focus:outline-none'
 
-export default function CategoriasTable({ initial }: { initial: Category[] }) {
-  const [categories, setCategories] = useState(initial)
-  const [selected, setSelected] = useState<Set<string>>(new Set())
-  const [editingId, setEditingId] = useState<string | null>(null)
-  const [editForm, setEditForm] = useState<EditForm>(EMPTY)
-  const [isAdding, setIsAdding] = useState(false)
-  const [newForm, setNewForm] = useState<EditForm>(EMPTY)
-  const [, startTransition] = useTransition()
+export default function CategoriasTable({ initial }: { initial: Cat[] }) {
+  const [cats, setCats] = useState(initial)
+  const router = useRouter()
+  const [, startT] = useTransition()
 
-  function toggleSelect(id: string) {
-    setSelected((prev) => { const next = new Set(prev); next.has(id) ? next.delete(id) : next.add(id); return next })
+  function refresh() {
+    startT(() => { router.refresh() })
   }
-  function toggleSelectAll() {
-    setSelected(selected.size === categories.length ? new Set() : new Set(categories.map((c) => c.id)))
-  }
-  function startEdit(cat: Category) {
-    setEditingId(cat.id)
-    setEditForm({ name: cat.name, slug: cat.slug, active: cat.active, sortOrder: cat.sortOrder })
-  }
-  function saveEdit(id: string) {
-    startTransition(async () => {
-      await updateCategory(id, editForm)
-      setCategories((prev) => prev.map((c) => (c.id === id ? { ...c, ...editForm } : c)))
-      setEditingId(null)
-    })
-  }
-  function handleDeleteSelected() {
-    if (selected.size === 0) return
-    if (!confirm(`¿Eliminar ${selected.size} categoría(s)?`)) return
-    const ids = Array.from(selected)
-    startTransition(async () => {
-      await deleteCategories(ids)
-      setCategories((prev) => prev.filter((c) => !ids.includes(c.id)))
-      setSelected(new Set())
-    })
-  }
-  function saveNew() {
-    if (!newForm.name.trim() || !newForm.slug.trim()) return
-    startTransition(async () => {
-      await createCategory(newForm)
-      setIsAdding(false)
-      setNewForm(EMPTY)
-    })
-  }
-  function updateSortOrder(id: string, sortOrder: number) {
-    startTransition(async () => {
-      await updateCategory(id, { sortOrder })
-      setCategories((prev) => prev.map((c) => (c.id === id ? { ...c, sortOrder } : c)))
-    })
-  }
-  function toggleActive(id: string, active: boolean) {
-    startTransition(async () => {
-      await updateCategory(id, { active })
-      setCategories((prev) => prev.map((c) => (c.id === id ? { ...c, active } : c)))
-    })
-  }
-
-  const allSelected = categories.length > 0 && selected.size === categories.length
-
-  const inp = 'w-full rounded border border-gray-200 px-2 py-1 text-xs focus:border-[#0eb1c3] focus:outline-none'
 
   return (
-    <div>
-      <div className="mb-4 flex items-center gap-3">
-        <button onClick={() => { setIsAdding(true); setNewForm(EMPTY) }} className="rounded-xl px-5 py-2.5 text-sm font-black uppercase tracking-wider text-white transition-opacity hover:opacity-90" style={{ backgroundColor: '#0eb1c3' }}>
-          + Nueva
-        </button>
-        {selected.size > 0 && (
-          <button onClick={handleDeleteSelected} className="rounded-xl border border-red-200 px-5 py-2.5 text-sm font-black uppercase tracking-wider text-red-500 transition-colors hover:bg-red-50">
-            Borrar selección ({selected.size})
-          </button>
-        )}
-      </div>
+    <div className="space-y-4">
+      {cats.map((cat) => (
+        <CategoryRow key={cat.id} cat={cat} onRefresh={refresh} />
+      ))}
 
-      <div className="overflow-hidden rounded-2xl border border-gray-100 bg-white">
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="border-b border-gray-100 bg-gray-50">
-                <th className="px-4 py-3.5">
-                  <input type="checkbox" checked={allSelected} onChange={toggleSelectAll} className="rounded" />
-                </th>
-                {['ID', 'Nombre', 'Slug', 'Orden', 'Estado', 'Acciones'].map((h) => (
-                  <th key={h} className={`px-4 py-3.5 text-xs font-black uppercase tracking-wider text-gray-400 ${h === 'Acciones' ? 'text-right' : 'text-left'}`}>{h}</th>
-                ))}
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-50">
-              {isAdding && (
-                <tr className="bg-[#0eb1c3]/5">
-                  <td className="px-4 py-3" />
-                  <td className="px-4 py-3 text-xs text-gray-300">nuevo</td>
-                  <td className="px-4 py-3">
-                    <input autoFocus value={newForm.name} onChange={(e) => { const name = e.target.value; setNewForm((f) => ({ ...f, name, slug: toSlug(name) })) }} placeholder="Nombre" className={inp} />
-                  </td>
-                  <td className="px-4 py-3">
-                    <input value={newForm.slug} onChange={(e) => setNewForm((f) => ({ ...f, slug: e.target.value }))} placeholder="slug" className={`${inp} font-mono`} />
-                  </td>
-                  <td className="px-4 py-3">
-                    <input type="number" value={newForm.sortOrder} onChange={(e) => setNewForm((f) => ({ ...f, sortOrder: Number(e.target.value) }))} className="w-16 rounded border border-gray-200 px-2 py-1 text-center text-xs focus:border-[#0eb1c3] focus:outline-none" />
-                  </td>
-                  <td className="px-4 py-3">
-                    <button onClick={() => setNewForm((f) => ({ ...f, active: !f.active }))} className={`rounded-full px-2.5 py-0.5 text-[10px] font-bold uppercase ${newForm.active ? 'bg-green-100 text-green-600' : 'bg-gray-100 text-gray-400'}`}>
-                      {newForm.active ? 'Activo' : 'Inactivo'}
-                    </button>
-                  </td>
-                  <td className="px-4 py-3">
-                    <div className="flex items-center justify-end gap-1">
-                      <button onClick={saveNew} className="rounded-lg px-3 py-1.5 text-xs font-bold text-white" style={{ backgroundColor: '#0eb1c3' }}>Guardar</button>
-                      <button onClick={() => setIsAdding(false)} className="rounded-lg px-3 py-1.5 text-xs font-bold text-gray-500 hover:bg-gray-100">Cancelar</button>
-                    </div>
-                  </td>
-                </tr>
-              )}
-
-              {categories.map((cat) => {
-                const isEditing = editingId === cat.id
-                return (
-                  <tr key={cat.id} className="transition-colors hover:bg-gray-50">
-                    <td className="px-4 py-3">
-                      <input type="checkbox" checked={selected.has(cat.id)} onChange={() => toggleSelect(cat.id)} className="rounded" />
-                    </td>
-                    <td className="px-4 py-3 font-mono text-xs text-gray-300">{cat.id.slice(0, 6)}</td>
-                    <td className="px-4 py-3">
-                      {isEditing ? <input value={editForm.name} onChange={(e) => setEditForm((f) => ({ ...f, name: e.target.value }))} className={inp} /> : <span className="font-semibold text-[#1E1E1E]">{cat.name}</span>}
-                    </td>
-                    <td className="px-4 py-3">
-                      {isEditing ? <input value={editForm.slug} onChange={(e) => setEditForm((f) => ({ ...f, slug: e.target.value }))} className={`${inp} font-mono`} /> : <span className="font-mono text-xs text-gray-500">{cat.slug}</span>}
-                    </td>
-                    <td className="px-4 py-3">
-                      {isEditing ? (
-                        <input type="number" value={editForm.sortOrder} onChange={(e) => setEditForm((f) => ({ ...f, sortOrder: Number(e.target.value) }))} className="w-16 rounded border border-gray-200 px-2 py-1 text-center text-xs focus:border-[#0eb1c3] focus:outline-none" />
-                      ) : (
-                        <SortInput value={cat.sortOrder} onSave={(v) => updateSortOrder(cat.id, v)} />
-                      )}
-                    </td>
-                    <td className="px-4 py-3">
-                      {isEditing ? (
-                        <button onClick={() => setEditForm((f) => ({ ...f, active: !f.active }))} className={`rounded-full px-2.5 py-0.5 text-[10px] font-bold uppercase ${editForm.active ? 'bg-green-100 text-green-600' : 'bg-gray-100 text-gray-400'}`}>
-                          {editForm.active ? 'Activo' : 'Inactivo'}
-                        </button>
-                      ) : (
-                        <button onClick={() => toggleActive(cat.id, !cat.active)} className={`rounded-full px-2.5 py-0.5 text-[10px] font-bold uppercase transition-colors ${cat.active ? 'bg-green-100 text-green-600' : 'bg-gray-100 text-gray-400'}`}>
-                          {cat.active ? 'Activo' : 'Inactivo'}
-                        </button>
-                      )}
-                    </td>
-                    <td className="px-4 py-3">
-                      <div className="flex items-center justify-end gap-1">
-                        {isEditing ? (
-                          <>
-                            <button onClick={() => saveEdit(cat.id)} className="rounded-lg px-3 py-1.5 text-xs font-bold text-white" style={{ backgroundColor: '#0eb1c3' }}>Guardar</button>
-                            <button onClick={() => setEditingId(null)} className="rounded-lg px-3 py-1.5 text-xs font-bold text-gray-500 hover:bg-gray-100">Cancelar</button>
-                          </>
-                        ) : (
-                          <button onClick={() => startEdit(cat)} className="rounded-lg px-3 py-1.5 text-xs font-bold text-gray-500 transition-colors hover:bg-gray-100 hover:text-[#1E1E1E]">Editar</button>
-                        )}
-                      </div>
-                    </td>
-                  </tr>
-                )
-              })}
-              {categories.length === 0 && !isAdding && (
-                <tr><td colSpan={7} className="py-16 text-center text-sm text-gray-400">No hay categorías todavía.</td></tr>
-              )}
-            </tbody>
-          </table>
-        </div>
-      </div>
+      <AddCategoryRow onRefresh={refresh} />
     </div>
   )
 }
 
-function SortInput({ value, onSave }: { value: number; onSave: (v: number) => void }) {
-  const [v, setV] = useState(value)
+// ─── Fila de categoría padre ─────────────────────────────────────────────────
+
+function CategoryRow({ cat, onRefresh }: { cat: Cat; onRefresh: () => void }) {
+  const [open, setOpen] = useState(true)
+  const [editing, setEditing] = useState(false)
+  const [form, setForm] = useState({ name: cat.name, slug: cat.slug, order: cat.order })
+  const [addingSubcat, setAddingSubcat] = useState(false)
+  const [, startT] = useTransition()
+
+  function save() {
+    startT(async () => {
+      await updateCategory(cat.id, form)
+      setEditing(false)
+      onRefresh()
+    })
+  }
+
+  function remove() {
+    if (!confirm(`¿Eliminar el grupo "${cat.name}"? Solo es posible si no tiene subcategorías.`)) return
+    startT(async () => {
+      await deleteCategory(cat.id)
+      onRefresh()
+    })
+  }
+
   return (
-    <input type="number" value={v} onChange={(e) => setV(Number(e.target.value))} onBlur={() => { if (v !== value) onSave(v) }} className="w-16 rounded border border-gray-200 px-2 py-1 text-center text-xs focus:border-[#0eb1c3] focus:outline-none" />
+    <div className="overflow-hidden rounded-2xl border border-[#e5e7eb] bg-white">
+      {/* Cabecera del grupo */}
+      <div className="flex items-center gap-3 border-b border-[#f3f4f6] bg-[#f9fafb] px-5 py-3">
+        <button
+          onClick={() => setOpen((v) => !v)}
+          className="flex h-6 w-6 shrink-0 items-center justify-center rounded text-[#9ca3af] transition-colors hover:text-[#1E1E1E]"
+          aria-label={open ? 'Colapsar' : 'Expandir'}
+        >
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" className={`transition-transform ${open ? 'rotate-90' : ''}`}>
+            <polyline points="9 18 15 12 9 6" />
+          </svg>
+        </button>
+
+        {editing ? (
+          <div className="flex flex-1 items-center gap-2">
+            <input value={form.name} onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))} className={`${inp} flex-1`} placeholder="Nombre" />
+            <input value={form.slug} onChange={(e) => setForm((f) => ({ ...f, slug: e.target.value }))} className={`${inp} w-40 font-mono`} placeholder="slug" />
+            <input type="number" value={form.order} onChange={(e) => setForm((f) => ({ ...f, order: Number(e.target.value) }))} className="w-14 rounded border border-[#e5e7eb] px-2 py-1 text-center text-xs focus:border-[#0eb1c3] focus:outline-none" />
+            <button onClick={save} className="rounded-lg bg-[#0eb1c3] px-3 py-1 text-xs font-bold text-white">Guardar</button>
+            <button onClick={() => setEditing(false)} className="rounded-lg px-3 py-1 text-xs font-bold text-[#6b7280] hover:bg-[#f3f4f6]">Cancelar</button>
+          </div>
+        ) : (
+          <div className="flex flex-1 items-center gap-3">
+            <span className="font-black text-[#1E1E1E]">{cat.name}</span>
+            <span className="font-mono text-xs text-[#9ca3af]">{cat.slug}</span>
+            {cat.isSpecial && (
+              <span className="rounded-full bg-[#0eb1c3]/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-[#0eb1c3]">Especial</span>
+            )}
+            <span className="ml-auto text-xs text-[#9ca3af]">{cat.subcategories.length} subcategorías</span>
+          </div>
+        )}
+
+        {!editing && (
+          <div className="flex items-center gap-1">
+            {!cat.isSpecial && (
+              <>
+                <button onClick={() => setEditing(true)} className="rounded-lg px-2.5 py-1 text-xs font-semibold text-[#6b7280] hover:bg-[#f3f4f6] hover:text-[#1E1E1E]">Editar</button>
+                <button onClick={remove} className="rounded-lg px-2.5 py-1 text-xs font-semibold text-[#ef4444] hover:bg-red-50">Borrar</button>
+              </>
+            )}
+          </div>
+        )}
+      </div>
+
+      {/* Subcategorías */}
+      {open && (
+        <div>
+          {cat.subcategories.length === 0 && !addingSubcat && (
+            <p className="px-8 py-3 text-xs text-[#9ca3af] italic">Sin subcategorías</p>
+          )}
+
+          {cat.subcategories.map((sub) => (
+            <SubcatRow key={sub.id} sub={sub} onRefresh={onRefresh} />
+          ))}
+
+          {addingSubcat ? (
+            <AddSubcatRow categoryId={cat.id} onRefresh={onRefresh} onCancel={() => setAddingSubcat(false)} />
+          ) : !cat.isSpecial && (
+            <button
+              onClick={() => setAddingSubcat(true)}
+              className="flex w-full items-center gap-2 border-t border-[#f3f4f6] px-8 py-2.5 text-xs font-bold text-[#0eb1c3] transition-colors hover:bg-[#f0fdfc]"
+            >
+              + Agregar subcategoría
+            </button>
+          )}
+        </div>
+      )}
+    </div>
+  )
+}
+
+// ─── Fila de subcategoría ─────────────────────────────────────────────────────
+
+function SubcatRow({ sub, onRefresh }: { sub: Subcat; onRefresh: () => void }) {
+  const [editing, setEditing] = useState(false)
+  const [form, setForm] = useState({ name: sub.name, slug: sub.slug, order: sub.order })
+  const [, startT] = useTransition()
+
+  function save() {
+    startT(async () => {
+      await updateSubcategory(sub.id, form)
+      setEditing(false)
+      onRefresh()
+    })
+  }
+
+  function remove() {
+    if (!confirm(`¿Eliminar "${sub.name}"? Solo si no tiene productos asignados.`)) return
+    startT(async () => {
+      await deleteSubcategory(sub.id)
+      onRefresh()
+    })
+  }
+
+  return (
+    <div className="flex items-center gap-3 border-t border-[#f3f4f6] px-8 py-2.5 transition-colors hover:bg-[#f9fafb]">
+      {editing ? (
+        <>
+          <input value={form.name} onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))} className={`${inp} flex-1`} />
+          <input value={form.slug} onChange={(e) => setForm((f) => ({ ...f, slug: e.target.value }))} className={`${inp} w-40 font-mono`} />
+          <input type="number" value={form.order} onChange={(e) => setForm((f) => ({ ...f, order: Number(e.target.value) }))} className="w-14 rounded border border-[#e5e7eb] px-2 py-1 text-center text-xs" />
+          <button onClick={save} className="rounded-lg bg-[#0eb1c3] px-3 py-1 text-xs font-bold text-white">Guardar</button>
+          <button onClick={() => setEditing(false)} className="rounded-lg px-3 py-1 text-xs font-semibold text-[#6b7280] hover:bg-[#f3f4f6]">Cancelar</button>
+        </>
+      ) : (
+        <>
+          <span className="flex-1 text-sm font-semibold text-[#1E1E1E]">{sub.name}</span>
+          <span className="font-mono text-xs text-[#9ca3af]">{sub.slug}</span>
+          <span className="w-8 text-center text-xs text-[#9ca3af]">{sub.order}</span>
+          <button onClick={() => setEditing(true)} className="rounded-lg px-2.5 py-1 text-xs font-semibold text-[#6b7280] hover:bg-[#f3f4f6] hover:text-[#1E1E1E]">Editar</button>
+          <button onClick={remove} className="rounded-lg px-2.5 py-1 text-xs font-semibold text-[#ef4444] hover:bg-red-50">Borrar</button>
+        </>
+      )}
+    </div>
+  )
+}
+
+// ─── Agregar subcategoría inline ──────────────────────────────────────────────
+
+function AddSubcatRow({ categoryId, onRefresh, onCancel }: { categoryId: string; onRefresh: () => void; onCancel: () => void }) {
+  const [form, setForm] = useState({ name: '', slug: '', order: 0 })
+  const [, startT] = useTransition()
+
+  function save() {
+    if (!form.name.trim() || !form.slug.trim()) return
+    startT(async () => {
+      await createSubcategory({ ...form, categoryId })
+      onRefresh()
+      onCancel()
+    })
+  }
+
+  return (
+    <div className="flex items-center gap-3 border-t border-[#f3f4f6] bg-[#f0fdfc] px-8 py-2.5">
+      <input
+        autoFocus
+        value={form.name}
+        onChange={(e) => { const name = e.target.value; setForm((f) => ({ ...f, name, slug: f.slug || toSlug(name) })) }}
+        placeholder="Nombre"
+        className={`${inp} flex-1`}
+      />
+      <input value={form.slug} onChange={(e) => setForm((f) => ({ ...f, slug: e.target.value }))} placeholder="slug" className={`${inp} w-40 font-mono`} />
+      <input type="number" value={form.order} onChange={(e) => setForm((f) => ({ ...f, order: Number(e.target.value) }))} className="w-14 rounded border border-[#e5e7eb] px-2 py-1 text-center text-xs" />
+      <button onClick={save} className="rounded-lg bg-[#0eb1c3] px-3 py-1 text-xs font-bold text-white">Guardar</button>
+      <button onClick={onCancel} className="rounded-lg px-3 py-1 text-xs font-semibold text-[#6b7280] hover:bg-[#f3f4f6]">Cancelar</button>
+    </div>
+  )
+}
+
+// ─── Agregar categoría padre ──────────────────────────────────────────────────
+
+function AddCategoryRow({ onRefresh }: { onRefresh: () => void }) {
+  const [open, setOpen] = useState(false)
+  const [form, setForm] = useState({ name: '', slug: '', order: 0 })
+  const [, startT] = useTransition()
+
+  function save() {
+    if (!form.name.trim() || !form.slug.trim()) return
+    startT(async () => {
+      await createCategory(form)
+      onRefresh()
+      setOpen(false)
+      setForm({ name: '', slug: '', order: 0 })
+    })
+  }
+
+  if (!open) {
+    return (
+      <button
+        onClick={() => setOpen(true)}
+        className="flex w-full items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-[#e5e7eb] py-3 text-sm font-bold text-[#9ca3af] transition-colors hover:border-[#0eb1c3] hover:text-[#0eb1c3]"
+      >
+        + Nuevo grupo de categorías
+      </button>
+    )
+  }
+
+  return (
+    <div className="flex items-center gap-3 rounded-2xl border-2 border-[#0eb1c3] bg-[#f0fdfc] px-5 py-3">
+      <input
+        autoFocus
+        value={form.name}
+        onChange={(e) => { const name = e.target.value; setForm((f) => ({ ...f, name, slug: f.slug || toSlug(name) })) }}
+        placeholder="Nombre del grupo"
+        className={`${inp} flex-1`}
+      />
+      <input value={form.slug} onChange={(e) => setForm((f) => ({ ...f, slug: e.target.value }))} placeholder="slug" className={`${inp} w-40 font-mono`} />
+      <input type="number" value={form.order} onChange={(e) => setForm((f) => ({ ...f, order: Number(e.target.value) }))} className="w-14 rounded border border-[#e5e7eb] px-2 py-1 text-center text-xs" />
+      <button onClick={save} className="rounded-lg bg-[#0eb1c3] px-4 py-1.5 text-xs font-bold text-white">Crear grupo</button>
+      <button onClick={() => setOpen(false)} className="rounded-lg px-3 py-1.5 text-xs font-semibold text-[#6b7280] hover:bg-white">Cancelar</button>
+    </div>
   )
 }

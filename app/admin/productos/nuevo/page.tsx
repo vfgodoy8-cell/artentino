@@ -3,7 +3,10 @@ import { prisma } from '@/lib/prisma'
 import NuevoProductoForm from './form'
 
 export default async function NuevoProductoPage() {
-  const categories = await prisma.category.findMany({ orderBy: { name: 'asc' } })
+  const categories = await prisma.subcategory.findMany({
+    orderBy: [{ category: { order: 'asc' } }, { order: 'asc' }],
+    select: { id: true, name: true },
+  })
 
   return (
     <div className="mx-auto max-w-2xl p-8">

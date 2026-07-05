@@ -1,6 +1,7 @@
 import { prisma } from '@/lib/prisma'
 import HeroSlidesTab from './hero-slides-tab'
 import HeroBadgesTab from './hero-badges-tab'
+import FooterTextSection from './footer-text-section'
 
 export const dynamic = 'force-dynamic'
 
@@ -35,8 +36,8 @@ export default async function AdminHomePage() {
     }),
     prisma.siteConfig.findUnique({ where: { id: 'singleton' } }),
     prisma.category.findMany({
-      where: { active: true },
-      orderBy: { name: 'asc' },
+      where: { isSpecial: false },
+      orderBy: { order: 'asc' },
       select: { id: true, name: true, slug: true },
     }),
   ])
@@ -56,6 +57,8 @@ export default async function AdminHomePage() {
         <HeroSlidesTab initial={rawSlides} intervalSeconds={intervalSeconds} />
         <div className="border-t border-[#e5e7eb]" />
         <HeroBadgesTab initial={rawBadges} categories={categories} />
+        <div className="border-t border-[#e5e7eb]" />
+        <FooterTextSection initial={siteConfig?.footerText ?? ''} />
       </div>
     </div>
   )

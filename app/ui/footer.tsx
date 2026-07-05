@@ -1,5 +1,9 @@
 import Link from 'next/link'
 import Image from 'next/image'
+import { prisma } from '@/lib/prisma'
+
+const FOOTER_TEXT_DEFAULT =
+  'Deco, hogar y regalos únicos con diseño argentino. Cuotas sin interés y envíos a todo el país.'
 
 const navLinks = [
   { href: '/', label: 'Inicio' },
@@ -15,9 +19,12 @@ const helpLinks = [
   { href: '/faq#regalos', label: 'Regalos Corporativos' },
 ]
 
-export default function Footer() {
+export default async function Footer() {
+  const siteConfig = await prisma.siteConfig.findUnique({ where: { id: 'singleton' } })
+  const footerText = siteConfig?.footerText ?? FOOTER_TEXT_DEFAULT
+
   return (
-    <footer style={{ backgroundColor: '#1E1E1E' }}>
+    <footer style={{ backgroundColor: '#F0FBFC' }}>
       <div className="mx-auto max-w-7xl px-4 pt-14 sm:px-6 lg:px-8">
 
         {/* Main grid */}
@@ -26,9 +33,8 @@ export default function Footer() {
           {/* Col 1 — Brand + redes */}
           <div>
             <Image src="/logo.png" alt="Artentino" width={130} height={46} className="object-contain" />
-            <p className="mt-4 text-sm leading-relaxed text-[#888]">
-              Deco, hogar y regalos únicos con diseño argentino. Cuotas sin
-              interés y envíos a todo el país.
+            <p className="mt-4 text-sm leading-relaxed text-[#4b5563]">
+              {footerText}
             </p>
 
             {/* Redes sociales */}
@@ -38,7 +44,7 @@ export default function Footer() {
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="Instagram"
-                className="flex h-9 w-9 items-center justify-center rounded-full border border-[#333] text-[#555] transition-all hover:border-[#0eb1c3] hover:text-[#0eb1c3]"
+                className="flex h-9 w-9 items-center justify-center rounded-full border border-[#b3e8ee] text-[#6b7280] transition-all hover:border-[#0eb1c3] hover:text-[#0eb1c3]"
               >
                 <InstagramIcon />
               </a>
@@ -47,7 +53,7 @@ export default function Footer() {
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="Facebook"
-                className="flex h-9 w-9 items-center justify-center rounded-full border border-[#333] text-[#555] transition-all hover:border-[#0eb1c3] hover:text-[#0eb1c3]"
+                className="flex h-9 w-9 items-center justify-center rounded-full border border-[#b3e8ee] text-[#6b7280] transition-all hover:border-[#0eb1c3] hover:text-[#0eb1c3]"
               >
                 <FacebookIcon />
               </a>
@@ -56,7 +62,7 @@ export default function Footer() {
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="TikTok"
-                className="flex h-9 w-9 items-center justify-center rounded-full border border-[#333] text-[#555] transition-all hover:border-[#0eb1c3] hover:text-[#0eb1c3]"
+                className="flex h-9 w-9 items-center justify-center rounded-full border border-[#b3e8ee] text-[#6b7280] transition-all hover:border-[#0eb1c3] hover:text-[#0eb1c3]"
               >
                 <TikTokIcon />
               </a>
@@ -65,7 +71,7 @@ export default function Footer() {
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="YouTube"
-                className="flex h-9 w-9 items-center justify-center rounded-full border border-[#333] text-[#555] transition-all hover:border-[#0eb1c3] hover:text-[#0eb1c3]"
+                className="flex h-9 w-9 items-center justify-center rounded-full border border-[#b3e8ee] text-[#6b7280] transition-all hover:border-[#0eb1c3] hover:text-[#0eb1c3]"
               >
                 <YouTubeIcon />
               </a>
@@ -74,7 +80,7 @@ export default function Footer() {
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="WhatsApp"
-                className="flex h-9 w-9 items-center justify-center rounded-full border border-[#333] text-[#555] transition-all hover:border-[#0eb1c3] hover:text-[#0eb1c3]"
+                className="flex h-9 w-9 items-center justify-center rounded-full border border-[#b3e8ee] text-[#6b7280] transition-all hover:border-[#0eb1c3] hover:text-[#0eb1c3]"
               >
                 <WhatsAppIcon />
               </a>
@@ -91,7 +97,7 @@ export default function Footer() {
                 <li key={link.href}>
                   <Link
                     href={link.href}
-                    className="text-sm text-[#555] transition-colors hover:text-[#0eb1c3]"
+                    className="text-sm text-[#374151] transition-colors hover:text-[#0eb1c3]"
                   >
                     {link.label}
                   </Link>
@@ -110,7 +116,7 @@ export default function Footer() {
                 <li key={link.href}>
                   <Link
                     href={link.href}
-                    className="text-sm text-[#555] transition-colors hover:text-[#0eb1c3]"
+                    className="text-sm text-[#374151] transition-colors hover:text-[#0eb1c3]"
                   >
                     {link.label}
                   </Link>
@@ -133,7 +139,7 @@ export default function Footer() {
                   href="https://wa.me/5491139363333"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-sm text-[#555] transition-colors hover:text-[#0eb1c3]"
+                  className="text-sm text-[#374151] transition-colors hover:text-[#0eb1c3]"
                 >
                   +54 9 11 3936 3333
                 </a>
@@ -144,7 +150,7 @@ export default function Footer() {
                 </span>
                 <a
                   href="mailto:info@artentino.com"
-                  className="text-sm text-[#555] transition-colors hover:text-[#0eb1c3]"
+                  className="text-sm text-[#374151] transition-colors hover:text-[#0eb1c3]"
                 >
                   info@artentino.com
                 </a>
@@ -157,7 +163,7 @@ export default function Footer() {
                   href="https://maps.app.goo.gl/vYdUfZ1vPTeStfdWA"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-sm leading-relaxed text-[#555] transition-colors hover:text-[#0eb1c3]"
+                  className="text-sm leading-relaxed text-[#374151] transition-colors hover:text-[#0eb1c3]"
                 >
                   Cramer 886 — Av. Federico Lacroze
                   <br />
@@ -168,7 +174,7 @@ export default function Footer() {
                 <span className="shrink-0 text-[#0eb1c3]">
                   <ClockIcon />
                 </span>
-                <span className="text-sm text-[#555]">
+                <span className="text-sm text-[#374151]">
                   Lunes a Viernes 9 a 19hs
                 </span>
               </li>
@@ -177,18 +183,18 @@ export default function Footer() {
         </div>
 
         {/* Bottom bar */}
-        <div className="mt-12 flex flex-col items-center justify-between gap-3 border-t border-[#2a2a2a] py-6 sm:flex-row">
-          <p className="text-xs text-[#444]">
+        <div className="mt-12 flex flex-col items-center justify-between gap-3 border-t border-[#c8eff4] py-6 sm:flex-row">
+          <p className="text-xs text-[#9ca3af]">
             © 2026 Artentino · Todos los derechos reservados
           </p>
           <div className="flex items-center gap-4">
-            <Link href="/privacidad" className="text-xs text-[#444] transition-colors hover:text-[#0eb1c3]">
+            <Link href="/privacidad" className="text-xs text-[#9ca3af] transition-colors hover:text-[#0eb1c3]">
               Privacidad
             </Link>
-            <Link href="/terminos" className="text-xs text-[#444] transition-colors hover:text-[#0eb1c3]">
+            <Link href="/terminos" className="text-xs text-[#9ca3af] transition-colors hover:text-[#0eb1c3]">
               Términos
             </Link>
-            <span className="flex items-center gap-1.5 text-xs text-[#444]">
+            <span className="flex items-center gap-1.5 text-xs text-[#9ca3af]">
               <LockIcon />
               Compra segura · MercadoPago
             </span>

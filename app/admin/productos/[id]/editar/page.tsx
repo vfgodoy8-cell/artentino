@@ -30,7 +30,10 @@ export default async function EditarProductoPage({ params }: Props) {
   if (!product) notFound()
 
   const [categories, attributes] = await Promise.all([
-    prisma.category.findMany({ orderBy: { name: 'asc' }, select: { id: true, name: true } }),
+    prisma.subcategory.findMany({
+      orderBy: [{ category: { order: 'asc' } }, { order: 'asc' }],
+      select: { id: true, name: true },
+    }),
     prisma.attribute.findMany({
       where: { active: true, hidden: false },
       orderBy: { position: 'asc' },

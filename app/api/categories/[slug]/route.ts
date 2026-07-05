@@ -6,7 +6,7 @@ export async function GET(
 ) {
   try {
     const { slug } = await params
-    const category = await prisma.category.findUnique({
+    const category = await prisma.subcategory.findUnique({
       where: { slug },
       include: {
         products: {

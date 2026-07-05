@@ -67,11 +67,11 @@ export async function updateHeroBadge(order: number, data: BadgeData) {
   revalidatePath('/')
 }
 
-export async function updateSiteConfig(heroIntervalSeconds: number) {
+export async function updateSiteConfig(data: { heroIntervalSeconds?: number; footerText?: string }) {
   await prisma.siteConfig.upsert({
     where: { id: 'singleton' },
-    update: { heroIntervalSeconds },
-    create: { id: 'singleton', heroIntervalSeconds },
+    update: data,
+    create: { id: 'singleton', heroIntervalSeconds: 6, ...data },
   })
   revalidatePath('/admin/home')
   revalidatePath('/')

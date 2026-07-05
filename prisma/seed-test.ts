@@ -32,12 +32,20 @@ async function main() {
     },
   })
 
-  const catEspejos = await prisma.category.create({
-    data: { name: 'Espejos LED', slug: 'espejos-led', active: true, sortOrder: 0 },
+  // Parent categories
+  const parentEspejos = await prisma.category.create({
+    data: { name: 'Espejos', slug: 'espejos', order: 1 },
+  })
+  const parentLamparas = await prisma.category.create({
+    data: { name: 'Lámparas', slug: 'lamparas', order: 2 },
   })
 
-  const catLamparas = await prisma.category.create({
-    data: { name: 'Lámparas', slug: 'lamparas', active: true, sortOrder: 1 },
+  // Subcategories
+  const catEspejos = await prisma.subcategory.create({
+    data: { name: 'Espejos LED', slug: 'espejos-led', order: 1, categoryId: parentEspejos.id },
+  })
+  const catLamparas = await prisma.subcategory.create({
+    data: { name: 'Lámparas de Mesa', slug: 'lamparas-de-mesa', order: 1, categoryId: parentLamparas.id },
   })
 
   const productA = await prisma.product.create({
@@ -157,7 +165,7 @@ async function main() {
 
   console.log(`  ✓ admin: admin@artentino.test / Admin1234!`)
   console.log(`  ✓ user:  user@artentino.test  / User1234!`)
-  console.log(`  ✓ categorías: Espejos LED, Lámparas`)
+  console.log(`  ✓ categorías: Espejos → Espejos LED, Lámparas → Lámparas de Mesa`)
   console.log(`  ✓ productos: ${productA.name}, ${productB.name}`)
   console.log(`  ✓ orden PENDING para user de test`)
   console.log('Done!')

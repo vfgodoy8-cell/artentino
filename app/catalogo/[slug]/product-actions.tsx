@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useCart, type ComboPrice } from '@/app/context/cart-context'
+import VariantSelector from './variant-selector'
 
 function fmt(n: number) {
   return `$${n.toLocaleString('es-AR')}`
@@ -20,6 +21,8 @@ function CartIcon() {
   )
 }
 
+type VariantEntry = { id: string; value: string }
+
 type Props = {
   productId: string
   name: string
@@ -31,6 +34,10 @@ type Props = {
   maxQty: number
   selectedColorId: string | null
   onClearColor: () => void
+  variantGroups: Record<string, VariantEntry[]>
+  stockByValueId: Record<string, number>
+  onColorSelect: (id: string | null) => void
+  colorResetKey: number
 }
 
 export default function ProductActions({
@@ -44,14 +51,18 @@ export default function ProductActions({
   maxQty,
   selectedColorId,
   onClearColor,
+  variantGroups,
+  stockByValueId,
+  onColorSelect,
+  colorResetKey,
 }: Props) {
   const { addItem } = useCart()
   const [qty, setQty] = useState(1)
   const [added, setAdded] = useState(false)
   const [comboAddedId, setComboAddedId] = useState<string | null>(null)
   const [showPackNote, setShowPackNote] = useState(false)
+  const [showTooltip, setShowTooltip] = useState(false)
 
-  // Reset quantity when color changes
   useEffect(() => {
     setQty(1)
   }, [selectedColorId])
@@ -83,72 +94,96 @@ export default function ProductActions({
     setTimeout(() => setComboAddedId(null), 1200)
   }
 
+  function handleVariantSelect(_attrName: string, valueId: string) {
+    onColorSelect(valueId || null)
+  }
+
   const buttonLabel = added
     ? '¡Agregado!'
     : disabledReason === 'no-color'
-      ? 'Seleccioná un color'
+      ? 'Seleccioná una variante'
       : disabledReason === 'no-stock'
         ? 'Sin stock'
         : 'Agregar al carrito'
+
+  const hasVariants = Object.keys(variantGroups).length > 0
 
   return (
     <div>
       {/* Combo table */}
       {comboPrices.length > 0 && (
-        <div className="mt-5 overflow-hidden rounded-xl border border-[#0eb1c3]/30 bg-[#f0fbfc]">
-          <div className="border-b border-[#0eb1c3]/20 px-4 py-2.5">
-            <p className="text-xs font-black uppercase tracking-wider text-[#0eb1c3]">
-              Comprá más, pagá menos
+        <div
+          className="relative mt-5"
+          onMouseEnter={() => setShowTooltip(true)}
+          onMouseLeave={() => setShowTooltip(false)}
+        >
+          {/* Transfer tooltip */}
+          {showTooltip && (
+            <div className="absolute -top-11 left-1/2 z-20 -translate-x-1/2 rounded-lg bg-[#1E1E1E] px-3 py-2 text-center text-xs font-semibold text-white shadow-lg">
+              Si comprás con transferencia, tenés un 15% de descuento
+              <div className="absolute -bottom-1.5 left-1/2 h-3 w-3 -translate-x-1/2 rotate-45 bg-[#1E1E1E]" />
+            </div>
+          )}
+
+          <div className="overflow-hidden rounded-xl border border-[#0eb1c3]/30 bg-[#f0fbfc]">
+            <div className="border-b border-[#0eb1c3]/20 px-4 py-2.5">
+              <p className="text-xs font-black uppercase tracking-wider text-[#0eb1c3]">
+                Comprá más y sumá descuentos adicionales
+              </p>
+            </div>
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b border-[#0eb1c3]/10">
+                  <th className="px-4 py-2 text-left text-[10px] font-black uppercase tracking-wider text-gray-400">
+                    Cantidad
+                  </th>
+                  <th className="px-4 py-2 text-left text-[10px] font-black uppercase tracking-wider text-gray-400">
+                    Precio unitario
+                  </th>
+                  <th className="px-4 py-2 text-left text-[10px] font-black uppercase tracking-wider text-gray-400">
+                    Ahorrás
+                  </th>
+                  <th className="px-4 py-2" />
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-[#0eb1c3]/10">
+                {comboPrices.map((c) => {
+                  const pct = Math.round((1 - c.price / price) * 100)
+                  const isAdded = comboAddedId === c.id
+                  return (
+                    <tr key={c.id}>
+                      <td className="px-4 py-2.5 font-bold text-[#1E1E1E]">{c.quantity}+ unidades</td>
+                      <td className="px-4 py-2.5 font-black text-[#1E1E1E]">{fmt(c.price)}</td>
+                      <td className="px-4 py-2.5">
+                        <span className="rounded-full bg-[#0eb1c3] px-2.5 py-0.5 text-xs font-black text-white">
+                          {pct}% off
+                        </span>
+                      </td>
+                      <td className="px-3 py-2.5 text-right">
+                        <button
+                          onClick={() => handleComboAdd(c)}
+                          className="inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-bold text-white transition-colors"
+                          style={{ backgroundColor: isAdded ? '#1E1E1E' : '#0eb1c3' }}
+                        >
+                          <CartIcon />
+                          {isAdded ? '¡Listo!' : `Pack x${c.quantity}`}
+                        </button>
+                      </td>
+                    </tr>
+                  )
+                })}
+              </tbody>
+            </table>
+            <p
+              className={`px-4 py-2 text-[11px] transition-colors duration-300 ${
+                showPackNote ? 'font-bold text-[#0eb1c3]' : 'text-gray-400'
+              }`}
+            >
+              {showPackNote
+                ? '✓ Color deseleccionado — los packs son surtidos.'
+                : '* Los packs vienen surtidos — no se elige color.'}
             </p>
           </div>
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="border-b border-[#0eb1c3]/10">
-                <th className="px-4 py-2 text-left text-[10px] font-black uppercase tracking-wider text-gray-400">
-                  Cantidad
-                </th>
-                <th className="px-4 py-2 text-left text-[10px] font-black uppercase tracking-wider text-gray-400">
-                  Precio unitario
-                </th>
-                <th className="px-4 py-2 text-left text-[10px] font-black uppercase tracking-wider text-gray-400">
-                  Ahorrás
-                </th>
-                <th className="px-4 py-2" />
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-[#0eb1c3]/10">
-              {comboPrices.map((c) => {
-                const pct = Math.round((1 - c.price / price) * 100)
-                const isAdded = comboAddedId === c.id
-                return (
-                  <tr key={c.id}>
-                    <td className="px-4 py-2.5 font-bold text-[#1E1E1E]">{c.quantity}+ unidades</td>
-                    <td className="px-4 py-2.5 font-black text-[#1E1E1E]">{fmt(c.price)}</td>
-                    <td className="px-4 py-2.5">
-                      <span className="rounded-full bg-[#0eb1c3] px-2.5 py-0.5 text-xs font-black text-white">
-                        {pct}% off
-                      </span>
-                    </td>
-                    <td className="px-3 py-2.5 text-right">
-                      <button
-                        onClick={() => handleComboAdd(c)}
-                        className="inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-bold text-white transition-colors"
-                        style={{ backgroundColor: isAdded ? '#1E1E1E' : '#0eb1c3' }}
-                      >
-                        <CartIcon />
-                        {isAdded ? '¡Listo!' : `Pack x${c.quantity}`}
-                      </button>
-                    </td>
-                  </tr>
-                )
-              })}
-            </tbody>
-          </table>
-          <p className={`px-4 py-2 text-[11px] transition-colors duration-300 ${showPackNote ? 'font-bold text-[#0eb1c3]' : 'text-gray-400'}`}>
-            {showPackNote
-              ? '✓ Color deseleccionado — los packs son surtidos.'
-              : '* Los packs vienen surtidos — no se elige color.'}
-          </p>
         </div>
       )}
 
@@ -173,6 +208,21 @@ export default function ProductActions({
           </button>
         </div>
       </div>
+
+      {/* Variant selector — between quantity and add-to-cart */}
+      {hasVariants && (
+        <div className="mt-5">
+          <p className="mb-2 text-[10px] font-black uppercase tracking-widest text-gray-400">
+            Variante
+          </p>
+          <VariantSelector
+            key={colorResetKey}
+            variantGroups={variantGroups}
+            stockByValueId={stockByValueId}
+            onSelect={handleVariantSelect}
+          />
+        </div>
+      )}
 
       {/* Main add to cart */}
       <button

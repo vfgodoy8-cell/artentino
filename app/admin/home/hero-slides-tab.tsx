@@ -106,7 +106,7 @@ export default function HeroSlidesTab({
   }
 
   function handleSaveInterval() {
-    run(() => updateSiteConfig(interval))
+    run(() => updateSiteConfig({ heroIntervalSeconds: interval }))
   }
 
   return (
