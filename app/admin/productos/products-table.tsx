@@ -24,11 +24,17 @@ function fmt(n: number) {
   return `$${n.toLocaleString('es-AR')}`
 }
 
-export default function ProductsTable({ products }: { products: Product[] }) {
+export default function ProductsTable({ products, searchTerm }: { products: Product[]; searchTerm?: string }) {
   const router = useRouter()
 
   if (products.length === 0) {
-    return <div className="py-16 text-center text-sm text-gray-400">No hay productos todavía.</div>
+    return (
+      <div className="py-16 text-center text-sm text-gray-400">
+        {searchTerm
+          ? <>No se encontraron productos para <span className="font-bold text-[#1E1E1E]">&ldquo;{searchTerm}&rdquo;</span>.</>
+          : 'No hay productos todavía.'}
+      </div>
+    )
   }
 
   async function handleDelete(id: string, name: string) {
