@@ -47,6 +47,7 @@ type CartContextType = {
   clearCart: () => void
   getTotal: () => number
   getItemCount: () => number
+  addCount: number
 }
 
 const CartContext = createContext<CartContextType | null>(null)
@@ -54,6 +55,7 @@ const CartContext = createContext<CartContextType | null>(null)
 export function CartProvider({ children }: { children: React.ReactNode }) {
   const [items, setItems] = useState<CartItem[]>([])
   const [hydrated, setHydrated] = useState(false)
+  const [addCount, setAddCount] = useState(0)
 
   useEffect(() => {
     try {
@@ -68,6 +70,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   }, [items, hydrated])
 
   function addItem(product: Omit<CartItem, 'quantity'>, qty = 1) {
+    setAddCount((n) => n + 1)
     setItems((prev) => {
       const key = cartItemKey(product)
       const existing = prev.find((i) => cartItemKey(i) === key)
@@ -110,7 +113,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
 
   return (
     <CartContext.Provider
-      value={{ items, addItem, removeItem, updateQuantity, clearCart, getTotal, getItemCount }}
+      value={{ items, addItem, removeItem, updateQuantity, clearCart, getTotal, getItemCount, addCount }}
     >
       {children}
     </CartContext.Provider>

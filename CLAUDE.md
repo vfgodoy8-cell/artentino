@@ -10,7 +10,7 @@ E-commerce de deco/hogar argentino (Artentino). App Router + Prisma 7 + NextAuth
 
 **Páginas públicas:** Home · `/catalogo` · `/catalogo/[slug]` · `/checkout` · `/turnos` · `/contacto` · `/faq` · `/login` · `/registro` · `/perfil` · `/perfil/pedidos`
 
-**Panel admin** (`/admin/*`): Productos · Categorías · Atributos · Destacados · Pedidos · Turnos · Contactos
+**Panel admin** (`/admin/*`): Productos · Categorías · Atributos · Destacados · Pedidos · Turnos · Contactos · Hero/Home · Templates de email
 
 ---
 
@@ -27,7 +27,7 @@ E-commerce de deco/hogar argentino (Artentino). App Router + Prisma 7 + NextAuth
 | Adaptador DB | `@prisma/adapter-pg` + `pg` |
 | Pagos | MercadoPago SDK v2 — preferencia en `/api/checkout`, webhook IPN en `/api/webhook/mercadopago` |
 | Imágenes | Cloudinary — upload vía `app/api/admin/upload/route.ts` |
-| Emails | Resend — `app/lib/email.ts`, disparado desde webhook al confirmar pago |
+| Emails | Resend — `app/lib/email.ts`, templates editables en DB (`EmailTemplate`), `interpolate()` para `{{variables}}` |
 | Tests E2E | Playwright 1.60 — config en `playwright.config.ts`, specs en `e2e/specs/` |
 | CI | GitHub Actions — `.github/workflows/e2e.yml` corre `npm run test:e2e` |
 
@@ -90,6 +90,93 @@ npx prisma db seed
 - Mutaciones vía Server Actions en `actions.ts` co-ubicados. Siempre terminan con `revalidatePath()` para invalidar el caché RSC (incluyendo `revalidatePath('/')` cuando el cambio afecta el home, ej. destacados).
 - El editor de producto (`/admin/productos/[id]/editar`) tiene 3 tabs: **Información** (precios, combos, descripción), **Stock** (por atributo/variante), **Imágenes** (Cloudinary).
 - Nuevo producto: el slug se genera automáticamente a partir del SKU.
+- Después de cada Server Action los Client Components llaman `router.refresh()` (no optimistic state) — patrón consistente en todo el admin.
+
+### Hero carousel — arquitectura (`app/ui/hero.tsx` + `app/ui/hero-carousel.tsx`)
+
+`hero.tsx` es un **RSC async** que consulta DB (`prisma.heroSlide`, `prisma.heroBadge`, `prisma.siteConfig`) y renderiza `<HeroCarousel>` (Client Component). No hay `imageUrl` estático.
+
+**Stale-closure-safe autoplay:**
+```typescript
+const idxRef = useRef(0)           // siempre tiene el índice actual
+const goTo = useCallback((idx) => {
+  idxRef.current = idx; setVisible(false)
+  visTimerRef.current = setTimeout(() => { setCurrentIdx(idx); setVisible(true) }, 350)
+}, [])                             // deps vacíos — solo usa refs y stable setters
+useEffect(() => {
+  const id = setInterval(() => goTo((idxRef.current + 1) % slides.length), intervalSeconds * 1000)
+  return () => clearInterval(id)
+}, [slides.length, intervalSeconds, resetKey, goTo])  // resetKey incrementa en nav manual
+```
+
+- `titleHighlightWord`: el renderer divide `title` en `[antes, word, después]` y envuelve la word en `<span italic teal>`.
+- Fallback (`HeroFallback`): mostrado cuando `slides.length === 0`.
+- Badges: slot 0 = fondo blanco + texto oscuro; slot 1 = fondo teal + texto blanco.
+
+### Admin — Hero / Home (`app/admin/home/`)
+
+Backoffice en `/admin/home` (grupo "Contenido" en sidebar):
+- **HeroSlidesTab**: CRUD de slides, upload a Cloudinary (`/api/admin/upload-hero` → folder `artentino/hero`), reorden ↑/↓ (swap de `order` en `$transaction`), input de intervalo con "Guardar intervalo" separado.
+- **HeroBadgesTab**: 2 slots fijos (por `@@unique([order])`), dropdown de categoría, customLabel, customSubtitle, icon picker (mirror/sofa/lamp/vase/star).
+- Server actions: `createHeroSlide`, `updateHeroSlide`, `deleteHeroSlide`, `moveHeroSlide`, `updateHeroBadge`, `updateSiteConfig` — todas revalidan `/` y `/admin/home`.
+
+### Contacto (`app/contacto/page.tsx`)
+
+Tab "Postulación Laboral" **eliminado**. Solo existe el formulario general. API `/api/contacto/route.ts` siempre persiste `type: 'GENERAL'`, valida únicamente `name/email/message`.
+
+### Email template system
+
+**`app/lib/email.ts`** — función `interpolate(template, vars)` reemplaza `{{variable}}` con valores:
+```typescript
+export function interpolate(template: string, vars: Record<string, string>): string {
+  return Object.entries(vars).reduce(
+    (html, [key, val]) => html.replaceAll(`{{${key}}}`, val), template,
+  )
+}
+```
+
+**Flujo en ambos routes (fire-and-forget):**
+1. Buscar template en DB por `key` (`APPOINTMENT_CONFIRMATION` | `ORDER_PRE_CONFIRMATION`)
+2. Si existe → `interpolate(template.htmlBody, vars)`; si no → función hardcodeada en `email.ts`
+
+**Variables de `APPOINTMENT_CONFIRMATION`:** `{{nombreCliente}}`, `{{fecha}}`, `{{hora}}`, `{{modalidad}}`
+
+**Variables de `ORDER_PRE_CONFIRMATION`:** `{{nombreCliente}}`, `{{itemsHtml}}`, `${{total}}` (el `$` es literal en el HTML del template, no variable), `{{envio}}`
+
+**Gotcha seed**: `\${{total}}` en el seed `.ts` — la `\` escapa el `$` para que el template literal de TypeScript no intente interpolar `{total}` como expresión JS.
+
+### Admin — Templates de email (`app/admin/emails/`)
+
+Backoffice en `/admin/emails` (grupo "Contenido" en sidebar):
+- Vista lista → click "Editar" → vista editor (estado local, sin cambio de ruta)
+- Editor: input asunto, panel de variables (clic-to-insert al cursor via `setSelectionRange`), textarea monospace oscuro (`bg-[#1E1E1E]`), iframe preview con `srcDoc` + `sandbox="allow-same-origin"`, "Restaurar default" (`EMAIL_DEFAULTS` en `actions.ts`), "Guardar cambios".
+- `saveEmailTemplate(key, subject, htmlBody)` → `prisma.emailTemplate.update` + `revalidatePath`
+- `restoreEmailTemplate(key)` → restaura desde `EMAIL_DEFAULTS` hardcodeados en `actions.ts`
+
+### Schema — modelos nuevos
+
+```prisma
+model HeroSlide {
+  id String @id; order Int; imageUrl String; imageUrlMobile String?
+  eyebrowText String; title String; titleHighlightWord String?
+  description String; isActive Boolean @default(true); timestamps
+  @@map("hero_slides")
+}
+model HeroBadge {
+  id String @id; order Int @@unique; categoryId String (FK Category)
+  customLabel String?; customSubtitle String; icon String; isActive Boolean
+  @@map("hero_badges")
+}
+model EmailTemplate {
+  id String @id; key String @unique; name String; subject String
+  htmlBody String @db.Text; updatedAt DateTime @updatedAt
+  @@map("email_templates")
+}
+model SiteConfig {
+  id String @id @default("singleton"); heroIntervalSeconds Int @default(6)
+  @@map("site_config")
+}
+```
 
 ### Carrito y catálogo
 

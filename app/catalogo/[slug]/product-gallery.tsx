@@ -71,7 +71,7 @@ export default function ProductGallery({
             key={currentUrl}
             src={currentUrl}
             alt={productName}
-            className="h-full w-full object-cover"
+            className="h-full w-full animate-gallery-fade object-cover"
           />
         ) : (
           <div className="flex h-full w-full items-center justify-center">
@@ -93,7 +93,7 @@ export default function ProductGallery({
                 setPreferredUrl(img.url)
                 setIsVideoActive(false)
               }}
-              className={`relative h-16 w-16 shrink-0 overflow-hidden rounded-lg border-2 transition-all ${
+              className={`relative h-16 w-16 shrink-0 overflow-hidden rounded-lg border-2 transition-colors duration-200 ${
                 !isVideoActive && img.url === currentUrl
                   ? 'border-[#0eb1c3]'
                   : 'border-gray-100 hover:border-gray-300'
@@ -113,7 +113,7 @@ export default function ProductGallery({
                 setPreferredUrl(null)
               }}
               aria-label="Ver video del producto"
-              className={`flex h-16 w-16 shrink-0 items-center justify-center rounded-lg border-2 bg-[#1E1E1E] transition-all ${
+              className={`flex h-16 w-16 shrink-0 items-center justify-center rounded-lg border-2 bg-[#1E1E1E] transition-colors duration-200 ${
                 isVideoActive ? 'border-[#0eb1c3]' : 'border-gray-100 hover:border-gray-300'
               }`}
             >

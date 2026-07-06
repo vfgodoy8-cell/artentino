@@ -163,29 +163,46 @@ export default function HeroCarousel({
       </div>
       <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-black/[0.15]" />
 
-      {/* Text content — fades with slide */}
+      {/* Text content — exits fast, children stagger in on each slide */}
       <div
-        className="relative z-10 flex min-h-[calc(90vh+4rem)] items-center"
-        style={{ opacity: visible ? 1 : 0, transition: 'opacity 0.4s ease-in-out' }}
+        className={`relative z-10 flex min-h-[calc(90vh+4rem)] items-center transition-opacity duration-[200ms] [transition-timing-function:var(--ease-out)] ${
+          visible ? '' : 'opacity-0'
+        }`}
       >
         <div className="flex flex-col justify-center px-8 py-20 sm:px-12 lg:max-w-[52%] lg:py-24 lg:pl-14 lg:pr-8">
           {/* Eyebrow */}
-          <div className="mb-5 text-[11px] font-black uppercase tracking-[0.3em] text-[#0eb1c3]">
+          <div
+            key={`eyebrow-${currentIdx}`}
+            className="mb-5 animate-hero-text-in text-[11px] font-black uppercase tracking-[0.3em] text-[#0eb1c3]"
+            style={{ animationDelay: '0ms' }}
+          >
             {slide.eyebrowText}
           </div>
 
           {/* Headline */}
-          <h1 className="mb-6 text-6xl font-black leading-[1.02] tracking-[-0.03em] text-[#1E1E1E] lg:text-[76px]">
+          <h1
+            key={`title-${currentIdx}`}
+            className="mb-6 animate-hero-text-in text-6xl font-black leading-[1.02] tracking-[-0.03em] text-[#1E1E1E] lg:text-[76px]"
+            style={{ animationDelay: '100ms' }}
+          >
             {renderTitle(slide.title, slide.titleHighlightWord)}
           </h1>
 
           {/* Subtitle */}
-          <p className="mb-8 max-w-[380px] text-[15px] leading-[1.65] text-[#6b7280]">
+          <p
+            key={`desc-${currentIdx}`}
+            className="mb-8 max-w-[380px] animate-hero-text-in text-[15px] leading-[1.65] text-[#6b7280]"
+            style={{ animationDelay: '200ms' }}
+          >
             {slide.description}
           </p>
 
           {/* CTA */}
-          <div className="mb-10">
+          <div
+            key={`cta-${currentIdx}`}
+            className="mb-10 animate-hero-text-in"
+            style={{ animationDelay: '300ms' }}
+          >
             <Link
               href="/catalogo"
               className="inline-flex h-12 items-center justify-center rounded-[10px] bg-[#0eb1c3] px-7 text-xs font-black uppercase tracking-[0.12em] text-white transition-colors hover:bg-[#0a8f9e]"
@@ -195,7 +212,11 @@ export default function HeroCarousel({
           </div>
 
           {/* Benefits */}
-          <div className="flex flex-wrap gap-5">
+          <div
+            key={`benefits-${currentIdx}`}
+            className="flex animate-hero-text-in flex-wrap gap-5"
+            style={{ animationDelay: '350ms' }}
+          >
             {benefits.map((b) => (
               <div key={b.label} className="flex items-center gap-2">
                 <div className="flex h-[34px] w-[34px] shrink-0 items-center justify-center rounded-lg bg-[#f0fdfc] text-[#0eb1c3]">

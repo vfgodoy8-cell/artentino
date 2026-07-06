@@ -20,13 +20,34 @@ export default function Header() {
   const [menuOpen, setMenuOpen] = useState(false)
   const [cartOpen, setCartOpen] = useState(false)
   const [dropdownOpen, setDropdownOpen] = useState(false)
+  const [bouncing, setBouncing] = useState(false)
+  const [showToast, setShowToast] = useState(false)
+  const [scrolled, setScrolled] = useState(false)
   const dropdownRef = useRef<HTMLDivElement>(null)
-  const { getItemCount } = useCart()
+  const bounceTRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined)
+  const toastTRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined)
+  const { getItemCount, addCount } = useCart()
   const { data: session } = useSession()
   const pathname = usePathname()
   const cartCount = getItemCount()
+
+  useEffect(() => {
+    if (addCount === 0) return
+    setBouncing(true)
+    clearTimeout(bounceTRef.current)
+    bounceTRef.current = setTimeout(() => setBouncing(false), 400)
+    setShowToast(true)
+    clearTimeout(toastTRef.current)
+    toastTRef.current = setTimeout(() => setShowToast(false), 2500)
+  }, [addCount])
   const isActive = (href: string) => href === '/' ? pathname === '/' : pathname.startsWith(href)
   const firstName = session?.user?.name?.split(' ')[0] ?? ''
+
+  useEffect(() => {
+    function onScroll() { setScrolled(window.scrollY > 8) }
+    window.addEventListener('scroll', onScroll, { passive: true })
+    return () => window.removeEventListener('scroll', onScroll)
+  }, [])
 
   useEffect(() => {
     function handleClick(e: MouseEvent) {
@@ -40,13 +61,28 @@ export default function Header() {
 
   return (
     <>
-      <header className="sticky top-0 z-50 w-full border-b border-gray-100 bg-white">
+      {/* Cart toast */}
+      {showToast && (
+        <div
+          className={`animate-toast-in fixed left-1/2 z-[200] flex items-center gap-2.5 rounded-full bg-[#0eb1c3] px-5 py-2.5 text-sm font-bold text-white shadow-lg ${scrolled ? 'top-[56px]' : 'top-[72px]'}`}
+          style={{ transform: 'translateX(-50%)' }}
+        >
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+            <polyline points="20 6 9 17 4 12" />
+          </svg>
+          ¡Agregado al carrito!
+        </div>
+      )}
+
+      <header className={`sticky top-0 z-50 w-full bg-white transition-[box-shadow,border-color] duration-300 [transition-timing-function:var(--ease-out)] ${scrolled ? 'border-b border-transparent shadow-[0_4px_20px_rgba(0,0,0,0.08)]' : 'border-b border-gray-100'}`}>
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="flex h-16 items-center justify-between">
+          <div className={`flex items-center justify-between transition-[height] duration-300 [transition-timing-function:var(--ease-out)] ${scrolled ? 'h-12' : 'h-16'}`}>
 
             {/* Logo */}
             <Link href="/" className="shrink-0">
-              <Image src="/logo.png" alt="Artentino" width={140} height={50} className="object-contain" />
+              <div className={`overflow-hidden transition-[width] duration-300 [transition-timing-function:var(--ease-out)] ${scrolled ? 'w-[112px]' : 'w-[140px]'}`}>
+                <Image src="/logo.png" alt="Artentino" width={140} height={50} className="h-auto w-full object-contain" />
+              </div>
             </Link>
 
             {/* Desktop nav */}
@@ -128,7 +164,7 @@ export default function Header() {
               <button
                 aria-label="Ver carrito"
                 onClick={() => setCartOpen(true)}
-                className="relative flex h-10 w-10 items-center justify-center rounded-full bg-[#0eb1c3] text-white transition-[transform,background-color] duration-[160ms] [transition-timing-function:var(--ease-out)] hover:bg-[#0ca3b4] active:scale-[0.90]"
+                className={`relative flex h-10 w-10 items-center justify-center rounded-full bg-[#0eb1c3] text-white transition-[background-color] duration-[160ms] [transition-timing-function:var(--ease-out)] hover:bg-[#0ca3b4] active:scale-[0.90] ${bouncing ? 'animate-cart-bounce' : ''}`}
               >
                 <CartIcon />
                 {cartCount > 0 && (

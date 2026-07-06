@@ -327,7 +327,8 @@ export type EmailTemplateScalarFieldEnum = (typeof EmailTemplateScalarFieldEnum)
 
 export const SiteConfigScalarFieldEnum = {
   id: 'id',
-  heroIntervalSeconds: 'heroIntervalSeconds'
+  heroIntervalSeconds: 'heroIntervalSeconds',
+  footerText: 'footerText'
 } as const
 
 export type SiteConfigScalarFieldEnum = (typeof SiteConfigScalarFieldEnum)[keyof typeof SiteConfigScalarFieldEnum]

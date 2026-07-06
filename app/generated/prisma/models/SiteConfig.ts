@@ -37,16 +37,19 @@ export type SiteConfigSumAggregateOutputType = {
 export type SiteConfigMinAggregateOutputType = {
   id: string | null
   heroIntervalSeconds: number | null
+  footerText: string | null
 }
 
 export type SiteConfigMaxAggregateOutputType = {
   id: string | null
   heroIntervalSeconds: number | null
+  footerText: string | null
 }
 
 export type SiteConfigCountAggregateOutputType = {
   id: number
   heroIntervalSeconds: number
+  footerText: number
   _all: number
 }
 
@@ -62,16 +65,19 @@ export type SiteConfigSumAggregateInputType = {
 export type SiteConfigMinAggregateInputType = {
   id?: true
   heroIntervalSeconds?: true
+  footerText?: true
 }
 
 export type SiteConfigMaxAggregateInputType = {
   id?: true
   heroIntervalSeconds?: true
+  footerText?: true
 }
 
 export type SiteConfigCountAggregateInputType = {
   id?: true
   heroIntervalSeconds?: true
+  footerText?: true
   _all?: true
 }
 
@@ -164,6 +170,7 @@ export type SiteConfigGroupByArgs<ExtArgs extends runtime.Types.Extensions.Inter
 export type SiteConfigGroupByOutputType = {
   id: string
   heroIntervalSeconds: number
+  footerText: string | null
   _count: SiteConfigCountAggregateOutputType | null
   _avg: SiteConfigAvgAggregateOutputType | null
   _sum: SiteConfigSumAggregateOutputType | null
@@ -192,11 +199,13 @@ export type SiteConfigWhereInput = {
   NOT?: Prisma.SiteConfigWhereInput | Prisma.SiteConfigWhereInput[]
   id?: Prisma.StringFilter<"SiteConfig"> | string
   heroIntervalSeconds?: Prisma.IntFilter<"SiteConfig"> | number
+  footerText?: Prisma.StringNullableFilter<"SiteConfig"> | string | null
 }
 
 export type SiteConfigOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   heroIntervalSeconds?: Prisma.SortOrder
+  footerText?: Prisma.SortOrderInput | Prisma.SortOrder
 }
 
 export type SiteConfigWhereUniqueInput = Prisma.AtLeast<{
@@ -205,11 +214,13 @@ export type SiteConfigWhereUniqueInput = Prisma.AtLeast<{
   OR?: Prisma.SiteConfigWhereInput[]
   NOT?: Prisma.SiteConfigWhereInput | Prisma.SiteConfigWhereInput[]
   heroIntervalSeconds?: Prisma.IntFilter<"SiteConfig"> | number
+  footerText?: Prisma.StringNullableFilter<"SiteConfig"> | string | null
 }, "id">
 
 export type SiteConfigOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   heroIntervalSeconds?: Prisma.SortOrder
+  footerText?: Prisma.SortOrderInput | Prisma.SortOrder
   _count?: Prisma.SiteConfigCountOrderByAggregateInput
   _avg?: Prisma.SiteConfigAvgOrderByAggregateInput
   _max?: Prisma.SiteConfigMaxOrderByAggregateInput
@@ -223,46 +234,55 @@ export type SiteConfigScalarWhereWithAggregatesInput = {
   NOT?: Prisma.SiteConfigScalarWhereWithAggregatesInput | Prisma.SiteConfigScalarWhereWithAggregatesInput[]
   id?: Prisma.StringWithAggregatesFilter<"SiteConfig"> | string
   heroIntervalSeconds?: Prisma.IntWithAggregatesFilter<"SiteConfig"> | number
+  footerText?: Prisma.StringNullableWithAggregatesFilter<"SiteConfig"> | string | null
 }
 
 export type SiteConfigCreateInput = {
   id?: string
   heroIntervalSeconds?: number
+  footerText?: string | null
 }
 
 export type SiteConfigUncheckedCreateInput = {
   id?: string
   heroIntervalSeconds?: number
+  footerText?: string | null
 }
 
 export type SiteConfigUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   heroIntervalSeconds?: Prisma.IntFieldUpdateOperationsInput | number
+  footerText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type SiteConfigUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   heroIntervalSeconds?: Prisma.IntFieldUpdateOperationsInput | number
+  footerText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type SiteConfigCreateManyInput = {
   id?: string
   heroIntervalSeconds?: number
+  footerText?: string | null
 }
 
 export type SiteConfigUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   heroIntervalSeconds?: Prisma.IntFieldUpdateOperationsInput | number
+  footerText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type SiteConfigUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   heroIntervalSeconds?: Prisma.IntFieldUpdateOperationsInput | number
+  footerText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type SiteConfigCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   heroIntervalSeconds?: Prisma.SortOrder
+  footerText?: Prisma.SortOrder
 }
 
 export type SiteConfigAvgOrderByAggregateInput = {
@@ -272,11 +292,13 @@ export type SiteConfigAvgOrderByAggregateInput = {
 export type SiteConfigMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   heroIntervalSeconds?: Prisma.SortOrder
+  footerText?: Prisma.SortOrder
 }
 
 export type SiteConfigMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   heroIntervalSeconds?: Prisma.SortOrder
+  footerText?: Prisma.SortOrder
 }
 
 export type SiteConfigSumOrderByAggregateInput = {
@@ -288,24 +310,28 @@ export type SiteConfigSumOrderByAggregateInput = {
 export type SiteConfigSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   heroIntervalSeconds?: boolean
+  footerText?: boolean
 }, ExtArgs["result"]["siteConfig"]>
 
 export type SiteConfigSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   heroIntervalSeconds?: boolean
+  footerText?: boolean
 }, ExtArgs["result"]["siteConfig"]>
 
 export type SiteConfigSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   heroIntervalSeconds?: boolean
+  footerText?: boolean
 }, ExtArgs["result"]["siteConfig"]>
 
 export type SiteConfigSelectScalar = {
   id?: boolean
   heroIntervalSeconds?: boolean
+  footerText?: boolean
 }
 
-export type SiteConfigOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "heroIntervalSeconds", ExtArgs["result"]["siteConfig"]>
+export type SiteConfigOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "heroIntervalSeconds" | "footerText", ExtArgs["result"]["siteConfig"]>
 
 export type $SiteConfigPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "SiteConfig"
@@ -313,6 +339,7 @@ export type $SiteConfigPayload<ExtArgs extends runtime.Types.Extensions.Internal
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
     heroIntervalSeconds: number
+    footerText: string | null
   }, ExtArgs["result"]["siteConfig"]>
   composites: {}
 }
@@ -738,6 +765,7 @@ export interface Prisma__SiteConfigClient<T, Null = never, ExtArgs extends runti
 export interface SiteConfigFieldRefs {
   readonly id: Prisma.FieldRef<"SiteConfig", 'String'>
   readonly heroIntervalSeconds: Prisma.FieldRef<"SiteConfig", 'Int'>
+  readonly footerText: Prisma.FieldRef<"SiteConfig", 'String'>
 }
     
 

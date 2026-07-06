@@ -19,7 +19,7 @@ export default function ProductCard({ id, name, slug, price, comparePrice, image
   const hasDiscount = comparePrice != null && comparePrice > price
 
   return (
-    <article className="group flex flex-col overflow-hidden rounded-2xl bg-white transition-[transform,box-shadow] duration-[300ms] [transition-timing-function:var(--ease-out)] hover:-translate-y-1 hover:shadow-[0_16px_40px_rgba(0,0,0,0.10)]">
+    <article className="group flex flex-col overflow-hidden rounded-2xl bg-white shadow-[0_2px_8px_rgba(0,0,0,0.06)] transition-[transform,box-shadow] duration-[300ms] [transition-timing-function:var(--ease-out)] hover:-translate-y-1 hover:shadow-[0_20px_48px_rgba(0,0,0,0.13)]">
 
       {/* Image area */}
       <Link href={`/catalogo/${slug}`} className="block">
@@ -35,7 +35,7 @@ export default function ProductCard({ id, name, slug, price, comparePrice, image
             <img
               src={imageUrl}
               alt={name}
-              className="h-full w-full object-cover transition-[transform] duration-[400ms] [transition-timing-function:var(--ease-out)] group-hover:scale-[1.04]"
+              className="h-full w-full object-cover transition-[transform] duration-[400ms] [transition-timing-function:var(--ease-out)] group-hover:scale-[1.05]"
             />
           ) : (
             <div className="flex h-full w-full items-center justify-center">
