@@ -2,6 +2,8 @@ import { NextResponse } from 'next/server'
 import { MercadoPagoConfig, Preference } from 'mercadopago'
 import { auth } from '@/auth'
 import { prisma } from '@/lib/prisma'
+import { sendEmail, pickupCashEmail } from '@/app/lib/email'
+import { CASH_DISCOUNT, CASH_DISCOUNT_PCT } from '@/app/lib/constants'
 
 type CartItem = {
   productId: string
@@ -20,6 +22,7 @@ type CheckoutBody = {
     phone: string
   }
   shipping: 'pickup' | 'delivery'
+  paymentMethod?: 'mercadopago' | 'cash_transfer'
 }
 
 const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL!
@@ -30,7 +33,7 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: 'No autorizado' }, { status: 401 })
   }
 
-  const { items, payer, shipping } = (await req.json()) as CheckoutBody
+  const { items, payer, shipping, paymentMethod = 'mercadopago' } = (await req.json()) as CheckoutBody
 
   if (!items?.length || !payer?.email) {
     return NextResponse.json({ error: 'Datos incompletos' }, { status: 400 })
@@ -67,13 +70,52 @@ export async function POST(req: Request) {
     }
   }
 
-  const total = items.reduce((sum, item) => sum + item.price * item.quantity, 0)
+  const subtotal = items.reduce((sum, item) => sum + item.price * item.quantity, 0)
+
+  // ── Cash / transfer pickup flow ────────────────────────────────────────────
+  if (paymentMethod === 'cash_transfer') {
+    const discountedTotal = Math.round(subtotal * (1 - CASH_DISCOUNT))
+    const order = await prisma.order.create({
+      data: {
+        userId: session.user.id,
+        total: discountedTotal,
+        shippingMethod: shipping,
+        paymentMethod: 'cash_transfer',
+        status: 'PENDING_PICKUP_PAYMENT',
+        items: {
+          create: items.map((item) => ({
+            productId: item.productId,
+            quantity: item.quantity,
+            price: item.price,
+          })),
+        },
+      },
+    })
+
+    // Fire-and-forget email
+    sendEmail({
+      to: payer.email,
+      subject: 'Artentino — Pedido registrado',
+      html: pickupCashEmail({
+        name: payer.name,
+        items: items.map((i) => ({ name: i.name, quantity: i.quantity, price: i.price })),
+        total: discountedTotal,
+        discountPct: CASH_DISCOUNT_PCT,
+      }),
+    }).catch(() => {})
+
+    return NextResponse.json({ confirmed: true, orderId: order.id })
+  }
+
+  // ── MercadoPago flow ────────────────────────────────────────────────────────
+  const total = subtotal
 
   const order = await prisma.order.create({
     data: {
       userId: session.user.id,
       total,
       shippingMethod: shipping,
+      paymentMethod: 'mercadopago',
       status: 'PENDING',
       items: {
         create: items.map((item) => ({

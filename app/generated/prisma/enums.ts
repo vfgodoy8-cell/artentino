@@ -19,6 +19,7 @@ export type Role = (typeof Role)[keyof typeof Role]
 
 export const OrderStatus = {
   PENDING: 'PENDING',
+  PENDING_PICKUP_PAYMENT: 'PENDING_PICKUP_PAYMENT',
   CONFIRMED: 'CONFIRMED',
   SHIPPED: 'SHIPPED',
   DELIVERED: 'DELIVERED',

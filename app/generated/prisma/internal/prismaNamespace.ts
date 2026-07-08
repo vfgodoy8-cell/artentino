@@ -387,6 +387,7 @@ export const ModelName = {
   Category: 'Category',
   Subcategory: 'Subcategory',
   Product: 'Product',
+  ProductRelation: 'ProductRelation',
   ProductComboPrice: 'ProductComboPrice',
   Attribute: 'Attribute',
   AttributeValue: 'AttributeValue',
@@ -417,7 +418,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "category" | "subcategory" | "product" | "productComboPrice" | "attribute" | "attributeValue" | "productStock" | "productImage" | "productImageAttributeValue" | "user" | "order" | "orderItem" | "appointment" | "contact" | "heroSlide" | "heroBadge" | "emailTemplate" | "siteConfig"
+    modelProps: "category" | "subcategory" | "product" | "productRelation" | "productComboPrice" | "attribute" | "attributeValue" | "productStock" | "productImage" | "productImageAttributeValue" | "user" | "order" | "orderItem" | "appointment" | "contact" | "heroSlide" | "heroBadge" | "emailTemplate" | "siteConfig"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -640,6 +641,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.ProductCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.ProductCountAggregateOutputType> | number
+        }
+      }
+    }
+    ProductRelation: {
+      payload: Prisma.$ProductRelationPayload<ExtArgs>
+      fields: Prisma.ProductRelationFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.ProductRelationFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductRelationPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.ProductRelationFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductRelationPayload>
+        }
+        findFirst: {
+          args: Prisma.ProductRelationFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductRelationPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.ProductRelationFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductRelationPayload>
+        }
+        findMany: {
+          args: Prisma.ProductRelationFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductRelationPayload>[]
+        }
+        create: {
+          args: Prisma.ProductRelationCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductRelationPayload>
+        }
+        createMany: {
+          args: Prisma.ProductRelationCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.ProductRelationCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductRelationPayload>[]
+        }
+        delete: {
+          args: Prisma.ProductRelationDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductRelationPayload>
+        }
+        update: {
+          args: Prisma.ProductRelationUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductRelationPayload>
+        }
+        deleteMany: {
+          args: Prisma.ProductRelationDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.ProductRelationUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.ProductRelationUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductRelationPayload>[]
+        }
+        upsert: {
+          args: Prisma.ProductRelationUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductRelationPayload>
+        }
+        aggregate: {
+          args: Prisma.ProductRelationAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateProductRelation>
+        }
+        groupBy: {
+          args: Prisma.ProductRelationGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ProductRelationGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.ProductRelationCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ProductRelationCountAggregateOutputType> | number
         }
       }
     }
@@ -1847,6 +1922,17 @@ export const ProductScalarFieldEnum = {
 export type ProductScalarFieldEnum = (typeof ProductScalarFieldEnum)[keyof typeof ProductScalarFieldEnum]
 
 
+export const ProductRelationScalarFieldEnum = {
+  id: 'id',
+  productId: 'productId',
+  relatedProductId: 'relatedProductId',
+  sortOrder: 'sortOrder',
+  createdAt: 'createdAt'
+} as const
+
+export type ProductRelationScalarFieldEnum = (typeof ProductRelationScalarFieldEnum)[keyof typeof ProductRelationScalarFieldEnum]
+
+
 export const ProductComboPriceScalarFieldEnum = {
   id: 'id',
   productId: 'productId',
@@ -1940,6 +2026,7 @@ export const OrderScalarFieldEnum = {
   status: 'status',
   total: 'total',
   shippingMethod: 'shippingMethod',
+  paymentMethod: 'paymentMethod',
   shippingAddress: 'shippingAddress',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
@@ -2359,6 +2446,7 @@ export type GlobalOmitConfig = {
   category?: Prisma.CategoryOmit
   subcategory?: Prisma.SubcategoryOmit
   product?: Prisma.ProductOmit
+  productRelation?: Prisma.ProductRelationOmit
   productComboPrice?: Prisma.ProductComboPriceOmit
   attribute?: Prisma.AttributeOmit
   attributeValue?: Prisma.AttributeValueOmit

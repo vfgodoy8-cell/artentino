@@ -39,6 +39,14 @@ export function cartItemKey(item: Pick<CartItem, 'productId' | 'attributeValueId
   return `${item.productId}:${item.attributeValueId ?? ''}`
 }
 
+export type LastAdded = {
+  productId: string
+  name: string
+  price: number
+  imageUrl: string | null
+  addedQty: number
+}
+
 type CartContextType = {
   items: CartItem[]
   addItem: (item: Omit<CartItem, 'quantity'>, qty?: number) => void
@@ -48,6 +56,7 @@ type CartContextType = {
   getTotal: () => number
   getItemCount: () => number
   addCount: number
+  lastAdded: LastAdded | null
 }
 
 const CartContext = createContext<CartContextType | null>(null)
@@ -56,6 +65,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   const [items, setItems] = useState<CartItem[]>([])
   const [hydrated, setHydrated] = useState(false)
   const [addCount, setAddCount] = useState(0)
+  const [lastAdded, setLastAdded] = useState<LastAdded | null>(null)
 
   useEffect(() => {
     try {
@@ -71,6 +81,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
 
   function addItem(product: Omit<CartItem, 'quantity'>, qty = 1) {
     setAddCount((n) => n + 1)
+    setLastAdded({ productId: product.productId, name: product.name, price: product.price, imageUrl: product.imageUrl, addedQty: qty })
     setItems((prev) => {
       const key = cartItemKey(product)
       const existing = prev.find((i) => cartItemKey(i) === key)
@@ -113,7 +124,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
 
   return (
     <CartContext.Provider
-      value={{ items, addItem, removeItem, updateQuantity, clearCart, getTotal, getItemCount, addCount }}
+      value={{ items, addItem, removeItem, updateQuantity, clearCart, getTotal, getItemCount, addCount, lastAdded }}
     >
       {children}
     </CartContext.Provider>

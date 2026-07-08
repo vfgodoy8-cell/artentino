@@ -54,6 +54,7 @@ export const ModelName = {
   Category: 'Category',
   Subcategory: 'Subcategory',
   Product: 'Product',
+  ProductRelation: 'ProductRelation',
   ProductComboPrice: 'ProductComboPrice',
   Attribute: 'Attribute',
   AttributeValue: 'AttributeValue',
@@ -140,6 +141,17 @@ export const ProductScalarFieldEnum = {
 } as const
 
 export type ProductScalarFieldEnum = (typeof ProductScalarFieldEnum)[keyof typeof ProductScalarFieldEnum]
+
+
+export const ProductRelationScalarFieldEnum = {
+  id: 'id',
+  productId: 'productId',
+  relatedProductId: 'relatedProductId',
+  sortOrder: 'sortOrder',
+  createdAt: 'createdAt'
+} as const
+
+export type ProductRelationScalarFieldEnum = (typeof ProductRelationScalarFieldEnum)[keyof typeof ProductRelationScalarFieldEnum]
 
 
 export const ProductComboPriceScalarFieldEnum = {
@@ -235,6 +247,7 @@ export const OrderScalarFieldEnum = {
   status: 'status',
   total: 'total',
   shippingMethod: 'shippingMethod',
+  paymentMethod: 'paymentMethod',
   shippingAddress: 'shippingAddress',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'

@@ -8,6 +8,7 @@ import { useSession } from 'next-auth/react'
 import { useCart } from '@/app/context/cart-context'
 import { logout } from '@/app/actions/auth'
 import CartDrawer from './cart-drawer'
+import CartAddPopup from './cart-add-popup'
 
 const navLinks = [
   { href: '/', label: 'Inicio' },
@@ -21,11 +22,9 @@ export default function Header() {
   const [cartOpen, setCartOpen] = useState(false)
   const [dropdownOpen, setDropdownOpen] = useState(false)
   const [bouncing, setBouncing] = useState(false)
-  const [showToast, setShowToast] = useState(false)
   const [scrolled, setScrolled] = useState(false)
   const dropdownRef = useRef<HTMLDivElement>(null)
   const bounceTRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined)
-  const toastTRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined)
   const { getItemCount, addCount } = useCart()
   const { data: session } = useSession()
   const pathname = usePathname()
@@ -36,9 +35,6 @@ export default function Header() {
     setBouncing(true)
     clearTimeout(bounceTRef.current)
     bounceTRef.current = setTimeout(() => setBouncing(false), 400)
-    setShowToast(true)
-    clearTimeout(toastTRef.current)
-    toastTRef.current = setTimeout(() => setShowToast(false), 2500)
   }, [addCount])
   const isActive = (href: string) => href === '/' ? pathname === '/' : pathname.startsWith(href)
   const firstName = session?.user?.name?.split(' ')[0] ?? ''
@@ -61,18 +57,7 @@ export default function Header() {
 
   return (
     <>
-      {/* Cart toast */}
-      {showToast && (
-        <div
-          className={`animate-toast-in fixed left-1/2 z-[200] flex items-center gap-2.5 rounded-full bg-[#0eb1c3] px-5 py-2.5 text-sm font-bold text-white shadow-lg ${scrolled ? 'top-[56px]' : 'top-[72px]'}`}
-          style={{ transform: 'translateX(-50%)' }}
-        >
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
-            <polyline points="20 6 9 17 4 12" />
-          </svg>
-          ¡Agregado al carrito!
-        </div>
-      )}
+      <CartAddPopup onOpenCart={() => setCartOpen(true)} />
 
       <header className={`sticky top-0 z-50 w-full bg-white transition-[box-shadow,border-color] duration-300 [transition-timing-function:var(--ease-out)] ${scrolled ? 'border-b border-transparent shadow-[0_4px_20px_rgba(0,0,0,0.08)]' : 'border-b border-gray-100'}`}>
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">

@@ -1,6 +1,6 @@
 ---
 name: project-artentino
-description: "Artentino e-commerce — tech stack, design system, DB, current UI state and component inventory (updated 2026-07-05)"
+description: "Artentino e-commerce — tech stack, design system, DB, current UI state and component inventory (updated 2026-07-06)"
 metadata: 
   node_type: memory
   type: project
@@ -263,13 +263,67 @@ Opacidad: 30% (antes 90%). El color de imagen es visible a través del badge.
 
 ## Hero carousel y email templates
 
-Sin cambios vs. sesión anterior (2026-07-02). Ver CLAUDE.md para detalles.
+Ver CLAUDE.md para detalles.
 
-**`updateSiteConfig` signature actualizada (2026-07-05):**
+**`updateSiteConfig` signature:**
 ```typescript
 export async function updateSiteConfig(data: { heroIntervalSeconds?: number; footerText?: string })
 ```
-El llamado en `hero-slides-tab.tsx` usa `updateSiteConfig({ heroIntervalSeconds: interval })`.
+
+---
+
+## Microanimaciones (2026-07-06)
+
+### globals.css — tokens y keyframes
+
+```css
+@theme inline {
+  --animate-cart-bounce:  cart-bounce   360ms cubic-bezier(0.23,1,0.32,1) both;
+  --animate-toast-in:     toast-in      240ms cubic-bezier(0.23,1,0.32,1) both;
+  --animate-gallery-fade: gallery-fade  260ms cubic-bezier(0.23,1,0.32,1) both;
+  --animate-hero-text-in: hero-text-in  420ms cubic-bezier(0.23,1,0.32,1) both;
+}
+```
+
+### Toast + bounce de carrito (`app/ui/header.tsx`)
+- `cart-context.tsx` expone `addCount: number` que incrementa en cada `addItem`
+- `useEffect([addCount])` en header: activa `bouncing` (400ms) y `showToast` (2500ms)
+- Toast: `fixed left-1/2 top-[72px]` (ajusta a `top-[56px]` cuando `scrolled`)
+- Botón carrito: `animate-cart-bounce` condicional
+
+### Gallery cross-fade (`app/catalogo/[slug]/product-gallery.tsx`)
+- `<img key={currentUrl} className="... animate-gallery-fade ...">` — re-monta al cambiar URL → dispara animación
+- Thumbnails: `transition-colors duration-200` (antes `transition-all`)
+
+### Product card hover (`app/ui/product-card.tsx`)
+- Sombra en reposo: `shadow-[0_2px_8px_rgba(0,0,0,0.06)]`
+- Sombra hover: `hover:shadow-[0_20px_48px_rgba(0,0,0,0.13)]`
+- Zoom imagen: `group-hover:scale-[1.05]` (antes 1.04)
+
+### Header sticky compresible (`app/ui/header.tsx`)
+- `scrolled` state via `scroll` listener (passive, threshold 8px)
+- Inner div: `h-16` → `h-12` con `transition-[height] duration-300`
+- Logo wrapper: `w-[140px]` → `w-[112px]` con `transition-[width] duration-300`
+- Header: `border-b border-gray-100` → `border-transparent shadow-[0_4px_20px_rgba(0,0,0,0.08)]`
+
+### Hero carousel — texto escalonado (`app/ui/hero-carousel.tsx`)
+- Imagen: `style={{ opacity: visible ? 1 : 0, transition: 'opacity 0.4s' }}` (sin cambios)
+- Texto: contenedor separado con `transition-opacity duration-[200ms]` (sale más rápido)
+- Cada elemento textual: `key={`eyebrow|title|desc|cta|benefits-${currentIdx}`}` + `animate-hero-text-in` + `animationDelay`:
+  - eyebrow: 0ms · título: 100ms · descripción: 200ms · CTA: 300ms · benefits: 350ms
+- Re-montar por `key` dispara la animación en cada cambio de slide
+
+---
+
+## Admin — Buscador de productos (2026-07-06)
+
+`/admin/productos` tiene búsqueda server-side por nombre y SKU:
+
+- **`search-input.tsx`** (Client Component): input con lupa, debounce 350ms, usa `useSearchParams` + `router.replace` para actualizar `?q=` sin perder `?estado=`
+- **`page.tsx`**: lee `q` de searchParams, arma `where` con `OR: [{ name: contains }, { sku: contains }]` + `mode: 'insensitive'`, `q` se preserva en tabs de estado y en links de paginación
+- **`products-table.tsx`**: acepta `searchTerm?: string`, mensaje vacío contextual: "No se encontraron productos para «{término}»"
+- El `<SearchInput>` está envuelto en `<Suspense>` (requiere `useSearchParams` en cliente)
+- Layout: tabs a la izquierda + search input a la derecha (`sm:w-72 sm:ml-auto`)
 
 ---
 
@@ -296,8 +350,10 @@ Productos apuntan a subcategorías (no categorías padre).
 - Admin: categorías — acordeón de dos niveles (padre + subcategorías)
 - Admin: Hero/Home — slides + badges + intervalo + footer text (`/admin/home`)
 - Admin: Templates de email (`/admin/emails`)
+- Admin: buscador de productos por nombre/SKU con debounce server-side
 - Auth, Turnos, FAQ, Contacto (solo formulario general)
 - Footer: fondo claro `#F0FBFC`, footerText editable desde admin
+- Microanimaciones: toast carrito, gallery fade, card hover, header sticky, hero escalonado
 
 **Why:** Complete e-commerce for Argentine home goods brand.
 **How to apply:** Peso formatting `toLocaleString('es-AR')`, teal `#0eb1c3` as primary, Prisma 7 + Tailwind v4 + Next.js 16 conventions. Never use `middleware.ts`. Products→Subcategory (not Category) for categoryId. Hero badges→Category padre.

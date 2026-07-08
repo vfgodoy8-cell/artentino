@@ -16,6 +16,7 @@ enum Role {
 
 enum OrderStatus {
   PENDING
+  PENDING_PICKUP_PAYMENT
   CONFIRMED
   SHIPPED
   DELIVERED
@@ -98,6 +99,8 @@ model Product {
   comboPrices    ProductComboPrice[]
   stockItems     ProductStock[]
   productImages  ProductImage[]
+  relations      ProductRelation[]   @relation("ProductRelations")
+  relatedBy      ProductRelation[]   @relation("RelatedProducts")
   createdAt      DateTime            @default(now())
   updatedAt      DateTime            @updatedAt
 
@@ -105,6 +108,20 @@ model Product {
   @@index([featured])
   @@index([active])
   @@map("products")
+}
+
+model ProductRelation {
+  id               String   @id @default(cuid())
+  productId        String
+  product          Product  @relation("ProductRelations", fields: [productId], references: [id], onDelete: Cascade)
+  relatedProductId String
+  relatedProduct   Product  @relation("RelatedProducts", fields: [relatedProductId], references: [id], onDelete: Cascade)
+  sortOrder        Int      @default(0)
+  createdAt        DateTime @default(now())
+
+  @@unique([productId, relatedProductId])
+  @@index([productId])
+  @@map("product_relations")
 }
 
 model ProductComboPrice {
@@ -217,6 +234,7 @@ model Order {
   status          OrderStatus @default(PENDING)
   total           Decimal     @db.Decimal(10, 2)
   shippingMethod  String?
+  paymentMethod   String?
   shippingAddress Json?
   items           OrderItem[]
   createdAt       DateTime    @default(now())

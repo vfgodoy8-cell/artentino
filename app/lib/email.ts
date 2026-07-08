@@ -90,6 +90,64 @@ export function appointmentConfirmationEmail({
   )
 }
 
+export function pickupCashEmail({
+  name,
+  items,
+  total,
+  discountPct,
+}: {
+  name: string
+  items: Array<{ name: string; quantity: number; price: number }>
+  total: number
+  discountPct: number
+}) {
+  const itemRows = items
+    .map(
+      (item) =>
+        `<tr>
+          <td style="padding:10px 0;color:#1E1E1E;border-bottom:1px solid #eee;">${item.name}</td>
+          <td style="padding:10px 0;color:#888;text-align:center;border-bottom:1px solid #eee;">×${item.quantity}</td>
+          <td style="padding:10px 0;color:#1E1E1E;font-weight:700;text-align:right;border-bottom:1px solid #eee;">$${(item.price * item.quantity).toLocaleString('es-AR')}</td>
+        </tr>`
+    )
+    .join('')
+
+  return (
+    WRAP_START +
+    HEADER.replace('{{title}}', '¡Pedido registrado!') +
+    `<div style="padding:36px 32px;">
+      <p style="margin:0 0 8px;color:#1E1E1E;font-size:16px;">Hola <strong>${name}</strong>,</p>
+      <p style="margin:0 0 28px;color:#555;line-height:1.6;">
+        Tu pedido quedó registrado. Pasá por el local a retirarlo y abonalo ahí mismo en efectivo o transferencia.
+      </p>
+      <table style="width:100%;border-collapse:collapse;margin-bottom:20px;">
+        <thead>
+          <tr>
+            <th style="text-align:left;color:#888;font-size:11px;font-weight:900;text-transform:uppercase;letter-spacing:1px;padding-bottom:10px;border-bottom:2px solid #eee;">Producto</th>
+            <th style="text-align:center;color:#888;font-size:11px;font-weight:900;text-transform:uppercase;letter-spacing:1px;padding-bottom:10px;border-bottom:2px solid #eee;">Cant.</th>
+            <th style="text-align:right;color:#888;font-size:11px;font-weight:900;text-transform:uppercase;letter-spacing:1px;padding-bottom:10px;border-bottom:2px solid #eee;">Precio</th>
+          </tr>
+        </thead>
+        <tbody>${itemRows}</tbody>
+        <tfoot>
+          <tr>
+            <td colspan="2" style="padding:12px 0 0;color:#888;font-size:13px;">Total con ${discountPct}% OFF efectivo/transferencia</td>
+            <td style="padding:12px 0 0;text-align:right;color:#0eb1c3;font-weight:900;font-size:20px;">$${total.toLocaleString('es-AR')}</td>
+          </tr>
+        </tfoot>
+      </table>
+      <div style="background:#f0fbfc;border-radius:12px;padding:16px 20px;margin-bottom:28px;border:1px solid #c8eff4;">
+        <p style="margin:0 0 4px;color:#0eb1c3;font-weight:900;font-size:12px;text-transform:uppercase;letter-spacing:1px;">Método de pago</p>
+        <p style="margin:0;color:#1E1E1E;font-weight:700;">Efectivo o transferencia — abonás al retirar en el local</p>
+        <p style="margin:6px 0 0;color:#555;font-size:13px;">Retiro en tienda · Colegiales, CABA</p>
+      </div>
+      <p style="margin:0;color:#0eb1c3;font-weight:900;">Equipo Artentino</p>
+    </div>` +
+    FOOTER +
+    WRAP_END
+  )
+}
+
 export function purchaseConfirmationEmail({
   name,
   items,

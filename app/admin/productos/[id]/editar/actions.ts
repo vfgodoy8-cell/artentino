@@ -245,3 +245,38 @@ export async function reorderProductImages(productId: string, orderedImageIds: s
   )
   revalidatePath(`/admin/productos/${productId}/editar`)
 }
+
+// ─── Product relations ────────────────────────────────────────────────────────
+
+export async function addProductRelation(productId: string, relatedProductId: string) {
+  await prisma.productRelation.create({
+    data: { productId, relatedProductId },
+  })
+  revalidatePath(`/admin/productos/${productId}/editar`)
+}
+
+export async function removeProductRelation(id: string, productId: string) {
+  await prisma.productRelation.delete({ where: { id } })
+  revalidatePath(`/admin/productos/${productId}/editar`)
+}
+
+export async function updateRelationSortOrder(id: string, sortOrder: number, productId: string) {
+  await prisma.productRelation.update({ where: { id }, data: { sortOrder } })
+  revalidatePath(`/admin/productos/${productId}/editar`)
+}
+
+export async function searchProductsForRelation(productId: string, q: string) {
+  if (!q.trim()) return []
+  return prisma.product.findMany({
+    where: {
+      id: { not: productId },
+      OR: [
+        { name: { contains: q, mode: 'insensitive' } },
+        { sku: { contains: q, mode: 'insensitive' } },
+      ],
+    },
+    select: { id: true, name: true, sku: true, imageUrl: true, price: true },
+    take: 8,
+    orderBy: { name: 'asc' },
+  })
+}

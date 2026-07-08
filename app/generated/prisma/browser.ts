@@ -33,6 +33,11 @@ export type Subcategory = Prisma.SubcategoryModel
  */
 export type Product = Prisma.ProductModel
 /**
+ * Model ProductRelation
+ * 
+ */
+export type ProductRelation = Prisma.ProductRelationModel
+/**
  * Model ProductComboPrice
  * 
  */

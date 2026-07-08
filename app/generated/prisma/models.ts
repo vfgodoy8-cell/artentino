@@ -11,6 +11,7 @@
 export type * from './models/Category'
 export type * from './models/Subcategory'
 export type * from './models/Product'
+export type * from './models/ProductRelation'
 export type * from './models/ProductComboPrice'
 export type * from './models/Attribute'
 export type * from './models/AttributeValue'

@@ -2,7 +2,9 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { useCart, getEffectivePrice } from '@/app/context/cart-context'
+import { CASH_DISCOUNT, CASH_DISCOUNT_PCT } from '@/app/lib/constants'
 
 function fmt(n: number) {
   return `$${n.toLocaleString('es-AR')}`
@@ -16,12 +18,13 @@ type ContactData = {
 }
 
 type ShippingMethod = 'pickup' | 'delivery'
-type PaymentMethod = 'mercadopago' | 'modo'
+type PaymentMethod = 'mercadopago' | 'cash_transfer' | 'modo'
 
 const STEPS = ['Contacto', 'Envío', 'Pago', 'Resumen']
 
 export default function CheckoutClient() {
   const { items, getTotal, clearCart } = useCart()
+  const router = useRouter()
 
   const [step, setStep] = useState(0)
   const [contact, setContact] = useState<ContactData>({ name: '', surname: '', email: '', phone: '' })
@@ -47,6 +50,10 @@ export default function CheckoutClient() {
 
   const subtotal = getTotal()
 
+  const isCashTransfer = payment === 'cash_transfer'
+  const discountedTotal = Math.round(subtotal * (1 - CASH_DISCOUNT))
+  const displayTotal = isCashTransfer ? discountedTotal : subtotal
+
   async function handlePay() {
     setLoading(true)
     setError(null)
@@ -64,11 +71,24 @@ export default function CheckoutClient() {
           })),
           payer: contact,
           shipping,
+          paymentMethod: payment,
         }),
       })
 
       const data = await res.json()
-      if (!res.ok || !data.initPoint) {
+
+      if (!res.ok) {
+        setError(data.error ?? 'Error al procesar el pedido')
+        return
+      }
+
+      if (data.confirmed) {
+        clearCart()
+        router.push('/checkout/confirmado')
+        return
+      }
+
+      if (!data.initPoint) {
         setError(data.error ?? 'Error al iniciar el pago')
         return
       }
@@ -227,7 +247,7 @@ export default function CheckoutClient() {
                       name="shipping"
                       value="delivery"
                       checked={shipping === 'delivery'}
-                      onChange={() => setShipping('delivery')}
+                      onChange={() => { setShipping('delivery'); if (isCashTransfer) setPayment('mercadopago') }}
                       className="mt-0.5 accent-[#0eb1c3]"
                     />
                     <div className="flex-1">
@@ -290,6 +310,30 @@ export default function CheckoutClient() {
                     </div>
                   </label>
 
+                  {shipping === 'pickup' && (
+                    <label
+                      className={`flex cursor-pointer items-start gap-4 rounded-2xl border-2 p-4 transition-colors ${
+                        isCashTransfer ? 'border-[#0eb1c3] bg-[#0eb1c3]/5' : 'border-gray-100 hover:border-gray-200'
+                      }`}
+                    >
+                      <input
+                        type="radio"
+                        name="payment"
+                        value="cash_transfer"
+                        checked={isCashTransfer}
+                        onChange={() => setPayment('cash_transfer')}
+                        className="mt-0.5 accent-[#0eb1c3]"
+                      />
+                      <div className="flex-1">
+                        <p className="font-black text-[#1E1E1E]">Efectivo o transferencia</p>
+                        <p className="text-sm text-gray-500">Pago en el local al retirar</p>
+                      </div>
+                      <span className="rounded-full bg-[#0eb1c3]/10 px-3 py-1 text-xs font-black text-[#0eb1c3]">
+                        {CASH_DISCOUNT_PCT}% OFF
+                      </span>
+                    </label>
+                  )}
+
                   <div className="flex items-center gap-4 rounded-2xl border-2 border-gray-100 p-4 opacity-50">
                     <input type="radio" name="payment" disabled className="accent-[#0eb1c3]" />
                     <div className="flex flex-1 items-center justify-between">
@@ -342,6 +386,26 @@ export default function CheckoutClient() {
                     {shipping === 'pickup' ? 'Retiro en tienda — Colegiales CABA' : 'Envío a domicilio'}
                   </p>
                 </div>
+
+                <div className="mb-4 rounded-xl bg-gray-50 px-4 py-3">
+                  <p className="text-xs font-black uppercase tracking-wider text-gray-400">Pago</p>
+                  <p className="mt-1 text-sm font-bold text-[#1E1E1E]">
+                    {isCashTransfer ? 'Efectivo o transferencia — al retirar' : 'MercadoPago'}
+                  </p>
+                </div>
+
+                {isCashTransfer && (
+                  <div className="mb-4 rounded-xl border border-[#c8eff4] bg-[#f0fbfc] px-4 py-3">
+                    <p className="text-xs font-black uppercase tracking-wider text-[#0eb1c3]">Descuento aplicado</p>
+                    <div className="mt-1 flex items-center justify-between">
+                      <p className="text-sm font-bold text-[#1E1E1E]">{CASH_DISCOUNT_PCT}% OFF efectivo/transferencia</p>
+                      <div className="text-right">
+                        <p className="text-xs text-gray-400 line-through">{fmt(subtotal)}</p>
+                        <p className="text-base font-black text-[#0eb1c3]">{fmt(discountedTotal)}</p>
+                      </div>
+                    </div>
+                  </div>
+                )}
 
                 <div className="mb-4">
                   <p className="mb-2 text-xs font-black uppercase tracking-wider text-gray-400">Productos</p>
@@ -397,7 +461,7 @@ export default function CheckoutClient() {
                       </svg>
                       Procesando...
                     </span>
-                  ) : 'Pagar con MercadoPago'}
+                  ) : isCashTransfer ? 'Confirmar pedido' : 'Pagar con MercadoPago'}
                   </button>
                 </div>
               </div>
@@ -435,9 +499,21 @@ export default function CheckoutClient() {
                   {shipping === 'pickup' ? 'Gratis' : 'A calcular'}
                 </span>
               </div>
+              {isCashTransfer && (
+                <div className="mt-2 flex items-center justify-between">
+                  <span className="text-xs font-semibold text-gray-500">Subtotal</span>
+                  <span className="text-xs font-bold text-gray-400 line-through">{fmt(subtotal)}</span>
+                </div>
+              )}
+              {isCashTransfer && (
+                <div className="mt-1 flex items-center justify-between">
+                  <span className="text-xs font-semibold text-[#0eb1c3]">{CASH_DISCOUNT_PCT}% OFF efectivo/transferencia</span>
+                  <span className="text-xs font-black text-[#0eb1c3]">−{fmt(subtotal - discountedTotal)}</span>
+                </div>
+              )}
               <div className="mt-2 flex items-center justify-between">
                 <span className="text-sm font-black text-[#1E1E1E]">Total</span>
-                <span className="text-lg font-black text-[#1E1E1E]">{fmt(subtotal)}</span>
+                <span className="text-lg font-black text-[#1E1E1E]">{fmt(displayTotal)}</span>
               </div>
             </div>
           </div>

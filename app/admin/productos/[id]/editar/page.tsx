@@ -24,6 +24,16 @@ export default async function EditarProductoPage({ params }: Props) {
         orderBy: [{ sortOrder: 'asc' }, { createdAt: 'asc' }],
         include: { imageAttributeValues: { select: { attributeValueId: true } } },
       },
+      relations: {
+        orderBy: { sortOrder: 'asc' },
+        select: {
+          id: true,
+          sortOrder: true,
+          relatedProduct: {
+            select: { id: true, name: true, sku: true, imageUrl: true, price: true },
+          },
+        },
+      },
     },
   })
 
@@ -144,6 +154,17 @@ export default async function EditarProductoPage({ params }: Props) {
           productImages={serializedImages}
           imagesByAvId={imagesByAvId}
           colorValues={colorValues}
+          relations={product.relations.map((r) => ({
+            id: r.id,
+            sortOrder: r.sortOrder,
+            relatedProduct: {
+              id: r.relatedProduct.id,
+              name: r.relatedProduct.name,
+              sku: r.relatedProduct.sku,
+              imageUrl: r.relatedProduct.imageUrl,
+              price: Number(r.relatedProduct.price),
+            },
+          }))}
         />
       </div>
     </div>

@@ -4,11 +4,13 @@ import { useState } from 'react'
 import TabInfo from './tab-info'
 import TabStock from './tab-stock'
 import TabImagenes from './tab-imagenes'
+import TabRelacionados from './tab-relacionados'
 
 const TABS = [
   { id: 'info', label: 'Información' },
   { id: 'stock', label: 'Stock' },
   { id: 'imagenes', label: 'Imágenes' },
+  { id: 'relacionados', label: 'Relacionados' },
 ] as const
 
 type TabId = (typeof TABS)[number]['id']
@@ -61,6 +63,17 @@ type EditFormProps = {
   }[]
   imagesByAvId: Record<string, string>
   colorValues: { id: string; value: string }[]
+  relations: {
+    id: string
+    sortOrder: number
+    relatedProduct: {
+      id: string
+      name: string
+      sku: string | null
+      imageUrl: string | null
+      price: number
+    }
+  }[]
 }
 
 export default function EditForm(props: EditFormProps) {
@@ -109,6 +122,13 @@ export default function EditForm(props: EditFormProps) {
             productId={props.product.id}
             initial={props.productImages}
             colorValues={props.colorValues}
+          />
+        )}
+        {activeTab === 'relacionados' && (
+          <TabRelacionados
+            productId={props.product.id}
+            initial={props.relations}
+            existingIds={new Set(props.relations.map((r) => r.relatedProduct.id))}
           />
         )}
       </div>

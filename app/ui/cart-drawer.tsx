@@ -2,6 +2,7 @@
 
 import Link from 'next/link'
 import { useCart, getEffectivePrice, cartItemKey } from '@/app/context/cart-context'
+import { CASH_DISCOUNT_PCT } from '@/app/lib/constants'
 import { CategoryIcon } from './product-card'
 
 function fmt(n: number) {
@@ -154,9 +155,17 @@ export default function CartDrawer({ open, onClose }: Props) {
         {/* Footer */}
         {items.length > 0 && (
           <div className="border-t border-gray-100 px-5 py-5">
-            <div className="mb-4 flex items-center justify-between">
+            <div className="mb-3 flex items-center justify-between">
               <span className="text-sm font-semibold text-gray-500">Subtotal</span>
               <span className="text-lg font-black text-[#1E1E1E]">{fmt(getTotal())}</span>
+            </div>
+            <div className="mb-4 flex items-center gap-3 rounded-xl bg-[#f0fbfc] px-4 py-3">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#0eb1c3" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+              </svg>
+              <p className="text-xs font-black leading-snug text-[#0eb1c3]">
+                Pagando en efectivo o transferencia, tenés {CASH_DISCOUNT_PCT}% OFF
+              </p>
             </div>
             <Link
               href="/checkout"

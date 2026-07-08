@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useCart, type ComboPrice } from '@/app/context/cart-context'
+import { CASH_DISCOUNT_PCT } from '@/app/lib/constants'
 import VariantSelector from './variant-selector'
 
 function fmt(n: number) {
@@ -120,7 +121,7 @@ export default function ProductActions({
           {/* Transfer tooltip */}
           {showTooltip && (
             <div className="absolute -top-11 left-1/2 z-20 -translate-x-1/2 rounded-lg bg-[#1E1E1E] px-3 py-2 text-center text-xs font-semibold text-white shadow-lg">
-              Si comprás con transferencia, tenés un 15% de descuento
+              Si comprás con efectivo o transferencia, tenés un {CASH_DISCOUNT_PCT}% de descuento
               <div className="absolute -bottom-1.5 left-1/2 h-3 w-3 -translate-x-1/2 rotate-45 bg-[#1E1E1E]" />
             </div>
           )}
