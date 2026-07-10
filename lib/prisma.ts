@@ -1,3 +1,4 @@
+import { Pool } from 'pg'
 import { PrismaPg } from '@prisma/adapter-pg'
 import { PrismaClient } from '@/app/generated/prisma/client'
 
@@ -10,7 +11,20 @@ function createPrismaClient() {
   const connectionString = process.env.DATABASE_URL
   if (!connectionString) throw new Error('DATABASE_URL is not set')
 
-  const adapter = new PrismaPg(connectionString)
+  const pool = new Pool({
+    connectionString,
+    max: 5,
+    idleTimeoutMillis: 10000,
+    connectionTimeoutMillis: 10000,
+  })
+
+  // Prevents Railway closing idle TCP connections from crashing the Node process.
+  // Prisma will open a fresh connection on the next query.
+  pool.on('error', (err) => {
+    console.error('[pg pool error]', err)
+  })
+
+  const adapter = new PrismaPg(pool)
   return new PrismaClient({
     adapter,
     log: process.env.NODE_ENV === 'development' ? ['error', 'warn'] : ['error'],
