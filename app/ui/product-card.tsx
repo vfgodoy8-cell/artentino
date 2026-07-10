@@ -63,6 +63,9 @@ export default function ProductCard({ id, name, slug, price, comparePrice, image
         </Link>
 
         <div className="mt-auto">
+          <p className="mb-0.5 text-[9px] font-black uppercase tracking-wider text-[#0eb1c3]">
+            Efectivo / Transferencia
+          </p>
           <div className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
             <p className="text-xl font-black leading-none text-[#0eb1c3]">
               {fmt(Math.round(price * (1 - CASH_DISCOUNT)))}
