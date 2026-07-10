@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import AddToCartButton from './add-to-cart-button'
 import { cloudinaryThumb } from '@/app/lib/cloudinary'
+import { CASH_DISCOUNT } from '@/app/lib/constants'
 
 type ProductCardProps = {
   id: string
@@ -62,11 +63,11 @@ export default function ProductCard({ id, name, slug, price, comparePrice, image
         </Link>
 
         <div className="mt-auto">
-          <div className="flex items-baseline gap-2">
-            <p className="text-xl font-black leading-none text-[#1E1E1E]">{fmt(price)}</p>
-            {hasDiscount && (
-              <p className="text-xs font-semibold text-[#9ca3af] line-through">{fmt(comparePrice!)}</p>
-            )}
+          <div className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
+            <p className="text-xl font-black leading-none text-[#0eb1c3]">
+              {fmt(Math.round(price * (1 - CASH_DISCOUNT)))}
+            </p>
+            <p className="text-sm leading-none text-[#9ca3af]">{fmt(price)}</p>
           </div>
           <p className="mt-1.5 text-xs text-[#9ca3af]">
             6x {fmt(Math.round(price / 6))} sin interés

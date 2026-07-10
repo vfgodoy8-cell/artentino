@@ -104,14 +104,14 @@ export default function ProductDetailShell({
 
           {/* Price */}
           <div className="mt-6">
-            <p className="mb-2 text-[10px] font-black uppercase tracking-widest text-[#0eb1c3]">
+            <p className="mb-2 text-sm font-black uppercase tracking-widest text-[#0eb1c3]">
               Pagando efectivo o transferencia
             </p>
             <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
               <p className="text-5xl font-black leading-none text-[#0eb1c3]">
                 {fmt(Math.round(price * (1 - CASH_DISCOUNT)))}
               </p>
-              <p className="text-2xl font-bold leading-none text-gray-400 line-through">
+              <p className="text-2xl font-bold leading-none text-gray-400">
                 {fmt(price)}
               </p>
               <span className="rounded-full bg-[#0eb1c3] px-2.5 py-0.5 text-xs font-black text-white">
