@@ -104,24 +104,22 @@ export default function ProductDetailShell({
 
           {/* Price */}
           <div className="mt-6">
-            {/* Cash / transfer discount block */}
             <p className="mb-2 text-[10px] font-black uppercase tracking-widest text-[#0eb1c3]">
               Pagando efectivo o transferencia
             </p>
-            <div className="flex items-center gap-3">
+            <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
               <p className="text-5xl font-black leading-none text-[#0eb1c3]">
                 {fmt(Math.round(price * (1 - CASH_DISCOUNT)))}
+              </p>
+              <p className="text-2xl font-bold leading-none text-gray-400 line-through">
+                {fmt(price)}
               </p>
               <span className="rounded-full bg-[#0eb1c3] px-2.5 py-0.5 text-xs font-black text-white">
                 {CASH_DISCOUNT_PCT}% OFF
               </span>
             </div>
-            <p className="mt-1.5 text-lg font-semibold leading-none text-gray-400 line-through">
-              {fmt(price)}
-            </p>
-            {/* List price for MP payment */}
             <p className="mt-2 text-sm text-gray-400">
-              Precio de lista: {fmt(price)} · 6x {fmt(Math.round(price / 6))} sin interés
+              6x {fmt(Math.round(price / 6))} sin interés
             </p>
           </div>
 
