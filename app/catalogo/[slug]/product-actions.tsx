@@ -131,6 +131,9 @@ export default function ProductActions({
               <p className="text-xs font-black uppercase tracking-wider text-[#0eb1c3]">
                 Comprá más y sumá descuentos adicionales
               </p>
+              <p className="mt-0.5 text-[11px] font-semibold normal-case tracking-normal text-[#0eb1c3]/80">
+                Son acumulables con el {CASH_DISCOUNT_PCT}% OFF Efectivo - Transferencia!
+              </p>
             </div>
             <table className="w-full text-sm">
               <thead>
