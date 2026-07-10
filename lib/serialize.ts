@@ -15,6 +15,7 @@ export function serializeProduct<
       updatedAt: Date
       [key: string]: unknown
     }
+    comboPrices?: Array<{ id: string; quantity: number; price: { toString(): string }; [key: string]: unknown }>
   },
 >(p: T) {
   return {
@@ -30,5 +31,11 @@ export function serializeProduct<
       createdAt: p.category.createdAt.toISOString(),
       updatedAt: p.category.updatedAt.toISOString(),
     },
+    ...(p.comboPrices && {
+      comboPrices: p.comboPrices.map((c) => ({
+        ...c,
+        price: Number(c.price.toString()),
+      })),
+    }),
   }
 }

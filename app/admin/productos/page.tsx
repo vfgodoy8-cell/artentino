@@ -36,7 +36,7 @@ export default async function AdminProductos({ searchParams }: Props) {
   const [products, total] = await Promise.all([
     prisma.product.findMany({
       where,
-      include: { category: true },
+      include: { category: true, comboPrices: { orderBy: { quantity: 'asc' } } },
       orderBy: [{ sortOrder: 'asc' }, { createdAt: 'desc' }],
       skip,
       take: PER_PAGE,

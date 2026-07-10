@@ -18,6 +18,7 @@ type Product = {
   active: boolean
   sortOrder: number
   category: { name: string }
+  comboPrices?: { id: string; price: number; quantity: number }[]
 }
 
 function fmt(n: number) {
@@ -56,6 +57,8 @@ export default function ProductsTable({ products, searchTerm }: { products: Prod
               { label: 'Costo', align: 'left' },
               { label: 'Mayorista', align: 'left' },
               { label: 'Precio', align: 'left' },
+              { label: 'Precio Pack 1', align: 'left' },
+              { label: 'Precio Pack 2', align: 'left' },
               { label: 'Activo', align: 'left' },
               { label: 'Orden', align: 'left' },
               { label: 'Acciones', align: 'right' },
@@ -121,6 +124,12 @@ function ProductRow({
         {product.wholesalePrice != null ? fmt(product.wholesalePrice) : <span className="text-gray-300">—</span>}
       </td>
       <td className="px-3 py-3 font-bold text-[#1E1E1E]">{fmt(product.price)}</td>
+      <td className="px-3 py-3 text-gray-500">
+        {product.comboPrices?.[0] ? fmt(product.comboPrices[0].price) : <span className="text-gray-300">—</span>}
+      </td>
+      <td className="px-3 py-3 text-gray-500">
+        {product.comboPrices?.[1] ? fmt(product.comboPrices[1].price) : <span className="text-gray-300">—</span>}
+      </td>
       <td className="px-3 py-3">
         <button
           onClick={handleToggleActive}
