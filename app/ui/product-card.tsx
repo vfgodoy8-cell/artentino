@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import AddToCartButton from './add-to-cart-button'
+import { cloudinaryThumb } from '@/app/lib/cloudinary'
 
 type ProductCardProps = {
   id: string
@@ -23,7 +24,7 @@ export default function ProductCard({ id, name, slug, price, comparePrice, image
 
       {/* Image area */}
       <Link href={`/catalogo/${slug}`} className="block">
-        <div className="relative aspect-[3/4] overflow-hidden bg-[#f5f3f0]">
+        <div className="relative aspect-square overflow-hidden bg-[#f5f3f0]">
 
           {/* Quick-add button — aparece en hover */}
           <div className="absolute right-3 top-3 z-10 opacity-0 transition-opacity duration-200 group-hover:opacity-100">
@@ -33,7 +34,7 @@ export default function ProductCard({ id, name, slug, price, comparePrice, image
           {imageUrl ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img
-              src={imageUrl}
+              src={cloudinaryThumb(imageUrl)}
               alt={name}
               className="h-full w-full object-cover transition-[transform] duration-[400ms] [transition-timing-function:var(--ease-out)] group-hover:scale-[1.05]"
             />

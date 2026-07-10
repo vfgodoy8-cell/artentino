@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { CategoryIcon } from '@/app/ui/product-card'
 
 type GalleryImage = {
@@ -28,6 +28,7 @@ export default function ProductGallery({
 }: Props) {
   const [preferredUrl, setPreferredUrl] = useState<string | null>(null)
   const [isVideoActive, setIsVideoActive] = useState(false)
+  const touchStartX = useRef<number | null>(null)
 
   // Reset thumbnail choice + video when selected color changes
   useEffect(() => {
@@ -35,7 +36,6 @@ export default function ProductGallery({
     setIsVideoActive(false)
   }, [selectedColorId])
 
-  // imageDriven: use selectedColorId to filter images if it appears in any image tags
   const imageDrivenId =
     selectedColorId &&
     galleryImages.some((img) => img.attributeValueIds.includes(selectedColorId))
@@ -51,12 +51,47 @@ export default function ProductGallery({
     preferredUrl !== null && visibleImages.some((img) => img.url === preferredUrl)
   const currentUrl = isPreferredVisible ? preferredUrl : coverInVisible?.url ?? null
 
-  const showThumbnails = visibleImages.length > 1 || youtubeId !== null
+  // All navigable items: images + optional video at end
+  const totalItems = visibleImages.length + (youtubeId ? 1 : 0)
+  const showArrows = totalItems > 1
+  const showThumbnails = totalItems > 1
+
+  // Compute current index for arrow navigation
+  const activeIdx = isVideoActive
+    ? visibleImages.length
+    : visibleImages.findIndex((img) => img.url === currentUrl)
+
+  function goToIdx(idx: number) {
+    const wrapped = ((idx % totalItems) + totalItems) % totalItems
+    if (youtubeId && wrapped === visibleImages.length) {
+      setIsVideoActive(true)
+      setPreferredUrl(null)
+    } else {
+      setIsVideoActive(false)
+      setPreferredUrl(visibleImages[wrapped].url)
+    }
+  }
+
+  function handleTouchStart(e: React.TouchEvent) {
+    touchStartX.current = e.touches[0].clientX
+  }
+
+  function handleTouchEnd(e: React.TouchEvent) {
+    if (touchStartX.current === null) return
+    const dx = e.changedTouches[0].clientX - touchStartX.current
+    touchStartX.current = null
+    if (Math.abs(dx) < 50) return
+    goToIdx(activeIdx + (dx < 0 ? 1 : -1))
+  }
 
   return (
     <div className="flex flex-col gap-4">
       {/* Main image or video */}
-      <div className="relative aspect-square overflow-hidden rounded-2xl bg-gray-50">
+      <div
+        className="relative aspect-square overflow-hidden rounded-2xl bg-gray-50"
+        onTouchStart={handleTouchStart}
+        onTouchEnd={handleTouchEnd}
+      >
         {isVideoActive && youtubeId ? (
           <iframe
             src={`https://www.youtube.com/embed/${youtubeId}?autoplay=1`}
@@ -79,6 +114,32 @@ export default function ProductGallery({
               <CategoryIcon category={categoryName} />
             </div>
           </div>
+        )}
+
+        {/* Prev / Next arrows */}
+        {showArrows && (
+          <>
+            <button
+              type="button"
+              aria-label="Imagen anterior"
+              onClick={() => goToIdx(activeIdx - 1)}
+              className="absolute left-3 top-1/2 -translate-y-1/2 flex h-9 w-9 items-center justify-center rounded-full bg-white/80 shadow-sm backdrop-blur-sm transition-opacity duration-200 hover:bg-white"
+            >
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1E1E1E" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <polyline points="15 18 9 12 15 6" />
+              </svg>
+            </button>
+            <button
+              type="button"
+              aria-label="Imagen siguiente"
+              onClick={() => goToIdx(activeIdx + 1)}
+              className="absolute right-3 top-1/2 -translate-y-1/2 flex h-9 w-9 items-center justify-center rounded-full bg-white/80 shadow-sm backdrop-blur-sm transition-opacity duration-200 hover:bg-white"
+            >
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1E1E1E" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <polyline points="9 18 15 12 9 6" />
+              </svg>
+            </button>
+          </>
         )}
       </div>
 

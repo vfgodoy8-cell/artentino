@@ -5,6 +5,7 @@ import Link from 'next/link'
 import ProductGallery from './product-gallery'
 import ProductActions from './product-actions'
 import { type ComboPrice } from '@/app/context/cart-context'
+import { CASH_DISCOUNT, CASH_DISCOUNT_PCT } from '@/app/lib/constants'
 
 type GalleryImage = {
   id: string
@@ -97,19 +98,31 @@ export default function ProductDetailShell({
           </span>
 
           {/* Name */}
-          <h1 className="text-2xl font-black leading-tight text-[#1E1E1E] sm:text-3xl lg:text-4xl">
+          <h1 className="text-2xl font-bold leading-tight text-[#1E1E1E] sm:text-3xl lg:text-4xl">
             {productName}
           </h1>
 
           {/* Price */}
           <div className="mt-6">
-            {comparePrice !== null && comparePrice > price && (
-              <p className="mb-1 text-sm font-semibold text-gray-400 line-through">
-                {fmt(comparePrice)}
+            {/* Cash / transfer discount block */}
+            <p className="mb-2 text-[10px] font-black uppercase tracking-widest text-[#0eb1c3]">
+              Pagando efectivo o transferencia
+            </p>
+            <div className="flex items-center gap-3">
+              <p className="text-5xl font-black leading-none text-[#0eb1c3]">
+                {fmt(Math.round(price * (1 - CASH_DISCOUNT)))}
               </p>
-            )}
-            <p className="text-4xl font-black leading-none text-[#1E1E1E]">{fmt(price)}</p>
-            <p className="mt-2 text-sm text-gray-400">6x {fmt(Math.round(price / 6))} sin interés</p>
+              <span className="rounded-full bg-[#0eb1c3] px-2.5 py-0.5 text-xs font-black text-white">
+                {CASH_DISCOUNT_PCT}% OFF
+              </span>
+            </div>
+            <p className="mt-1.5 text-lg font-semibold leading-none text-gray-400 line-through">
+              {fmt(price)}
+            </p>
+            {/* List price for MP payment */}
+            <p className="mt-2 text-sm text-gray-400">
+              Precio de lista: {fmt(price)} · 6x {fmt(Math.round(price / 6))} sin interés
+            </p>
           </div>
 
           {/* Actions: combos + qty + variant selector + add to cart */}
