@@ -250,8 +250,7 @@ export default function FAQPage() {
           <div className="flex flex-wrap items-center justify-center gap-4">
             <a
               href="mailto:info@artentino.com"
-              className="inline-flex items-center gap-2 rounded-xl border border-[#0eb1c3] px-5 py-2.5 text-sm font-bold transition-all hover:bg-[#0eb1c3] hover:text-white"
-              style={{ color: '#0eb1c3' }}
+              className="inline-flex items-center gap-2 rounded-xl border border-gray-200 px-5 py-2.5 text-sm font-bold text-gray-600 transition-all hover:border-[#0eb1c3] hover:text-[#0eb1c3]"
             >
               <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
