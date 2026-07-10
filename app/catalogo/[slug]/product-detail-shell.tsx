@@ -104,19 +104,30 @@ export default function ProductDetailShell({
 
           {/* Price */}
           <div className="mt-6">
-            <p className="mb-2 text-sm font-black uppercase tracking-widest text-[#0eb1c3]">
-              Pagando efectivo o transferencia
-            </p>
-            <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
-              <p className="text-5xl font-black leading-none text-[#0eb1c3]">
-                {fmt(Math.round(price * (1 - CASH_DISCOUNT)))}
-              </p>
-              <p className="text-2xl font-bold leading-none text-gray-400">
-                {fmt(price)}
-              </p>
-              <span className="rounded-full bg-[#0eb1c3] px-2.5 py-0.5 text-xs font-black text-white">
-                {CASH_DISCOUNT_PCT}% OFF
-              </span>
+            <div className="flex flex-col items-start gap-y-3 sm:flex-row sm:items-end sm:gap-x-6">
+              {/* Cash / transfer price */}
+              <div>
+                <p className="mb-1 text-sm font-black uppercase tracking-widest text-[#0eb1c3]">
+                  Pagando efectivo o transferencia
+                </p>
+                <div className="flex items-center gap-3">
+                  <p className="text-5xl font-black leading-none text-[#0eb1c3]">
+                    {fmt(Math.round(price * (1 - CASH_DISCOUNT)))}
+                  </p>
+                  <span className="rounded-full bg-[#0eb1c3] px-2.5 py-0.5 text-xs font-black text-white">
+                    {CASH_DISCOUNT_PCT}% OFF
+                  </span>
+                </div>
+              </div>
+              {/* List price */}
+              <div>
+                <p className="mb-1 text-[10px] font-black uppercase tracking-wider text-gray-400">
+                  Precio de lista
+                </p>
+                <p className="text-2xl font-bold leading-none text-gray-400">
+                  {fmt(price)}
+                </p>
+              </div>
             </div>
             <p className="mt-2 text-sm text-gray-400">
               6x {fmt(Math.round(price / 6))} sin interés
