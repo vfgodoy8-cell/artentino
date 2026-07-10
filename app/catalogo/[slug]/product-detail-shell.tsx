@@ -104,7 +104,7 @@ export default function ProductDetailShell({
 
           {/* Price */}
           <div className="mt-6">
-            <div className="flex flex-col items-start gap-y-3 sm:flex-row sm:items-end sm:gap-x-6">
+            <div className="flex flex-col items-start gap-y-3 sm:flex-row sm:items-start sm:gap-x-6">
               {/* Cash / transfer price */}
               <div>
                 <p className="mb-1 text-sm font-black uppercase tracking-widest text-[#0eb1c3]">
@@ -119,7 +119,7 @@ export default function ProductDetailShell({
                   </span>
                 </div>
               </div>
-              {/* List price */}
+              {/* List price + cuotas */}
               <div>
                 <p className="mb-1 text-[10px] font-black uppercase tracking-wider text-gray-400">
                   Precio de lista
@@ -127,11 +127,11 @@ export default function ProductDetailShell({
                 <p className="text-2xl font-bold leading-none text-gray-400">
                   {fmt(price)}
                 </p>
+                <p className="mt-1.5 text-sm text-gray-400">
+                  6x {fmt(Math.round(price / 6))} sin interés
+                </p>
               </div>
             </div>
-            <p className="mt-2 text-sm text-gray-400">
-              6x {fmt(Math.round(price / 6))} sin interés
-            </p>
           </div>
 
           {/* Actions: combos + qty + variant selector + add to cart */}
