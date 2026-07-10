@@ -232,10 +232,22 @@ export default function ProductActions({
       <button
         onClick={handleAddToCart}
         disabled={disabled}
-        className="mt-4 w-full rounded-2xl py-4 text-sm font-black uppercase tracking-widest text-white transition-all disabled:opacity-40"
+        className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-2xl py-4 text-sm font-black uppercase tracking-widest text-white transition-all disabled:opacity-60"
         style={{ backgroundColor: added ? '#1E1E1E' : '#0eb1c3' }}
       >
-        {buttonLabel}
+        {disabledReason === 'no-color' ? (
+          <>
+            <svg className="h-4 w-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={3} strokeLinecap="round" strokeLinejoin="round">
+              <polyline points="18 15 12 9 6 15" />
+            </svg>
+            Seleccioná una variante
+            <svg className="h-4 w-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={3} strokeLinecap="round" strokeLinejoin="round">
+              <polyline points="18 15 12 9 6 15" />
+            </svg>
+          </>
+        ) : (
+          buttonLabel
+        )}
       </button>
     </div>
   )
