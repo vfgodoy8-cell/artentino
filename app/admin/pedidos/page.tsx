@@ -2,11 +2,12 @@ import Link from 'next/link'
 import { prisma } from '@/lib/prisma'
 
 const STATUS = {
-  PENDING:   { label: 'Pendiente',  bg: '#FEF3C7', color: '#D97706' },
-  CONFIRMED: { label: 'Confirmado', bg: '#CCFBF4', color: '#0eb1c3' },
-  SHIPPED:   { label: 'Enviado',    bg: '#DBEAFE', color: '#2563EB' },
-  DELIVERED: { label: 'Entregado',  bg: '#D1FAE5', color: '#059669' },
-  CANCELLED: { label: 'Cancelado',  bg: '#FEE2E2', color: '#EF4444' },
+  PENDING:                { label: 'Pendiente',        bg: '#FEF3C7', color: '#D97706' },
+  PENDING_PICKUP_PAYMENT: { label: 'A retirar',        bg: '#EDE9FE', color: '#7C3AED' },
+  CONFIRMED:              { label: 'Confirmado',       bg: '#CCFBF4', color: '#0eb1c3' },
+  SHIPPED:                { label: 'Enviado',          bg: '#DBEAFE', color: '#2563EB' },
+  DELIVERED:              { label: 'Entregado',        bg: '#D1FAE5', color: '#059669' },
+  CANCELLED:              { label: 'Cancelado',        bg: '#FEE2E2', color: '#EF4444' },
 } as const
 
 type StatusKey = keyof typeof STATUS

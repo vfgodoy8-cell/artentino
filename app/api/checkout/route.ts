@@ -22,7 +22,7 @@ type CheckoutBody = {
     phone: string
   }
   shipping: 'pickup' | 'delivery'
-  paymentMethod?: 'mercadopago' | 'cash_transfer'
+  paymentMethod?: 'mercadopago' | 'cash' | 'transfer'
 }
 
 const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL!
@@ -73,14 +73,14 @@ export async function POST(req: Request) {
   const subtotal = items.reduce((sum, item) => sum + item.price * item.quantity, 0)
 
   // ── Cash / transfer pickup flow ────────────────────────────────────────────
-  if (paymentMethod === 'cash_transfer') {
+  if (paymentMethod === 'cash' || paymentMethod === 'transfer') {
     const discountedTotal = Math.round(subtotal * (1 - CASH_DISCOUNT))
     const order = await prisma.order.create({
       data: {
         userId: session.user.id,
         total: discountedTotal,
         shippingMethod: shipping,
-        paymentMethod: 'cash_transfer',
+        paymentMethod,
         status: 'PENDING_PICKUP_PAYMENT',
         items: {
           create: items.map((item) => ({
@@ -101,6 +101,7 @@ export async function POST(req: Request) {
         items: items.map((i) => ({ name: i.name, quantity: i.quantity, price: i.price })),
         total: discountedTotal,
         discountPct: CASH_DISCOUNT_PCT,
+        paymentMethod,
       }),
     }).catch(() => {})
 

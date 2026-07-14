@@ -95,11 +95,13 @@ export function pickupCashEmail({
   items,
   total,
   discountPct,
+  paymentMethod,
 }: {
   name: string
   items: Array<{ name: string; quantity: number; price: number }>
   total: number
   discountPct: number
+  paymentMethod: 'cash' | 'transfer'
 }) {
   const itemRows = items
     .map(
@@ -138,7 +140,7 @@ export function pickupCashEmail({
       </table>
       <div style="background:#f0fbfc;border-radius:12px;padding:16px 20px;margin-bottom:28px;border:1px solid #c8eff4;">
         <p style="margin:0 0 4px;color:#0eb1c3;font-weight:900;font-size:12px;text-transform:uppercase;letter-spacing:1px;">Método de pago</p>
-        <p style="margin:0;color:#1E1E1E;font-weight:700;">Efectivo o transferencia — abonás al retirar en el local</p>
+        <p style="margin:0;color:#1E1E1E;font-weight:700;">${paymentMethod === 'cash' ? 'Efectivo — abonás al retirar en el local' : 'Transferencia bancaria — envianos el comprobante antes de retirar'}</p>
         <p style="margin:6px 0 0;color:#555;font-size:13px;">Retiro en tienda · Colegiales, CABA</p>
       </div>
       <p style="margin:0;color:#0eb1c3;font-weight:900;">Equipo Artentino</p>

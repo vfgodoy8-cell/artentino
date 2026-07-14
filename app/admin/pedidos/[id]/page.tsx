@@ -4,11 +4,12 @@ import { prisma } from '@/lib/prisma'
 import StatusSelect from './status-select'
 
 const STATUS = {
-  PENDING:   { label: 'Pendiente',  bg: '#FEF3C7', color: '#D97706' },
-  CONFIRMED: { label: 'Confirmado', bg: '#CCFBF4', color: '#0eb1c3' },
-  SHIPPED:   { label: 'Enviado',    bg: '#DBEAFE', color: '#2563EB' },
-  DELIVERED: { label: 'Entregado',  bg: '#D1FAE5', color: '#059669' },
-  CANCELLED: { label: 'Cancelado',  bg: '#FEE2E2', color: '#EF4444' },
+  PENDING:                { label: 'Pendiente',        bg: '#FEF3C7', color: '#D97706' },
+  PENDING_PICKUP_PAYMENT: { label: 'A retirar',        bg: '#EDE9FE', color: '#7C3AED' },
+  CONFIRMED:              { label: 'Confirmado',       bg: '#CCFBF4', color: '#0eb1c3' },
+  SHIPPED:                { label: 'Enviado',          bg: '#DBEAFE', color: '#2563EB' },
+  DELIVERED:              { label: 'Entregado',        bg: '#D1FAE5', color: '#059669' },
+  CANCELLED:              { label: 'Cancelado',        bg: '#FEE2E2', color: '#EF4444' },
 } as const
 
 type StatusKey = keyof typeof STATUS
@@ -122,6 +123,22 @@ export default async function AdminPedidoDetallePage({ params }: Props) {
             <p className="text-sm text-gray-400">{order.user.email}</p>
             {order.user.phone && <p className="text-sm text-gray-400">{order.user.phone}</p>}
           </div>
+
+          {/* Pago */}
+          {order.paymentMethod && (
+            <div className="rounded-2xl border border-gray-100 bg-white px-5 py-4">
+              <p className="mb-3 text-[10px] font-black uppercase tracking-wider text-gray-400">Método de pago</p>
+              <p className="font-semibold text-[#1E1E1E]">
+                {order.paymentMethod === 'cash'
+                  ? 'Efectivo'
+                  : order.paymentMethod === 'transfer'
+                  ? 'Transferencia bancaria'
+                  : order.paymentMethod === 'mercadopago'
+                  ? 'MercadoPago'
+                  : order.paymentMethod}
+              </p>
+            </div>
+          )}
 
           {/* Envío */}
           {(order.shippingMethod || shippingAddress) && (

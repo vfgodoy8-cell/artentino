@@ -18,7 +18,7 @@ type ContactData = {
 }
 
 type ShippingMethod = 'pickup' | 'delivery'
-type PaymentMethod = 'mercadopago' | 'cash_transfer' | 'modo'
+type PaymentMethod = 'mercadopago' | 'cash' | 'transfer' | 'modo'
 
 const STEPS = ['Contacto', 'Envío', 'Pago', 'Resumen']
 
@@ -50,9 +50,9 @@ export default function CheckoutClient() {
 
   const subtotal = getTotal()
 
-  const isCashTransfer = payment === 'cash_transfer'
+  const isCashOrTransfer = payment === 'cash' || payment === 'transfer'
   const discountedTotal = Math.round(subtotal * (1 - CASH_DISCOUNT))
-  const displayTotal = isCashTransfer ? discountedTotal : subtotal
+  const displayTotal = isCashOrTransfer ? discountedTotal : subtotal
 
   async function handlePay() {
     setLoading(true)
@@ -247,7 +247,7 @@ export default function CheckoutClient() {
                       name="shipping"
                       value="delivery"
                       checked={shipping === 'delivery'}
-                      onChange={() => { setShipping('delivery'); if (isCashTransfer) setPayment('mercadopago') }}
+                      onChange={() => { setShipping('delivery'); if (payment === 'cash' || payment === 'transfer') setPayment('mercadopago') }}
                       className="mt-0.5 accent-[#0eb1c3]"
                     />
                     <div className="flex-1">
@@ -311,27 +311,51 @@ export default function CheckoutClient() {
                   </label>
 
                   {shipping === 'pickup' && (
-                    <label
-                      className={`flex cursor-pointer items-start gap-4 rounded-2xl border-2 p-4 transition-colors ${
-                        isCashTransfer ? 'border-[#0eb1c3] bg-[#0eb1c3]/5' : 'border-gray-100 hover:border-gray-200'
-                      }`}
-                    >
-                      <input
-                        type="radio"
-                        name="payment"
-                        value="cash_transfer"
-                        checked={isCashTransfer}
-                        onChange={() => setPayment('cash_transfer')}
-                        className="mt-0.5 accent-[#0eb1c3]"
-                      />
-                      <div className="flex-1">
-                        <p className="font-black text-[#1E1E1E]">Efectivo o transferencia</p>
-                        <p className="text-sm text-gray-500">Pago en el local al retirar</p>
-                      </div>
-                      <span className="rounded-full bg-[#0eb1c3]/10 px-3 py-1 text-xs font-black text-[#0eb1c3]">
-                        {CASH_DISCOUNT_PCT}% OFF
-                      </span>
-                    </label>
+                    <>
+                      <label
+                        className={`flex cursor-pointer items-start gap-4 rounded-2xl border-2 p-4 transition-colors ${
+                          payment === 'cash' ? 'border-[#0eb1c3] bg-[#0eb1c3]/5' : 'border-gray-100 hover:border-gray-200'
+                        }`}
+                      >
+                        <input
+                          type="radio"
+                          name="payment"
+                          value="cash"
+                          checked={payment === 'cash'}
+                          onChange={() => setPayment('cash')}
+                          className="mt-0.5 accent-[#0eb1c3]"
+                        />
+                        <div className="flex-1">
+                          <p className="font-black text-[#1E1E1E]">Efectivo</p>
+                          <p className="text-sm text-gray-500">Pagás al retirar en el local</p>
+                        </div>
+                        <span className="rounded-full bg-[#0eb1c3]/10 px-3 py-1 text-xs font-black text-[#0eb1c3]">
+                          {CASH_DISCOUNT_PCT}% OFF
+                        </span>
+                      </label>
+
+                      <label
+                        className={`flex cursor-pointer items-start gap-4 rounded-2xl border-2 p-4 transition-colors ${
+                          payment === 'transfer' ? 'border-[#0eb1c3] bg-[#0eb1c3]/5' : 'border-gray-100 hover:border-gray-200'
+                        }`}
+                      >
+                        <input
+                          type="radio"
+                          name="payment"
+                          value="transfer"
+                          checked={payment === 'transfer'}
+                          onChange={() => setPayment('transfer')}
+                          className="mt-0.5 accent-[#0eb1c3]"
+                        />
+                        <div className="flex-1">
+                          <p className="font-black text-[#1E1E1E]">Transferencia bancaria</p>
+                          <p className="text-sm text-gray-500">Enviás el comprobante antes de retirar</p>
+                        </div>
+                        <span className="rounded-full bg-[#0eb1c3]/10 px-3 py-1 text-xs font-black text-[#0eb1c3]">
+                          {CASH_DISCOUNT_PCT}% OFF
+                        </span>
+                      </label>
+                    </>
                   )}
 
                   <div className="flex items-center gap-4 rounded-2xl border-2 border-gray-100 p-4 opacity-50">
@@ -390,15 +414,19 @@ export default function CheckoutClient() {
                 <div className="mb-4 rounded-xl bg-gray-50 px-4 py-3">
                   <p className="text-xs font-black uppercase tracking-wider text-gray-400">Pago</p>
                   <p className="mt-1 text-sm font-bold text-[#1E1E1E]">
-                    {isCashTransfer ? 'Efectivo o transferencia — al retirar' : 'MercadoPago'}
+                    {payment === 'cash'
+                      ? 'Efectivo — pagás al retirar'
+                      : payment === 'transfer'
+                      ? 'Transferencia bancaria — enviás el comprobante'
+                      : 'MercadoPago'}
                   </p>
                 </div>
 
-                {isCashTransfer && (
+                {isCashOrTransfer && (
                   <div className="mb-4 rounded-xl border border-[#c8eff4] bg-[#f0fbfc] px-4 py-3">
                     <p className="text-xs font-black uppercase tracking-wider text-[#0eb1c3]">Descuento aplicado</p>
                     <div className="mt-1 flex items-center justify-between">
-                      <p className="text-sm font-bold text-[#1E1E1E]">{CASH_DISCOUNT_PCT}% OFF efectivo/transferencia</p>
+                      <p className="text-sm font-bold text-[#1E1E1E]">{CASH_DISCOUNT_PCT}% OFF {payment === 'cash' ? 'efectivo' : 'transferencia'}</p>
                       <div className="text-right">
                         <p className="text-xs text-gray-400 line-through">{fmt(subtotal)}</p>
                         <p className="text-base font-black text-[#0eb1c3]">{fmt(discountedTotal)}</p>
@@ -461,7 +489,7 @@ export default function CheckoutClient() {
                       </svg>
                       Procesando...
                     </span>
-                  ) : isCashTransfer ? 'Confirmar pedido' : 'Pagar con MercadoPago'}
+                  ) : isCashOrTransfer ? 'Confirmar pedido' : 'Pagar con MercadoPago'}
                   </button>
                 </div>
               </div>
@@ -499,15 +527,15 @@ export default function CheckoutClient() {
                   {shipping === 'pickup' ? 'Gratis' : 'A calcular'}
                 </span>
               </div>
-              {isCashTransfer && (
+              {isCashOrTransfer && (
                 <div className="mt-2 flex items-center justify-between">
                   <span className="text-xs font-semibold text-gray-500">Subtotal</span>
                   <span className="text-xs font-bold text-gray-400 line-through">{fmt(subtotal)}</span>
                 </div>
               )}
-              {isCashTransfer && (
+              {isCashOrTransfer && (
                 <div className="mt-1 flex items-center justify-between">
-                  <span className="text-xs font-semibold text-[#0eb1c3]">{CASH_DISCOUNT_PCT}% OFF efectivo/transferencia</span>
+                  <span className="text-xs font-semibold text-[#0eb1c3]">{CASH_DISCOUNT_PCT}% OFF {payment === 'cash' ? 'efectivo' : 'transferencia'}</span>
                   <span className="text-xs font-black text-[#0eb1c3]">−{fmt(subtotal - discountedTotal)}</span>
                 </div>
               )}
