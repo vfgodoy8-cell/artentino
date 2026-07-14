@@ -84,7 +84,7 @@ export default function CheckoutClient() {
 
       if (data.confirmed) {
         clearCart()
-        router.push('/checkout/confirmado')
+        router.push(`/checkout/confirmado?method=${payment}`)
         return
       }
 
