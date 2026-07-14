@@ -4,7 +4,8 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 
-type Category = { id: string; name: string }
+type Subcategory = { id: string; name: string }
+type Category = { id: string; name: string; subcategories: Subcategory[] }
 
 function toSlug(str: string) {
   return str
@@ -24,16 +25,25 @@ export default function NuevoProductoForm({ categories }: { categories: Category
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [slugEdited, setSlugEdited] = useState(false)
+  const [parentCategoryId, setParentCategoryId] = useState(categories[0]?.id ?? '')
   const [form, setForm] = useState({
     sku: '',
     name: '',
     slug: '',
     price: '',
-    categoryId: categories[0]?.id ?? '',
+    categoryId: categories[0]?.subcategories[0]?.id ?? '',
   })
+
+  const subcategories = categories.find((c) => c.id === parentCategoryId)?.subcategories ?? []
 
   function set(field: string, value: string) {
     setForm((prev) => ({ ...prev, [field]: value }))
+  }
+
+  function handleParentCategoryChange(id: string) {
+    setParentCategoryId(id)
+    const nextSubcategories = categories.find((c) => c.id === id)?.subcategories ?? []
+    set('categoryId', nextSubcategories[0]?.id ?? '')
   }
 
   function handleSkuChange(e: React.ChangeEvent<HTMLInputElement>) {
@@ -118,11 +128,24 @@ export default function NuevoProductoForm({ categories }: { categories: Category
           <input type="number" value={form.price} onChange={(e) => set('price', e.target.value)} className={inp} placeholder="266000" min="0" />
         </div>
         <div>
-          <label className="mb-1.5 block text-xs font-bold uppercase tracking-wider text-gray-400">Categoría *</label>
-          <select value={form.categoryId} onChange={(e) => set('categoryId', e.target.value)} className={inp}>
+          <label className="mb-1.5 block text-xs font-bold uppercase tracking-wider text-gray-400">Categoría</label>
+          <select value={parentCategoryId} onChange={(e) => handleParentCategoryChange(e.target.value)} className={inp}>
             {categories.map((cat) => <option key={cat.id} value={cat.id}>{cat.name}</option>)}
           </select>
         </div>
+      </div>
+
+      <div>
+        <label className="mb-1.5 block text-xs font-bold uppercase tracking-wider text-gray-400">Subcategoría *</label>
+        {subcategories.length > 0 ? (
+          <select value={form.categoryId} onChange={(e) => set('categoryId', e.target.value)} className={inp}>
+            {subcategories.map((sub) => <option key={sub.id} value={sub.id}>{sub.name}</option>)}
+          </select>
+        ) : (
+          <select value="" disabled className={inp}>
+            <option value="">— Sin subcategorías, creá una primero en /admin/categorias —</option>
+          </select>
+        )}
       </div>
 
       <p className="text-xs text-gray-400">
@@ -132,7 +155,7 @@ export default function NuevoProductoForm({ categories }: { categories: Category
       <div className="flex gap-3 border-t border-gray-100 pt-5">
         <button
           type="submit"
-          disabled={loading}
+          disabled={loading || !form.categoryId}
           className="flex-1 rounded-xl py-3 text-sm font-black uppercase tracking-wider text-white transition-opacity disabled:opacity-50"
           style={{ backgroundColor: '#0eb1c3' }}
         >

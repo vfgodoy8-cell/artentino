@@ -28,7 +28,7 @@ type TabInfoProps = {
     weight: number | null
   }
   comboPrices: { id: string; price: number; quantity: number; startDate: string | null; endDate: string | null }[]
-  categories: { id: string; name: string }[]
+  categories: { id: string; name: string; subcategories: { id: string; name: string }[] }[]
 }
 
 const inp =
@@ -52,6 +52,10 @@ function buildComboRows(saved: TabInfoProps['comboPrices']): ComboRow[] {
 }
 
 export default function TabInfo({ product, comboPrices, categories }: TabInfoProps) {
+  const [parentCategoryId, setParentCategoryId] = useState(() => {
+    const match = categories.find((c) => c.subcategories.some((s) => s.id === product.categoryId))
+    return match?.id ?? ''
+  })
   const [form, setForm] = useState({
     name: product.name,
     categoryId: product.categoryId,
@@ -74,8 +78,16 @@ export default function TabInfo({ product, comboPrices, categories }: TabInfoPro
   const [isPending, startTransition] = useTransition()
   const router = useRouter()
 
+  const subcategories = categories.find((c) => c.id === parentCategoryId)?.subcategories ?? []
+
   function setField<K extends keyof typeof form>(k: K, v: (typeof form)[K]) {
     setForm((prev) => ({ ...prev, [k]: v }))
+  }
+
+  function handleParentCategoryChange(id: string) {
+    setParentCategoryId(id)
+    const nextSubcategories = categories.find((c) => c.id === id)?.subcategories ?? []
+    setField('categoryId', nextSubcategories[0]?.id ?? '')
   }
 
   function setComboRow(i: number, field: keyof ComboRow, val: string) {
@@ -89,6 +101,7 @@ export default function TabInfo({ product, comboPrices, categories }: TabInfoPro
   function handleSaveInfo() {
     if (!form.name.trim()) { setError('El nombre es requerido'); return }
     if (!form.price || Number(form.price) <= 0) { setError('El precio debe ser mayor a 0'); return }
+    if (!form.categoryId) { setError('Seleccioná una subcategoría'); return }
     setError('')
     startTransition(async () => {
       await updateProductInfo(product.id, {
@@ -157,8 +170,8 @@ export default function TabInfo({ product, comboPrices, categories }: TabInfoPro
       {/* Categoría */}
       <div className="grid gap-4 sm:grid-cols-2">
         <div>
-          <label className={lbl}>Categoría *</label>
-          <select value={form.categoryId} onChange={(e) => setField('categoryId', e.target.value)} className={inp}>
+          <label className={lbl}>Categoría</label>
+          <select value={parentCategoryId} onChange={(e) => handleParentCategoryChange(e.target.value)} className={inp}>
             {categories.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
           </select>
         </div>
@@ -169,6 +182,19 @@ export default function TabInfo({ product, comboPrices, categories }: TabInfoPro
             <option value="0">No</option>
           </select>
         </div>
+      </div>
+
+      <div>
+        <label className={lbl}>Subcategoría *</label>
+        {subcategories.length > 0 ? (
+          <select value={form.categoryId} onChange={(e) => setField('categoryId', e.target.value)} className={inp}>
+            {subcategories.map((sub) => <option key={sub.id} value={sub.id}>{sub.name}</option>)}
+          </select>
+        ) : (
+          <select value="" disabled className={inp}>
+            <option value="">— Sin subcategorías, creá una primero en /admin/categorias —</option>
+          </select>
+        )}
       </div>
 
       {/* Precios: Costo → Precio → Precio tachado */}
@@ -262,7 +288,7 @@ export default function TabInfo({ product, comboPrices, categories }: TabInfoPro
 
       {/* Guardar */}
       <div className="flex items-center gap-4 border-t border-gray-100 pt-4">
-        <button type="button" onClick={handleSaveInfo} disabled={isPending} className="rounded-xl px-8 py-3 text-sm font-black uppercase tracking-wider text-white transition-opacity disabled:opacity-50" style={{ backgroundColor: '#0eb1c3' }}>
+        <button type="button" onClick={handleSaveInfo} disabled={isPending || !form.categoryId} className="rounded-xl px-8 py-3 text-sm font-black uppercase tracking-wider text-white transition-opacity disabled:opacity-50" style={{ backgroundColor: '#0eb1c3' }}>
           {isPending ? 'Guardando...' : 'Guardar cambios'}
         </button>
       </div>

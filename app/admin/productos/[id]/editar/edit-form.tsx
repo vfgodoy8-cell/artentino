@@ -41,7 +41,7 @@ type EditFormProps = {
     startDate: string | null
     endDate: string | null
   }[]
-  categories: { id: string; name: string }[]
+  categories: { id: string; name: string; subcategories: { id: string; name: string }[] }[]
   attributes: { id: string; name: string; values: { id: string; value: string }[] }[]
   productStocks: {
     id: string

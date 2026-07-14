@@ -3,9 +3,14 @@ import { prisma } from '@/lib/prisma'
 import NuevoProductoForm from './form'
 
 export default async function NuevoProductoPage() {
-  const categories = await prisma.subcategory.findMany({
-    orderBy: [{ category: { order: 'asc' } }, { order: 'asc' }],
-    select: { id: true, name: true },
+  const categories = await prisma.category.findMany({
+    where: { isSpecial: false },
+    orderBy: { order: 'asc' },
+    select: {
+      id: true,
+      name: true,
+      subcategories: { orderBy: { order: 'asc' }, select: { id: true, name: true } },
+    },
   })
 
   return (
