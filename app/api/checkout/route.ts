@@ -72,6 +72,17 @@ export async function POST(req: Request) {
 
   const subtotal = items.reduce((sum, item) => sum + item.price * item.quantity, 0)
 
+  // Resolve variant names for emails (batch, only IDs present in this order)
+  const avIds = [...new Set(items.map((i) => i.attributeValueId).filter(Boolean))] as string[]
+  const avMap: Record<string, string> = {}
+  if (avIds.length > 0) {
+    const avRows = await prisma.attributeValue.findMany({
+      where: { id: { in: avIds } },
+      select: { id: true, value: true },
+    })
+    avRows.forEach((av) => { avMap[av.id] = av.value })
+  }
+
   // ── Cash / transfer pickup flow ────────────────────────────────────────────
   if (paymentMethod === 'cash' || paymentMethod === 'transfer') {
     const discountedTotal = Math.round(subtotal * (1 - CASH_DISCOUNT))
@@ -87,6 +98,7 @@ export async function POST(req: Request) {
             productId: item.productId,
             quantity: item.quantity,
             price: item.price,
+            ...(item.attributeValueId ? { attributeValueId: item.attributeValueId } : {}),
           })),
         },
       },
@@ -98,7 +110,12 @@ export async function POST(req: Request) {
       subject: 'Artentino — Pedido registrado',
       html: pickupCashEmail({
         name: payer.name,
-        items: items.map((i) => ({ name: i.name, quantity: i.quantity, price: i.price })),
+        items: items.map((i) => ({
+          name: i.name,
+          quantity: i.quantity,
+          price: i.price,
+          variantName: i.attributeValueId ? avMap[i.attributeValueId] : undefined,
+        })),
         total: discountedTotal,
         discountPct: CASH_DISCOUNT_PCT,
         paymentMethod,
@@ -123,6 +140,7 @@ export async function POST(req: Request) {
           productId: item.productId,
           quantity: item.quantity,
           price: item.price,
+          ...(item.attributeValueId ? { attributeValueId: item.attributeValueId } : {}),
         })),
       },
     },

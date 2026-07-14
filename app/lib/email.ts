@@ -98,7 +98,7 @@ export function pickupCashEmail({
   paymentMethod,
 }: {
   name: string
-  items: Array<{ name: string; quantity: number; price: number }>
+  items: Array<{ name: string; quantity: number; price: number; variantName?: string }>
   total: number
   discountPct: number
   paymentMethod: 'cash' | 'transfer'
@@ -107,7 +107,7 @@ export function pickupCashEmail({
     .map(
       (item) =>
         `<tr>
-          <td style="padding:10px 0;color:#1E1E1E;border-bottom:1px solid #eee;">${item.name}</td>
+          <td style="padding:10px 0;color:#1E1E1E;border-bottom:1px solid #eee;">${item.name}${item.variantName ? ` <span style="color:#888;font-size:12px;">· ${item.variantName}</span>` : ''}</td>
           <td style="padding:10px 0;color:#888;text-align:center;border-bottom:1px solid #eee;">×${item.quantity}</td>
           <td style="padding:10px 0;color:#1E1E1E;font-weight:700;text-align:right;border-bottom:1px solid #eee;">$${(item.price * item.quantity).toLocaleString('es-AR')}</td>
         </tr>`
@@ -157,7 +157,7 @@ export function purchaseConfirmationEmail({
   shipping,
 }: {
   name: string
-  items: Array<{ name: string; quantity: number; price: number }>
+  items: Array<{ name: string; quantity: number; price: number; variantName?: string }>
   total: number
   shipping: 'pickup' | 'delivery'
 }) {
@@ -168,7 +168,7 @@ export function purchaseConfirmationEmail({
     .map(
       (item) =>
         `<tr>
-          <td style="padding:10px 0;color:#1E1E1E;border-bottom:1px solid #eee;">${item.name}</td>
+          <td style="padding:10px 0;color:#1E1E1E;border-bottom:1px solid #eee;">${item.name}${item.variantName ? ` <span style="color:#888;font-size:12px;">· ${item.variantName}</span>` : ''}</td>
           <td style="padding:10px 0;color:#888;text-align:center;border-bottom:1px solid #eee;">×${item.quantity}</td>
           <td style="padding:10px 0;color:#1E1E1E;font-weight:700;text-align:right;border-bottom:1px solid #eee;">$${(item.price * item.quantity).toLocaleString('es-AR')}</td>
         </tr>`

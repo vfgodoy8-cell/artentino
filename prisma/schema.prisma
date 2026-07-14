@@ -161,6 +161,7 @@ model AttributeValue {
   createdAt            DateTime                      @default(now())
   productStocks        ProductStock[]
   imageAttributeValues ProductImageAttributeValue[]
+  orderItems           OrderItem[]
 
   @@unique([attributeId, value])
   @@index([attributeId])
@@ -246,13 +247,15 @@ model Order {
 }
 
 model OrderItem {
-  id        String  @id @default(cuid())
-  orderId   String
-  order     Order   @relation(fields: [orderId], references: [id])
-  productId String
-  product   Product @relation(fields: [productId], references: [id])
-  quantity  Int
-  price     Decimal @db.Decimal(10, 2)
+  id               String          @id @default(cuid())
+  orderId          String
+  order            Order           @relation(fields: [orderId], references: [id])
+  productId        String
+  product          Product         @relation(fields: [productId], references: [id])
+  quantity         Int
+  price            Decimal         @db.Decimal(10, 2)
+  attributeValueId String?
+  attributeValue   AttributeValue? @relation(fields: [attributeValueId], references: [id])
 
   @@index([orderId])
   @@index([productId])

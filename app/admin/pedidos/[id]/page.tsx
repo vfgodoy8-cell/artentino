@@ -35,7 +35,10 @@ export default async function AdminPedidoDetallePage({ params }: Props) {
     include: {
       user: { select: { name: true, email: true, phone: true } },
       items: {
-        include: { product: { select: { name: true, slug: true, imageUrl: true } } },
+        include: {
+          product: { select: { name: true, slug: true, imageUrl: true } },
+          attributeValue: { select: { value: true } },
+        },
       },
     },
   })
@@ -87,7 +90,9 @@ export default async function AdminPedidoDetallePage({ params }: Props) {
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="truncate font-semibold text-[#1E1E1E]">{item.product.name}</p>
-                    <p className="text-sm text-gray-400">x{item.quantity}</p>
+                    <p className="text-sm text-gray-400">
+                      {item.attributeValue ? `${item.attributeValue.value} · ` : ''}x{item.quantity}
+                    </p>
                   </div>
                   <p className="font-black text-[#1E1E1E]">{fmt(Number(item.price) * item.quantity)}</p>
                 </div>
