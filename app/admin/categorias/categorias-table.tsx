@@ -30,6 +30,34 @@ function GripIcon() {
   )
 }
 
+// ─── Toasts ───────────────────────────────────────────────────────────────────
+
+type Toast = { id: number; message: string; variant: 'success' | 'error' }
+type PushToast = (message: string, variant: 'success' | 'error') => void
+
+function ToastContainer({ toasts, onDismiss }: { toasts: Toast[]; onDismiss: (id: number) => void }) {
+  return (
+    <div className="pointer-events-none fixed bottom-6 right-6 z-[10000] flex flex-col gap-2">
+      {toasts.map((t) => (
+        <ToastItem key={t.id} toast={t} onDismiss={() => onDismiss(t.id)} />
+      ))}
+    </div>
+  )
+}
+
+function ToastItem({ toast, onDismiss }: { toast: Toast; onDismiss: () => void }) {
+  return (
+    <div
+      role="status"
+      className="animate-toast-corner-in pointer-events-auto flex max-w-sm items-center gap-2 rounded-xl px-4 py-3 text-sm font-semibold text-white shadow-lg"
+      style={{ backgroundColor: toast.variant === 'success' ? '#1E1E1E' : '#ef4444' }}
+      onClick={onDismiss}
+    >
+      {toast.message}
+    </div>
+  )
+}
+
 // Sin w-full a propósito: combinado con flex-1 (usado en los campos "Nombre")
 // el ancho colapsa a ~18px (solo padding/border) — flex-1 ya se basta solo.
 const inp = 'min-w-0 rounded border border-[#e5e7eb] px-2 py-1 text-xs focus:border-[#0eb1c3] focus:outline-none'
@@ -44,12 +72,24 @@ const noAutofill = {
   'data-form-type': 'other',
 } as const
 
+let toastIdCounter = 0
+
 export default function CategoriasTable({ initial }: { initial: Cat[] }) {
   const [cats, setCats] = useState(initial)
   const [prevInitial, setPrevInitial] = useState(initial)
   if (initial !== prevInitial) {
     setPrevInitial(initial)
     setCats(initial)
+  }
+
+  const [toasts, setToasts] = useState<Toast[]>([])
+  const pushToast: PushToast = (message, variant) => {
+    const id = ++toastIdCounter
+    setToasts((prev) => [...prev, { id, message, variant }])
+    setTimeout(() => setToasts((prev) => prev.filter((t) => t.id !== id)), 3000)
+  }
+  function dismissToast(id: number) {
+    setToasts((prev) => prev.filter((t) => t.id !== id))
   }
 
   const router = useRouter()
@@ -86,28 +126,40 @@ export default function CategoriasTable({ initial }: { initial: Cat[] }) {
       <DndContext id="categorias-dnd" sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
         <SortableContext items={draggableCats.map((c) => c.id)} strategy={verticalListSortingStrategy}>
           {draggableCats.map((cat) => (
-            <CategoryRow key={cat.id} cat={cat} onRefresh={refresh} draggable />
+            <CategoryRow key={cat.id} cat={cat} onRefresh={refresh} draggable pushToast={pushToast} />
           ))}
         </SortableContext>
       </DndContext>
 
       {specialCats.map((cat) => (
-        <CategoryRow key={cat.id} cat={cat} onRefresh={refresh} draggable={false} />
+        <CategoryRow key={cat.id} cat={cat} onRefresh={refresh} draggable={false} pushToast={pushToast} />
       ))}
 
-      <AddCategoryRow onRefresh={refresh} />
+      <AddCategoryRow onRefresh={refresh} pushToast={pushToast} />
+
+      <ToastContainer toasts={toasts} onDismiss={dismissToast} />
     </div>
   )
 }
 
 // ─── Fila de categoría padre ─────────────────────────────────────────────────
 
-function CategoryRow({ cat, onRefresh, draggable }: { cat: Cat; onRefresh: () => void; draggable: boolean }) {
+function CategoryRow({
+  cat,
+  onRefresh,
+  draggable,
+  pushToast,
+}: {
+  cat: Cat
+  onRefresh: () => void
+  draggable: boolean
+  pushToast: PushToast
+}) {
   const [open, setOpen] = useState(true)
   const [editing, setEditing] = useState(false)
   const [form, setForm] = useState({ name: cat.name, slug: cat.slug, order: cat.order })
   const [addingSubcat, setAddingSubcat] = useState(false)
-  const [, startT] = useTransition()
+  const [isPending, startT] = useTransition()
   const scrollRef = useRef<HTMLDivElement>(null)
 
   const [subcats, setSubcats] = useState(cat.subcategories)
@@ -147,17 +199,21 @@ function CategoryRow({ cat, onRefresh, draggable }: { cat: Cat; onRefresh: () =>
 
   function save() {
     startT(async () => {
-      await updateCategory(cat.id, form)
+      const result = await updateCategory(cat.id, form)
+      if (!result.success) { pushToast(result.error, 'error'); return }
       setEditing(false)
       onRefresh()
+      pushToast('Cambios guardados', 'success')
     })
   }
 
   function remove() {
     if (!confirm(`¿Eliminar el grupo "${cat.name}"? Solo es posible si no tiene subcategorías.`)) return
     startT(async () => {
-      await deleteCategory(cat.id)
+      const result = await deleteCategory(cat.id)
+      if (!result.success) { pushToast(result.error, 'error'); return }
       onRefresh()
+      pushToast('Categoría eliminada', 'success')
     })
   }
 
@@ -194,8 +250,10 @@ function CategoryRow({ cat, onRefresh, draggable }: { cat: Cat; onRefresh: () =>
             <input {...noAutofill} value={form.name} onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))} className={`${inp} flex-1`} placeholder="Nombre" />
             <input {...noAutofill} value={form.slug} onChange={(e) => setForm((f) => ({ ...f, slug: e.target.value }))} className={`${inp} w-40 font-mono`} placeholder="slug" />
             <input type="number" value={form.order} onChange={(e) => setForm((f) => ({ ...f, order: Number(e.target.value) }))} className="w-14 rounded border border-[#e5e7eb] px-2 py-1 text-center text-xs focus:border-[#0eb1c3] focus:outline-none" />
-            <button onClick={save} className="rounded-lg bg-[#0eb1c3] px-3 py-1 text-xs font-bold text-white">Guardar</button>
-            <button onClick={() => setEditing(false)} className="rounded-lg px-3 py-1 text-xs font-bold text-[#6b7280] hover:bg-[#f3f4f6]">Cancelar</button>
+            <button onClick={save} disabled={isPending} className="rounded-lg bg-[#0eb1c3] px-3 py-1 text-xs font-bold text-white disabled:opacity-50">
+              {isPending ? 'Guardando...' : 'Guardar'}
+            </button>
+            <button onClick={() => setEditing(false)} disabled={isPending} className="rounded-lg px-3 py-1 text-xs font-bold text-[#6b7280] hover:bg-[#f3f4f6] disabled:opacity-50">Cancelar</button>
           </div>
         ) : (
           <div className="flex flex-1 items-center gap-3">
@@ -212,8 +270,10 @@ function CategoryRow({ cat, onRefresh, draggable }: { cat: Cat; onRefresh: () =>
           <div className="flex items-center gap-1">
             {!cat.isSpecial && (
               <>
-                <button onClick={() => setEditing(true)} className="rounded-lg px-2.5 py-1 text-xs font-semibold text-[#6b7280] hover:bg-[#f3f4f6] hover:text-[#1E1E1E]">Editar</button>
-                <button onClick={remove} className="rounded-lg px-2.5 py-1 text-xs font-semibold text-[#ef4444] hover:bg-red-50">Borrar</button>
+                <button onClick={() => setEditing(true)} disabled={isPending} className="rounded-lg px-2.5 py-1 text-xs font-semibold text-[#6b7280] hover:bg-[#f3f4f6] hover:text-[#1E1E1E] disabled:opacity-50">Editar</button>
+                <button onClick={remove} disabled={isPending} className="rounded-lg px-2.5 py-1 text-xs font-semibold text-[#ef4444] hover:bg-red-50 disabled:opacity-50">
+                  {isPending ? 'Borrando...' : 'Borrar'}
+                </button>
               </>
             )}
           </div>
@@ -230,13 +290,13 @@ function CategoryRow({ cat, onRefresh, draggable }: { cat: Cat; onRefresh: () =>
           <DndContext id={`subcats-dnd-${cat.id}`} sensors={subSensors} collisionDetection={closestCenter} onDragEnd={handleSubDragEnd}>
             <SortableContext items={subcats.map((s) => s.id)} strategy={verticalListSortingStrategy}>
               {subcats.map((sub) => (
-                <SubcatRow key={sub.id} sub={sub} onRefresh={onRefresh} />
+                <SubcatRow key={sub.id} sub={sub} onRefresh={onRefresh} pushToast={pushToast} />
               ))}
             </SortableContext>
           </DndContext>
 
           {addingSubcat ? (
-            <AddSubcatRow categoryId={cat.id} onRefresh={onRefresh} onCancel={() => setAddingSubcat(false)} />
+            <AddSubcatRow categoryId={cat.id} onRefresh={onRefresh} onCancel={() => setAddingSubcat(false)} pushToast={pushToast} />
           ) : !cat.isSpecial && (
             <button
               onClick={() => setAddingSubcat(true)}
@@ -253,10 +313,18 @@ function CategoryRow({ cat, onRefresh, draggable }: { cat: Cat; onRefresh: () =>
 
 // ─── Fila de subcategoría ─────────────────────────────────────────────────────
 
-function SubcatRow({ sub, onRefresh }: { sub: Subcat; onRefresh: () => void }) {
+function SubcatRow({
+  sub,
+  onRefresh,
+  pushToast,
+}: {
+  sub: Subcat
+  onRefresh: () => void
+  pushToast: PushToast
+}) {
   const [editing, setEditing] = useState(false)
   const [form, setForm] = useState({ name: sub.name, slug: sub.slug, order: sub.order })
-  const [, startT] = useTransition()
+  const [isPending, startT] = useTransition()
   const scrollRef = useRef<HTMLDivElement>(null)
 
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: sub.id })
@@ -268,17 +336,21 @@ function SubcatRow({ sub, onRefresh }: { sub: Subcat; onRefresh: () => void }) {
 
   function save() {
     startT(async () => {
-      await updateSubcategory(sub.id, form)
+      const result = await updateSubcategory(sub.id, form)
+      if (!result.success) { pushToast(result.error, 'error'); return }
       setEditing(false)
       onRefresh()
+      pushToast('Cambios guardados', 'success')
     })
   }
 
   function remove() {
     if (!confirm(`¿Eliminar "${sub.name}"? Solo si no tiene productos asignados.`)) return
     startT(async () => {
-      await deleteSubcategory(sub.id)
+      const result = await deleteSubcategory(sub.id)
+      if (!result.success) { pushToast(result.error, 'error'); return }
       onRefresh()
+      pushToast('Subcategoría eliminada', 'success')
     })
   }
 
@@ -301,16 +373,20 @@ function SubcatRow({ sub, onRefresh }: { sub: Subcat; onRefresh: () => void }) {
           <input {...noAutofill} value={form.name} onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))} className={`${inp} flex-1`} />
           <input {...noAutofill} value={form.slug} onChange={(e) => setForm((f) => ({ ...f, slug: e.target.value }))} className={`${inp} w-40 font-mono`} />
           <input type="number" value={form.order} onChange={(e) => setForm((f) => ({ ...f, order: Number(e.target.value) }))} className="w-14 rounded border border-[#e5e7eb] px-2 py-1 text-center text-xs" />
-          <button onClick={save} className="rounded-lg bg-[#0eb1c3] px-3 py-1 text-xs font-bold text-white">Guardar</button>
-          <button onClick={() => setEditing(false)} className="rounded-lg px-3 py-1 text-xs font-semibold text-[#6b7280] hover:bg-[#f3f4f6]">Cancelar</button>
+          <button onClick={save} disabled={isPending} className="rounded-lg bg-[#0eb1c3] px-3 py-1 text-xs font-bold text-white disabled:opacity-50">
+            {isPending ? 'Guardando...' : 'Guardar'}
+          </button>
+          <button onClick={() => setEditing(false)} disabled={isPending} className="rounded-lg px-3 py-1 text-xs font-semibold text-[#6b7280] hover:bg-[#f3f4f6] disabled:opacity-50">Cancelar</button>
         </>
       ) : (
         <>
           <span className="flex-1 text-sm font-semibold text-[#1E1E1E]">{sub.name}</span>
           <span className="font-mono text-xs text-[#9ca3af]">{sub.slug}</span>
           <span className="w-8 text-center text-xs text-[#9ca3af]">{sub.order}</span>
-          <button onClick={() => setEditing(true)} className="rounded-lg px-2.5 py-1 text-xs font-semibold text-[#6b7280] hover:bg-[#f3f4f6] hover:text-[#1E1E1E]">Editar</button>
-          <button onClick={remove} className="rounded-lg px-2.5 py-1 text-xs font-semibold text-[#ef4444] hover:bg-red-50">Borrar</button>
+          <button onClick={() => setEditing(true)} disabled={isPending} className="rounded-lg px-2.5 py-1 text-xs font-semibold text-[#6b7280] hover:bg-[#f3f4f6] hover:text-[#1E1E1E] disabled:opacity-50">Editar</button>
+          <button onClick={remove} disabled={isPending} className="rounded-lg px-2.5 py-1 text-xs font-semibold text-[#ef4444] hover:bg-red-50 disabled:opacity-50">
+            {isPending ? 'Borrando...' : 'Borrar'}
+          </button>
         </>
       )}
     </div>
@@ -319,9 +395,19 @@ function SubcatRow({ sub, onRefresh }: { sub: Subcat; onRefresh: () => void }) {
 
 // ─── Agregar subcategoría inline ──────────────────────────────────────────────
 
-function AddSubcatRow({ categoryId, onRefresh, onCancel }: { categoryId: string; onRefresh: () => void; onCancel: () => void }) {
+function AddSubcatRow({
+  categoryId,
+  onRefresh,
+  onCancel,
+  pushToast,
+}: {
+  categoryId: string
+  onRefresh: () => void
+  onCancel: () => void
+  pushToast: PushToast
+}) {
   const [form, setForm] = useState({ name: '', slug: '', order: 0 })
-  const [, startT] = useTransition()
+  const [isPending, startT] = useTransition()
   const rowRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -331,9 +417,11 @@ function AddSubcatRow({ categoryId, onRefresh, onCancel }: { categoryId: string;
   function save() {
     if (!form.name.trim() || !form.slug.trim()) return
     startT(async () => {
-      await createSubcategory({ ...form, categoryId })
+      const result = await createSubcategory({ ...form, categoryId })
+      if (!result.success) { pushToast(result.error, 'error'); return }
       onRefresh()
       onCancel()
+      pushToast('Subcategoría creada', 'success')
     })
   }
 
@@ -346,21 +434,24 @@ function AddSubcatRow({ categoryId, onRefresh, onCancel }: { categoryId: string;
         onChange={(e) => { const name = e.target.value; setForm((f) => ({ ...f, name, slug: f.slug || toSlug(name) })) }}
         placeholder="Nombre"
         className={`${inp} flex-1`}
+        disabled={isPending}
       />
-      <input {...noAutofill} value={form.slug} onChange={(e) => setForm((f) => ({ ...f, slug: e.target.value }))} placeholder="slug" className={`${inp} w-40 font-mono`} />
-      <input type="number" value={form.order} onChange={(e) => setForm((f) => ({ ...f, order: Number(e.target.value) }))} className="w-14 rounded border border-[#e5e7eb] px-2 py-1 text-center text-xs" />
-      <button onClick={save} className="rounded-lg bg-[#0eb1c3] px-3 py-1 text-xs font-bold text-white">Guardar</button>
-      <button onClick={onCancel} className="rounded-lg px-3 py-1 text-xs font-semibold text-[#6b7280] hover:bg-[#f3f4f6]">Cancelar</button>
+      <input {...noAutofill} value={form.slug} onChange={(e) => setForm((f) => ({ ...f, slug: e.target.value }))} placeholder="slug" className={`${inp} w-40 font-mono`} disabled={isPending} />
+      <input type="number" value={form.order} onChange={(e) => setForm((f) => ({ ...f, order: Number(e.target.value) }))} className="w-14 rounded border border-[#e5e7eb] px-2 py-1 text-center text-xs" disabled={isPending} />
+      <button onClick={save} disabled={isPending} className="rounded-lg bg-[#0eb1c3] px-3 py-1 text-xs font-bold text-white disabled:opacity-50">
+        {isPending ? 'Guardando...' : 'Guardar'}
+      </button>
+      <button onClick={onCancel} disabled={isPending} className="rounded-lg px-3 py-1 text-xs font-semibold text-[#6b7280] hover:bg-[#f3f4f6] disabled:opacity-50">Cancelar</button>
     </div>
   )
 }
 
 // ─── Agregar categoría padre ──────────────────────────────────────────────────
 
-function AddCategoryRow({ onRefresh }: { onRefresh: () => void }) {
+function AddCategoryRow({ onRefresh, pushToast }: { onRefresh: () => void; pushToast: PushToast }) {
   const [open, setOpen] = useState(false)
   const [form, setForm] = useState({ name: '', slug: '', order: 0 })
-  const [, startT] = useTransition()
+  const [isPending, startT] = useTransition()
   const rowRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -370,10 +461,12 @@ function AddCategoryRow({ onRefresh }: { onRefresh: () => void }) {
   function save() {
     if (!form.name.trim() || !form.slug.trim()) return
     startT(async () => {
-      await createCategory(form)
+      const result = await createCategory(form)
+      if (!result.success) { pushToast(result.error, 'error'); return }
       onRefresh()
       setOpen(false)
       setForm({ name: '', slug: '', order: 0 })
+      pushToast('Categoría creada', 'success')
     })
   }
 
@@ -397,11 +490,14 @@ function AddCategoryRow({ onRefresh }: { onRefresh: () => void }) {
         onChange={(e) => { const name = e.target.value; setForm((f) => ({ ...f, name, slug: f.slug || toSlug(name) })) }}
         placeholder="Nombre del grupo"
         className={`${inp} flex-1`}
+        disabled={isPending}
       />
-      <input {...noAutofill} value={form.slug} onChange={(e) => setForm((f) => ({ ...f, slug: e.target.value }))} placeholder="slug" className={`${inp} w-40 font-mono`} />
-      <input type="number" value={form.order} onChange={(e) => setForm((f) => ({ ...f, order: Number(e.target.value) }))} className="w-14 rounded border border-[#e5e7eb] px-2 py-1 text-center text-xs" />
-      <button onClick={save} className="rounded-lg bg-[#0eb1c3] px-4 py-1.5 text-xs font-bold text-white">Crear grupo</button>
-      <button onClick={() => setOpen(false)} className="rounded-lg px-3 py-1.5 text-xs font-semibold text-[#6b7280] hover:bg-white">Cancelar</button>
+      <input {...noAutofill} value={form.slug} onChange={(e) => setForm((f) => ({ ...f, slug: e.target.value }))} placeholder="slug" className={`${inp} w-40 font-mono`} disabled={isPending} />
+      <input type="number" value={form.order} onChange={(e) => setForm((f) => ({ ...f, order: Number(e.target.value) }))} className="w-14 rounded border border-[#e5e7eb] px-2 py-1 text-center text-xs" disabled={isPending} />
+      <button onClick={save} disabled={isPending} className="rounded-lg bg-[#0eb1c3] px-4 py-1.5 text-xs font-bold text-white disabled:opacity-50">
+        {isPending ? 'Creando...' : 'Crear grupo'}
+      </button>
+      <button onClick={() => setOpen(false)} disabled={isPending} className="rounded-lg px-3 py-1.5 text-xs font-semibold text-[#6b7280] hover:bg-white disabled:opacity-50">Cancelar</button>
     </div>
   )
 }
