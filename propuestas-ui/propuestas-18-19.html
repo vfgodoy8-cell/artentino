@@ -1,0 +1,1247 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Artentino — Propuestas 18 y 19</title>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Dancing+Script:wght@600;700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --teal: #0eb1c3;
+      --teal-dark: #0a8f9e;
+      --teal-light: #f0fdfc;
+      --teal-mid: #e0f9fb;
+      --dark: #1E1E1E;
+      --white: #FFFFFF;
+      --gray-50: #f9fafb;
+      --gray-100: #f3f4f6;
+      --gray-200: #e5e7eb;
+      --gray-400: #9ca3af;
+      --gray-500: #6b7280;
+      --font-body: 'Nunito', sans-serif;
+      --font-script: 'Dancing Script', cursive;
+    }
+
+    body {
+      font-family: var(--font-body);
+      background: #eef2f7;
+      color: var(--dark);
+      padding: 40px 24px 60px;
+    }
+
+    .page-header {
+      max-width: 1100px;
+      margin: 0 auto 40px;
+    }
+
+    .page-header-eyebrow {
+      font-size: 11px;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: 0.3em;
+      color: var(--teal);
+      margin-bottom: 6px;
+    }
+
+    .page-header h1 {
+      font-size: 26px;
+      font-weight: 900;
+      color: var(--dark);
+    }
+
+    .page-header p {
+      margin-top: 6px;
+      font-size: 13px;
+      color: var(--gray-500);
+    }
+
+    .section-wrap {
+      max-width: 1100px;
+      margin: 0 auto 48px;
+    }
+
+    .section-label-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+
+    .section-num {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      background: var(--dark);
+      color: white;
+      font-size: 12px;
+      font-weight: 900;
+      flex-shrink: 0;
+    }
+
+    .section-title {
+      font-size: 15px;
+      font-weight: 900;
+      color: var(--dark);
+    }
+
+    .section-subtitle {
+      font-size: 12px;
+      color: var(--gray-500);
+      margin-left: auto;
+    }
+
+    .ref-frame {
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 4px 24px rgba(0,0,0,0.1), 0 0 0 1px rgba(0,0,0,0.05);
+      background: white;
+    }
+
+    /* ══════════════════════════════════════════
+       PROPUESTA 18 — Hero editorial
+    ══════════════════════════════════════════ */
+
+    .hero-editorial {
+      display: grid;
+      grid-template-columns: 46% 54%;
+      min-height: 540px;
+      background: white;
+      position: relative;
+    }
+
+    /* Left column */
+    .hero-text-col {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 56px 48px 48px 52px;
+      position: relative;
+      z-index: 2;
+    }
+
+    .hero-logo {
+      font-family: var(--font-script);
+      font-size: 28px;
+      font-weight: 700;
+      color: var(--dark);
+      margin-bottom: 48px;
+      letter-spacing: -0.01em;
+    }
+
+    .hero-eyebrow {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 11px;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: 0.3em;
+      color: var(--teal);
+      margin-bottom: 18px;
+    }
+
+    .hero-eyebrow-dot {
+      width: 4px;
+      height: 4px;
+      border-radius: 50%;
+      background: var(--teal);
+      opacity: 0.5;
+    }
+
+    .hero-h1 {
+      font-size: 48px;
+      font-weight: 900;
+      line-height: 1.05;
+      color: var(--dark);
+      margin-bottom: 20px;
+      letter-spacing: -0.02em;
+    }
+
+    .hero-h1 .teal-word {
+      color: var(--teal);
+      font-style: italic;
+    }
+
+    .hero-sub {
+      font-size: 15px;
+      color: var(--gray-500);
+      line-height: 1.65;
+      max-width: 340px;
+      margin-bottom: 32px;
+    }
+
+    .hero-ctas {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 40px;
+      flex-wrap: wrap;
+    }
+
+    .cta-primary {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--teal);
+      color: white;
+      border: none;
+      border-radius: 10px;
+      padding: 14px 28px;
+      font-family: var(--font-body);
+      font-size: 12px;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      cursor: pointer;
+      transition: background 0.2s;
+      text-decoration: none;
+    }
+
+    .cta-primary:hover { background: var(--teal-dark); }
+
+    .cta-secondary {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: white;
+      color: var(--dark);
+      border: 1.5px solid var(--gray-200);
+      border-radius: 10px;
+      padding: 14px 28px;
+      font-family: var(--font-body);
+      font-size: 12px;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      cursor: pointer;
+      transition: border-color 0.2s, color 0.2s;
+      text-decoration: none;
+    }
+
+    .cta-secondary:hover { border-color: var(--teal); color: var(--teal); }
+
+    .hero-benefits {
+      display: flex;
+      gap: 24px;
+      flex-wrap: wrap;
+    }
+
+    .benefit-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .benefit-icon {
+      width: 34px;
+      height: 34px;
+      border-radius: 8px;
+      background: var(--teal-light);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--teal);
+      flex-shrink: 0;
+    }
+
+    .benefit-text {
+      display: flex;
+      flex-direction: column;
+      gap: 1px;
+    }
+
+    .benefit-label {
+      font-size: 9px;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--dark);
+      line-height: 1;
+    }
+
+    .benefit-desc {
+      font-size: 9px;
+      color: var(--gray-400);
+      line-height: 1.3;
+    }
+
+    /* Right column — image */
+    .hero-image-col {
+      position: relative;
+      overflow: hidden;
+      border-radius: 0;
+    }
+
+    .hero-product-img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center center;
+      display: block;
+    }
+
+    /* Subtle overlay para que las cards tengan fondo */
+    .hero-image-overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(
+        to bottom,
+        transparent 40%,
+        rgba(0,0,0,0.18) 100%
+      );
+    }
+
+    /* Floating category cards */
+    .floating-cards {
+      position: absolute;
+      bottom: 28px;
+      right: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      z-index: 3;
+    }
+
+    .cat-float-card {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      background: white;
+      border-radius: 12px;
+      padding: 12px 16px 12px 12px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+      min-width: 210px;
+    }
+
+    .cat-float-card.teal-card {
+      background: var(--teal);
+    }
+
+    .cat-float-thumb {
+      width: 44px;
+      height: 44px;
+      border-radius: 8px;
+      background: var(--gray-100);
+      overflow: hidden;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .cat-float-thumb.dark-thumb {
+      background: rgba(255,255,255,0.2);
+    }
+
+    .cat-float-info {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .cat-float-name {
+      font-size: 12px;
+      font-weight: 900;
+      color: var(--dark);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .cat-float-name.white { color: white; }
+
+    .cat-float-desc {
+      font-size: 11px;
+      color: var(--gray-500);
+      line-height: 1.3;
+    }
+
+    .cat-float-desc.white { color: rgba(255,255,255,0.8); }
+
+    /* Decorative teal blob bottom left */
+    .hero-teal-blob {
+      position: absolute;
+      bottom: -30px;
+      left: -30px;
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      background: var(--teal);
+      opacity: 0.12;
+      z-index: 0;
+    }
+
+    /* Nav inside the frame */
+    .hero-nav {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 52px;
+      height: 64px;
+      z-index: 5;
+      background: rgba(255,255,255,0.96);
+      backdrop-filter: blur(8px);
+      border-bottom: 1px solid rgba(0,0,0,0.05);
+    }
+
+    .nav-logo-script {
+      font-family: var(--font-script);
+      font-size: 26px;
+      font-weight: 700;
+      color: var(--dark);
+      letter-spacing: -0.01em;
+      text-decoration: none;
+    }
+
+    .nav-links-inline {
+      display: flex;
+      gap: 32px;
+    }
+
+    .nav-link-item {
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      color: var(--gray-400);
+      text-decoration: none;
+      transition: color 0.15s;
+      padding: 4px 0;
+      position: relative;
+    }
+
+    .nav-link-item.active {
+      color: var(--dark);
+    }
+
+    .nav-link-item:hover { color: var(--teal); }
+
+    .nav-right {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .nav-login-btn {
+      border: 1.5px solid var(--gray-200);
+      border-radius: 999px;
+      padding: 7px 18px;
+      font-family: var(--font-body);
+      font-size: 12px;
+      font-weight: 800;
+      color: var(--dark);
+      background: white;
+      cursor: pointer;
+      transition: border-color 0.15s, color 0.15s;
+    }
+
+    .nav-login-btn:hover { border-color: var(--teal); color: var(--teal); }
+
+    .nav-cart-btn {
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      background: var(--teal);
+      border: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      cursor: pointer;
+      position: relative;
+    }
+
+    /* Imagen placeholder when loading */
+    .img-placeholder {
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(135deg, #e8e0d8 0%, #d4c9be 50%, #c9bfb4 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* ══════════════════════════════════════════
+       PROPUESTA 19 — ProductCards editorial
+    ══════════════════════════════════════════ */
+
+    .catalog-section {
+      background: white;
+    }
+
+    /* Catalog header — atmospheric */
+    .catalog-header-atm {
+      position: relative;
+      height: 200px;
+      overflow: hidden;
+    }
+
+    .catalog-header-img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center 40%;
+    }
+
+    .catalog-header-overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(
+        to right,
+        rgba(255,255,255,0.98) 35%,
+        rgba(255,255,255,0.7) 65%,
+        rgba(255,255,255,0.1) 100%
+      );
+    }
+
+    .catalog-header-content {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 0 40px;
+    }
+
+    .catalog-eyebrow {
+      font-size: 10px;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: 0.3em;
+      color: var(--teal);
+      margin-bottom: 8px;
+    }
+
+    .catalog-h1 {
+      font-size: 36px;
+      font-weight: 900;
+      color: var(--dark);
+      letter-spacing: -0.02em;
+      line-height: 1.05;
+    }
+
+    .catalog-count {
+      font-size: 13px;
+      color: var(--gray-400);
+      margin-top: 6px;
+    }
+
+    /* Category pills */
+    .catalog-pills-row {
+      padding: 14px 40px;
+      border-bottom: 1px solid var(--gray-100);
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+    }
+
+    .cat-pill {
+      flex-shrink: 0;
+      border-radius: 999px;
+      border: 1.5px solid var(--gray-200);
+      padding: 7px 16px;
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--gray-500);
+      background: white;
+      cursor: pointer;
+      transition: all 0.15s;
+      white-space: nowrap;
+    }
+
+    .cat-pill.active {
+      border-color: var(--teal);
+      background: var(--teal);
+      color: white;
+    }
+
+    .cat-pill:not(.active):hover {
+      border-color: var(--teal);
+      color: var(--teal);
+    }
+
+    /* Product grid editorial */
+    .product-grid-editorial {
+      padding: 28px 40px 40px;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 20px;
+    }
+
+    /* Editorial card — cleaner, more magazine */
+    .prod-card-ed {
+      display: flex;
+      flex-direction: column;
+      border-radius: 14px;
+      overflow: hidden;
+      background: white;
+      transition: all 0.25s;
+      cursor: pointer;
+    }
+
+    .prod-card-ed:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 16px 40px rgba(0,0,0,0.1);
+    }
+
+    /* Image area — no border, let it breathe */
+    .prod-img-area {
+      aspect-ratio: 3/4;
+      overflow: hidden;
+      position: relative;
+      background: #f5f3f0;
+    }
+
+    .prod-img-area img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.4s ease;
+    }
+
+    .prod-card-ed:hover .prod-img-area img {
+      transform: scale(1.04);
+    }
+
+    /* Category — minimal label, not a pill */
+    .prod-cat-label {
+      position: absolute;
+      bottom: 12px;
+      left: 12px;
+      font-size: 10px;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: white;
+      background: rgba(14, 177, 195, 0.92);
+      backdrop-filter: blur(4px);
+      padding: 4px 10px;
+      border-radius: 6px;
+    }
+
+    /* Quick add — appears on hover */
+    .prod-quick-add {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: white;
+      border: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+      cursor: pointer;
+      color: var(--dark);
+      opacity: 0;
+      transition: opacity 0.2s, color 0.15s;
+    }
+
+    .prod-card-ed:hover .prod-quick-add {
+      opacity: 1;
+    }
+
+    .prod-quick-add:hover { color: var(--teal); }
+
+    /* Card info */
+    .prod-info-area {
+      padding: 14px 16px 16px;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .prod-name-ed {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--dark);
+      line-height: 1.35;
+      margin-bottom: 10px;
+      flex: 1;
+    }
+
+    .prod-price-row {
+      display: flex;
+      align-items: baseline;
+      gap: 8px;
+      margin-bottom: 4px;
+    }
+
+    .prod-price-main {
+      font-size: 18px;
+      font-weight: 900;
+      color: var(--dark);
+      letter-spacing: -0.01em;
+    }
+
+    .prod-price-compare {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--gray-400);
+      text-decoration: line-through;
+    }
+
+    .prod-installment {
+      font-size: 11px;
+      color: var(--gray-400);
+      margin-bottom: 12px;
+    }
+
+    .prod-add-btn {
+      width: 100%;
+      background: var(--teal);
+      color: white;
+      border: none;
+      border-radius: 9px;
+      padding: 10px 16px;
+      font-family: var(--font-body);
+      font-size: 11px;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .prod-add-btn:hover { background: var(--teal-dark); }
+
+    /* Placeholder img para productos sin foto */
+    .prod-img-placeholder {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .prod-img-placeholder-inner {
+      text-align: center;
+    }
+
+    /* Highlighted card — first product */
+    .prod-card-ed.featured .prod-img-area {
+      background: linear-gradient(145deg, #f0fdfc, #e0f9fb);
+    }
+
+    /* Notes / annotations */
+    .annotation-block {
+      margin-top: 16px;
+      background: white;
+      border: 1px solid var(--gray-100);
+      border-radius: 12px;
+      padding: 16px 20px;
+    }
+
+    .annotation-title {
+      font-size: 11px;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+      color: var(--teal);
+      margin-bottom: 12px;
+    }
+
+    .annotation-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .annotation-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+    }
+
+    .ann-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--teal);
+      margin-top: 5px;
+      flex-shrink: 0;
+    }
+
+    .ann-text {
+      font-size: 12px;
+      color: var(--gray-500);
+      line-height: 1.5;
+    }
+
+    .ann-text strong { color: var(--dark); font-weight: 800; }
+
+    /* Implementation code */
+    .impl-note {
+      margin-top: 10px;
+      padding: 10px 16px;
+      background: #f8fafc;
+      border-left: 3px solid var(--teal);
+      border-radius: 0 8px 8px 0;
+      font-size: 12px;
+      color: var(--gray-500);
+      line-height: 1.6;
+    }
+
+    .impl-note code {
+      font-family: 'Courier New', monospace;
+      font-size: 11px;
+      background: var(--gray-100);
+      padding: 1px 5px;
+      border-radius: 3px;
+      color: var(--dark);
+    }
+
+    /* Diff pill */
+    .diff-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      background: var(--teal-light);
+      border: 1px solid rgba(14,177,195,0.25);
+      border-radius: 6px;
+      padding: 5px 10px;
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--teal-dark);
+      margin-left: auto;
+    }
+
+  </style>
+</head>
+<body>
+
+  <div class="page-header">
+    <p class="page-header-eyebrow">Artentino — Audit UI</p>
+    <h1>Propuestas 18 y 19</h1>
+    <p>Basadas en las referencias EjemploMay e Imagen1 — dirección editorial con fotografía de producto</p>
+  </div>
+
+  <!-- ════════════════════════════════════════════════════════
+       PROPUESTA 18 — Hero editorial split-layout
+  ════════════════════════════════════════════════════════ -->
+
+  <div class="section-wrap">
+    <div class="section-label-row">
+      <div class="section-num">18</div>
+      <div>
+        <div class="section-title">Hero editorial — reemplazar gradiente teal por split layout con fotografía</div>
+        <div style="font-size:12px;color:var(--gray-500);margin-top:2px;">Inspirado en EjemploMay · Usa Imagen1 como fotografía de producto</div>
+      </div>
+      <span class="diff-badge">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
+        Alto impacto
+      </span>
+    </div>
+
+    <div class="ref-frame" style="position:relative;">
+      <!-- Nav -->
+      <div class="hero-nav">
+        <span class="nav-logo-script">Artentino</span>
+        <div class="nav-links-inline">
+          <a href="#" class="nav-link-item active">Inicio</a>
+          <a href="#" class="nav-link-item">Catálogo</a>
+          <a href="#" class="nav-link-item">Turnos</a>
+          <a href="#" class="nav-link-item">Contacto</a>
+        </div>
+        <div class="nav-right">
+          <button class="nav-login-btn">Ingresar</button>
+          <button class="nav-cart-btn">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/>
+              <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Hero split -->
+      <div class="hero-editorial" style="margin-top:64px;">
+
+        <!-- LEFT: text -->
+        <div class="hero-text-col">
+
+          <div class="hero-eyebrow">
+            Arte
+            <span class="hero-eyebrow-dot"></span>
+            Diseño
+            <span class="hero-eyebrow-dot"></span>
+            Hogar
+          </div>
+
+          <h1 class="hero-h1">
+            Espacios que<br>
+            <span class="teal-word">reflejan</span> tu estilo
+          </h1>
+
+          <p class="hero-sub">
+            Espejos LED, muebles y deco que transforman
+            cada rincón de tu hogar. Cuotas sin interés,
+            envíos a todo el país.
+          </p>
+
+          <div class="hero-ctas">
+            <a href="#" class="cta-primary">Ver catálogo</a>
+            <a href="#" class="cta-secondary">Ver espejos LED</a>
+          </div>
+
+          <div class="hero-benefits">
+            <!-- Envíos -->
+            <div class="benefit-item">
+              <div class="benefit-icon">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
+              </div>
+              <div class="benefit-text">
+                <span class="benefit-label">Envíos</span>
+                <span class="benefit-desc">a todo el país</span>
+              </div>
+            </div>
+            <!-- Calidad -->
+            <div class="benefit-item">
+              <div class="benefit-icon">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89L17 22l-5-3-5 3 1.523-9.11"/></svg>
+              </div>
+              <div class="benefit-text">
+                <span class="benefit-label">Calidad</span>
+                <span class="benefit-desc">premium</span>
+              </div>
+            </div>
+            <!-- Cuotas -->
+            <div class="benefit-item">
+              <div class="benefit-icon">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+              </div>
+              <div class="benefit-text">
+                <span class="benefit-label">Cuotas</span>
+                <span class="benefit-desc">sin interés</span>
+              </div>
+            </div>
+            <!-- Asesoramiento -->
+            <div class="benefit-item">
+              <div class="benefit-icon">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+              </div>
+              <div class="benefit-text">
+                <span class="benefit-label">Asesoramiento</span>
+                <span class="benefit-desc">personalizado</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- RIGHT: product photo -->
+        <div class="hero-image-col">
+          <img
+            src="Imagen1.jpeg"
+            alt="Espejo LED y muebles de diseño argentino"
+            class="hero-product-img"
+            onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"
+          >
+          <!-- Fallback si la imagen no carga -->
+          <div class="img-placeholder" style="display:none;height:100%;min-height:476px;">
+            <div style="text-align:center;">
+              <div style="font-size:40px;margin-bottom:8px;">🪞</div>
+              <p style="font-size:13px;color:#9ca3af;font-weight:700;">Imagen1.jpeg<br><span style="font-weight:400;font-size:11px;">Foto del ambiente del producto</span></p>
+            </div>
+          </div>
+          <div class="hero-image-overlay"></div>
+
+          <!-- Floating category cards -->
+          <div class="floating-cards">
+            <div class="cat-float-card">
+              <div class="cat-float-thumb">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#0eb1c3" stroke-width="1.5" stroke-linecap="round">
+                  <ellipse cx="12" cy="11" rx="6" ry="7.5"/>
+                  <line x1="12" y1="18.5" x2="12" y2="22"/>
+                  <line x1="9" y1="22" x2="15" y2="22"/>
+                  <circle cx="12" cy="3.2" r="0.8" fill="#0eb1c3" stroke="none"/>
+                  <circle cx="17.8" cy="6.5" r="0.8" fill="#0eb1c3" stroke="none"/>
+                  <circle cx="6.2" cy="6.5" r="0.8" fill="#0eb1c3" stroke="none"/>
+                </svg>
+              </div>
+              <div class="cat-float-info">
+                <span class="cat-float-name">Espejos LED</span>
+                <span class="cat-float-desc">Redondos, rectangulares<br>y a medida</span>
+              </div>
+            </div>
+
+            <div class="cat-float-card teal-card">
+              <div class="cat-float-thumb dark-thumb">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.85)" stroke-width="1.5" stroke-linecap="round">
+                  <rect x="5" y="6" width="14" height="8" rx="2"/>
+                  <rect x="3" y="10" width="3" height="6" rx="1"/>
+                  <rect x="18" y="10" width="3" height="6" rx="1"/>
+                  <line x1="7" y1="14" x2="7" y2="18"/>
+                  <line x1="17" y1="14" x2="17" y2="18"/>
+                </svg>
+              </div>
+              <div class="cat-float-info">
+                <span class="cat-float-name white">Muebles y Deco</span>
+                <span class="cat-float-desc white">Diseño funcional para<br>cada ambiente</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Annotations for P18 -->
+    <div class="annotation-block">
+      <div class="annotation-title">Qué cambia respecto al actual — Propuesta 18</div>
+      <div class="annotation-grid">
+        <div class="annotation-item">
+          <div class="ann-dot"></div>
+          <p class="ann-text"><strong>Background:</strong> Reemplaza el gradiente teal por fondo blanco con foto real del producto a la derecha. El teal queda reservado para el texto destacado y los CTAs.</p>
+        </div>
+        <div class="annotation-item">
+          <div class="ann-dot"></div>
+          <p class="ann-text"><strong>Dancing Script en el logo:</strong> El logo del nav pasa a ser texto inline con <code>font-family: var(--font-script)</code> en lugar de la imagen PNG, dando presencia editorial inmediata.</p>
+        </div>
+        <div class="annotation-item">
+          <div class="ann-dot"></div>
+          <p class="ann-text"><strong>Headline en dos pesos:</strong> "Espacios que" en negro pesado, "reflejan" en teal itálica — crea un ritmo visual que hace al texto memorable y ancla la identidad de marca.</p>
+        </div>
+        <div class="annotation-item">
+          <div class="ann-dot"></div>
+          <p class="ann-text"><strong>Cards flotantes:</strong> Dos category cards sobre la imagen (Espejos LED + Muebles y Deco) sirven como CTA secundario y revelan el catálogo sin salir del hero.</p>
+        </div>
+        <div class="annotation-item">
+          <div class="ann-dot"></div>
+          <p class="ann-text"><strong>Beneficios como iconos pequeños:</strong> Reemplaza las stats (500+, 6x, Todo el país) por 4 benefit items con ícono + label — más informativos y mejor alineados con decisión de compra.</p>
+        </div>
+        <div class="annotation-item">
+          <div class="ann-dot"></div>
+          <p class="ann-text"><strong>Nav active state:</strong> "Inicio" aparece en negro, resto en gris — el usuario sabe dónde está desde el primer scroll.</p>
+        </div>
+      </div>
+      <div class="impl-note" style="margin-top:14px;">
+        <strong>Archivos a modificar:</strong> <code>app/ui/hero.tsx</code> (layout completo), <code>app/ui/header.tsx</code> (logo script inline), <code>app/globals.css</code> (sin cambios necesarios). La foto <code>Imagen1.jpeg</code> o similar va en <code>public/hero-product.jpg</code>. Las category cards son componentes estáticos en el hero.
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ════════════════════════════════════════════════════════
+       PROPUESTA 19 — ProductCards + Catalog editorial
+  ════════════════════════════════════════════════════════ -->
+
+  <div class="section-wrap">
+    <div class="section-label-row">
+      <div class="section-num">19</div>
+      <div>
+        <div class="section-title">Catálogo editorial — header ambiental + product cards rediseñadas</div>
+        <div style="font-size:12px;color:var(--gray-500);margin-top:2px;">Reemplaza el header de texto plano · Cards portrait con quick-add · Ratio 3:4 en lugar de 1:1</div>
+      </div>
+      <span class="diff-badge">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
+        Alto impacto
+      </span>
+    </div>
+
+    <div class="ref-frame">
+      <div class="catalog-section">
+
+        <!-- Atmospheric header -->
+        <div class="catalog-header-atm">
+          <img
+            src="Imagen1.jpeg"
+            alt="Catálogo Artentino"
+            class="catalog-header-img"
+            onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"
+          >
+          <div class="img-placeholder" style="display:none;height:200px;background:linear-gradient(135deg,#f5f3f0,#e8e4df);">
+            <p style="font-size:12px;color:#9ca3af;font-weight:700;">Imagen1.jpeg — header ambiental</p>
+          </div>
+          <div class="catalog-header-overlay"></div>
+          <div class="catalog-header-content">
+            <p class="catalog-eyebrow">Artentino</p>
+            <h1 class="catalog-h1">Catálogo</h1>
+            <p class="catalog-count">48 productos disponibles</p>
+          </div>
+        </div>
+
+        <!-- Pills -->
+        <div class="catalog-pills-row">
+          <button class="cat-pill active">Todos</button>
+          <button class="cat-pill">Espejos LED</button>
+          <button class="cat-pill">Muebles</button>
+          <button class="cat-pill">Tazas</button>
+          <button class="cat-pill">Vasos Térmicos</button>
+          <button class="cat-pill">Lámparas</button>
+          <button class="cat-pill">Mate</button>
+        </div>
+
+        <!-- Product grid -->
+        <div class="product-grid-editorial">
+
+          <!-- Card 1 -->
+          <div class="prod-card-ed featured">
+            <div class="prod-img-area" style="aspect-ratio:3/4;">
+              <div class="prod-img-placeholder" style="background:linear-gradient(145deg,#f0fdfc,#d6f7f9);">
+                <div class="prod-img-placeholder-inner">
+                  <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#0eb1c3" stroke-width="1" stroke-linecap="round">
+                    <ellipse cx="12" cy="11" rx="6" ry="7.5"/>
+                    <line x1="12" y1="18.5" x2="12" y2="22"/>
+                    <line x1="9" y1="22" x2="15" y2="22"/>
+                    <circle cx="12" cy="3.2" r="0.7" fill="#0eb1c3" stroke="none"/>
+                    <circle cx="17.8" cy="6.5" r="0.7" fill="#0eb1c3" stroke="none"/>
+                    <circle cx="5.5" cy="11" r="0.7" fill="#0eb1c3" stroke="none"/>
+                  </svg>
+                </div>
+              </div>
+              <div class="prod-cat-label">Espejos LED</div>
+              <button class="prod-quick-add">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+              </button>
+            </div>
+            <div class="prod-info-area">
+              <p class="prod-name-ed">Espejo LED Redondo Premium 80cm</p>
+              <div class="prod-price-row">
+                <span class="prod-price-main">$89.000</span>
+                <span class="prod-price-compare">$110.000</span>
+              </div>
+              <p class="prod-installment">6x $14.833 sin interés</p>
+              <button class="prod-add-btn">Agregar</button>
+            </div>
+          </div>
+
+          <!-- Card 2 -->
+          <div class="prod-card-ed">
+            <div class="prod-img-area" style="aspect-ratio:3/4;">
+              <div class="prod-img-placeholder" style="background:linear-gradient(145deg,#f5f3f0,#ece8e3);">
+                <div class="prod-img-placeholder-inner">
+                  <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" stroke-width="1" stroke-linecap="round">
+                    <path d="M6 4h12l-2 14a2 2 0 0 1-2 1.8H10a2 2 0 0 1-2-1.8L6 4z"/>
+                    <path d="M18 7h1.5a2 2 0 0 1 0 4H18"/>
+                  </svg>
+                </div>
+              </div>
+              <div class="prod-cat-label">Tazas</div>
+              <button class="prod-quick-add">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+              </button>
+            </div>
+            <div class="prod-info-area">
+              <p class="prod-name-ed">Taza Mate con Diseño Geométrico Artesanal</p>
+              <div class="prod-price-row">
+                <span class="prod-price-main">$12.500</span>
+              </div>
+              <p class="prod-installment">6x $2.083 sin interés</p>
+              <button class="prod-add-btn">Agregar</button>
+            </div>
+          </div>
+
+          <!-- Card 3 -->
+          <div class="prod-card-ed">
+            <div class="prod-img-area" style="aspect-ratio:3/4;">
+              <div class="prod-img-placeholder" style="background:linear-gradient(145deg,#f0f4fb,#e5ecf7);">
+                <div class="prod-img-placeholder-inner">
+                  <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" stroke-width="1" stroke-linecap="round">
+                    <rect x="5" y="6" width="14" height="8" rx="2"/>
+                    <rect x="3" y="10" width="3" height="6" rx="1"/>
+                    <rect x="18" y="10" width="3" height="6" rx="1"/>
+                    <line x1="7" y1="14" x2="7" y2="18"/>
+                    <line x1="17" y1="14" x2="17" y2="18"/>
+                  </svg>
+                </div>
+              </div>
+              <div class="prod-cat-label">Muebles</div>
+              <button class="prod-quick-add">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+              </button>
+            </div>
+            <div class="prod-info-area">
+              <p class="prod-name-ed">Cómoda Nórdica con Listones de Madera Natural</p>
+              <div class="prod-price-row">
+                <span class="prod-price-main">$245.000</span>
+              </div>
+              <p class="prod-installment">6x $40.833 sin interés</p>
+              <button class="prod-add-btn">Agregar</button>
+            </div>
+          </div>
+
+          <!-- Card 4 -->
+          <div class="prod-card-ed">
+            <div class="prod-img-area" style="aspect-ratio:3/4;">
+              <div class="prod-img-placeholder" style="background:linear-gradient(145deg,#fdf6f0,#f5e8dc);">
+                <div class="prod-img-placeholder-inner">
+                  <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" stroke-width="1" stroke-linecap="round">
+                    <path d="M7 9 Q12 2 17 9 H7z"/>
+                    <line x1="12" y1="9" x2="12" y2="21"/>
+                    <line x1="8" y1="21" x2="16" y2="21"/>
+                  </svg>
+                </div>
+              </div>
+              <div class="prod-cat-label">Lámparas</div>
+              <button class="prod-quick-add">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+              </button>
+            </div>
+            <div class="prod-info-area">
+              <p class="prod-name-ed">Lámpara de Piso Arco Industrial Negro Mate</p>
+              <div class="prod-price-row">
+                <span class="prod-price-main">$67.000</span>
+              </div>
+              <p class="prod-installment">6x $11.166 sin interés</p>
+              <button class="prod-add-btn">Agregar</button>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- Annotations for P19 -->
+    <div class="annotation-block">
+      <div class="annotation-title">Qué cambia respecto al actual — Propuesta 19</div>
+      <div class="annotation-grid">
+        <div class="annotation-item">
+          <div class="ann-dot"></div>
+          <p class="ann-text"><strong>Header ambiental:</strong> El encabezado "Catálogo" en texto plano sobre blanco pasa a tener <code>Imagen1.jpeg</code> como fondo con un gradiente overlay que lo hace legible y da calidez inmediata.</p>
+        </div>
+        <div class="annotation-item">
+          <div class="ann-dot"></div>
+          <p class="ann-text"><strong>Ratio de imagen 3:4 (portrait):</strong> Reemplaza el <code>aspect-square</code> actual por 3:4. Las imágenes de productos de hogar se ven mejor en portrait — más espacio para mostrar el objeto en contexto.</p>
+        </div>
+        <div class="annotation-item">
+          <div class="ann-dot"></div>
+          <p class="ann-text"><strong>Quick-add button:</strong> Botón circular "+" que aparece sobre la imagen al hover. Permite agregar al carrito sin abrir la ficha de producto — reduce fricción en la navegación del catálogo.</p>
+        </div>
+        <div class="annotation-item">
+          <div class="ann-dot"></div>
+          <p class="ann-text"><strong>Category label en la imagen:</strong> La etiqueta de categoría pasa de ser un pill absoluto encima de la foto a un label integrado en la parte inferior de la imagen con glassmorphism leve (<code>backdrop-filter: blur</code>).</p>
+        </div>
+        <div class="annotation-item">
+          <div class="ann-dot"></div>
+          <p class="ann-text"><strong>Precio tachado visible:</strong> El <code>comparePrice</code> aparece en línea con el precio actual, cruzado. Actualmente solo aparece en la ficha de producto — moverlo a la card aumenta urgencia de compra.</p>
+        </div>
+        <div class="annotation-item">
+          <div class="ann-dot"></div>
+          <p class="ann-text"><strong>Cards sin borde externo:</strong> Las cards actuales tienen <code>border border-gray-100</code>. El rediseño usa shadow suave solo en hover y separa por grid-gap, dando aspecto más editorial y menos "tabla".</p>
+        </div>
+      </div>
+      <div class="impl-note" style="margin-top:14px;">
+        <strong>Archivos a modificar:</strong> <code>app/catalogo/page.tsx</code> (header con imagen + overlay), <code>app/ui/product-card.tsx</code> (ratio 3:4, quick-add button, label inferior, precio comparativo). El quick-add usa la misma lógica de <code>addItem</code> del carrito.
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Footer note -->
+  <div style="max-width:1100px;margin:0 auto;padding:24px 0;border-top:1px solid #e2e8f0;text-align:center;">
+    <p style="font-size:11px;color:#94a3b8;">
+      Propuestas 18 y 19 — Artentino UI · Inspiradas en EjemploMay e Imagen1 · Design system: teal #0eb1c3 · #1E1E1E · Nunito + Dancing Script
+    </p>
+  </div>
+
+</body>
+</html>

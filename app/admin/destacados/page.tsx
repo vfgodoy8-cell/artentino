@@ -1,12 +1,16 @@
 import { prisma } from '@/lib/prisma'
+import { getSiteConfig } from '@/app/lib/site-config'
 import DestacadosClient from './destacados-client'
 
 export default async function AdminDestacados() {
-  const featured = await prisma.product.findMany({
-    where: { featured: true },
-    select: { id: true, name: true, price: true, imageUrl: true, sortOrder: true },
-    orderBy: { sortOrder: 'asc' },
-  })
+  const [featured, siteConfig] = await Promise.all([
+    prisma.product.findMany({
+      where: { featured: true },
+      select: { id: true, name: true, price: true, imageUrl: true, sortOrder: true },
+      orderBy: { sortOrder: 'asc' },
+    }),
+    getSiteConfig(),
+  ])
 
   const serialized = featured.map((p) => ({
     ...p,
@@ -21,7 +25,10 @@ export default async function AdminDestacados() {
           Gestioná qué productos aparecen en la sección destacada del sitio.
         </p>
       </div>
-      <DestacadosClient initial={serialized} />
+      <DestacadosClient
+        initial={serialized}
+        initialOrderMode={siteConfig.featuredOrderMode as 'manual' | 'recent'}
+      />
     </div>
   )
 }

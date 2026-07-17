@@ -1,10 +1,10 @@
 ---
 name: project-artentino
-description: "Artentino e-commerce — tech stack, design system, DB, current UI state and component inventory (updated 2026-07-06)"
+description: "Artentino e-commerce — tech stack, design system, DB, current UI state and component inventory (updated 2026-07-13)"
 metadata: 
   node_type: memory
   type: project
-  originSessionId: a248d167-a2e4-47f9-bc66-bf9f4763a938
+  originSessionId: 6d7a1ecb-f10c-42b0-9aad-0eb35639be0a
 ---
 
 Argentine deco/home goods e-commerce site at `C:\proyectos\bardot\artentino`.
@@ -30,9 +30,26 @@ Argentine deco/home goods e-commerce site at `C:\proyectos\bardot\artentino`.
 
 ---
 
-## Schema — categorías (2026-07-05) — DOS NIVELES
+## lib/prisma.ts — Pool configurado (fix P1017)
 
-La jerarquía anterior (flat Category con `products`) fue reemplazada por un modelo de dos niveles.
+`pg.Pool` con `max:5, idleTimeoutMillis:10000, connectionTimeoutMillis:10000` en vez de bare connectionString.
+`pool.on('error', ...)` absorbe el error async cuando Railway cierra conexiones TCP inactivas.
+Evita P1017 / DriverAdapterError: ConnectionClosed en Vercel warm functions.
+
+---
+
+## app/lib/cloudinary.ts
+
+```typescript
+export function cloudinaryThumb(url: string): string {
+  return url.replace('/upload/', '/upload/c_fill,ar_1:1,g_auto/')
+}
+```
+Inserta transformación Cloudinary para recorte 1:1 server-side. Importar donde se usen imágenes de cards.
+
+---
+
+## Schema — categorías — DOS NIVELES
 
 ```prisma
 model Category {
@@ -40,11 +57,9 @@ model Category {
   name          String
   slug          String        @unique
   order         Int           @default(0)
-  isSpecial     Boolean       @default(false)  // "Todos", etc.
+  isSpecial     Boolean       @default(false)
   subcategories Subcategory[]
   heroBadges    HeroBadge[]
-  createdAt     DateTime      @default(now())
-  updatedAt     DateTime      @updatedAt
   @@map("categories")
 }
 
@@ -54,306 +69,272 @@ model Subcategory {
   slug       String    @unique
   order      Int       @default(0)
   categoryId String
-  category   Category  @relation(fields: [categoryId], references: [id])
+  category   Category  @relation(...)
   products   Product[]
-  createdAt  DateTime  @default(now())
-  updatedAt  DateTime  @updatedAt
-  @@index([categoryId])
   @@map("subcategories")
 }
 ```
 
-**Implicaciones:**
-- `Product.categoryId` / `Product.category` → ahora apunta a `Subcategory` (mismo nombre de campo, distinto FK target)
-- `HeroBadge.categoryId` / `HeroBadge.category` → apunta a `Category` (padre)
-- Filtros en catálogo: `category: { category: { slug } }` para padre; `category: { slug }` para subcategoría
-- Breadcrumb producto: Inicio / Catálogo / **ParentName** / **SubcatName** / ProductName
-- Scripts admin usan `prisma.subcategory` para los selects de categoría en productos
-
-**Migración:** `prisma/migrate-categories.ts` — script raw SQL con `pg.Pool` que:
-1. Suelta FKs viejas, limpia datos, adapta tabla `categories`
-2. Crea tabla `subcategories`
-3. Inserta padres, inserta subcategorías (old categories) bajo sus padres correspondientes
-4. Reasigna `products.categoryId` → nuevos IDs de subcategorías
-5. Recrea FKs y hero_badges
-
-**Categorías padre en producción:**
-Espejos (1), Iluminación (2), Lámparas (3), Muebles (4), Mamparas (5), Cuellos (6), Bazar (7), Bultos Oferta (8), Outlet (9), Todos (10, isSpecial=true)
+- `Product.categoryId` → apunta a `Subcategory` (no a Category)
+- `HeroBadge.categoryId` → apunta a `Category` padre
+- Filtros catálogo: `category: { category: { slug } }` para padre; `category: { slug }` para subcategoría
 
 ---
 
-## Schema — otros modelos relevantes
+## Schema — ProductRelation
 
-### ProductImage — N-to-N con AttributeValue (desde 2026-06-19)
+Relación N-to-N self-referencial en Product:
 
-`ProductImage.attributeValueId` dropeado. Relación join N-a-N:
 ```prisma
-model ProductImageAttributeValue {
-  imageId          String
-  image            ProductImage   @relation(...)
-  attributeValueId String
-  attributeValue   AttributeValue @relation(...)
-  @@unique([imageId, attributeValueId])
-  @@map("product_image_attribute_values")
+model ProductRelation {
+  id               String   @id @default(cuid())
+  productId        String
+  relatedProductId String
+  sortOrder        Int      @default(0)
+  createdAt        DateTime @default(now())
+  @@unique([productId, relatedProductId])
+  @@map("product_relations")
 }
 ```
-Índice parcial (SQL crudo): `CREATE UNIQUE INDEX product_images_one_cover_per_product ON product_images ("productId") WHERE "isCover" = true`
 
-### SiteConfig — singleton (actualizado 2026-07-05)
+---
+
+## Schema — Order / OrderItem
+
 ```prisma
-model SiteConfig {
-  id                  String  @id @default("singleton")
-  heroIntervalSeconds Int     @default(6)
-  footerText          String? @db.Text   // texto bajo el logo en el footer
-  @@map("site_config")
+enum OrderStatus {
+  PENDING
+  PENDING_PICKUP_PAYMENT   // pago en tienda con efectivo o transferencia
+  CONFIRMED
+  SHIPPED
+  DELIVERED
+  CANCELLED
+}
+
+model Order {
+  status         OrderStatus @default(PENDING)
+  paymentMethod  String?     // 'mercadopago' | 'cash' | 'transfer'
+}
+
+model OrderItem {
+  id               String          @id @default(cuid())
+  orderId          String
+  order            Order           @relation(...)
+  productId        String
+  product          Product         @relation(...)
+  quantity         Int
+  price            Decimal         @db.Decimal(10, 2)
+  attributeValueId String?                              // nullable — persiste la variante elegida
+  attributeValue   AttributeValue? @relation(...)
+  @@index([orderId])
+  @@index([productId])
+  @@map("order_items")
 }
 ```
 
-### HeroSlide / HeroBadge / EmailTemplate
-Ver CLAUDE.md para detalles completos. HeroBadge.categoryId → Category padre (no Subcategory).
-
-### Otros campos Product
-- `Product.imageUrl String?` — caché denormalizado de la portada (`isCover=true`)
-- `ProductStock.sortOrder Int @default(0)` — orden en selector y tabla admin
-- `Attribute.imageDriven Boolean` — controla image swap en galería
+`attributeValueId` es nullable para no romper pedidos existentes. Se guarda en `OrderItem.create` en ambos flows (cash/transfer y MercadoPago) cuando el CartItem lo trae del frontend.
 
 ---
 
-## UI State — Catálogo (updated 2026-07-05)
+## Constantes compartidas (`app/lib/constants.ts`)
 
-### Catalog page (`app/catalogo/page.tsx`) — RSC
-
-**Layout actual:**
-```
-[Header atmosférico full-width 180px]
-[max-w-7xl px-4 py-8]
-  [flex gap-10]
-    [aside w-52 — CategorySidebar (solo lg+)]
-    [div flex-1]
-      [CategoryPills — solo mobile < lg]
-      [grid products]
-```
-
-**Filtrado:**
-- Detecta si `categoria` slug es padre (`prisma.category.findUnique`) o subcategoría
-- Padre: `{ category: { category: { slug: categoria } } }` — filtra todos los productos de ese grupo
-- Subcategoría: `{ category: { slug: categoria } }` — filtra exacto
-- Sin filtro o "todos": ordena `[{ name: 'asc' }]`; con filtro: `[{ sortOrder: 'asc' }, { createdAt: 'desc' }]`
-- Heading: nombre del padre o nombre de la subcategoría del primer producto
-
-**Categorías para sidebar/pills:** `prisma.category.findMany({ where: { isSpecial: false }, select: { id, name, slug, subcategories: { select: { id, name, slug } } } })`
-
-### CategorySidebar (`app/catalogo/category-sidebar.tsx`) — Client Component, desktop only
-
-- Sticky `top-8`, max-height con overflow-y-auto (scrollbar oculto)
-- "Todos" link primero, luego grupos padre
-- Cada padre: Link body + botón caret `›` (SVG) que abre/cierra subcategorías inline
-- Subcategorías: indentadas con `border-l-2 border-[#f3f4f6] pl-3`
-- Auto-abre grupo si `activeSlug` coincide con el padre o alguna subcategoría (`useEffect([activeSlug])`)
-- Active: texto teal para grupos, `bg-[#e0f8fb] text-[#0eb1c3]` para subcategorías, `bg-[#0eb1c3] text-white` para "Todos"
-
-### CategoryPills (`app/catalogo/category-pills.tsx`) — Client Component, mobile only (< lg)
-
-- Scroll horizontal con fades y flechas ‹ ›
-- Cada padre: pill split (body navega, caret `›` expande subcategorías inline como fila debajo)
-- Auto-abre grupo si `activeSlug` pertenece a subcategoría del grupo
-
----
-
-## UI State — Detalle de producto (updated 2026-07-05)
-
-### `app/catalogo/[slug]/page.tsx` — RSC
-
-- Query: `include: { category: { include: { category: true } } }` (Subcategory + parent Category)
-- Breadcrumb: 5 niveles — Inicio / Catálogo / ParentCategory / Subcategory / Producto
-- Pasa `youtubeId` al shell (ya no hay bloque de video separado en la página)
-
-### `product-detail-shell.tsx` — Client Component (2026-07-05)
-
-Props adicionales vs versión anterior: `youtubeId: string | null`
-
-**Layout:**
-```
-[grid lg:grid-cols-2]
-  [ProductGallery — izquierda]
-  [div flex-col — derecha]
-    [badge categoría]
-    [h1 nombre]
-    [precio + cuotas]
-    [ProductActions — combos + qty + VariantSelector + botón carrito]
-    [divider]
-    [stock indicator]
-    [← Volver al catálogo]
-[div mt-12 grid md:grid-cols-2 — FULL WIDTH]
-  [Descripción]
-  [Información adicional]
-```
-
-La descripción e información adicional están **fuera de la columna derecha**, en un bloque full-width de dos columnas debajo del grid principal.
-
-**onClearColor:** limpia `selectedColorId` + incrementa `colorResetKey` → re-monta ProductGallery (reset visual) + re-monta VariantSelector via `key={colorResetKey}` en ProductActions
-
-### `product-gallery.tsx` — Client Component (2026-07-05)
-
-Props: `galleryImages`, `productName`, `categoryName`, `selectedColorId: string | null`, `youtubeId: string | null`  
-**Removido:** `variantGroups`, `stockByValueId`, `onColorSelect` (VariantSelector ya no vive aquí)
-
-- `imageDrivenId`: usa `selectedColorId` directamente (ya no local `selectedIds`)
-- `useEffect([selectedColorId])` → resetea `preferredUrl` y `isVideoActive` al cambiar color
-- **Video integrado:** thumbnail negro con ▶ al final de la fila; al clickear → `isVideoActive=true` → iframe con `autoplay=1` en main area; borde teal cuando activo
-
-### `product-actions.tsx` — Client Component (2026-07-05)
-
-Props adicionales: `variantGroups`, `stockByValueId`, `onColorSelect`, `colorResetKey`
-
-**Orden de elementos:**
-1. Combo table (con tooltip de transferencia on hover)
-2. Selector de cantidad
-3. VariantSelector (`key={colorResetKey}` para reset visual al limpiar color)
-4. Botón "Agregar al carrito"
-
-**Cambios de texto:**
-- Título combos: `"Comprá más y sumá descuentos adicionales"` (antes: "Comprá más, pagá menos")
-- Botón disabled con no-color: `"Seleccioná una variante"` (antes: "Seleccioná un color")
-- Label de sección sobre VariantSelector: `"Variante"`
-- Stock indicator: `"Elegí una variante para ver el stock disponible"`
-
-**Tooltip transferencia:**
-- Wrapper externo `relative` con `onMouseEnter/Leave` → `showTooltip` state
-- Tooltip: `absolute -top-11 left-1/2 -translate-x-1/2 bg-[#1E1E1E] text-white`
-- Texto: "Si comprás con transferencia, tenés un 15% de descuento"
-- Diamante inferior: `div h-3 w-3 rotate-45 bg-[#1E1E1E] -bottom-1.5`
-- El `overflow-hidden` está en el div hijo (combo box), no en el wrapper, para no clipear el tooltip
-
----
-
-## Footer (updated 2026-07-05)
-
-`app/ui/footer.tsx` — ahora **async RSC** (fetches siteConfig):
-
-- **Fondo:** `#F0FBFC` (teal muy claro, antes `#1E1E1E` oscuro)
-- **Texto principal:** `#374151` / `#4b5563` (antes `#555` / `#888`)
-- **Texto muted:** `#9ca3af` (antes `#444`)
-- **Iconos sociales:** `border-[#b3e8ee] text-[#6b7280]`, hover: `#0eb1c3`
-- **Border bottom bar:** `#c8eff4`
-- **footerText:** leído de `siteConfig?.footerText ?? DEFAULT_TEXT`; editable desde `/admin/home`
-
-**Admin:** sección "Pie de página" en `/admin/home` (abajo de HeroBadgesTab) — `FooterTextSection` Client Component con textarea + "Guardar" + "Restaurar default". Action: `updateSiteConfig({ footerText })`.
-
----
-
-## Product Card badge (2026-07-05)
-
-`app/ui/product-card.tsx` línea 49 — badge de categoría top-left:
-```tsx
-<span className="... bg-[#0eb1c3]/30 ...">
-```
-Opacidad: 30% (antes 90%). El color de imagen es visible a través del badge.
-
----
-
-## Admin — Categorías (`app/admin/categorias/`) (2026-07-05)
-
-- `page.tsx`: RSC — `prisma.category.findMany({ select: { id, name, slug, order, isSpecial, subcategories: { select: ... } } })`
-- `categorias-table.tsx`: Client — acordeón de grupos padre con `CategoryRow` (collapsible) + `SubcatRow` (editar/borrar subcategorías) + `AddSubcatRow` + `AddCategoryRow`
-- `actions.ts`: `createCategory/updateCategory/deleteCategory` (padre) + `createSubcategory/updateSubcategory/deleteSubcategory` (hijo); todos revalidan `/admin/categorias`, `/`, `/catalogo`
-- No hay toggle `active` — el nuevo schema no tiene ese campo en Category ni Subcategory
-
----
-
-## Hero carousel y email templates
-
-Ver CLAUDE.md para detalles.
-
-**`updateSiteConfig` signature:**
 ```typescript
-export async function updateSiteConfig(data: { heroIntervalSeconds?: number; footerText?: string })
+export const CASH_DISCOUNT = 0.25      // factor de descuento
+export const CASH_DISCOUNT_PCT = 25    // número para mostrar en UI
+```
+
+Siempre importar desde aquí, nunca hardcodear el número.
+
+---
+
+## lib/serialize.ts — serializeProduct
+
+Genérico que serializa `Decimal` → `Number` y `Date` → `string ISO`. También serializa `comboPrices?` opcionales:
+
+```typescript
+...(p.comboPrices && {
+  comboPrices: p.comboPrices.map((c) => ({ ...c, price: Number(c.price.toString()) })),
+}),
 ```
 
 ---
 
-## Microanimaciones (2026-07-06)
+## UI State — ProductCard (`app/ui/product-card.tsx`)
 
-### globals.css — tokens y keyframes
+- `aspect-square` (era `aspect-[3/4]`)
+- Imagen: `cloudinaryThumb(imageUrl)` para recorte 1:1 server-side
+- Bloque de precio:
+  ```
+  EFECTIVO / TRANSFERENCIA   ← label teal text-[9px] uppercase tracking-wider
+  $XXXX  $YYYY               ← cash price text-xl font-black teal + list price text-xl font-black dark (flex-wrap items-baseline)
+  6x $ZZZ sin interés        ← cuotas sobre precio de lista, text-right
+  ```
+- No muestra `comparePrice` tachado
 
-```css
-@theme inline {
-  --animate-cart-bounce:  cart-bounce   360ms cubic-bezier(0.23,1,0.32,1) both;
-  --animate-toast-in:     toast-in      240ms cubic-bezier(0.23,1,0.32,1) both;
-  --animate-gallery-fade: gallery-fade  260ms cubic-bezier(0.23,1,0.32,1) both;
-  --animate-hero-text-in: hero-text-in  420ms cubic-bezier(0.23,1,0.32,1) both;
+---
+
+## UI State — ProductGrid (`app/ui/product-grid.tsx`)
+
+Grid de destacados: `grid-cols-2 md:grid-cols-3 lg:grid-cols-4` (4ta columna en lg+).
+
+---
+
+## UI State — Catálogo
+
+### `app/catalogo/page.tsx` — RSC
+
+Layout: header atmosférico full-width → `flex gap-10` → sidebar (lg+) + `div flex-1` (pills mobile + grid).
+
+### CategorySidebar (`app/catalogo/category-sidebar.tsx`) — desktop
+
+Sticky, grupos padre colapsables, subcategorías indentadas.
+
+### CategoryPills (`app/catalogo/category-pills.tsx`) — mobile
+
+Scroll horizontal con flechas ‹ ›. Pills split (body navega, caret expande subcategorías).
+
+---
+
+## UI State — Detalle de producto
+
+### `product-detail-shell.tsx`
+
+- h1: `font-bold` (era `font-black`)
+- Bloque de precio (dos columnas `flex-col sm:flex-row items-start`):
+  ```
+  [PAGANDO EFECTIVO O TRANSFERENCIA]     [PRECIO DE LISTA]
+  $X.XXX  [25% OFF]                      $Y.YYY
+                                          6x $Z.ZZZ sin interés
+  ```
+  - Columna izquierda: label teal `text-sm font-black uppercase` + precio cash `text-5xl font-bold text-[#0eb1c3]` + pill `{CASH_DISCOUNT_PCT}% OFF`
+  - Columna derecha: label gris `text-sm font-black uppercase` + precio lista `text-5xl font-bold text-[#1E1E1E]` + cuotas `text-sm text-gray-400`
+  - **Ambos precios: `font-bold` (700), NO `font-black` (900)**
+  - Layout: `flex-col items-start gap-y-3 sm:flex-row sm:items-start sm:gap-x-6`
+
+### `product-gallery.tsx`
+
+- Flechas prev/next superpuestas en imagen principal (`bg-white/80 backdrop-blur-sm`, centradas verticalmente)
+- Loop: `goToIdx()` con módulo envuelto
+- Touch swipe: `onTouchStart/onTouchEnd`, umbral 50px
+- Oculta flechas si solo hay 1 ítem
+
+### `product-actions.tsx`
+
+- Combo table header: label + subtítulo "Son acumulables con el {CASH_DISCOUNT_PCT}% OFF Efectivo - Transferencia!"
+- Botón principal: cuando `disabledReason === 'no-color'` → dos chevron-up SVG flanqueando "Seleccioná una variante"
+
+---
+
+## FAQ (`app/faq/page.tsx`)
+
+Botón Email: `border-gray-200 text-gray-600 hover:border-[#0eb1c3] hover:text-[#0eb1c3]`, sin `hover:bg` ni inline style.
+
+---
+
+## Admin — Productos (`/admin/productos`)
+
+- Query incluye `comboPrices: { orderBy: { quantity: 'asc' } }`
+- Tabla: columnas "Precio Pack 1" (idx 0) y "Precio Pack 2" (idx 1)
+
+---
+
+## Checkout — métodos de pago
+
+### `app/checkout/checkout-client.tsx`
+
+- `PaymentMethod = 'mercadopago' | 'cash' | 'transfer' | 'modo'`
+- Step 2: **dos radios separados** "Efectivo" y "Transferencia bancaria", ambos con badge 25% OFF, solo cuando shipping === 'pickup'
+- `isCashOrTransfer = payment === 'cash' || payment === 'transfer'`
+- Al cambiar a delivery se resetea `cash`/`transfer` → `mercadopago`
+- Al confirmar navega a `/checkout/confirmado?method=${payment}`
+
+### `app/api/checkout/route.ts`
+
+- Branch para cash/transfer: `if (paymentMethod === 'cash' || paymentMethod === 'transfer')`
+- Guarda el valor exacto (`'cash'` o `'transfer'`) en `Order.paymentMethod`
+- Lookup batch de `attributeValue.value` antes del email para resolver nombres de variante
+- Ambos flows incluyen `attributeValueId` en `OrderItem.create`
+- Status: `PENDING_PICKUP_PAYMENT` para cash/transfer, `PENDING` para MP
+
+### `app/checkout/confirmado/page.tsx`
+
+Lee `searchParams.method` y muestra:
+- `'cash'`: "Efectivo", dirección del local, leyenda Showroom
+- `'transfer'`: "Transferencia bancaria", tarjetas de cuentas (MP alias **artentino** CVU 0000003100132288095792; Supervielle alias **artentinosuper** CBU 0270020510037812120025), link WhatsApp, leyenda Showroom
+- `'cash_transfer'` (legacy): texto genérico
+- Bloque "Descuento aplicado 25% OFF" en los tres casos
+
+---
+
+## CartDrawer
+
+Banner `bg-[#f0fbfc]`: "Pagando en efectivo o transferencia, tenés {CASH_DISCOUNT_PCT}% OFF"
+
+---
+
+## CartAddPopup
+
+- Observa `addCount`, abre popup al incrementar
+- Countdown 5 min (300s) `mm:ss`
+
+---
+
+## Admin — Relacionados
+
+Tab en `/admin/productos/[id]/editar`: search con debounce 350ms.
+
+---
+
+## Admin — Pedidos
+
+### STATUS dict (ambos archivos `page.tsx` y `[id]/page.tsx`)
+
+```typescript
+const STATUS = {
+  PENDING:                { label: 'Pendiente',  bg: '#FEF3C7', color: '#D97706' },
+  PENDING_PICKUP_PAYMENT: { label: 'A retirar',  bg: '#EDE9FE', color: '#7C3AED' },
+  CONFIRMED:              { label: 'Confirmado', bg: '#CCFBF4', color: '#0eb1c3' },
+  SHIPPED:                { label: 'Enviado',    bg: '#DBEAFE', color: '#2563EB' },
+  DELIVERED:              { label: 'Entregado',  bg: '#D1FAE5', color: '#059669' },
+  CANCELLED:              { label: 'Cancelado',  bg: '#FEE2E2', color: '#EF4444' },
 }
 ```
 
-### Toast + bounce de carrito (`app/ui/header.tsx`)
-- `cart-context.tsx` expone `addCount: number` que incrementa en cada `addItem`
-- `useEffect([addCount])` en header: activa `bouncing` (400ms) y `showToast` (2500ms)
-- Toast: `fixed left-1/2 top-[72px]` (ajusta a `top-[56px]` cuando `scrolled`)
-- Botón carrito: `animate-cart-bounce` condicional
+### Vista detalle `[id]/page.tsx`
 
-### Gallery cross-fade (`app/catalogo/[slug]/product-gallery.tsx`)
-- `<img key={currentUrl} className="... animate-gallery-fade ...">` — re-monta al cambiar URL → dispara animación
-- Thumbnails: `transition-colors duration-200` (antes `transition-all`)
-
-### Product card hover (`app/ui/product-card.tsx`)
-- Sombra en reposo: `shadow-[0_2px_8px_rgba(0,0,0,0.06)]`
-- Sombra hover: `hover:shadow-[0_20px_48px_rgba(0,0,0,0.13)]`
-- Zoom imagen: `group-hover:scale-[1.05]` (antes 1.04)
-
-### Header sticky compresible (`app/ui/header.tsx`)
-- `scrolled` state via `scroll` listener (passive, threshold 8px)
-- Inner div: `h-16` → `h-12` con `transition-[height] duration-300`
-- Logo wrapper: `w-[140px]` → `w-[112px]` con `transition-[width] duration-300`
-- Header: `border-b border-gray-100` → `border-transparent shadow-[0_4px_20px_rgba(0,0,0,0.08)]`
-
-### Hero carousel — texto escalonado (`app/ui/hero-carousel.tsx`)
-- Imagen: `style={{ opacity: visible ? 1 : 0, transition: 'opacity 0.4s' }}` (sin cambios)
-- Texto: contenedor separado con `transition-opacity duration-[200ms]` (sale más rápido)
-- Cada elemento textual: `key={`eyebrow|title|desc|cta|benefits-${currentIdx}`}` + `animate-hero-text-in` + `animationDelay`:
-  - eyebrow: 0ms · título: 100ms · descripción: 200ms · CTA: 300ms · benefits: 350ms
-- Re-montar por `key` dispara la animación en cada cambio de slide
+- Include: `items: { include: { product: { select: { name, slug, imageUrl } }, attributeValue: { select: { value } } } }`
+- Formato item: nombre del producto + `"{Color} · x{cantidad}"` en línea secundaria
+- Sidebar: tarjeta "Método de pago" con label legible (Efectivo / Transferencia bancaria / MercadoPago)
 
 ---
 
-## Admin — Buscador de productos (2026-07-06)
+## Email (`app/lib/email.ts`)
 
-`/admin/productos` tiene búsqueda server-side por nombre y SKU:
+### `pickupCashEmail({ name, items, total, discountPct, paymentMethod })`
 
-- **`search-input.tsx`** (Client Component): input con lupa, debounce 350ms, usa `useSearchParams` + `router.replace` para actualizar `?q=` sin perder `?estado=`
-- **`page.tsx`**: lee `q` de searchParams, arma `where` con `OR: [{ name: contains }, { sku: contains }]` + `mode: 'insensitive'`, `q` se preserva en tabs de estado y en links de paginación
-- **`products-table.tsx`**: acepta `searchTerm?: string`, mensaje vacío contextual: "No se encontraron productos para «{término}»"
-- El `<SearchInput>` está envuelto en `<Suspense>` (requiere `useSearchParams` en cliente)
-- Layout: tabs a la izquierda + search input a la derecha (`sm:w-72 sm:ml-auto`)
+- `items: Array<{ name, quantity, price, variantName? }>` — muestra "Producto · Color" en tabla
+- `paymentMethod: 'cash' | 'transfer'` — diferencia el texto de la sección "Método de pago"
 
----
+### `purchaseConfirmationEmail({ name, items, total, shipping })`
 
-## Test seed (`prisma/seed-test.ts`) — updated 2026-07-05
-
-Ahora crea dos niveles de categorías:
-```typescript
-const parentEspejos = await prisma.category.create({ data: { name: 'Espejos', slug: 'espejos', order: 1 } })
-const parentLamparas = await prisma.category.create({ data: { name: 'Lámparas', slug: 'lamparas', order: 2 } })
-const catEspejos = await prisma.subcategory.create({ data: { name: 'Espejos LED', slug: 'espejos-led', order: 1, categoryId: parentEspejos.id } })
-const catLamparas = await prisma.subcategory.create({ data: { name: 'Lámparas de Mesa', slug: 'lamparas-de-mesa', order: 1, categoryId: parentLamparas.id } })
-```
-Productos apuntan a subcategorías (no categorías padre).
+- `items: Array<{ name, quantity, price, variantName? }>` — mismo formato
 
 ---
 
-## Pages/features built
+## Microanimaciones
 
-- Full product catalog — CategorySidebar (desktop) + CategoryPills (mobile) con jerarquía padre/hijo
-- Product detail: galería integrada con video (YouTube thumbnail), VariantSelector entre qty y carrito, descripción full-width, tooltip de transferencia en combos
-- Shopping cart (localStorage) con CartDrawer
-- Checkout multi-step con MercadoPago
-- Admin: producto (3 tabs Info/Stock/Imágenes con drag & drop)
-- Admin: categorías — acordeón de dos niveles (padre + subcategorías)
-- Admin: Hero/Home — slides + badges + intervalo + footer text (`/admin/home`)
-- Admin: Templates de email (`/admin/emails`)
-- Admin: buscador de productos por nombre/SKU con debounce server-side
-- Auth, Turnos, FAQ, Contacto (solo formulario general)
-- Footer: fondo claro `#F0FBFC`, footerText editable desde admin
-- Microanimaciones: toast carrito, gallery fade, card hover, header sticky, hero escalonado
+keyframes en `app/globals.css`: `cart-bounce`, `toast-in`, `gallery-fade`, `hero-text-in`, `popup-in`
+
+---
+
+## Assets / WhatsApp
+
+- `app/icon.png` — favicon actual
+- WhatsApp botón flotante: `app/ui/whatsapp-button.tsx` → `href="https://wa.me/5491139363333"`
+- Footer: `href="https://api.whatsapp.com/send?phone=5491139363333"`
+- Número: +54 9 11 3936 3333
+
+---
 
 **Why:** Complete e-commerce for Argentine home goods brand.
-**How to apply:** Peso formatting `toLocaleString('es-AR')`, teal `#0eb1c3` as primary, Prisma 7 + Tailwind v4 + Next.js 16 conventions. Never use `middleware.ts`. Products→Subcategory (not Category) for categoryId. Hero badges→Category padre.
+**How to apply:** Peso formatting `toLocaleString('es-AR')`, teal `#0eb1c3` as primary, Prisma 7 + Tailwind v4 + Next.js 16 conventions. Never use `middleware.ts`. Products→Subcategory for categoryId. Discount constants always from `app/lib/constants.ts`. Never inline `style={{ color }}` on hover elements. PaymentMethod: `'cash'`, `'transfer'`, `'mercadopago'` (legacy `'cash_transfer'` may exist). OrderItem.attributeValueId always include in OrderItem.create. Price numbers in product detail: `font-bold` (700) NOT `font-black`.

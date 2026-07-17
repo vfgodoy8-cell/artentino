@@ -341,6 +341,7 @@ model SiteConfig {
   id                  String  @id @default("singleton")
   heroIntervalSeconds Int     @default(6)
   footerText          String? @db.Text
+  featuredOrderMode   String  @default("manual") // "manual" | "recent"
 
   @@map("site_config")
 }

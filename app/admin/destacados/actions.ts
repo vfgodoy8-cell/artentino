@@ -20,3 +20,13 @@ export async function updateDestacadoOrder(id: string, sortOrder: number) {
   revalidatePath('/admin/destacados')
   revalidatePath('/')
 }
+
+export async function updateFeaturedOrderMode(mode: 'manual' | 'recent') {
+  await prisma.siteConfig.upsert({
+    where: { id: 'singleton' },
+    update: { featuredOrderMode: mode },
+    create: { id: 'singleton', featuredOrderMode: mode },
+  })
+  revalidatePath('/admin/destacados')
+  revalidatePath('/')
+}

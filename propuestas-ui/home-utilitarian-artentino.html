@@ -1,0 +1,838 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Artentino — Home Utilitarian con paleta Artentino</title>
+  <link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;1,6..72,300;1,6..72,400&family=Nunito:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,300;1,400&family=Dancing+Script:wght@600;700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      /* ── Artentino brand ── */
+      --brand-teal:   #0eb1c3;
+      --brand-teal-d: #0a8f9e;
+      --brand-dark:   #1E1E1E;
+      --brand-white:  #FFFFFF;
+
+      /* ── Light canvas (Utilitarian base) ── */
+      --canvas:    #FBFBFA;
+      --surface:   #FFFFFF;
+      --surface-2: #F5F4F1;
+      --border:    #E8E8E8;
+      --border-2:  rgba(0,0,0,0.05);
+
+      /* ── Teal soft palette ── */
+      --teal-bg:   #E4F7FA;    /* tag background */
+      --teal-text: #0a8f9e;   /* tag text */
+
+      /* ── Ink scale ── */
+      --ink:   #1E1E1E;      /* brand dark = primary ink */
+      --ink-2: #3A3A3A;
+      --ink-3: #787774;
+      --ink-4: #AEAEAE;
+
+      --font-serif: 'Newsreader', Georgia, serif;
+      --font-body:  'Nunito', -apple-system, 'Helvetica Neue', sans-serif;
+      --font-logo:  'Dancing Script', cursive;
+    }
+
+    html { scroll-behavior: smooth; background: var(--canvas); }
+    body {
+      font-family: var(--font-body);
+      background: var(--canvas);
+      color: var(--ink-2);
+      -webkit-font-smoothing: antialiased;
+      line-height: 1.6;
+    }
+
+    /* Reveal */
+    .reveal {
+      opacity: 0; transform: translateY(14px);
+      transition: opacity 600ms cubic-bezier(0.16,1,0.3,1), transform 600ms cubic-bezier(0.16,1,0.3,1);
+    }
+    .reveal.visible { opacity: 1; transform: translateY(0); }
+    .reveal-d1 { transition-delay: 80ms; }
+    .reveal-d2 { transition-delay: 160ms; }
+    .reveal-d3 { transition-delay: 240ms; }
+    .reveal-d4 { transition-delay: 320ms; }
+
+    .container { max-width: 1120px; margin: 0 auto; padding: 0 40px; }
+
+    /* ── Buttons ── */
+    .btn-primary {
+      display: inline-flex; align-items: center; gap: 7px;
+      background: var(--brand-teal); color: white;
+      border: none; border-radius: 6px; padding: 11px 22px;
+      font-family: var(--font-body); font-size: 13.5px; font-weight: 700;
+      cursor: pointer; letter-spacing: -.01em;
+      transition: background .18s, transform .15s; text-decoration: none;
+    }
+    .btn-primary:hover { background: var(--brand-teal-d); }
+    .btn-primary:active { transform: scale(.98); }
+
+    .btn-outline {
+      display: inline-flex; align-items: center; gap: 7px;
+      background: transparent; color: var(--ink-2);
+      border: 1px solid var(--border); border-radius: 6px; padding: 10px 21px;
+      font-family: var(--font-body); font-size: 13.5px; font-weight: 600;
+      cursor: pointer; transition: border-color .15s, color .15s, transform .15s;
+      text-decoration: none;
+    }
+    .btn-outline:hover { border-color: var(--brand-teal); color: var(--brand-teal); }
+    .btn-outline:active { transform: scale(.98); }
+
+    .btn-dark {
+      display: inline-flex; align-items: center; gap: 7px;
+      background: var(--brand-dark); color: white;
+      border: none; border-radius: 6px; padding: 11px 22px;
+      font-family: var(--font-body); font-size: 13.5px; font-weight: 700;
+      cursor: pointer; transition: background .15s, transform .15s; text-decoration: none;
+    }
+    .btn-dark:hover { background: #333; }
+    .btn-dark:active { transform: scale(.98); }
+
+    /* Tags */
+    .tag {
+      display: inline-flex; align-items: center; border-radius: 9999px;
+      padding: 3px 10px; font-size: 10px; font-weight: 700;
+      text-transform: uppercase; letter-spacing: .08em;
+    }
+    .tag-teal { background: var(--teal-bg); color: var(--teal-text); }
+    .tag-dark { background: var(--ink); color: white; }
+
+    /* ── NAV ─────────────────────────────────── */
+    .nav {
+      position: sticky; top: 0; z-index: 100;
+      background: rgba(251,251,250,.9);
+      backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+    }
+    .nav-inner { display: flex; align-items: center; height: 52px; gap: 0; }
+    .nav-logo {
+      font-family: var(--font-logo); font-size: 22px; font-weight: 700;
+      color: var(--ink); text-decoration: none; flex-shrink: 0;
+    }
+    .nav-links { display: flex; margin-left: auto; }
+    .nav-link {
+      font-size: 12px; font-weight: 500; color: var(--ink-3); text-decoration: none;
+      padding: 0 16px; height: 52px; display: flex; align-items: center;
+      border-left: 1px solid var(--border);
+      transition: color .12s, background .12s;
+    }
+    .nav-link:first-child { margin-left: 32px; }
+    .nav-link.active { color: var(--brand-teal); background: var(--teal-bg); }
+    .nav-link:not(.active):hover { color: var(--ink-2); background: var(--surface-2); }
+    .nav-actions {
+      display: flex; align-items: center;
+      border-left: 1px solid var(--border); padding-left: 14px; margin-left: 14px; gap: 8px;
+    }
+    .nav-cart-btn {
+      position: relative; display: flex; align-items: center; gap: 6px;
+      font-family: var(--font-body); font-size: 12px; font-weight: 600;
+      color: var(--ink-2); background: transparent;
+      border: 1px solid var(--border); border-radius: 6px; padding: 6px 12px;
+      cursor: pointer; transition: border-color .12s;
+    }
+    .nav-cart-btn:hover { border-color: var(--brand-teal); color: var(--brand-teal); }
+    .cart-count {
+      background: var(--teal-bg); color: var(--teal-text);
+      font-size: 9px; font-weight: 800; border-radius: 9999px; padding: 1px 5px;
+    }
+
+    /* ── ANNOUNCE ────────────────────────────── */
+    .announce {
+      background: var(--brand-teal); padding: 8px 0; overflow: hidden;
+    }
+    .announce-track {
+      display: flex; animation: scroll-ann 50s linear infinite; white-space: nowrap;
+    }
+    .announce-item {
+      font-size: 11px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: .18em; color: rgba(0,0,0,.7); padding: 0 28px; flex-shrink: 0;
+    }
+    @keyframes scroll-ann { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+
+    /* ── HERO ────────────────────────────────── */
+    .hero {
+      background: var(--surface); border-bottom: 1px solid var(--border);
+      padding: 88px 0 0; text-align: center; position: relative; overflow: hidden;
+    }
+    .hero::before {
+      content: '';
+      position: absolute; top: -60px; left: 50%; transform: translateX(-50%);
+      width: 500px; height: 300px;
+      background: radial-gradient(ellipse, rgba(14,177,195,0.05) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .hero-tag-row {
+      display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 28px;
+    }
+    .hero-line { width: 24px; height: 1px; background: var(--border); }
+    .hero-h1 {
+      font-family: var(--font-serif);
+      font-size: clamp(42px,6vw,80px); font-weight: 300; line-height: 1.08;
+      letter-spacing: -.03em; color: var(--ink); max-width: 720px; margin: 0 auto 26px;
+    }
+    .hero-h1 em { font-style: italic; font-weight: 300; color: var(--ink-3); }
+    .hero-sub {
+      font-size: 17px; font-weight: 300; color: var(--ink-3);
+      max-width: 420px; margin: 0 auto 36px; line-height: 1.6;
+    }
+    .hero-cta { display: flex; align-items: center; justify-content: center; gap: 12px; margin-bottom: 64px; }
+
+    /* Document frame around hero image */
+    .hero-img-frame {
+      max-width: 880px; margin: 0 auto;
+      border: 1px solid var(--border); border-bottom: none;
+      border-radius: 12px 12px 0 0; overflow: hidden;
+    }
+    .hero-img-chrome {
+      height: 36px; background: var(--surface-2); border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; padding: 0 14px; gap: 6px;
+    }
+    .chrome-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--border); }
+    .chrome-url {
+      margin-left: 10px; font-size: 10.5px; color: var(--ink-4);
+      font-family: 'Courier New', monospace;
+    }
+    .hero-img-body {
+      height: 460px; background: linear-gradient(165deg,#EBE8E0,#DAD5CC);
+      position: relative; overflow: hidden;
+    }
+    .hero-img-body img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .hero-img-ph {
+      width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;
+    }
+
+    /* ── CATEGORY TABS ───────────────────────── */
+    .cat-nav { background: var(--surface); border-bottom: 1px solid var(--border); }
+    .cat-inner { display: flex; overflow-x: auto; scrollbar-width: none; }
+    .cat-inner::-webkit-scrollbar { display: none; }
+    .cat-tab {
+      flex-shrink: 0; padding: 12px 20px;
+      font-size: 12.5px; font-weight: 500; color: var(--ink-3);
+      background: transparent; border: none;
+      border-bottom: 2px solid transparent; cursor: pointer;
+      transition: color .12s, border-color .12s; white-space: nowrap;
+    }
+    .cat-tab.active { color: var(--brand-teal); border-bottom-color: var(--brand-teal); }
+    .cat-tab:not(.active):hover { color: var(--ink-2); border-bottom-color: var(--border); }
+
+    /* ── PRODUCTS — bento ────────────────────── */
+    .products { background: var(--canvas); padding: 88px 0; }
+    .sec-row {
+      display: flex; align-items: flex-end; justify-content: space-between; margin-bottom: 44px;
+    }
+    .sec-label {
+      display: block; font-size: 10.5px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: .22em; color: var(--brand-teal); margin-bottom: 8px;
+    }
+    .sec-h2 {
+      font-family: var(--font-serif); font-size: clamp(22px,2.8vw,34px); font-weight: 400;
+      letter-spacing: -.025em; color: var(--ink); line-height: 1.12;
+    }
+    .see-all {
+      display: inline-flex; align-items: center; gap: 6px;
+      font-size: 13px; font-weight: 600; color: var(--ink-3); text-decoration: none;
+      border-bottom: 1px solid var(--border); padding-bottom: 2px;
+      transition: color .12s, border-color .12s;
+    }
+    .see-all:hover { color: var(--brand-teal); border-color: var(--brand-teal); }
+
+    .bento { display: grid; grid-template-columns: repeat(12,1fr); gap: 10px; }
+    .ba { grid-column: 1/5; grid-row: 1; }
+    .bb { grid-column: 5/9; grid-row: 1; }
+    .bc { grid-column: 9/13; grid-row: 1; }
+    .bd { grid-column: 1/7; grid-row: 2; }
+    .be { grid-column: 7/13; grid-row: 2; }
+
+    .pcard {
+      background: var(--surface); border: 1px solid var(--border); border-radius: 10px;
+      overflow: hidden; display: flex; flex-direction: column;
+      transition: box-shadow .2s, transform .2s;
+    }
+    .pcard:hover { box-shadow: 0 2px 12px rgba(0,0,0,0.04); transform: translateY(-1px); }
+    .pcard.wide { flex-direction: row; }
+
+    .pimg { flex-shrink: 0; position: relative; }
+    .pimg.port { height: 210px; }
+    .pimg.land { height: 100%; }
+    .pimg-bg { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; }
+    .pimg-bg img { width: 100%; height: 100%; object-fit: cover; }
+    .pimg-tag { position: absolute; top: 10px; left: 10px; }
+
+    .pbody { padding: 16px 18px 18px; display: flex; flex-direction: column; flex: 1; }
+    .pcat {
+      font-size: 10px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: .18em; color: var(--brand-teal); margin-bottom: 4px;
+    }
+    .pname {
+      font-size: 13.5px; font-weight: 600; color: var(--ink); line-height: 1.35;
+      letter-spacing: -.01em; margin-bottom: 12px; flex: 1;
+    }
+    .pfooter {
+      display: flex; align-items: center; justify-content: space-between;
+      border-top: 1px solid var(--border); padding-top: 12px; gap: 8px;
+    }
+    .pprice {
+      font-family: var(--font-serif); font-size: 20px; font-weight: 400;
+      color: var(--ink); letter-spacing: -.02em; line-height: 1;
+    }
+    .pcompare { font-size: 11px; color: var(--ink-4); text-decoration: line-through; }
+    .pinstall { font-size: 10px; color: var(--ink-4); margin-top: 2px; }
+    .padd {
+      width: 32px; height: 32px; border-radius: 6px;
+      background: var(--brand-teal); border: none;
+      display: flex; align-items: center; justify-content: center;
+      color: white; cursor: pointer; flex-shrink: 0;
+      transition: background .12s, transform .1s;
+    }
+    .padd:hover { background: var(--brand-teal-d); }
+    .padd:active { transform: scale(.96); }
+
+    .pcard.wide .pimg { width: 240px; flex-shrink: 0; min-height: 160px; }
+    .pcard.wide .pbody { padding: 22px 22px 22px 18px; justify-content: center; }
+    .pcard.wide .pname { font-size: 15px; max-width: 200px; }
+    .pcard.wide .pprice { font-size: 24px; }
+    .pcard.wide .pfooter { flex-wrap: wrap; align-items: flex-end; }
+    .pcard.wide .padd { width: 36px; height: 36px; }
+
+    /* ── EDITORIAL BREAK ─────────────────────── */
+    .editorial {
+      background: var(--surface); border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border); padding: 80px 0;
+    }
+    .editorial-grid { display: grid; grid-template-columns: 1fr 2px 1fr; gap: 56px; align-items: start; }
+    .editorial-sep { background: var(--border); align-self: stretch; }
+    .editorial-pull {
+      font-family: var(--font-serif); font-size: clamp(20px,2.6vw,30px); font-weight: 300;
+      font-style: italic; color: var(--ink); letter-spacing: -.02em; line-height: 1.25;
+      margin-bottom: 22px; position: relative; padding-left: 20px;
+    }
+    .editorial-pull::before {
+      content: '';
+      position: absolute; left: 0; top: 4px;
+      width: 3px; height: calc(100% - 8px);
+      background: var(--brand-teal); border-radius: 2px;
+    }
+    .editorial-attr {
+      font-size: 10.5px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: .18em; color: var(--ink-4);
+    }
+    .e-stats { display: flex; flex-direction: column; gap: 0; }
+    .e-stat {
+      display: flex; align-items: baseline; gap: 14px;
+      border-bottom: 1px solid var(--border); padding: 20px 0;
+    }
+    .e-stat:first-child { padding-top: 0; }
+    .e-stat:last-child { border-bottom: none; }
+    .e-num {
+      font-family: var(--font-serif); font-size: 40px; font-weight: 300;
+      color: var(--brand-teal); letter-spacing: -.03em; line-height: 1; flex-shrink: 0;
+    }
+    .e-txt { }
+    .e-title { font-size: 13px; font-weight: 700; color: var(--ink); margin-bottom: 3px; }
+    .e-desc { font-size: 12.5px; color: var(--ink-3); line-height: 1.5; }
+
+    /* ── BENEFITS ────────────────────────────── */
+    .benefits { background: var(--canvas); padding: 88px 0; }
+    .benefits-grid {
+      display: grid; grid-template-columns: repeat(4,1fr);
+      border: 1px solid var(--border); border-radius: 10px; overflow: hidden;
+      background: var(--border); gap: 1px;
+    }
+    .benefit { background: var(--surface); padding: 32px 26px; display: flex; flex-direction: column; gap: 14px; }
+    .benefit-icon { width: 38px; height: 38px; color: var(--brand-teal); }
+    .benefit-title { font-size: 14px; font-weight: 700; color: var(--ink); letter-spacing: -.01em; }
+    .benefit-desc { font-size: 12.5px; color: var(--ink-3); line-height: 1.65; }
+
+    /* ── FAQ ─────────────────────────────────── */
+    .faq { background: var(--surface); border-top: 1px solid var(--border); padding: 88px 0; }
+    .faq-split { display: grid; grid-template-columns: 1fr 2fr; gap: 72px; align-items: start; }
+    .faq-sticky { position: sticky; top: 68px; }
+    .faq-h2 {
+      font-family: var(--font-serif); font-size: 28px; font-weight: 300;
+      letter-spacing: -.025em; color: var(--ink); line-height: 1.18; margin-bottom: 14px;
+    }
+    .faq-sub { font-size: 13px; color: var(--ink-3); line-height: 1.6; margin-bottom: 24px; }
+    .faq-item { border-bottom: 1px solid var(--border); }
+    .faq-item:first-child { border-top: 1px solid var(--border); }
+    .faq-q {
+      width: 100%; background: transparent; border: none; padding: 17px 0;
+      display: flex; align-items: center; justify-content: space-between;
+      font-family: var(--font-body); font-size: 14px; font-weight: 600;
+      color: var(--ink); cursor: pointer; text-align: left; gap: 14px;
+    }
+    .faq-q:hover { color: var(--brand-teal); }
+    .faq-icon { font-size: 18px; font-weight: 300; color: var(--ink-4); line-height: 1; flex-shrink: 0; }
+    .faq-a { font-size: 13.5px; color: var(--ink-3); line-height: 1.65; padding-bottom: 16px; max-width: 520px; display: none; }
+
+    /* ── CTA ─────────────────────────────────── */
+    .cta { background: var(--brand-dark); padding: 112px 0; text-align: center; position: relative; overflow: hidden; }
+    .cta::before {
+      content: '';
+      position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%);
+      width: 600px; height: 350px;
+      background: radial-gradient(ellipse, rgba(14,177,195,0.1) 0%, transparent 65%);
+      pointer-events: none;
+    }
+    .cta-eyebrow {
+      display: block; margin-bottom: 20px;
+      font-size: 10.5px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: .28em; color: var(--brand-teal);
+    }
+    .cta-h2 {
+      font-family: var(--font-serif); font-size: clamp(28px,4vw,52px);
+      font-weight: 300; letter-spacing: -.03em; color: #F5F5F5;
+      line-height: 1.1; max-width: 540px; margin: 0 auto 18px;
+    }
+    .cta-h2 em { font-style: italic; color: rgba(255,255,255,.5); }
+    .cta-sub {
+      font-size: 15px; color: rgba(255,255,255,.45); max-width: 340px;
+      margin: 0 auto 40px; line-height: 1.6;
+    }
+    .cta-actions { display: flex; align-items: center; justify-content: center; gap: 12px; }
+    .btn-cta-primary {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: var(--brand-teal); color: white;
+      border: none; border-radius: 6px; padding: 13px 26px;
+      font-family: var(--font-body); font-size: 14px; font-weight: 700;
+      cursor: pointer; transition: background .18s, transform .15s;
+    }
+    .btn-cta-primary:hover { background: var(--brand-teal-d); transform: scale(.98); }
+    .btn-cta-ghost {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: transparent; color: rgba(255,255,255,.7);
+      border: 1px solid rgba(255,255,255,.15); border-radius: 6px; padding: 12px 25px;
+      font-family: var(--font-body); font-size: 14px; font-weight: 600;
+      cursor: pointer; transition: border-color .15s, color .15s;
+    }
+    .btn-cta-ghost:hover { border-color: rgba(255,255,255,.4); color: rgba(255,255,255,.9); }
+
+    /* ── FOOTER ──────────────────────────────── */
+    .footer { background: var(--brand-dark); border-top: 1px solid rgba(255,255,255,.07); padding: 56px 0 0; }
+    .footer-grid { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 48px; padding-bottom: 44px; }
+    .footer-logo { font-family: var(--font-logo); font-size: 21px; font-weight: 700; color: #F5F5F5; display: block; margin-bottom: 12px; }
+    .footer-tagline { font-size: 12.5px; color: rgba(255,255,255,.35); line-height: 1.6; max-width: 240px; margin-bottom: 20px; }
+    .footer-social { display: flex; gap: 6px; }
+    .footer-soc {
+      width: 30px; height: 30px; border-radius: 6px;
+      border: 1px solid rgba(255,255,255,.1);
+      display: flex; align-items: center; justify-content: center;
+      color: rgba(255,255,255,.3); background: transparent; cursor: pointer;
+      transition: border-color .12s, color .12s;
+    }
+    .footer-soc:hover { border-color: var(--brand-teal); color: var(--brand-teal); }
+    .footer-col-title { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .2em; color: var(--brand-teal); margin-bottom: 18px; }
+    .footer-links { list-style: none; display: flex; flex-direction: column; gap: 11px; }
+    .footer-link { font-size: 13px; color: rgba(255,255,255,.35); text-decoration: none; transition: color .12s; }
+    .footer-link:hover { color: rgba(255,255,255,.7); }
+    .footer-bottom {
+      border-top: 1px solid rgba(255,255,255,.07); padding: 16px 0;
+      display: flex; align-items: center; justify-content: space-between; gap: 16px;
+    }
+    .footer-copy { font-size: 11.5px; color: rgba(255,255,255,.18); }
+    .footer-legal { display: flex; align-items: center; gap: 14px; }
+    .footer-leg { font-size: 11.5px; color: rgba(255,255,255,.18); text-decoration: none; transition: color .12s; }
+    .footer-leg:hover { color: rgba(255,255,255,.45); }
+    .footer-sep { width: 1px; height: 10px; background: rgba(255,255,255,.1); }
+  </style>
+</head>
+<body>
+
+  <!-- NAV -->
+  <nav class="nav">
+    <div class="container nav-inner">
+      <a href="#" class="nav-logo">Artentino</a>
+      <div class="nav-links">
+        <a href="#" class="nav-link active">Inicio</a>
+        <a href="#" class="nav-link">Catálogo</a>
+        <a href="#" class="nav-link">Turnos</a>
+        <a href="#" class="nav-link">Contacto</a>
+        <a href="#" class="nav-link">FAQ</a>
+      </div>
+      <div class="nav-actions">
+        <button class="nav-cart-btn">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+          Carrito <span class="cart-count">3</span>
+        </button>
+        <a href="#" class="btn-primary" style="font-size:12px;padding:7px 14px;">Ingresar</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ANNOUNCE — teal band -->
+  <div class="announce">
+    <div class="announce-track">
+      <span class="announce-item">Envíos a todo el país</span>
+      <span class="announce-item" style="color:rgba(0,0,0,.3);">·</span>
+      <span class="announce-item">6 cuotas sin interés</span>
+      <span class="announce-item" style="color:rgba(0,0,0,.3);">·</span>
+      <span class="announce-item">Showroom Colegiales, CABA</span>
+      <span class="announce-item" style="color:rgba(0,0,0,.3);">·</span>
+      <span class="announce-item">Packs mayoristas disponibles</span>
+      <span class="announce-item" style="color:rgba(0,0,0,.3);">·</span>
+      <span class="announce-item">Diseño argentino</span>
+      <span class="announce-item" style="color:rgba(0,0,0,.3);">·</span>
+      <!-- duplicate -->
+      <span class="announce-item">Envíos a todo el país</span>
+      <span class="announce-item" style="color:rgba(0,0,0,.3);">·</span>
+      <span class="announce-item">6 cuotas sin interés</span>
+      <span class="announce-item" style="color:rgba(0,0,0,.3);">·</span>
+      <span class="announce-item">Showroom Colegiales, CABA</span>
+      <span class="announce-item" style="color:rgba(0,0,0,.3);">·</span>
+      <span class="announce-item">Packs mayoristas disponibles</span>
+      <span class="announce-item" style="color:rgba(0,0,0,.3);">·</span>
+      <span class="announce-item">Diseño argentino</span>
+      <span class="announce-item" style="color:rgba(0,0,0,.3);">·</span>
+    </div>
+  </div>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="container">
+      <div class="hero-tag-row reveal">
+        <span class="hero-line"></span>
+        <span class="tag tag-teal">Deco &amp; Hogar</span>
+        <span class="hero-line"></span>
+      </div>
+      <h1 class="hero-h1 reveal reveal-d1">
+        Objetos que hacen<br>
+        <em>que un lugar se sienta hogar</em>
+      </h1>
+      <p class="hero-sub reveal reveal-d2">Espejos LED, muebles y deco de diseño argentino. Por unidad o en lote mayorista.</p>
+      <div class="hero-cta reveal reveal-d3">
+        <a href="#" class="btn-primary">
+          Ver catálogo
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+        </a>
+        <a href="#" class="btn-outline">Reservar turno en showroom</a>
+      </div>
+      <!-- Document frame -->
+      <div class="hero-img-frame reveal reveal-d4">
+        <div class="hero-img-chrome">
+          <div class="chrome-dot"></div><div class="chrome-dot"></div><div class="chrome-dot"></div>
+          <span class="chrome-url">artentino.com/catalogo</span>
+        </div>
+        <div class="hero-img-body">
+          <img src="Imagen1.jpeg" alt="Interiores con diseño Artentino"
+               onerror="this.style.display='none';">
+          <div class="hero-img-ph" style="display:none;">
+            <div style="text-align:center;">
+              <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="#C0B8B0" stroke-width="0.7" stroke-linecap="round">
+                <ellipse cx="12" cy="11" rx="6" ry="7.5"/><line x1="12" y1="18.5" x2="12" y2="22"/>
+                <line x1="9" y1="22" x2="15" y2="22"/>
+                <circle cx="12" cy="3" r="0.9" fill="rgba(14,177,195,0.6)" stroke="none"/>
+                <circle cx="17.8" cy="6.5" r="0.9" fill="rgba(14,177,195,0.6)" stroke="none"/>
+                <circle cx="6.2" cy="6.5" r="0.9" fill="rgba(14,177,195,0.6)" stroke="none"/>
+              </svg>
+              <p style="margin-top:12px;font-size:12px;color:#AEAEAE;">Imagen1.jpeg</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CATEGORY TABS -->
+  <div class="cat-nav">
+    <div class="container" style="padding:0 40px;">
+      <div class="cat-inner">
+        <button class="cat-tab active">Todos</button>
+        <button class="cat-tab">Espejos LED</button>
+        <button class="cat-tab">Muebles</button>
+        <button class="cat-tab">Tazas</button>
+        <button class="cat-tab">Vasos Térmicos</button>
+        <button class="cat-tab">Lámparas</button>
+        <button class="cat-tab">Mate</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- PRODUCTS -->
+  <section class="products">
+    <div class="container">
+      <div class="sec-row reveal">
+        <div>
+          <span class="sec-label">Selección</span>
+          <h2 class="sec-h2">Lo más buscado esta semana</h2>
+        </div>
+        <a href="#" class="see-all">
+          Ver todo el catálogo
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+        </a>
+      </div>
+      <div class="bento">
+
+        <!-- A — tall -->
+        <div class="ba reveal">
+          <div class="pcard" style="height:100%;">
+            <div class="pimg port" style="flex:1;min-height:200px;">
+              <div class="pimg-bg" style="height:100%;background:linear-gradient(150deg,#EBE7DF,#D8D3C8);">
+                <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="#B8B2A8" stroke-width="0.7" stroke-linecap="round">
+                  <ellipse cx="12" cy="11" rx="6" ry="7.5"/><line x1="12" y1="18.5" x2="12" y2="22"/>
+                  <line x1="9" y1="22" x2="15" y2="22"/>
+                  <circle cx="12" cy="3" r="0.9" fill="rgba(14,177,195,0.7)" stroke="none"/>
+                  <circle cx="17.8" cy="6.5" r="0.9" fill="rgba(14,177,195,0.7)" stroke="none"/>
+                  <circle cx="6.2" cy="6.5" r="0.9" fill="rgba(14,177,195,0.7)" stroke="none"/>
+                  <circle cx="19" cy="11.5" r="0.9" fill="rgba(14,177,195,0.7)" stroke="none"/>
+                  <circle cx="5" cy="11.5" r="0.9" fill="rgba(14,177,195,0.7)" stroke="none"/>
+                </svg>
+              </div>
+              <div class="pimg-tag"><span class="tag" style="background:var(--teal-bg);color:var(--teal-text);">Oferta</span></div>
+            </div>
+            <div class="pbody">
+              <p class="pcat">Espejos LED</p>
+              <p class="pname">Espejo LED Redondo Premium — 80 cm</p>
+              <div class="pfooter">
+                <div><p class="pprice">$89.000</p><p class="pcompare">$110.000</p><p class="pinstall">6x $14.833 s/i</p></div>
+                <button class="padd"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- B -->
+        <div class="bb reveal reveal-d1">
+          <div class="pcard">
+            <div class="pimg port">
+              <div class="pimg-bg" style="background:linear-gradient(150deg,#F0EDE6,#E4DDD4);">
+                <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="#C0BAB0" stroke-width="0.7" stroke-linecap="round"><path d="M6 4h12l-2 14a2 2 0 0 1-2 1.8H10a2 2 0 0 1-2-1.8L6 4z"/><path d="M18 7h1.5a2 2 0 0 1 0 4H18"/></svg>
+              </div>
+            </div>
+            <div class="pbody">
+              <p class="pcat">Tazas</p>
+              <p class="pname">Taza con Diseño Geométrico — Matte</p>
+              <div class="pfooter">
+                <div><p class="pprice">$12.500</p><p class="pinstall">6x $2.083</p></div>
+                <button class="padd"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- C -->
+        <div class="bc reveal reveal-d2">
+          <div class="pcard">
+            <div class="pimg port">
+              <div class="pimg-bg" style="background:linear-gradient(150deg,#F4F0E8,#EBE5DB);">
+                <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="#C0BAB0" stroke-width="0.7" stroke-linecap="round"><path d="M7 9 Q12 2 17 9 H7z"/><line x1="12" y1="9" x2="12" y2="21"/><line x1="8" y1="21" x2="16" y2="21"/></svg>
+              </div>
+              <div class="pimg-tag"><span class="tag" style="background:var(--ink);color:white;">Nuevo</span></div>
+            </div>
+            <div class="pbody">
+              <p class="pcat">Lámparas</p>
+              <p class="pname">Lámpara Arco Industrial Negro</p>
+              <div class="pfooter">
+                <div><p class="pprice">$67.000</p><p class="pinstall">6x $11.166</p></div>
+                <button class="padd"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- D — wide -->
+        <div class="bd reveal reveal-d1">
+          <div class="pcard wide">
+            <div class="pimg" style="width:240px;min-height:155px;flex-shrink:0;">
+              <div class="pimg-bg" style="height:100%;background:linear-gradient(150deg,#E8E4DC,#DAD4C8);">
+                <svg width="46" height="46" viewBox="0 0 24 24" fill="none" stroke="#C0BAB0" stroke-width="0.7" stroke-linecap="round"><rect x="5" y="6" width="14" height="8" rx="2"/><rect x="3" y="10" width="3" height="6" rx="1"/><rect x="18" y="10" width="3" height="6" rx="1"/><rect x="5" y="14" width="14" height="3" rx="1"/><line x1="7" y1="17" x2="7" y2="21"/><line x1="17" y1="17" x2="17" y2="21"/></svg>
+              </div>
+            </div>
+            <div class="pbody">
+              <p class="pcat">Muebles</p>
+              <p class="pname" style="font-size:15px;max-width:190px;">Cómoda Nórdica Listones Madera Natural</p>
+              <div class="pfooter">
+                <div><p class="pprice" style="font-size:22px;">$245.000</p><p class="pinstall">6x $40.833 sin interés</p></div>
+                <button class="padd" style="width:36px;height:36px;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- E — wide -->
+        <div class="be reveal reveal-d2">
+          <div class="pcard wide">
+            <div class="pimg" style="width:200px;min-height:155px;flex-shrink:0;">
+              <div class="pimg-bg" style="height:100%;background:linear-gradient(150deg,#F0EDE6,#E6E0D6);">
+                <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#C0BAB0" stroke-width="0.7" stroke-linecap="round"><path d="M5 3a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2"/><path d="M12 8v8M8 12h8"/></svg>
+              </div>
+            </div>
+            <div class="pbody">
+              <p class="pcat">Vasos Térmicos</p>
+              <p class="pname" style="max-width:200px;">Vaso Térmico Acero 500ml — Tapa hermética</p>
+              <div class="pfooter">
+                <div><p class="pprice" style="font-size:22px;">$18.000</p><p class="pinstall">6x $3.000</p></div>
+                <button class="padd"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- EDITORIAL BREAK -->
+  <section class="editorial">
+    <div class="container">
+      <div class="editorial-grid reveal">
+        <div>
+          <span style="display:block;font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.22em;color:var(--brand-teal);margin-bottom:20px;">Sobre Artentino</span>
+          <p class="editorial-pull">El diseño de un espacio empieza mucho antes de la entrega. Empieza en elegir bien.</p>
+          <p class="editorial-attr">Showroom Colegiales — Buenos Aires</p>
+        </div>
+        <div class="editorial-sep"></div>
+        <div class="e-stats reveal reveal-d1">
+          <div class="e-stat">
+            <span class="e-num">3.200</span>
+            <div class="e-txt"><p class="e-title">Pedidos realizados</p><p class="e-desc">Clientes que eligieron transformar sus espacios con diseño de calidad.</p></div>
+          </div>
+          <div class="e-stat">
+            <span class="e-num">4.8</span>
+            <div class="e-txt"><p class="e-title">Calificación promedio</p><p class="e-desc">Sobre 5 puntos en más de 800 reseñas verificadas de compradores.</p></div>
+          </div>
+          <div class="e-stat">
+            <span class="e-num">48hs</span>
+            <div class="e-txt"><p class="e-title">Despacho promedio</p><p class="e-desc">La mayoría de los pedidos sale en menos de dos días hábiles.</p></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- BENEFITS -->
+  <section class="benefits">
+    <div class="container">
+      <div class="sec-row reveal" style="margin-bottom:36px;">
+        <div>
+          <span class="sec-label">Por qué elegirnos</span>
+          <h2 class="sec-h2" style="font-size:26px;">Cuatro compromisos reales</h2>
+        </div>
+      </div>
+      <div class="benefits-grid reveal reveal-d1">
+        <div class="benefit">
+          <svg class="benefit-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
+          <p class="benefit-title">Envíos a todo el país</p>
+          <p class="benefit-desc">Embalaje protegido, seguimiento en tiempo real y entrega coordinada donde estés.</p>
+        </div>
+        <div class="benefit">
+          <svg class="benefit-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+          <p class="benefit-title">6 cuotas sin interés</p>
+          <p class="benefit-desc">Con todas las tarjetas bancarias vía MercadoPago. Sin recargo.</p>
+        </div>
+        <div class="benefit">
+          <svg class="benefit-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+          <p class="benefit-title">Showroom en Colegiales</p>
+          <p class="benefit-desc">Cramer 886, Buenos Aires. Lunes a sábados de 9 a 19hs.</p>
+        </div>
+        <div class="benefit">
+          <svg class="benefit-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><polyline points="21 8 21 21 3 21 3 8"/><rect x="1" y="3" width="22" height="5"/><line x1="10" y1="12" x2="14" y2="12"/></svg>
+          <p class="benefit-title">Lotes mayoristas</p>
+          <p class="benefit-desc">Precios por volumen para revendedores, interioristas y empresas.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section class="faq">
+    <div class="container">
+      <div class="faq-split">
+        <div class="faq-sticky reveal">
+          <span style="display:block;font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.22em;color:var(--brand-teal);margin-bottom:12px;">Preguntas frecuentes</span>
+          <h2 class="faq-h2">Resolvemos las dudas más comunes</h2>
+          <p class="faq-sub">Si necesitás algo más puntual, contactanos por WhatsApp o email.</p>
+          <a href="#" class="btn-outline" style="font-size:12px;padding:8px 16px;">Contactar</a>
+        </div>
+        <div class="reveal reveal-d1">
+          <div class="faq-item"><button class="faq-q">¿Cómo se instala un espejo LED?<span class="faq-icon">+</span></button><p class="faq-a">Todos los espejos incluyen guía de instalación paso a paso. No requieren electricista: funcionan con enchufe estándar o via USB. El proceso tarda entre 10 y 20 minutos.</p></div>
+          <div class="faq-item"><button class="faq-q">¿Puedo comprar por lote o mayor cantidad?<span class="faq-icon">+</span></button><p class="faq-a">Sí. Tenemos precios diferenciados para packs y lotes. Contactanos directamente por WhatsApp o completando el formulario de mayoristas para recibir la lista de precios.</p></div>
+          <div class="faq-item"><button class="faq-q">¿Cuánto tarda el envío al interior?<span class="faq-icon">+</span></button><p class="faq-a">Despachamos en 48hs hábiles. AMBA 24-48hs, interior 3-7 días hábiles según empresa de logística.</p></div>
+          <div class="faq-item"><button class="faq-q">¿Puedo visitar el showroom sin turno?<span class="faq-icon">+</span></button><p class="faq-a">Sí, podés venir sin reserva previa en horario de atención. Recomendamos turnos solo para consultorías de interiorismo o pedidos de producto a medida.</p></div>
+          <div class="faq-item"><button class="faq-q">¿Aceptan devoluciones?<span class="faq-icon">+</span></button><p class="faq-a">Sí. Tenés 10 días desde la recepción para solicitar cambio o devolución si el producto llegó dañado o con defecto de fábrica.</p></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="cta">
+    <div class="container">
+      <div class="reveal">
+        <span class="cta-eyebrow">Nuestro showroom</span>
+        <h2 class="cta-h2">Algunos objetos<br><em>hay que verlos en persona.</em></h2>
+        <p class="cta-sub">Cramer 886, Colegiales, Buenos Aires. Lunes a sábados de 9 a 19hs.</p>
+        <div class="cta-actions">
+          <button class="btn-cta-primary">
+            Reservar turno
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+          </button>
+          <button class="btn-cta-ghost">Ver catálogo completo</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div>
+          <span class="footer-logo">Artentino</span>
+          <p class="footer-tagline">Deco, hogar y regalos únicos con diseño argentino. Cuotas sin interés, envíos a todo el país.</p>
+          <div class="footer-social">
+            <button class="footer-soc"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><rect x="2" y="2" width="20" height="20" rx="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5" stroke-width="2"/></svg></button>
+            <button class="footer-soc"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg></button>
+            <button class="footer-soc"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"><path d="M9 12a4 4 0 1 0 4 4V4a5 5 0 0 0 5 5"/></svg></button>
+            <button class="footer-soc"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg></button>
+          </div>
+        </div>
+        <div>
+          <p class="footer-col-title">Navegar</p>
+          <ul class="footer-links"><li><a href="#" class="footer-link">Inicio</a></li><li><a href="#" class="footer-link">Catálogo</a></li><li><a href="#" class="footer-link">Turnos</a></li><li><a href="#" class="footer-link">Contacto</a></li></ul>
+        </div>
+        <div>
+          <p class="footer-col-title">Ayuda</p>
+          <ul class="footer-links"><li><a href="#" class="footer-link">Envíos</a></li><li><a href="#" class="footer-link">Medios de pago</a></li><li><a href="#" class="footer-link">FAQ</a></li><li><a href="#" class="footer-link">Mayoristas</a></li></ul>
+        </div>
+        <div>
+          <p class="footer-col-title">Contacto</p>
+          <ul class="footer-links"><li><span class="footer-link">Cramer 886, Colegiales</span></li><li><span class="footer-link">CABA — CP 1426</span></li><li><a href="#" class="footer-link">+54 9 11 3936 3333</a></li><li><a href="#" class="footer-link">info@artentino.com</a></li></ul>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p class="footer-copy">© 2026 Artentino · Todos los derechos reservados</p>
+        <div class="footer-legal">
+          <a href="#" class="footer-leg">Privacidad</a>
+          <div class="footer-sep"></div>
+          <a href="#" class="footer-leg">Términos</a>
+          <div class="footer-sep"></div>
+          <span class="footer-leg" style="display:flex;align-items:center;gap:5px;">
+            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="var(--brand-teal)" stroke-width="2.5" stroke-linecap="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+            Compra segura
+          </span>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    const obs = new IntersectionObserver((entries) => {
+      entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); obs.unobserve(e.target); } });
+    }, { threshold: 0.08, rootMargin: '0px 0px -40px 0px' });
+    document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
+
+    document.querySelectorAll('.faq-q').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const a = btn.parentElement.querySelector('.faq-a');
+        const icon = btn.querySelector('.faq-icon');
+        const open = a.style.display === 'block';
+        a.style.display = open ? 'none' : 'block';
+        icon.textContent = open ? '+' : '−';
+      });
+    });
+  </script>
+</body>
+</html>

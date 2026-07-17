@@ -1,13 +1,18 @@
 ﻿import { prisma } from '@/lib/prisma'
 import { serializeProduct } from '@/lib/serialize'
+import { getSiteConfig } from '@/app/lib/site-config'
 import ProductCard from './product-card'
 
 export default async function ProductGrid() {
+  const siteConfig = await getSiteConfig()
+
   const products = await prisma.product.findMany({
     where: { featured: true, active: true },
     include: { category: true },
-    orderBy: [{ sortOrder: 'asc' }, { createdAt: 'desc' }],
-    take: 6,
+    orderBy:
+      siteConfig.featuredOrderMode === 'recent'
+        ? [{ createdAt: 'desc' }]
+        : [{ sortOrder: 'asc' }, { createdAt: 'desc' }],
   })
 
   return (

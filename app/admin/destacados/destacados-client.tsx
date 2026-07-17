@@ -2,7 +2,9 @@
 
 import { useState, useTransition } from 'react'
 import Image from 'next/image'
-import { addDestacado, removeDestacado, updateDestacadoOrder } from './actions'
+import { addDestacado, removeDestacado, updateDestacadoOrder, updateFeaturedOrderMode } from './actions'
+
+type OrderMode = 'manual' | 'recent'
 
 type Featured = {
   id: string
@@ -23,12 +25,27 @@ function fmt(n: number) {
   return `$${n.toLocaleString('es-AR')}`
 }
 
-export default function DestacadosClient({ initial }: { initial: Featured[] }) {
+export default function DestacadosClient({
+  initial,
+  initialOrderMode,
+}: {
+  initial: Featured[]
+  initialOrderMode: OrderMode
+}) {
   const [featured, setFeatured] = useState(initial)
   const [query, setQuery] = useState('')
   const [results, setResults] = useState<SearchResult[]>([])
   const [searching, setSearching] = useState(false)
+  const [orderMode, setOrderMode] = useState<OrderMode>(initialOrderMode)
   const [, startTransition] = useTransition()
+
+  function handleOrderModeChange(mode: OrderMode) {
+    if (mode === orderMode) return
+    setOrderMode(mode)
+    startTransition(async () => {
+      await updateFeaturedOrderMode(mode)
+    })
+  }
 
   async function handleSearch(q: string) {
     setQuery(q)
@@ -127,6 +144,38 @@ export default function DestacadosClient({ initial }: { initial: Featured[] }) {
         )}
       </div>
 
+      {/* Orden de visualización */}
+      <div>
+        <h2 className="mb-3 text-sm font-black uppercase tracking-wider text-gray-400">
+          Orden de visualización
+        </h2>
+        <div className="inline-flex overflow-hidden rounded-xl border border-gray-200">
+          <button
+            onClick={() => handleOrderModeChange('manual')}
+            className={`px-4 py-2 text-sm font-bold transition-colors ${
+              orderMode === 'manual' ? 'text-white' : 'text-gray-500 hover:bg-gray-50'
+            }`}
+            style={orderMode === 'manual' ? { backgroundColor: '#0eb1c3' } : undefined}
+          >
+            Orden manual
+          </button>
+          <button
+            onClick={() => handleOrderModeChange('recent')}
+            className={`px-4 py-2 text-sm font-bold transition-colors ${
+              orderMode === 'recent' ? 'text-white' : 'text-gray-500 hover:bg-gray-50'
+            }`}
+            style={orderMode === 'recent' ? { backgroundColor: '#0eb1c3' } : undefined}
+          >
+            Más recientes primero
+          </button>
+        </div>
+        <p className="mt-2 text-xs text-gray-400">
+          {orderMode === 'manual'
+            ? 'Los productos se muestran según el campo "Orden" de la tabla.'
+            : 'Los productos se muestran según su fecha de creación, más nuevos primero. El campo "Orden" no tiene efecto en este modo.'}
+        </p>
+      </div>
+
       {/* Lista de destacados */}
       <div>
         <h2 className="mb-3 text-sm font-black uppercase tracking-wider text-gray-400">
@@ -170,6 +219,7 @@ export default function DestacadosClient({ initial }: { initial: Featured[] }) {
                       <OrderInput
                         value={f.sortOrder}
                         onSave={(v) => handleOrderChange(f.id, v)}
+                        disabled={orderMode === 'recent'}
                       />
                     </td>
                     <td className="px-5 py-3 text-right">
@@ -191,15 +241,24 @@ export default function DestacadosClient({ initial }: { initial: Featured[] }) {
   )
 }
 
-function OrderInput({ value, onSave }: { value: number; onSave: (v: number) => void }) {
+function OrderInput({
+  value,
+  onSave,
+  disabled,
+}: {
+  value: number
+  onSave: (v: number) => void
+  disabled?: boolean
+}) {
   const [v, setV] = useState(value)
   return (
     <input
       type="number"
       value={v}
+      disabled={disabled}
       onChange={(e) => setV(Number(e.target.value))}
       onBlur={() => { if (v !== value) onSave(v) }}
-      className="w-16 rounded border border-gray-200 px-2 py-1 text-center text-xs focus:border-[#0eb1c3] focus:outline-none"
+      className="w-16 rounded border border-gray-200 px-2 py-1 text-center text-xs focus:border-[#0eb1c3] focus:outline-none disabled:cursor-not-allowed disabled:bg-gray-50 disabled:text-gray-300"
     />
   )
 }
