@@ -3,8 +3,14 @@
 import { useState, useTransition, useRef, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import {
-  createCategory, updateCategory, deleteCategory,
-  createSubcategory, updateSubcategory, deleteSubcategory,
+  DndContext, PointerSensor, TouchSensor, useSensor, useSensors, closestCenter,
+  type DragEndEvent,
+} from '@dnd-kit/core'
+import { SortableContext, useSortable, verticalListSortingStrategy, arrayMove } from '@dnd-kit/sortable'
+import { CSS } from '@dnd-kit/utilities'
+import {
+  createCategory, updateCategory, deleteCategory, reorderCategories,
+  createSubcategory, updateSubcategory, deleteSubcategory, reorderSubcategories,
 } from './actions'
 
 type Subcat = { id: string; name: string; slug: string; order: number; categoryId: string }
@@ -12,6 +18,16 @@ type Cat = { id: string; name: string; slug: string; order: number; isSpecial: b
 
 function toSlug(s: string) {
   return s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9\s-]/g, '').trim().replace(/\s+/g, '-')
+}
+
+function GripIcon() {
+  return (
+    <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
+      <circle cx="8" cy="6" r="1.6" /><circle cx="16" cy="6" r="1.6" />
+      <circle cx="8" cy="12" r="1.6" /><circle cx="16" cy="12" r="1.6" />
+      <circle cx="8" cy="18" r="1.6" /><circle cx="16" cy="18" r="1.6" />
+    </svg>
+  )
 }
 
 // Sin w-full a propósito: combinado con flex-1 (usado en los campos "Nombre")
@@ -28,7 +44,14 @@ const noAutofill = {
   'data-form-type': 'other',
 } as const
 
-export default function CategoriasTable({ initial: cats }: { initial: Cat[] }) {
+export default function CategoriasTable({ initial }: { initial: Cat[] }) {
+  const [cats, setCats] = useState(initial)
+  const [prevInitial, setPrevInitial] = useState(initial)
+  if (initial !== prevInitial) {
+    setPrevInitial(initial)
+    setCats(initial)
+  }
+
   const router = useRouter()
   const [, startT] = useTransition()
 
@@ -36,10 +59,40 @@ export default function CategoriasTable({ initial: cats }: { initial: Cat[] }) {
     startT(() => { router.refresh() })
   }
 
+  // "Todos" (isSpecial) queda siempre al final y no participa del drag-and-drop.
+  const draggableCats = cats.filter((c) => !c.isSpecial)
+  const specialCats = cats.filter((c) => c.isSpecial)
+
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
+    useSensor(TouchSensor, { activationConstraint: { delay: 200, tolerance: 5 } }),
+  )
+
+  function handleDragEnd(event: DragEndEvent) {
+    const { active, over } = event
+    if (!over || active.id === over.id) return
+    const oldIndex = draggableCats.findIndex((c) => c.id === active.id)
+    const newIndex = draggableCats.findIndex((c) => c.id === over.id)
+    const reordered = arrayMove(draggableCats, oldIndex, newIndex)
+    setCats([...reordered, ...specialCats])
+    startT(async () => {
+      await reorderCategories(reordered.map((c) => c.id))
+      refresh()
+    })
+  }
+
   return (
     <div className="space-y-4">
-      {cats.map((cat) => (
-        <CategoryRow key={cat.id} cat={cat} onRefresh={refresh} />
+      <DndContext id="categorias-dnd" sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+        <SortableContext items={draggableCats.map((c) => c.id)} strategy={verticalListSortingStrategy}>
+          {draggableCats.map((cat) => (
+            <CategoryRow key={cat.id} cat={cat} onRefresh={refresh} draggable />
+          ))}
+        </SortableContext>
+      </DndContext>
+
+      {specialCats.map((cat) => (
+        <CategoryRow key={cat.id} cat={cat} onRefresh={refresh} draggable={false} />
       ))}
 
       <AddCategoryRow onRefresh={refresh} />
@@ -49,16 +102,47 @@ export default function CategoriasTable({ initial: cats }: { initial: Cat[] }) {
 
 // ─── Fila de categoría padre ─────────────────────────────────────────────────
 
-function CategoryRow({ cat, onRefresh }: { cat: Cat; onRefresh: () => void }) {
+function CategoryRow({ cat, onRefresh, draggable }: { cat: Cat; onRefresh: () => void; draggable: boolean }) {
   const [open, setOpen] = useState(true)
   const [editing, setEditing] = useState(false)
   const [form, setForm] = useState({ name: cat.name, slug: cat.slug, order: cat.order })
   const [addingSubcat, setAddingSubcat] = useState(false)
   const [, startT] = useTransition()
-  const rowRef = useRef<HTMLDivElement>(null)
+  const scrollRef = useRef<HTMLDivElement>(null)
+
+  const [subcats, setSubcats] = useState(cat.subcategories)
+  const [prevSubcategories, setPrevSubcategories] = useState(cat.subcategories)
+  if (cat.subcategories !== prevSubcategories) {
+    setPrevSubcategories(cat.subcategories)
+    setSubcats(cat.subcategories)
+  }
+
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
+    id: cat.id,
+    disabled: !draggable,
+  })
+  const setRefs = (el: HTMLDivElement | null) => { setNodeRef(el); scrollRef.current = el }
+
+  const subSensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
+    useSensor(TouchSensor, { activationConstraint: { delay: 200, tolerance: 5 } }),
+  )
+
+  function handleSubDragEnd(event: DragEndEvent) {
+    const { active, over } = event
+    if (!over || active.id === over.id) return
+    const oldIndex = subcats.findIndex((s) => s.id === active.id)
+    const newIndex = subcats.findIndex((s) => s.id === over.id)
+    const reordered = arrayMove(subcats, oldIndex, newIndex)
+    setSubcats(reordered)
+    startT(async () => {
+      await reorderSubcategories(cat.id, reordered.map((s) => s.id))
+      onRefresh()
+    })
+  }
 
   useEffect(() => {
-    if (editing) rowRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
+    if (editing) scrollRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
   }, [editing])
 
   function save() {
@@ -78,9 +162,23 @@ function CategoryRow({ cat, onRefresh }: { cat: Cat; onRefresh: () => void }) {
   }
 
   return (
-    <div ref={rowRef} className="overflow-hidden rounded-2xl border border-[#e5e7eb] bg-white">
+    <div
+      ref={setRefs}
+      style={{ transform: CSS.Transform.toString(transform), transition, opacity: isDragging ? 0.5 : 1 }}
+      className="overflow-hidden rounded-2xl border border-[#e5e7eb] bg-white"
+    >
       {/* Cabecera del grupo */}
       <div className="flex items-center gap-3 border-b border-[#f3f4f6] bg-[#f9fafb] px-5 py-3">
+        {draggable && (
+          <button
+            {...attributes}
+            {...listeners}
+            className="flex h-6 w-6 shrink-0 cursor-grab items-center justify-center rounded text-[#9ca3af] transition-colors hover:text-[#1E1E1E] active:cursor-grabbing"
+            aria-label="Arrastrar para reordenar"
+          >
+            <GripIcon />
+          </button>
+        )}
         <button
           onClick={() => setOpen((v) => !v)}
           className="flex h-6 w-6 shrink-0 items-center justify-center rounded text-[#9ca3af] transition-colors hover:text-[#1E1E1E]"
@@ -106,7 +204,7 @@ function CategoryRow({ cat, onRefresh }: { cat: Cat; onRefresh: () => void }) {
             {cat.isSpecial && (
               <span className="rounded-full bg-[#0eb1c3]/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-[#0eb1c3]">Especial</span>
             )}
-            <span className="ml-auto text-xs text-[#9ca3af]">{cat.subcategories.length} subcategorías</span>
+            <span className="ml-auto text-xs text-[#9ca3af]">{subcats.length} subcategorías</span>
           </div>
         )}
 
@@ -125,13 +223,17 @@ function CategoryRow({ cat, onRefresh }: { cat: Cat; onRefresh: () => void }) {
       {/* Subcategorías */}
       {open && (
         <div>
-          {cat.subcategories.length === 0 && !addingSubcat && (
+          {subcats.length === 0 && !addingSubcat && (
             <p className="px-8 py-3 text-xs text-[#9ca3af] italic">Sin subcategorías</p>
           )}
 
-          {cat.subcategories.map((sub) => (
-            <SubcatRow key={sub.id} sub={sub} onRefresh={onRefresh} />
-          ))}
+          <DndContext id={`subcats-dnd-${cat.id}`} sensors={subSensors} collisionDetection={closestCenter} onDragEnd={handleSubDragEnd}>
+            <SortableContext items={subcats.map((s) => s.id)} strategy={verticalListSortingStrategy}>
+              {subcats.map((sub) => (
+                <SubcatRow key={sub.id} sub={sub} onRefresh={onRefresh} />
+              ))}
+            </SortableContext>
+          </DndContext>
 
           {addingSubcat ? (
             <AddSubcatRow categoryId={cat.id} onRefresh={onRefresh} onCancel={() => setAddingSubcat(false)} />
@@ -155,10 +257,13 @@ function SubcatRow({ sub, onRefresh }: { sub: Subcat; onRefresh: () => void }) {
   const [editing, setEditing] = useState(false)
   const [form, setForm] = useState({ name: sub.name, slug: sub.slug, order: sub.order })
   const [, startT] = useTransition()
-  const rowRef = useRef<HTMLDivElement>(null)
+  const scrollRef = useRef<HTMLDivElement>(null)
+
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: sub.id })
+  const setRefs = (el: HTMLDivElement | null) => { setNodeRef(el); scrollRef.current = el }
 
   useEffect(() => {
-    if (editing) rowRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
+    if (editing) scrollRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
   }, [editing])
 
   function save() {
@@ -178,7 +283,19 @@ function SubcatRow({ sub, onRefresh }: { sub: Subcat; onRefresh: () => void }) {
   }
 
   return (
-    <div ref={rowRef} className="flex items-center gap-3 border-t border-[#f3f4f6] px-8 py-2.5 transition-colors hover:bg-[#f9fafb]">
+    <div
+      ref={setRefs}
+      style={{ transform: CSS.Transform.toString(transform), transition, opacity: isDragging ? 0.5 : 1 }}
+      className="flex items-center gap-3 border-t border-[#f3f4f6] px-8 py-2.5 transition-colors hover:bg-[#f9fafb]"
+    >
+      <button
+        {...attributes}
+        {...listeners}
+        className="flex h-5 w-5 shrink-0 cursor-grab items-center justify-center rounded text-[#9ca3af] transition-colors hover:text-[#1E1E1E] active:cursor-grabbing"
+        aria-label="Arrastrar para reordenar"
+      >
+        <GripIcon />
+      </button>
       {editing ? (
         <>
           <input {...noAutofill} value={form.name} onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))} className={`${inp} flex-1`} />

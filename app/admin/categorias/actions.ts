@@ -26,6 +26,17 @@ export async function deleteCategory(id: string) {
   revalidatePath('/catalogo')
 }
 
+export async function reorderCategories(orderedIds: string[]) {
+  await prisma.$transaction(
+    orderedIds.map((id, index) =>
+      prisma.category.update({ where: { id }, data: { order: index } }),
+    ),
+  )
+  revalidatePath('/admin/categorias')
+  revalidatePath('/')
+  revalidatePath('/catalogo')
+}
+
 // ─── Subcategory (hijo) ───────────────────────────────────────────────────────
 
 export async function createSubcategory(data: { name: string; slug: string; order: number; categoryId: string }) {
@@ -45,6 +56,16 @@ export async function updateSubcategory(
 
 export async function deleteSubcategory(id: string) {
   await prisma.subcategory.delete({ where: { id } })
+  revalidatePath('/admin/categorias')
+  revalidatePath('/catalogo')
+}
+
+export async function reorderSubcategories(categoryId: string, orderedIds: string[]) {
+  await prisma.$transaction(
+    orderedIds.map((id, index) =>
+      prisma.subcategory.updateMany({ where: { id, categoryId }, data: { order: index } }),
+    ),
+  )
   revalidatePath('/admin/categorias')
   revalidatePath('/catalogo')
 }

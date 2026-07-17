@@ -3,7 +3,9 @@ import CategoriasTable from './categorias-table'
 
 export default async function AdminCategorias() {
   const categories = await prisma.category.findMany({
-    orderBy: { order: 'asc' },
+    // isSpecial asc primero: garantiza que "Todos" quede siempre al final,
+    // sin depender de que su campo order numérico sea mayor que el resto.
+    orderBy: [{ isSpecial: 'asc' }, { order: 'asc' }],
     select: {
       id: true,
       name: true,
