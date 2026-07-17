@@ -18,7 +18,11 @@ function fmt(n: number) {
 }
 
 export default function ProductCard({ id, name, slug, price, comparePrice, imageUrl, category }: ProductCardProps) {
-  const hasDiscount = comparePrice != null && comparePrice > price
+  const cashPrice = Math.round(price * (1 - CASH_DISCOUNT))
+  // 6+ cifras en cualquiera de los dos precios → bajamos un escalón el tamaño de ambos,
+  // así no desbordan la card y quedan alineados entre sí.
+  const maxDigits = Math.max(String(cashPrice).length, String(Math.round(price)).length)
+  const priceSizeClass = maxDigits > 5 ? 'text-lg' : 'text-xl'
 
   return (
     <article className="group flex flex-col overflow-hidden rounded-2xl bg-white shadow-[0_2px_8px_rgba(0,0,0,0.06)] transition-[transform,box-shadow] duration-[300ms] [transition-timing-function:var(--ease-out)] hover:-translate-y-1 hover:shadow-[0_20px_48px_rgba(0,0,0,0.13)]">
@@ -67,11 +71,11 @@ export default function ProductCard({ id, name, slug, price, comparePrice, image
             Efectivo / Transferencia
           </p>
           <div className="flex flex-wrap items-baseline justify-between gap-x-2 gap-y-0.5">
-            <p className="text-xl font-black leading-none text-[#0eb1c3]">
-              {fmt(Math.round(price * (1 - CASH_DISCOUNT)))}
+            <p className={`${priceSizeClass} font-black leading-none text-[#0eb1c3]`}>
+              {fmt(cashPrice)}
             </p>
             <div className="text-right">
-              <p className="text-xl font-black leading-none text-[#1E1E1E]">{fmt(price)}</p>
+              <p className={`${priceSizeClass} font-black leading-none text-[#44474C]`}>{fmt(price)}</p>
               <p className="mt-1 text-xs text-[#9ca3af]">
                 6x {fmt(Math.round(price / 6))} sin interés
               </p>

@@ -33,13 +33,7 @@ export default async function InstagramFeed() {
       <div className="mx-auto max-w-6xl">
         {/* Header */}
         <div className="mb-10 text-center">
-          <h2
-            className="font-script text-4xl text-[#1E1E1E] sm:text-5xl"
-            style={{ fontFamily: 'var(--font-script)' }}
-          >
-            Así se ve en casa
-          </h2>
-          <p className="mt-2 text-sm font-black uppercase tracking-widest text-[#0eb1c3]">
+          <p className="text-sm font-black uppercase tracking-widest text-[#0eb1c3]">
             @artentino
           </p>
         </div>

@@ -124,7 +124,7 @@ export default function ProductDetailShell({
                 <p className="mb-1 text-sm font-black uppercase tracking-wider text-gray-400">
                   Precio de lista
                 </p>
-                <p className="text-5xl font-bold leading-none text-[#1E1E1E]">
+                <p className="text-5xl font-bold leading-none text-[#44474C]">
                   {fmt(price)}
                 </p>
                 <p className="mt-1.5 text-sm text-gray-400">
