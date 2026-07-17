@@ -345,3 +345,15 @@ model SiteConfig {
 
   @@map("site_config")
 }
+
+// ─── Instagram ──────────────────────────────────────────────────────────────
+
+model InstagramToken {
+  id          String   @id @default(cuid())
+  accessToken String   @db.Text
+  igUserId    String?
+  expiresAt   DateTime
+  updatedAt   DateTime @updatedAt
+
+  @@map("instagram_token")
+}

@@ -1,11 +1,14 @@
+import { getInstagramFeedImages } from '@/app/lib/instagram-media'
+
 const INSTAGRAM_URL = 'https://instagram.com/artentino'
 
-// TODO: reemplazar por fotos reales de Instagram (URLs de Cloudinary)
+// Placeholder — usado cuando no hay token conectado, está vencido, o la API falla.
+// El feed real se trae en getInstagramFeedImages() (Instagram Graph API).
 const PLACEHOLDER_IMAGES = [
-  { id: 1, alt: 'Publicación de Instagram @artentino' },
-  { id: 2, alt: 'Publicación de Instagram @artentino' },
-  { id: 3, alt: 'Publicación de Instagram @artentino' },
-  { id: 4, alt: 'Publicación de Instagram @artentino' },
+  { id: '1', alt: 'Publicación de Instagram @artentino' },
+  { id: '2', alt: 'Publicación de Instagram @artentino' },
+  { id: '3', alt: 'Publicación de Instagram @artentino' },
+  { id: '4', alt: 'Publicación de Instagram @artentino' },
 ]
 
 // Mosaico asimétrico: 2 tiles grandes + 2 chicas, en grid-cols-4 grid-rows-2
@@ -16,7 +19,15 @@ const TILE_SPANS = [
   'sm:col-span-2 sm:row-span-1',
 ]
 
-export default function InstagramFeed() {
+type Tile = { id: string; alt: string; href: string; imgUrl: string | null }
+
+export default async function InstagramFeed() {
+  const feedImages = await getInstagramFeedImages()
+
+  const tiles: Tile[] = feedImages
+    ? feedImages.map((img) => ({ id: img.id, alt: img.alt, href: img.permalink, imgUrl: img.url }))
+    : PLACEHOLDER_IMAGES.map((img) => ({ id: img.id, alt: img.alt, href: INSTAGRAM_URL, imgUrl: null }))
+
   return (
     <section style={{ backgroundColor: '#F0FBFC' }} className="px-4 py-16 sm:px-6 lg:px-8">
       <div className="mx-auto max-w-6xl">
@@ -35,17 +46,21 @@ export default function InstagramFeed() {
 
         {/* Mosaico */}
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 sm:grid-rows-2 sm:h-[560px] sm:gap-4">
-          {PLACEHOLDER_IMAGES.map((img, i) => (
+          {tiles.map((img, i) => (
             <a
               key={img.id}
-              href={INSTAGRAM_URL}
+              href={img.href}
               target="_blank"
               rel="noopener noreferrer"
               aria-label="Ver en Instagram"
               className={`group relative aspect-square overflow-hidden rounded-2xl bg-gray-200 sm:aspect-auto ${TILE_SPANS[i]}`}
             >
-              {/* Placeholder gris — reemplazar por <img src={img.url}> con fotos reales */}
-              <span className="sr-only">{img.alt}</span>
+              {img.imgUrl ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={img.imgUrl} alt={img.alt} className="h-full w-full object-cover" />
+              ) : (
+                <span className="sr-only">{img.alt}</span>
+              )}
               <div className="absolute inset-0 flex items-center justify-center bg-[#1E1E1E]/40 opacity-0 transition-opacity duration-[260ms] ease-[cubic-bezier(0.23,1,0.32,1)] group-hover:opacity-100">
                 <div className="flex flex-col items-center gap-2 text-white">
                   <InstagramGlyph className="h-7 w-7" />

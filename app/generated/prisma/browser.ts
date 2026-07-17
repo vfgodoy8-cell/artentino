@@ -112,3 +112,8 @@ export type EmailTemplate = Prisma.EmailTemplateModel
  * 
  */
 export type SiteConfig = Prisma.SiteConfigModel
+/**
+ * Model InstagramToken
+ * 
+ */
+export type InstagramToken = Prisma.InstagramTokenModel

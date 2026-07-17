@@ -58,6 +58,15 @@ const groups: NavGroup[] = [
       { href: '/admin/contactos', label: 'Contactos', icon: 'mail' },
     ],
   },
+  {
+    id: 'sistema',
+    label: 'Sistema',
+    icon: 'settings',
+    defaultOpen: true,
+    items: [
+      { href: '/admin/instagram', label: 'Instagram', icon: 'instagram' },
+    ],
+  },
 ]
 
 export default function SidebarNav() {
@@ -227,6 +236,8 @@ function NavIcon({ name, size = 17 }: { name: string; size?: number }) {
       return <svg {...p}><rect x="3" y="3" width="18" height="18" rx="2" /><circle cx="8.5" cy="8.5" r="1.5" /><polyline points="21 15 16 10 5 21" /></svg>
     case 'home':
       return <svg {...p}><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" /><polyline points="9 22 9 12 15 12 15 22" /></svg>
+    case 'instagram':
+      return <svg {...p}><rect x="2" y="2" width="20" height="20" rx="5" ry="5" /><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" /><line x1="17.5" y1="6.5" x2="17.51" y2="6.5" /></svg>
     case 'megaphone':
       return <svg {...p}><path d="M3 11l19-9-9 19-2-8-8-2z" /></svg>
     case 'settings':

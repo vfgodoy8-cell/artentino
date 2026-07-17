@@ -402,7 +402,8 @@ export const ModelName = {
   HeroSlide: 'HeroSlide',
   HeroBadge: 'HeroBadge',
   EmailTemplate: 'EmailTemplate',
-  SiteConfig: 'SiteConfig'
+  SiteConfig: 'SiteConfig',
+  InstagramToken: 'InstagramToken'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -418,7 +419,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "category" | "subcategory" | "product" | "productRelation" | "productComboPrice" | "attribute" | "attributeValue" | "productStock" | "productImage" | "productImageAttributeValue" | "user" | "order" | "orderItem" | "appointment" | "contact" | "heroSlide" | "heroBadge" | "emailTemplate" | "siteConfig"
+    modelProps: "category" | "subcategory" | "product" | "productRelation" | "productComboPrice" | "attribute" | "attributeValue" | "productStock" | "productImage" | "productImageAttributeValue" | "user" | "order" | "orderItem" | "appointment" | "contact" | "heroSlide" | "heroBadge" | "emailTemplate" | "siteConfig" | "instagramToken"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1828,6 +1829,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    InstagramToken: {
+      payload: Prisma.$InstagramTokenPayload<ExtArgs>
+      fields: Prisma.InstagramTokenFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.InstagramTokenFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$InstagramTokenPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.InstagramTokenFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$InstagramTokenPayload>
+        }
+        findFirst: {
+          args: Prisma.InstagramTokenFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$InstagramTokenPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.InstagramTokenFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$InstagramTokenPayload>
+        }
+        findMany: {
+          args: Prisma.InstagramTokenFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$InstagramTokenPayload>[]
+        }
+        create: {
+          args: Prisma.InstagramTokenCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$InstagramTokenPayload>
+        }
+        createMany: {
+          args: Prisma.InstagramTokenCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.InstagramTokenCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$InstagramTokenPayload>[]
+        }
+        delete: {
+          args: Prisma.InstagramTokenDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$InstagramTokenPayload>
+        }
+        update: {
+          args: Prisma.InstagramTokenUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$InstagramTokenPayload>
+        }
+        deleteMany: {
+          args: Prisma.InstagramTokenDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.InstagramTokenUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.InstagramTokenUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$InstagramTokenPayload>[]
+        }
+        upsert: {
+          args: Prisma.InstagramTokenUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$InstagramTokenPayload>
+        }
+        aggregate: {
+          args: Prisma.InstagramTokenAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateInstagramToken>
+        }
+        groupBy: {
+          args: Prisma.InstagramTokenGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.InstagramTokenGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.InstagramTokenCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.InstagramTokenCountAggregateOutputType> | number
+        }
+      }
+    }
   }
 } & {
   other: {
@@ -2126,6 +2201,17 @@ export const SiteConfigScalarFieldEnum = {
 } as const
 
 export type SiteConfigScalarFieldEnum = (typeof SiteConfigScalarFieldEnum)[keyof typeof SiteConfigScalarFieldEnum]
+
+
+export const InstagramTokenScalarFieldEnum = {
+  id: 'id',
+  accessToken: 'accessToken',
+  igUserId: 'igUserId',
+  expiresAt: 'expiresAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type InstagramTokenScalarFieldEnum = (typeof InstagramTokenScalarFieldEnum)[keyof typeof InstagramTokenScalarFieldEnum]
 
 
 export const SortOrder = {
@@ -2464,6 +2550,7 @@ export type GlobalOmitConfig = {
   heroBadge?: Prisma.HeroBadgeOmit
   emailTemplate?: Prisma.EmailTemplateOmit
   siteConfig?: Prisma.SiteConfigOmit
+  instagramToken?: Prisma.InstagramTokenOmit
 }
 
 /* Types for Logging */
