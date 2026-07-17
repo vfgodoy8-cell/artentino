@@ -407,6 +407,7 @@ function AddSubcatRow({
   pushToast: PushToast
 }) {
   const [form, setForm] = useState({ name: '', slug: '', order: 0 })
+  const [slugTouched, setSlugTouched] = useState(false)
   const [isPending, startT] = useTransition()
   const rowRef = useRef<HTMLDivElement>(null)
 
@@ -431,12 +432,22 @@ function AddSubcatRow({
         {...noAutofill}
         autoFocus
         value={form.name}
-        onChange={(e) => { const name = e.target.value; setForm((f) => ({ ...f, name, slug: f.slug || toSlug(name) })) }}
+        onChange={(e) => {
+          const name = e.target.value
+          setForm((f) => ({ ...f, name, slug: slugTouched ? f.slug : toSlug(name) }))
+        }}
         placeholder="Nombre"
         className={`${inp} flex-1`}
         disabled={isPending}
       />
-      <input {...noAutofill} value={form.slug} onChange={(e) => setForm((f) => ({ ...f, slug: e.target.value }))} placeholder="slug" className={`${inp} w-40 font-mono`} disabled={isPending} />
+      <input
+        {...noAutofill}
+        value={form.slug}
+        onChange={(e) => { setSlugTouched(true); setForm((f) => ({ ...f, slug: e.target.value })) }}
+        placeholder="slug"
+        className={`${inp} w-40 font-mono`}
+        disabled={isPending}
+      />
       <input type="number" value={form.order} onChange={(e) => setForm((f) => ({ ...f, order: Number(e.target.value) }))} className="w-14 rounded border border-[#e5e7eb] px-2 py-1 text-center text-xs" disabled={isPending} />
       <button onClick={save} disabled={isPending} className="rounded-lg bg-[#0eb1c3] px-3 py-1 text-xs font-bold text-white disabled:opacity-50">
         {isPending ? 'Guardando...' : 'Guardar'}
@@ -451,6 +462,7 @@ function AddSubcatRow({
 function AddCategoryRow({ onRefresh, pushToast }: { onRefresh: () => void; pushToast: PushToast }) {
   const [open, setOpen] = useState(false)
   const [form, setForm] = useState({ name: '', slug: '', order: 0 })
+  const [slugTouched, setSlugTouched] = useState(false)
   const [isPending, startT] = useTransition()
   const rowRef = useRef<HTMLDivElement>(null)
 
@@ -466,6 +478,7 @@ function AddCategoryRow({ onRefresh, pushToast }: { onRefresh: () => void; pushT
       onRefresh()
       setOpen(false)
       setForm({ name: '', slug: '', order: 0 })
+      setSlugTouched(false)
       pushToast('Categoría creada', 'success')
     })
   }
@@ -487,12 +500,22 @@ function AddCategoryRow({ onRefresh, pushToast }: { onRefresh: () => void; pushT
         {...noAutofill}
         autoFocus
         value={form.name}
-        onChange={(e) => { const name = e.target.value; setForm((f) => ({ ...f, name, slug: f.slug || toSlug(name) })) }}
+        onChange={(e) => {
+          const name = e.target.value
+          setForm((f) => ({ ...f, name, slug: slugTouched ? f.slug : toSlug(name) }))
+        }}
         placeholder="Nombre del grupo"
         className={`${inp} flex-1`}
         disabled={isPending}
       />
-      <input {...noAutofill} value={form.slug} onChange={(e) => setForm((f) => ({ ...f, slug: e.target.value }))} placeholder="slug" className={`${inp} w-40 font-mono`} disabled={isPending} />
+      <input
+        {...noAutofill}
+        value={form.slug}
+        onChange={(e) => { setSlugTouched(true); setForm((f) => ({ ...f, slug: e.target.value })) }}
+        placeholder="slug"
+        className={`${inp} w-40 font-mono`}
+        disabled={isPending}
+      />
       <input type="number" value={form.order} onChange={(e) => setForm((f) => ({ ...f, order: Number(e.target.value) }))} className="w-14 rounded border border-[#e5e7eb] px-2 py-1 text-center text-xs" disabled={isPending} />
       <button onClick={save} disabled={isPending} className="rounded-lg bg-[#0eb1c3] px-4 py-1.5 text-xs font-bold text-white disabled:opacity-50">
         {isPending ? 'Creando...' : 'Crear grupo'}
