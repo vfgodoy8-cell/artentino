@@ -4,6 +4,7 @@ import "./globals.css";
 import Marquee from "./ui/marquee";
 import Header from "./ui/header";
 import Footer from "./ui/footer";
+import InstagramFeed from "./ui/instagram-feed";
 import Providers from "./providers"
 import WhatsAppButton from "./ui/whatsapp-button";
 
@@ -57,6 +58,7 @@ export default function RootLayout({
           <Marquee />
           <Header />
           <main className="flex flex-1 flex-col">{children}</main>
+          <InstagramFeed />
           <Footer />
           <WhatsAppButton />
         </Providers>
