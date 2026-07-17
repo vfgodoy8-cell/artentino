@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useTransition } from 'react'
+import { useState, useTransition, useRef, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import {
   createCategory, updateCategory, deleteCategory,
@@ -14,10 +14,21 @@ function toSlug(s: string) {
   return s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9\s-]/g, '').trim().replace(/\s+/g, '-')
 }
 
-const inp = 'w-full rounded border border-[#e5e7eb] px-2 py-1 text-xs focus:border-[#0eb1c3] focus:outline-none'
+// Sin w-full a propósito: combinado con flex-1 (usado en los campos "Nombre")
+// el ancho colapsa a ~18px (solo padding/border) — flex-1 ya se basta solo.
+const inp = 'min-w-0 rounded border border-[#e5e7eb] px-2 py-1 text-xs focus:border-[#0eb1c3] focus:outline-none'
 
-export default function CategoriasTable({ initial }: { initial: Cat[] }) {
-  const [cats, setCats] = useState(initial)
+// Evita que gestores de contraseñas (1Password, LastPass, Bitwarden) o el
+// autofill del navegador intercepten estos inputs de texto libre.
+const noAutofill = {
+  autoComplete: 'off',
+  'data-1p-ignore': 'true',
+  'data-lpignore': 'true',
+  'data-bwignore': 'true',
+  'data-form-type': 'other',
+} as const
+
+export default function CategoriasTable({ initial: cats }: { initial: Cat[] }) {
   const router = useRouter()
   const [, startT] = useTransition()
 
@@ -44,6 +55,11 @@ function CategoryRow({ cat, onRefresh }: { cat: Cat; onRefresh: () => void }) {
   const [form, setForm] = useState({ name: cat.name, slug: cat.slug, order: cat.order })
   const [addingSubcat, setAddingSubcat] = useState(false)
   const [, startT] = useTransition()
+  const rowRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    if (editing) rowRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
+  }, [editing])
 
   function save() {
     startT(async () => {
@@ -62,7 +78,7 @@ function CategoryRow({ cat, onRefresh }: { cat: Cat; onRefresh: () => void }) {
   }
 
   return (
-    <div className="overflow-hidden rounded-2xl border border-[#e5e7eb] bg-white">
+    <div ref={rowRef} className="overflow-hidden rounded-2xl border border-[#e5e7eb] bg-white">
       {/* Cabecera del grupo */}
       <div className="flex items-center gap-3 border-b border-[#f3f4f6] bg-[#f9fafb] px-5 py-3">
         <button
@@ -77,8 +93,8 @@ function CategoryRow({ cat, onRefresh }: { cat: Cat; onRefresh: () => void }) {
 
         {editing ? (
           <div className="flex flex-1 items-center gap-2">
-            <input value={form.name} onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))} className={`${inp} flex-1`} placeholder="Nombre" />
-            <input value={form.slug} onChange={(e) => setForm((f) => ({ ...f, slug: e.target.value }))} className={`${inp} w-40 font-mono`} placeholder="slug" />
+            <input {...noAutofill} value={form.name} onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))} className={`${inp} flex-1`} placeholder="Nombre" />
+            <input {...noAutofill} value={form.slug} onChange={(e) => setForm((f) => ({ ...f, slug: e.target.value }))} className={`${inp} w-40 font-mono`} placeholder="slug" />
             <input type="number" value={form.order} onChange={(e) => setForm((f) => ({ ...f, order: Number(e.target.value) }))} className="w-14 rounded border border-[#e5e7eb] px-2 py-1 text-center text-xs focus:border-[#0eb1c3] focus:outline-none" />
             <button onClick={save} className="rounded-lg bg-[#0eb1c3] px-3 py-1 text-xs font-bold text-white">Guardar</button>
             <button onClick={() => setEditing(false)} className="rounded-lg px-3 py-1 text-xs font-bold text-[#6b7280] hover:bg-[#f3f4f6]">Cancelar</button>
@@ -139,6 +155,11 @@ function SubcatRow({ sub, onRefresh }: { sub: Subcat; onRefresh: () => void }) {
   const [editing, setEditing] = useState(false)
   const [form, setForm] = useState({ name: sub.name, slug: sub.slug, order: sub.order })
   const [, startT] = useTransition()
+  const rowRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    if (editing) rowRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
+  }, [editing])
 
   function save() {
     startT(async () => {
@@ -157,11 +178,11 @@ function SubcatRow({ sub, onRefresh }: { sub: Subcat; onRefresh: () => void }) {
   }
 
   return (
-    <div className="flex items-center gap-3 border-t border-[#f3f4f6] px-8 py-2.5 transition-colors hover:bg-[#f9fafb]">
+    <div ref={rowRef} className="flex items-center gap-3 border-t border-[#f3f4f6] px-8 py-2.5 transition-colors hover:bg-[#f9fafb]">
       {editing ? (
         <>
-          <input value={form.name} onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))} className={`${inp} flex-1`} />
-          <input value={form.slug} onChange={(e) => setForm((f) => ({ ...f, slug: e.target.value }))} className={`${inp} w-40 font-mono`} />
+          <input {...noAutofill} value={form.name} onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))} className={`${inp} flex-1`} />
+          <input {...noAutofill} value={form.slug} onChange={(e) => setForm((f) => ({ ...f, slug: e.target.value }))} className={`${inp} w-40 font-mono`} />
           <input type="number" value={form.order} onChange={(e) => setForm((f) => ({ ...f, order: Number(e.target.value) }))} className="w-14 rounded border border-[#e5e7eb] px-2 py-1 text-center text-xs" />
           <button onClick={save} className="rounded-lg bg-[#0eb1c3] px-3 py-1 text-xs font-bold text-white">Guardar</button>
           <button onClick={() => setEditing(false)} className="rounded-lg px-3 py-1 text-xs font-semibold text-[#6b7280] hover:bg-[#f3f4f6]">Cancelar</button>
@@ -184,6 +205,11 @@ function SubcatRow({ sub, onRefresh }: { sub: Subcat; onRefresh: () => void }) {
 function AddSubcatRow({ categoryId, onRefresh, onCancel }: { categoryId: string; onRefresh: () => void; onCancel: () => void }) {
   const [form, setForm] = useState({ name: '', slug: '', order: 0 })
   const [, startT] = useTransition()
+  const rowRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    rowRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
+  }, [])
 
   function save() {
     if (!form.name.trim() || !form.slug.trim()) return
@@ -195,15 +221,16 @@ function AddSubcatRow({ categoryId, onRefresh, onCancel }: { categoryId: string;
   }
 
   return (
-    <div className="flex items-center gap-3 border-t border-[#f3f4f6] bg-[#f0fdfc] px-8 py-2.5">
+    <div ref={rowRef} className="flex items-center gap-3 border-t border-[#f3f4f6] bg-[#f0fdfc] px-8 py-2.5">
       <input
+        {...noAutofill}
         autoFocus
         value={form.name}
         onChange={(e) => { const name = e.target.value; setForm((f) => ({ ...f, name, slug: f.slug || toSlug(name) })) }}
         placeholder="Nombre"
         className={`${inp} flex-1`}
       />
-      <input value={form.slug} onChange={(e) => setForm((f) => ({ ...f, slug: e.target.value }))} placeholder="slug" className={`${inp} w-40 font-mono`} />
+      <input {...noAutofill} value={form.slug} onChange={(e) => setForm((f) => ({ ...f, slug: e.target.value }))} placeholder="slug" className={`${inp} w-40 font-mono`} />
       <input type="number" value={form.order} onChange={(e) => setForm((f) => ({ ...f, order: Number(e.target.value) }))} className="w-14 rounded border border-[#e5e7eb] px-2 py-1 text-center text-xs" />
       <button onClick={save} className="rounded-lg bg-[#0eb1c3] px-3 py-1 text-xs font-bold text-white">Guardar</button>
       <button onClick={onCancel} className="rounded-lg px-3 py-1 text-xs font-semibold text-[#6b7280] hover:bg-[#f3f4f6]">Cancelar</button>
@@ -217,6 +244,11 @@ function AddCategoryRow({ onRefresh }: { onRefresh: () => void }) {
   const [open, setOpen] = useState(false)
   const [form, setForm] = useState({ name: '', slug: '', order: 0 })
   const [, startT] = useTransition()
+  const rowRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    if (open) rowRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
+  }, [open])
 
   function save() {
     if (!form.name.trim() || !form.slug.trim()) return
@@ -240,15 +272,16 @@ function AddCategoryRow({ onRefresh }: { onRefresh: () => void }) {
   }
 
   return (
-    <div className="flex items-center gap-3 rounded-2xl border-2 border-[#0eb1c3] bg-[#f0fdfc] px-5 py-3">
+    <div ref={rowRef} className="flex items-center gap-3 rounded-2xl border-2 border-[#0eb1c3] bg-[#f0fdfc] px-5 py-3">
       <input
+        {...noAutofill}
         autoFocus
         value={form.name}
         onChange={(e) => { const name = e.target.value; setForm((f) => ({ ...f, name, slug: f.slug || toSlug(name) })) }}
         placeholder="Nombre del grupo"
         className={`${inp} flex-1`}
       />
-      <input value={form.slug} onChange={(e) => setForm((f) => ({ ...f, slug: e.target.value }))} placeholder="slug" className={`${inp} w-40 font-mono`} />
+      <input {...noAutofill} value={form.slug} onChange={(e) => setForm((f) => ({ ...f, slug: e.target.value }))} placeholder="slug" className={`${inp} w-40 font-mono`} />
       <input type="number" value={form.order} onChange={(e) => setForm((f) => ({ ...f, order: Number(e.target.value) }))} className="w-14 rounded border border-[#e5e7eb] px-2 py-1 text-center text-xs" />
       <button onClick={save} className="rounded-lg bg-[#0eb1c3] px-4 py-1.5 text-xs font-bold text-white">Crear grupo</button>
       <button onClick={() => setOpen(false)} className="rounded-lg px-3 py-1.5 text-xs font-semibold text-[#6b7280] hover:bg-white">Cancelar</button>
