@@ -36,15 +36,20 @@ export default function ProductGallery({
     setIsVideoActive(false)
   }, [selectedColorId])
 
-  const imageDrivenId =
-    selectedColorId &&
-    galleryImages.some((img) => img.attributeValueIds.includes(selectedColorId))
-      ? selectedColorId
-      : null
+  // Priority when a variant is selected: (1) images tagged for it,
+  // (2) generic/untagged images as fallback, (3) full gallery as last resort.
+  const taggedForSelected = selectedColorId
+    ? galleryImages.filter((img) => img.attributeValueIds.includes(selectedColorId))
+    : []
+  const genericImages = galleryImages.filter((img) => img.attributeValueIds.length === 0)
 
-  const visibleImages = imageDrivenId
-    ? galleryImages.filter((img) => img.attributeValueIds.includes(imageDrivenId))
-    : galleryImages
+  const visibleImages = !selectedColorId
+    ? galleryImages
+    : taggedForSelected.length > 0
+      ? taggedForSelected
+      : genericImages.length > 0
+        ? genericImages
+        : galleryImages
 
   const coverInVisible = visibleImages.find((img) => img.isCover) ?? visibleImages[0] ?? null
   const isPreferredVisible =

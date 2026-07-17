@@ -119,10 +119,14 @@ export default async function EditarProductoPage({ params }: Props) {
 
   // AttributeValues of imageDriven attributes that this product has in stock
   const seenAvIds = new Set<string>()
-  const colorValues: { id: string; value: string }[] = []
+  const colorValues: { id: string; value: string; attributeName: string }[] = []
   for (const s of product.stockItems) {
     if (s.attribute.imageDriven && !s.attribute.hidden && !seenAvIds.has(s.attributeValueId)) {
-      colorValues.push({ id: s.attributeValue.id, value: s.attributeValue.value })
+      colorValues.push({
+        id: s.attributeValue.id,
+        value: s.attributeValue.value,
+        attributeName: s.attribute.name,
+      })
       seenAvIds.add(s.attributeValueId)
     }
   }

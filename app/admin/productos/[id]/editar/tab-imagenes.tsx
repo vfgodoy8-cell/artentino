@@ -41,7 +41,7 @@ export default function TabImagenes({
 }: {
   productId: string
   initial: ProductImage[]
-  colorValues: { id: string; value: string }[]
+  colorValues: { id: string; value: string; attributeName: string }[]
 }) {
   const [images, setImages] = useState(() =>
     [...initial].sort((a, b) => a.sortOrder - b.sortOrder),
@@ -335,12 +335,17 @@ function ImageCard({
   img: ProductImage
   index: number
   isSelected: boolean
-  colorValues: { id: string; value: string }[]
+  colorValues: { id: string; value: string; attributeName: string }[]
   onToggleSelect: () => void
   onDeleteOne: () => void
   onCover: () => void
   onChipToggle: (colorValueId: string) => void
 }) {
+  const groupedValues = new Map<string, { id: string; value: string }[]>()
+  for (const cv of colorValues) {
+    if (!groupedValues.has(cv.attributeName)) groupedValues.set(cv.attributeName, [])
+    groupedValues.get(cv.attributeName)!.push(cv)
+  }
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id: img.id,
   })
@@ -426,29 +431,36 @@ function ImageCard({
         </label>
       </div>
 
-      {/* Color chips — only when product has imageDriven values */}
+      {/* Variant chips — grouped by attribute, only when product has imageDriven values */}
       {colorValues.length > 0 && (
-        <div className="flex flex-wrap gap-1">
-          {colorValues.map((cv) => {
-            const active = img.attributeValueIds.includes(cv.id)
-            return (
-              <button
-                key={cv.id}
-                type="button"
-                onClick={(e) => {
-                  e.stopPropagation()
-                  onChipToggle(cv.id)
-                }}
-                className={`rounded-full px-2 py-0.5 text-[10px] font-bold transition-colors ${
-                  active
-                    ? 'bg-[#0eb1c3] text-white'
-                    : 'border border-gray-200 bg-white text-gray-400 hover:border-[#0eb1c3] hover:text-[#0eb1c3]'
-                }`}
-              >
-                {cv.value}
-              </button>
-            )
-          })}
+        <div className="flex flex-col gap-1">
+          {Array.from(groupedValues.entries()).map(([attributeName, values]) => (
+            <div key={attributeName} className="flex flex-wrap items-center gap-1">
+              <span className="text-[9px] font-black uppercase tracking-wider text-gray-300">
+                {attributeName}:
+              </span>
+              {values.map((cv) => {
+                const active = img.attributeValueIds.includes(cv.id)
+                return (
+                  <button
+                    key={cv.id}
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      onChipToggle(cv.id)
+                    }}
+                    className={`rounded-full px-2 py-0.5 text-[10px] font-bold transition-colors ${
+                      active
+                        ? 'bg-[#0eb1c3] text-white'
+                        : 'border border-gray-200 bg-white text-gray-400 hover:border-[#0eb1c3] hover:text-[#0eb1c3]'
+                    }`}
+                  >
+                    {cv.value}
+                  </button>
+                )
+              })}
+            </div>
+          ))}
         </div>
       )}
     </div>

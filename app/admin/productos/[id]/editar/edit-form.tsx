@@ -62,7 +62,7 @@ type EditFormProps = {
     attributeValueIds: string[]
   }[]
   imagesByAvId: Record<string, string>
-  colorValues: { id: string; value: string }[]
+  colorValues: { id: string; value: string; attributeName: string }[]
   relations: {
     id: string
     sortOrder: number
