@@ -4,13 +4,14 @@ import { useState, useTransition, useRef, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import {
   DndContext, PointerSensor, TouchSensor, useSensor, useSensors, closestCenter,
-  type DragEndEvent,
+  useDroppable,
+  type DragEndEvent, type DragOverEvent, type CollisionDetection,
 } from '@dnd-kit/core'
 import { SortableContext, useSortable, verticalListSortingStrategy, arrayMove } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
 import {
   createCategory, updateCategory, deleteCategory, reorderCategories,
-  createSubcategory, updateSubcategory, deleteSubcategory, reorderSubcategories,
+  createSubcategory, updateSubcategory, deleteSubcategory, reorderSubcategories, moveSubcategory,
 } from './actions'
 
 type Subcat = { id: string; name: string; slug: string; order: number; categoryId: string }
@@ -73,6 +74,7 @@ const noAutofill = {
 } as const
 
 let toastIdCounter = 0
+const AUTO_EXPAND_DELAY = 600
 
 export default function CategoriasTable({ initial }: { initial: Cat[] }) {
   const [cats, setCats] = useState(initial)
@@ -81,6 +83,14 @@ export default function CategoriasTable({ initial }: { initial: Cat[] }) {
     setPrevInitial(initial)
     setCats(initial)
   }
+
+  // Estado de expandido/colapsado por grupo — vive acá (no en CategoryRow) porque
+  // el auto-expand al arrastrar una subcategoría sobre un grupo colapsado lo
+  // dispara el DndContext compartido, que necesita poder togglear CUALQUIER grupo.
+  const [openGroups, setOpenGroups] = useState<Record<string, boolean>>({})
+  const isOpen = (catId: string) => openGroups[catId] ?? true
+  const toggleOpen = (catId: string) => setOpenGroups((prev) => ({ ...prev, [catId]: !isOpen(catId) }))
+  const setOpenExplicit = (catId: string, value: boolean) => setOpenGroups((prev) => ({ ...prev, [catId]: value }))
 
   const [toasts, setToasts] = useState<Toast[]>([])
   const pushToast: PushToast = (message, variant) => {
@@ -108,11 +118,53 @@ export default function CategoriasTable({ initial }: { initial: Cat[] }) {
     useSensor(TouchSensor, { activationConstraint: { delay: 200, tolerance: 5 } }),
   )
 
-  function handleDragEnd(event: DragEndEvent) {
+  // Un único DndContext para categorías Y subcategorías (evita el problema de
+  // anidar DndContexts: el useSortable de la propia CategoryRow terminaba
+  // registrado en el contexto equivocado al quedar dentro del wrapper interno).
+  // Se distingue el comportamiento por active.data.current.type, y la detección
+  // de colisión se filtra por tipo para que un drag de categoría no "vea"
+  // subcategorías como posible destino, y viceversa.
+  const scopedCollisionDetection: CollisionDetection = (args) => {
+    const activeType = (args.active.data.current as { type?: string } | undefined)?.type
+    const filtered = args.droppableContainers.filter((c) => {
+      const t = (c.data.current as { type?: string } | undefined)?.type
+      if (activeType === 'category') return t === 'category'
+      if (activeType === 'subcategory') return t === 'subcategory' || t === 'group-header' || t === 'group'
+      return true
+    })
+    return closestCenter({ ...args, droppableContainers: filtered })
+  }
+
+  const hoverTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const hoverTargetRef = useRef<string | null>(null)
+
+  function clearHoverTimer() {
+    if (hoverTimerRef.current) { clearTimeout(hoverTimerRef.current); hoverTimerRef.current = null }
+    hoverTargetRef.current = null
+  }
+
+  function handleDragOver(event: DragOverEvent) {
+    const { active, over } = event
+    if ((active.data.current as { type?: string } | undefined)?.type !== 'subcategory') return
+
+    const overId = over ? String(over.id) : null
+    if (overId === hoverTargetRef.current) return
+    if (hoverTimerRef.current) { clearTimeout(hoverTimerRef.current); hoverTimerRef.current = null }
+    hoverTargetRef.current = overId
+
+    const overData = over?.data.current as { type?: string; categoryId?: string } | undefined
+    if (overData?.type === 'group-header' && overData.categoryId && !isOpen(overData.categoryId)) {
+      const catId = overData.categoryId
+      hoverTimerRef.current = setTimeout(() => setOpenExplicit(catId, true), AUTO_EXPAND_DELAY)
+    }
+  }
+
+  function handleCategoryDragEnd(event: DragEndEvent) {
     const { active, over } = event
     if (!over || active.id === over.id) return
     const oldIndex = draggableCats.findIndex((c) => c.id === active.id)
     const newIndex = draggableCats.findIndex((c) => c.id === over.id)
+    if (oldIndex === -1 || newIndex === -1) return
     const reordered = arrayMove(draggableCats, oldIndex, newIndex)
     setCats([...reordered, ...specialCats])
     startT(async () => {
@@ -121,18 +173,115 @@ export default function CategoriasTable({ initial }: { initial: Cat[] }) {
     })
   }
 
+  function handleSubDragEnd(event: DragEndEvent) {
+    const { active, over } = event
+    if (!over) return
+
+    const activeData = active.data.current as { type?: string; categoryId?: string } | undefined
+    const overData = over.data.current as { type?: string; categoryId?: string } | undefined
+    if (!activeData?.categoryId || !overData?.categoryId) return
+
+    const fromCategoryId = activeData.categoryId
+    const toCategoryId = overData.categoryId
+    const activeSubId = String(active.id)
+
+    const destCat = cats.find((c) => c.id === toCategoryId)
+    if (!destCat) return
+
+    let targetIndex: number
+    if (overData.type === 'subcategory') {
+      const idx = destCat.subcategories.findIndex((s) => s.id === over.id)
+      targetIndex = idx === -1 ? destCat.subcategories.length : idx
+    } else {
+      // group-header o group (body vacío) → se suelta al final del grupo
+      targetIndex = destCat.subcategories.length
+    }
+
+    // Reorder dentro del mismo grupo — comportamiento existente, sin cambios.
+    if (fromCategoryId === toCategoryId) {
+      const oldIndex = destCat.subcategories.findIndex((s) => s.id === activeSubId)
+      if (oldIndex === -1 || oldIndex === targetIndex) return
+      const reordered = arrayMove(destCat.subcategories, oldIndex, targetIndex)
+      setCats((prev) => prev.map((c) => (c.id === toCategoryId ? { ...c, subcategories: reordered } : c)))
+      startT(async () => {
+        await reorderSubcategories(toCategoryId, reordered.map((s) => s.id))
+        refresh()
+      })
+      return
+    }
+
+    // Mover a otro grupo — actualiza estado local optimistamente en ambos grupos.
+    const fromCat = cats.find((c) => c.id === fromCategoryId)
+    const movedSub = fromCat?.subcategories.find((s) => s.id === activeSubId)
+    if (!fromCat || !movedSub) return
+
+    const newFromSubs = fromCat.subcategories.filter((s) => s.id !== activeSubId)
+    const newToSubs = [...destCat.subcategories]
+    newToSubs.splice(targetIndex, 0, { ...movedSub, categoryId: toCategoryId })
+
+    setCats((prev) =>
+      prev.map((c) => {
+        if (c.id === fromCategoryId) return { ...c, subcategories: newFromSubs }
+        if (c.id === toCategoryId) return { ...c, subcategories: newToSubs }
+        return c
+      }),
+    )
+    setOpenExplicit(toCategoryId, true)
+
+    startT(async () => {
+      const result = await moveSubcategory(activeSubId, toCategoryId, targetIndex)
+      if (!result.success) {
+        pushToast(result.error, 'error')
+        refresh()
+        return
+      }
+      refresh()
+      pushToast(`Subcategoría movida a ${destCat.name}`, 'success')
+    })
+  }
+
+  function handleDragEnd(event: DragEndEvent) {
+    clearHoverTimer()
+    const activeType = (event.active.data.current as { type?: string } | undefined)?.type
+    if (activeType === 'category') return handleCategoryDragEnd(event)
+    if (activeType === 'subcategory') return handleSubDragEnd(event)
+  }
+
   return (
     <div className="space-y-4">
-      <DndContext id="categorias-dnd" sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+      <DndContext
+        id="categorias-dnd"
+        sensors={sensors}
+        collisionDetection={scopedCollisionDetection}
+        onDragOver={handleDragOver}
+        onDragEnd={handleDragEnd}
+        onDragCancel={clearHoverTimer}
+      >
         <SortableContext items={draggableCats.map((c) => c.id)} strategy={verticalListSortingStrategy}>
           {draggableCats.map((cat) => (
-            <CategoryRow key={cat.id} cat={cat} onRefresh={refresh} draggable pushToast={pushToast} />
+            <CategoryRow
+              key={cat.id}
+              cat={cat}
+              onRefresh={refresh}
+              draggable
+              pushToast={pushToast}
+              open={isOpen(cat.id)}
+              onToggleOpen={() => toggleOpen(cat.id)}
+            />
           ))}
         </SortableContext>
       </DndContext>
 
       {specialCats.map((cat) => (
-        <CategoryRow key={cat.id} cat={cat} onRefresh={refresh} draggable={false} pushToast={pushToast} />
+        <CategoryRow
+          key={cat.id}
+          cat={cat}
+          onRefresh={refresh}
+          draggable={false}
+          pushToast={pushToast}
+          open={isOpen(cat.id)}
+          onToggleOpen={() => toggleOpen(cat.id)}
+        />
       ))}
 
       <AddCategoryRow onRefresh={refresh} pushToast={pushToast} />
@@ -149,49 +298,40 @@ function CategoryRow({
   onRefresh,
   draggable,
   pushToast,
+  open,
+  onToggleOpen,
 }: {
   cat: Cat
   onRefresh: () => void
   draggable: boolean
   pushToast: PushToast
+  open: boolean
+  onToggleOpen: () => void
 }) {
-  const [open, setOpen] = useState(true)
   const [editing, setEditing] = useState(false)
   const [form, setForm] = useState({ name: cat.name, slug: cat.slug, order: cat.order })
   const [addingSubcat, setAddingSubcat] = useState(false)
   const [isPending, startT] = useTransition()
   const scrollRef = useRef<HTMLDivElement>(null)
 
-  const [subcats, setSubcats] = useState(cat.subcategories)
-  const [prevSubcategories, setPrevSubcategories] = useState(cat.subcategories)
-  if (cat.subcategories !== prevSubcategories) {
-    setPrevSubcategories(cat.subcategories)
-    setSubcats(cat.subcategories)
-  }
-
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id: cat.id,
     disabled: !draggable,
+    data: { type: 'category' },
   })
   const setRefs = (el: HTMLDivElement | null) => { setNodeRef(el); scrollRef.current = el }
 
-  const subSensors = useSensors(
-    useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
-    useSensor(TouchSensor, { activationConstraint: { delay: 200, tolerance: 5 } }),
-  )
-
-  function handleSubDragEnd(event: DragEndEvent) {
-    const { active, over } = event
-    if (!over || active.id === over.id) return
-    const oldIndex = subcats.findIndex((s) => s.id === active.id)
-    const newIndex = subcats.findIndex((s) => s.id === over.id)
-    const reordered = arrayMove(subcats, oldIndex, newIndex)
-    setSubcats(reordered)
-    startT(async () => {
-      await reorderSubcategories(cat.id, reordered.map((s) => s.id))
-      onRefresh()
-    })
-  }
+  // Zona de drop para subcategorías: la cabecera (siempre presente, incluso
+  // colapsado — dispara el auto-expand) y el cuerpo vacío (grupo expandido sin
+  // subcategorías, donde no hay ningún ítem sorteable sobre el cual soltar).
+  const { setNodeRef: setHeaderDropRef, isOver: isHeaderOver } = useDroppable({
+    id: `group-header-${cat.id}`,
+    data: { type: 'group-header', categoryId: cat.id },
+  })
+  const { setNodeRef: setBodyDropRef, isOver: isBodyOver } = useDroppable({
+    id: `group-body-${cat.id}`,
+    data: { type: 'group', categoryId: cat.id },
+  })
 
   useEffect(() => {
     if (editing) scrollRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
@@ -223,8 +363,13 @@ function CategoryRow({
       style={{ transform: CSS.Transform.toString(transform), transition, opacity: isDragging ? 0.5 : 1 }}
       className="overflow-hidden rounded-2xl border border-[#e5e7eb] bg-white"
     >
-      {/* Cabecera del grupo */}
-      <div className="flex items-center gap-3 border-b border-[#f3f4f6] bg-[#f9fafb] px-5 py-3">
+      {/* Cabecera del grupo — también zona de drop de subcategorías (auto-expand si está colapsado) */}
+      <div
+        ref={setHeaderDropRef}
+        className={`flex items-center gap-3 border-b border-[#f3f4f6] px-5 py-3 transition-colors ${
+          isHeaderOver ? 'bg-[#e0f8fb]' : 'bg-[#f9fafb]'
+        }`}
+      >
         {draggable && (
           <button
             {...attributes}
@@ -236,7 +381,7 @@ function CategoryRow({
           </button>
         )}
         <button
-          onClick={() => setOpen((v) => !v)}
+          onClick={onToggleOpen}
           className="flex h-6 w-6 shrink-0 items-center justify-center rounded text-[#9ca3af] transition-colors hover:text-[#1E1E1E]"
           aria-label={open ? 'Colapsar' : 'Expandir'}
         >
@@ -262,7 +407,7 @@ function CategoryRow({
             {cat.isSpecial && (
               <span className="rounded-full bg-[#0eb1c3]/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-[#0eb1c3]">Especial</span>
             )}
-            <span className="ml-auto text-xs text-[#9ca3af]">{subcats.length} subcategorías</span>
+            <span className="ml-auto text-xs text-[#9ca3af]">{cat.subcategories.length} subcategorías</span>
           </div>
         )}
 
@@ -283,17 +428,20 @@ function CategoryRow({
       {/* Subcategorías */}
       {open && (
         <div>
-          {subcats.length === 0 && !addingSubcat && (
-            <p className="px-8 py-3 text-xs text-[#9ca3af] italic">Sin subcategorías</p>
+          {cat.subcategories.length === 0 && !addingSubcat && (
+            <p
+              ref={setBodyDropRef}
+              className={`px-8 py-3 text-xs italic transition-colors ${isBodyOver ? 'bg-[#e0f8fb] text-[#0eb1c3]' : 'text-[#9ca3af]'}`}
+            >
+              {isBodyOver ? 'Soltá acá para agregar' : 'Sin subcategorías'}
+            </p>
           )}
 
-          <DndContext id={`subcats-dnd-${cat.id}`} sensors={subSensors} collisionDetection={closestCenter} onDragEnd={handleSubDragEnd}>
-            <SortableContext items={subcats.map((s) => s.id)} strategy={verticalListSortingStrategy}>
-              {subcats.map((sub) => (
-                <SubcatRow key={sub.id} sub={sub} onRefresh={onRefresh} pushToast={pushToast} />
-              ))}
-            </SortableContext>
-          </DndContext>
+          <SortableContext items={cat.subcategories.map((s) => s.id)} strategy={verticalListSortingStrategy}>
+            {cat.subcategories.map((sub) => (
+              <SubcatRow key={sub.id} sub={sub} onRefresh={onRefresh} pushToast={pushToast} />
+            ))}
+          </SortableContext>
 
           {addingSubcat ? (
             <AddSubcatRow categoryId={cat.id} onRefresh={onRefresh} onCancel={() => setAddingSubcat(false)} pushToast={pushToast} />
@@ -327,7 +475,10 @@ function SubcatRow({
   const [isPending, startT] = useTransition()
   const scrollRef = useRef<HTMLDivElement>(null)
 
-  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: sub.id })
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
+    id: sub.id,
+    data: { type: 'subcategory', categoryId: sub.categoryId },
+  })
   const setRefs = (el: HTMLDivElement | null) => { setNodeRef(el); scrollRef.current = el }
 
   useEffect(() => {

@@ -124,3 +124,64 @@ export async function reorderSubcategories(categoryId: string, orderedIds: strin
   revalidatePath('/admin/categorias')
   revalidatePath('/catalogo')
 }
+
+// Mueve una subcategoría a otro grupo, insertándola en `newOrder` dentro del
+// grupo destino, y recompacta el orden del grupo origen para no dejar huecos.
+// El origen/destino se recalculan siempre desde la DB (no se confía en listas
+// del cliente) para evitar corromper el orden ante estado desactualizado.
+export async function moveSubcategory(
+  subcategoryId: string,
+  newCategoryId: string,
+  newOrder: number,
+): Promise<ActionResult<{ id: string }>> {
+  try {
+    const sub = await prisma.subcategory.findUnique({
+      where: { id: subcategoryId },
+      select: { categoryId: true },
+    })
+    if (!sub) return { success: false, error: 'La subcategoría ya no existe — puede que ya se haya eliminado.' }
+
+    const oldCategoryId = sub.categoryId
+
+    if (oldCategoryId === newCategoryId) {
+      await prisma.subcategory.update({ where: { id: subcategoryId }, data: { order: newOrder } })
+      revalidatePath('/admin/categorias')
+      revalidatePath('/catalogo')
+      return { success: true, data: { id: subcategoryId } }
+    }
+
+    const [oldSiblings, newSiblings] = await Promise.all([
+      prisma.subcategory.findMany({
+        where: { categoryId: oldCategoryId, NOT: { id: subcategoryId } },
+        orderBy: { order: 'asc' },
+        select: { id: true },
+      }),
+      prisma.subcategory.findMany({
+        where: { categoryId: newCategoryId, NOT: { id: subcategoryId } },
+        orderBy: { order: 'asc' },
+        select: { id: true },
+      }),
+    ])
+
+    const clampedIndex = Math.max(0, Math.min(newOrder, newSiblings.length))
+    const newGroupIds = newSiblings.map((s) => s.id)
+    newGroupIds.splice(clampedIndex, 0, subcategoryId)
+
+    await prisma.$transaction([
+      ...newGroupIds.map((id, index) =>
+        id === subcategoryId
+          ? prisma.subcategory.update({ where: { id }, data: { categoryId: newCategoryId, order: index } })
+          : prisma.subcategory.update({ where: { id }, data: { order: index } }),
+      ),
+      ...oldSiblings.map((s, index) =>
+        prisma.subcategory.update({ where: { id: s.id }, data: { order: index } }),
+      ),
+    ])
+
+    revalidatePath('/admin/categorias')
+    revalidatePath('/catalogo')
+    return { success: true, data: { id: subcategoryId } }
+  } catch (err) {
+    return { success: false, error: errorMessage(err, 'No se pudo mover la subcategoría.') }
+  }
+}
