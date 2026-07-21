@@ -121,13 +121,21 @@ export default function FAQPage() {
 
           <QA q="¿Cuándo voy a recibir mi pedido?">
             <p>
-              <strong>Envíos Express (solo CABA y GBA):</strong> si el pedido ingresa antes de las
-              14 h de un día hábil o sábado, llega en el día; si no, al día hábil siguiente. Pedidos
-              mayoristas o de gran volumen se informan por mail o WhatsApp.
+              <strong>Envíos Express al día hábil siguiente:</strong> Solo CABA y GBA estas
+              Localidades: Almirante Brown - Del Viso - Derqui - Escobar - Garín - Ingeniero
+              Maschwitz - Nordelta - Pilar - Villa Rosa - Avellaneda - Berazategui - Esteban
+              Echeverria - Ezeiza - Florencio Varela - Hurlingham - Ituzaingo - Jose C Paz - La
+              Matanza Norte - La Matanza Sur - Lanús - Lomas de Zamora - Malvinas Argentinas -
+              Moron - Quilmes - San Fernando - San Isidro - San Martin - San Miguel - Tigre - Tres
+              de Febrero - Vicente Lopez
             </p>
             <p className="mt-2">
-              <strong>Envíos al interior:</strong> de 5 a 15 días hábiles. Entregas de lunes a
-              sábados de 10 a 20 h. No se entrega domingos ni feriados.
+              <strong>Envíos Todo el País (fuera de CABA y Localidades Mencionadas GBA):</strong> El
+              envió es de 5 a 10 días hábiles. Entregas de lunes a sábados de 10 a 20 h. No se
+              entrega domingos ni feriados.
+            </p>
+            <p className="mt-2">
+              Pedidos mayoristas o de gran volumen se informan por mail o WhatsApp.
             </p>
           </QA>
         </Section>
