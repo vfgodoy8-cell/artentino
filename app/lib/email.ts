@@ -13,9 +13,10 @@ type SendEmailParams = {
   to: string
   subject: string
   html: string
+  bcc?: string
 }
 
-export async function sendEmail({ to, subject, html }: SendEmailParams) {
+export async function sendEmail({ to, subject, html, bcc }: SendEmailParams) {
   if (!process.env.RESEND_API_KEY) {
     console.warn('[email] RESEND_API_KEY not configured, skipping send')
     return { error: null }
@@ -25,6 +26,7 @@ export async function sendEmail({ to, subject, html }: SendEmailParams) {
     to,
     subject,
     html,
+    ...(bcc ? { bcc } : {}),
   })
 }
 
@@ -144,6 +146,111 @@ export function pickupCashEmail({
         <p style="margin:6px 0 0;color:#555;font-size:13px;">Retiro en tienda · Colegiales, CABA</p>
       </div>
       <p style="margin:0;color:#0eb1c3;font-weight:900;">Equipo Artentino</p>
+    </div>` +
+    FOOTER +
+    WRAP_END
+  )
+}
+
+export function passwordResetEmail({
+  name,
+  resetUrl,
+}: {
+  name: string
+  resetUrl: string
+}) {
+  return (
+    WRAP_START +
+    HEADER.replace('{{title}}', 'Recuperar contraseña') +
+    `<div style="padding:36px 32px;">
+      <p style="margin:0 0 8px;color:#1E1E1E;font-size:16px;">Hola <strong>${name}</strong>,</p>
+      <p style="margin:0 0 28px;color:#555;line-height:1.6;">
+        Recibimos una solicitud para restablecer tu contraseña. Si fuiste vos, hacé clic en el botón de abajo.
+        El link vence en 1 hora.
+      </p>
+      <div style="text-align:center;margin-bottom:28px;">
+        <a href="${resetUrl}" style="display:inline-block;background:#0eb1c3;color:#fff;font-weight:900;text-decoration:none;padding:14px 32px;border-radius:12px;">
+          Restablecer contraseña
+        </a>
+      </div>
+      <p style="margin:0 0 24px;color:#888;font-size:13px;line-height:1.6;">
+        Si vos no pediste este cambio, ignorá este email — tu contraseña sigue siendo la misma.
+      </p>
+      <p style="margin:0;color:#0eb1c3;font-weight:900;">Equipo Artentino</p>
+    </div>` +
+    FOOTER +
+    WRAP_END
+  )
+}
+
+export function orderStatusUpdateEmail({
+  name,
+  orderId,
+  status,
+}: {
+  name: string
+  orderId: string
+  status: 'SHIPPED' | 'DELIVERED'
+}) {
+  const title = status === 'SHIPPED' ? '¡Tu pedido está en camino!' : '¡Tu pedido fue entregado!'
+  const message =
+    status === 'SHIPPED'
+      ? 'Tu pedido salió de nuestro depósito y está en camino. Pronto lo vas a tener en tus manos.'
+      : 'Tu pedido fue entregado con éxito. ¡Gracias por comprar en Artentino!'
+
+  return (
+    WRAP_START +
+    HEADER.replace('{{title}}', title) +
+    `<div style="padding:36px 32px;">
+      <p style="margin:0 0 8px;color:#1E1E1E;font-size:16px;">Hola <strong>${name}</strong>,</p>
+      <p style="margin:0 0 28px;color:#555;line-height:1.6;">${message}</p>
+      <div style="background:#F7F7F7;border-radius:12px;padding:16px 20px;margin-bottom:28px;">
+        <p style="margin:0;color:#888;font-size:11px;font-weight:900;text-transform:uppercase;letter-spacing:1px;">Pedido</p>
+        <p style="margin:4px 0 0;color:#1E1E1E;font-weight:700;">#${orderId.slice(-8).toUpperCase()}</p>
+      </div>
+      <p style="margin:0;color:#0eb1c3;font-weight:900;">Equipo Artentino</p>
+    </div>` +
+    FOOTER +
+    WRAP_END
+  )
+}
+
+export function adminNewOrderEmail({
+  orderId,
+  customerName,
+  total,
+}: {
+  orderId: string
+  customerName: string
+  total: number
+}) {
+  return (
+    WRAP_START +
+    HEADER.replace('{{title}}', 'Nuevo pedido') +
+    `<div style="padding:36px 32px;">
+      <p style="margin:0 0 8px;color:#1E1E1E;font-size:16px;">Nuevo pedido de <strong>${customerName}</strong>.</p>
+      <p style="margin:0;color:#555;">Pedido #${orderId.slice(-8).toUpperCase()} — $${total.toLocaleString('es-AR')}</p>
+    </div>` +
+    FOOTER +
+    WRAP_END
+  )
+}
+
+export function adminNewContactEmail({
+  name,
+  email,
+  message,
+}: {
+  name: string
+  email: string
+  message: string
+}) {
+  return (
+    WRAP_START +
+    HEADER.replace('{{title}}', 'Nuevo contacto') +
+    `<div style="padding:36px 32px;">
+      <p style="margin:0 0 8px;color:#1E1E1E;font-size:16px;">Nuevo mensaje de contacto de <strong>${name}</strong> (${email}).</p>
+      <p style="margin:0;color:#555;white-space:pre-wrap;">${message}</p>
     </div>` +
     FOOTER +
     WRAP_END

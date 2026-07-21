@@ -1,5 +1,7 @@
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
+import { sendEmail, adminNewContactEmail } from '@/app/lib/email'
+import { ADMIN_NOTIFICATION_EMAIL } from '@/app/lib/constants'
 
 export async function POST(req: Request) {
   const body = await req.json()
@@ -18,6 +20,14 @@ export async function POST(req: Request) {
       message,
     },
   })
+
+  if (ADMIN_NOTIFICATION_EMAIL) {
+    sendEmail({
+      to: ADMIN_NOTIFICATION_EMAIL,
+      subject: 'Artentino — Nuevo contacto',
+      html: adminNewContactEmail({ name, email, message }),
+    }).catch(() => {})
+  }
 
   return NextResponse.json({ success: true })
 }

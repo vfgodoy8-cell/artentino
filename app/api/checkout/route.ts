@@ -2,8 +2,8 @@ import { NextResponse } from 'next/server'
 import { MercadoPagoConfig, Preference } from 'mercadopago'
 import { auth } from '@/auth'
 import { prisma } from '@/lib/prisma'
-import { sendEmail, pickupCashEmail } from '@/app/lib/email'
-import { CASH_DISCOUNT, CASH_DISCOUNT_PCT } from '@/app/lib/constants'
+import { sendEmail, pickupCashEmail, adminNewOrderEmail } from '@/app/lib/email'
+import { CASH_DISCOUNT, CASH_DISCOUNT_PCT, ADMIN_NOTIFICATION_EMAIL } from '@/app/lib/constants'
 
 type CartItem = {
   productId: string
@@ -122,6 +122,14 @@ export async function POST(req: Request) {
       }),
     }).catch(() => {})
 
+    if (ADMIN_NOTIFICATION_EMAIL) {
+      sendEmail({
+        to: ADMIN_NOTIFICATION_EMAIL,
+        subject: 'Artentino — Nuevo pedido',
+        html: adminNewOrderEmail({ orderId: order.id, customerName: payer.name, total: discountedTotal }),
+      }).catch(() => {})
+    }
+
     return NextResponse.json({ confirmed: true, orderId: order.id })
   }
 
@@ -188,6 +196,15 @@ export async function POST(req: Request) {
     })
 
     const initPoint = result.sandbox_init_point ?? result.init_point
+
+    if (ADMIN_NOTIFICATION_EMAIL) {
+      sendEmail({
+        to: ADMIN_NOTIFICATION_EMAIL,
+        subject: 'Artentino — Nuevo pedido',
+        html: adminNewOrderEmail({ orderId: order.id, customerName: payer.name, total }),
+      }).catch(() => {})
+    }
+
     return NextResponse.json({ initPoint })
   } catch (error) {
     await prisma.order.delete({ where: { id: order.id } })

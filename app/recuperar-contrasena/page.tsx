@@ -6,10 +6,21 @@ import { useState } from 'react'
 export default function RecuperarContrasenaPage() {
   const [sent, setSent] = useState(false)
   const [email, setEmail] = useState('')
+  const [loading, setLoading] = useState(false)
 
-  function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
-    setSent(true)
+    setLoading(true)
+    try {
+      await fetch('/api/auth/recuperar-contrasena', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email }),
+      })
+    } finally {
+      setLoading(false)
+      setSent(true)
+    }
   }
 
   return (
@@ -73,10 +84,11 @@ export default function RecuperarContrasenaPage() {
 
                 <button
                   type="submit"
-                  className="mt-2 w-full rounded-2xl py-4 text-sm font-black uppercase tracking-widest text-white"
+                  disabled={loading}
+                  className="mt-2 w-full rounded-2xl py-4 text-sm font-black uppercase tracking-widest text-white disabled:opacity-60"
                   style={{ backgroundColor: '#0eb1c3' }}
                 >
-                  Enviar link
+                  {loading ? 'Enviando…' : 'Enviar link'}
                 </button>
               </form>
 

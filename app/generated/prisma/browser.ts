@@ -73,6 +73,11 @@ export type ProductImageAttributeValue = Prisma.ProductImageAttributeValueModel
  */
 export type User = Prisma.UserModel
 /**
+ * Model PasswordResetToken
+ * 
+ */
+export type PasswordResetToken = Prisma.PasswordResetTokenModel
+/**
  * Model Order
  * 
  */
