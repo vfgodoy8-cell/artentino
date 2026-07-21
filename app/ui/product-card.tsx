@@ -19,10 +19,7 @@ function fmt(n: number) {
 
 export default function ProductCard({ id, name, slug, price, comparePrice, imageUrl, category }: ProductCardProps) {
   const cashPrice = Math.round(price * (1 - CASH_DISCOUNT))
-  // 6+ cifras en cualquiera de los dos precios → bajamos un escalón el tamaño de ambos,
-  // así no desbordan la card y quedan alineados entre sí.
-  const maxDigits = Math.max(String(cashPrice).length, String(Math.round(price)).length)
-  const priceSizeClass = maxDigits > 5 ? 'text-lg' : 'text-xl'
+  const priceSizeClass = 'text-sm'
 
   return (
     <article className="group flex flex-col overflow-hidden rounded-2xl bg-white shadow-[0_2px_8px_rgba(0,0,0,0.06)] transition-[transform,box-shadow] duration-[300ms] [transition-timing-function:var(--ease-out)] hover:-translate-y-1 hover:shadow-[0_20px_48px_rgba(0,0,0,0.13)]">

@@ -111,7 +111,7 @@ export default function ProductDetailShell({
                   Pagando efectivo o transferencia
                 </p>
                 <div className="flex items-center gap-3">
-                  <p className="text-5xl font-bold leading-none text-[#0eb1c3]">
+                  <p className="text-xl font-bold leading-tight text-[#0eb1c3] sm:text-2xl lg:text-3xl">
                     {fmt(Math.round(price * (1 - CASH_DISCOUNT)))}
                   </p>
                   <span className="rounded-full bg-[#0eb1c3] px-2.5 py-0.5 text-xs font-black text-white">
@@ -124,7 +124,7 @@ export default function ProductDetailShell({
                 <p className="mb-1 text-sm font-black uppercase tracking-wider text-gray-400">
                   Precio de lista
                 </p>
-                <p className="text-5xl font-bold leading-none text-[#44474C]">
+                <p className="text-xl font-bold leading-tight text-[#44474C] sm:text-2xl lg:text-3xl">
                   {fmt(price)}
                 </p>
                 <p className="mt-1.5 text-sm text-gray-400">
