@@ -28,7 +28,14 @@ export default async function CatalogoPage({ searchParams }: Props) {
           : {}),
       },
       include: { category: true },
-      orderBy: [{ sortOrder: 'asc' }, { createdAt: 'desc' }],
+      orderBy: categoria
+        ? [{ sortOrder: 'asc' }, { createdAt: 'desc' }]
+        : [
+            { category: { category: { order: 'asc' } } },
+            { category: { order: 'asc' } },
+            { sortOrder: 'asc' },
+            { createdAt: 'desc' },
+          ],
     }),
     prisma.category.findMany({
       where: { isSpecial: false },
