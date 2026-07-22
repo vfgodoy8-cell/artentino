@@ -52,3 +52,19 @@ export const ContactType = {
 } as const
 
 export type ContactType = (typeof ContactType)[keyof typeof ContactType]
+
+
+export const ShippingZoneType = {
+  EXPRESS: 'EXPRESS',
+  NATIONAL: 'NATIONAL'
+} as const
+
+export type ShippingZoneType = (typeof ShippingZoneType)[keyof typeof ShippingZoneType]
+
+
+export const ShippingCourier = {
+  ARTENTINO_EXPRESS: 'ARTENTINO_EXPRESS',
+  ZIPNOVA: 'ZIPNOVA'
+} as const
+
+export type ShippingCourier = (typeof ShippingCourier)[keyof typeof ShippingCourier]

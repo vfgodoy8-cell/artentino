@@ -39,6 +39,16 @@ enum ContactType {
   JOB
 }
 
+enum ShippingZoneType {
+  EXPRESS
+  NATIONAL
+}
+
+enum ShippingCourier {
+  ARTENTINO_EXPRESS
+  ZIPNOVA
+}
+
 // ─── Categories ───────────────────────────────────────────────────────────────
 
 model Category {
@@ -243,6 +253,17 @@ model PasswordResetToken {
   @@map("password_reset_tokens")
 }
 
+model ShippingZone {
+  id         String           @id @default(cuid())
+  name       String
+  type       ShippingZoneType @unique
+  localities String[]         @default([])
+  createdAt  DateTime         @default(now())
+  updatedAt  DateTime         @updatedAt
+
+  @@map("shipping_zones")
+}
+
 model Order {
   id                       String                    @id @default(cuid())
   userId                   String
@@ -253,6 +274,9 @@ model Order {
   paymentMethod            String?
   shippingAddress          Json?
   deliveredAt              DateTime?
+  shippingCourier          ShippingCourier?
+  shippingQuotedAmount     Decimal?                  @db.Decimal(10, 2)
+  zipnovaShipmentId        String?
   items                    OrderItem[]
   arrepentimientoRequests  ArrepentimientoRequest[]
   createdAt                DateTime                  @default(now())
@@ -370,10 +394,12 @@ model EmailTemplate {
 // ─── Site Config ──────────────────────────────────────────────────────────────
 
 model SiteConfig {
-  id                  String  @id @default("singleton")
-  heroIntervalSeconds Int     @default(6)
-  footerText          String? @db.Text
-  featuredOrderMode   String  @default("manual") // "manual" | "recent"
+  id                     String  @id @default("singleton")
+  heroIntervalSeconds    Int     @default(6)
+  footerText             String? @db.Text
+  featuredOrderMode      String  @default("manual") // "manual" | "recent"
+  expressShippingEnabled Boolean @default(true)
+  zipnovaShippingEnabled Boolean @default(true)
 
   @@map("site_config")
 }

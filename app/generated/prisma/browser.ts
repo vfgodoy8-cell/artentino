@@ -78,6 +78,11 @@ export type User = Prisma.UserModel
  */
 export type PasswordResetToken = Prisma.PasswordResetTokenModel
 /**
+ * Model ShippingZone
+ * 
+ */
+export type ShippingZone = Prisma.ShippingZoneModel
+/**
  * Model Order
  * 
  */

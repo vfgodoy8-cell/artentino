@@ -63,6 +63,7 @@ export const ModelName = {
   ProductImageAttributeValue: 'ProductImageAttributeValue',
   User: 'User',
   PasswordResetToken: 'PasswordResetToken',
+  ShippingZone: 'ShippingZone',
   Order: 'Order',
   OrderItem: 'OrderItem',
   ArrepentimientoRequest: 'ArrepentimientoRequest',
@@ -256,6 +257,18 @@ export const PasswordResetTokenScalarFieldEnum = {
 export type PasswordResetTokenScalarFieldEnum = (typeof PasswordResetTokenScalarFieldEnum)[keyof typeof PasswordResetTokenScalarFieldEnum]
 
 
+export const ShippingZoneScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  type: 'type',
+  localities: 'localities',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type ShippingZoneScalarFieldEnum = (typeof ShippingZoneScalarFieldEnum)[keyof typeof ShippingZoneScalarFieldEnum]
+
+
 export const OrderScalarFieldEnum = {
   id: 'id',
   userId: 'userId',
@@ -265,6 +278,9 @@ export const OrderScalarFieldEnum = {
   paymentMethod: 'paymentMethod',
   shippingAddress: 'shippingAddress',
   deliveredAt: 'deliveredAt',
+  shippingCourier: 'shippingCourier',
+  shippingQuotedAmount: 'shippingQuotedAmount',
+  zipnovaShipmentId: 'zipnovaShipmentId',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -371,7 +387,9 @@ export const SiteConfigScalarFieldEnum = {
   id: 'id',
   heroIntervalSeconds: 'heroIntervalSeconds',
   footerText: 'footerText',
-  featuredOrderMode: 'featuredOrderMode'
+  featuredOrderMode: 'featuredOrderMode',
+  expressShippingEnabled: 'expressShippingEnabled',
+  zipnovaShippingEnabled: 'zipnovaShippingEnabled'
 } as const
 
 export type SiteConfigScalarFieldEnum = (typeof SiteConfigScalarFieldEnum)[keyof typeof SiteConfigScalarFieldEnum]

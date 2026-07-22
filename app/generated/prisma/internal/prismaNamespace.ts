@@ -396,6 +396,7 @@ export const ModelName = {
   ProductImageAttributeValue: 'ProductImageAttributeValue',
   User: 'User',
   PasswordResetToken: 'PasswordResetToken',
+  ShippingZone: 'ShippingZone',
   Order: 'Order',
   OrderItem: 'OrderItem',
   ArrepentimientoRequest: 'ArrepentimientoRequest',
@@ -421,7 +422,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "category" | "subcategory" | "product" | "productRelation" | "productComboPrice" | "attribute" | "attributeValue" | "productStock" | "productImage" | "productImageAttributeValue" | "user" | "passwordResetToken" | "order" | "orderItem" | "arrepentimientoRequest" | "appointment" | "contact" | "heroSlide" | "heroBadge" | "emailTemplate" | "siteConfig" | "instagramToken"
+    modelProps: "category" | "subcategory" | "product" | "productRelation" | "productComboPrice" | "attribute" | "attributeValue" | "productStock" | "productImage" | "productImageAttributeValue" | "user" | "passwordResetToken" | "shippingZone" | "order" | "orderItem" | "arrepentimientoRequest" | "appointment" | "contact" | "heroSlide" | "heroBadge" | "emailTemplate" | "siteConfig" | "instagramToken"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1310,6 +1311,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.PasswordResetTokenCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.PasswordResetTokenCountAggregateOutputType> | number
+        }
+      }
+    }
+    ShippingZone: {
+      payload: Prisma.$ShippingZonePayload<ExtArgs>
+      fields: Prisma.ShippingZoneFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.ShippingZoneFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ShippingZonePayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.ShippingZoneFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ShippingZonePayload>
+        }
+        findFirst: {
+          args: Prisma.ShippingZoneFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ShippingZonePayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.ShippingZoneFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ShippingZonePayload>
+        }
+        findMany: {
+          args: Prisma.ShippingZoneFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ShippingZonePayload>[]
+        }
+        create: {
+          args: Prisma.ShippingZoneCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ShippingZonePayload>
+        }
+        createMany: {
+          args: Prisma.ShippingZoneCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.ShippingZoneCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ShippingZonePayload>[]
+        }
+        delete: {
+          args: Prisma.ShippingZoneDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ShippingZonePayload>
+        }
+        update: {
+          args: Prisma.ShippingZoneUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ShippingZonePayload>
+        }
+        deleteMany: {
+          args: Prisma.ShippingZoneDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.ShippingZoneUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.ShippingZoneUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ShippingZonePayload>[]
+        }
+        upsert: {
+          args: Prisma.ShippingZoneUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ShippingZonePayload>
+        }
+        aggregate: {
+          args: Prisma.ShippingZoneAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateShippingZone>
+        }
+        groupBy: {
+          args: Prisma.ShippingZoneGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ShippingZoneGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.ShippingZoneCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ShippingZoneCountAggregateOutputType> | number
         }
       }
     }
@@ -2257,6 +2332,18 @@ export const PasswordResetTokenScalarFieldEnum = {
 export type PasswordResetTokenScalarFieldEnum = (typeof PasswordResetTokenScalarFieldEnum)[keyof typeof PasswordResetTokenScalarFieldEnum]
 
 
+export const ShippingZoneScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  type: 'type',
+  localities: 'localities',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type ShippingZoneScalarFieldEnum = (typeof ShippingZoneScalarFieldEnum)[keyof typeof ShippingZoneScalarFieldEnum]
+
+
 export const OrderScalarFieldEnum = {
   id: 'id',
   userId: 'userId',
@@ -2266,6 +2353,9 @@ export const OrderScalarFieldEnum = {
   paymentMethod: 'paymentMethod',
   shippingAddress: 'shippingAddress',
   deliveredAt: 'deliveredAt',
+  shippingCourier: 'shippingCourier',
+  shippingQuotedAmount: 'shippingQuotedAmount',
+  zipnovaShipmentId: 'zipnovaShipmentId',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -2372,7 +2462,9 @@ export const SiteConfigScalarFieldEnum = {
   id: 'id',
   heroIntervalSeconds: 'heroIntervalSeconds',
   footerText: 'footerText',
-  featuredOrderMode: 'featuredOrderMode'
+  featuredOrderMode: 'featuredOrderMode',
+  expressShippingEnabled: 'expressShippingEnabled',
+  zipnovaShippingEnabled: 'zipnovaShippingEnabled'
 } as const
 
 export type SiteConfigScalarFieldEnum = (typeof SiteConfigScalarFieldEnum)[keyof typeof SiteConfigScalarFieldEnum]
@@ -2514,6 +2606,20 @@ export type ListEnumRoleFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaM
 
 
 /**
+ * Reference to a field of type 'ShippingZoneType'
+ */
+export type EnumShippingZoneTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ShippingZoneType'>
+    
+
+
+/**
+ * Reference to a field of type 'ShippingZoneType[]'
+ */
+export type ListEnumShippingZoneTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ShippingZoneType[]'>
+    
+
+
+/**
  * Reference to a field of type 'OrderStatus'
  */
 export type EnumOrderStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'OrderStatus'>
@@ -2538,6 +2644,20 @@ export type JsonFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'J
  * Reference to a field of type 'QueryMode'
  */
 export type EnumQueryModeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'QueryMode'>
+    
+
+
+/**
+ * Reference to a field of type 'ShippingCourier'
+ */
+export type EnumShippingCourierFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ShippingCourier'>
+    
+
+
+/**
+ * Reference to a field of type 'ShippingCourier[]'
+ */
+export type ListEnumShippingCourierFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ShippingCourier[]'>
     
 
 
@@ -2718,6 +2838,7 @@ export type GlobalOmitConfig = {
   productImageAttributeValue?: Prisma.ProductImageAttributeValueOmit
   user?: Prisma.UserOmit
   passwordResetToken?: Prisma.PasswordResetTokenOmit
+  shippingZone?: Prisma.ShippingZoneOmit
   order?: Prisma.OrderOmit
   orderItem?: Prisma.OrderItemOmit
   arrepentimientoRequest?: Prisma.ArrepentimientoRequestOmit
