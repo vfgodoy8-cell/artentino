@@ -2,6 +2,7 @@
 
 import { useTransition } from 'react'
 import { updateOrderStatus } from '../actions'
+import { useToasts, ToastContainer } from '@/app/ui/toast'
 
 type StatusMap = Record<string, { label: string; bg: string; color: string }>
 
@@ -13,11 +14,19 @@ type Props = {
 
 export default function StatusSelect({ orderId, currentStatus, statuses }: Props) {
   const [pending, startTransition] = useTransition()
+  const { toasts, pushToast, dismissToast } = useToasts()
 
   function handleChange(e: React.ChangeEvent<HTMLSelectElement>) {
     const next = e.target.value
     if (next === currentStatus) return
-    startTransition(() => updateOrderStatus(orderId, next))
+    startTransition(async () => {
+      // El status ya quedó guardado en este punto — un error acá es solo el
+      // email de notificación al cliente, que nunca bloquea el update.
+      const result = await updateOrderStatus(orderId, next)
+      if (result.error) {
+        pushToast(result.error, 'error')
+      }
+    })
   }
 
   return (
@@ -33,6 +42,7 @@ export default function StatusSelect({ orderId, currentStatus, statuses }: Props
           <option key={key} value={key}>{label}</option>
         ))}
       </select>
+      <ToastContainer toasts={toasts} onDismiss={dismissToast} />
     </div>
   )
 }
