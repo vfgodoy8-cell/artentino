@@ -9,12 +9,12 @@ const DEFAULT_PACKAGE = { weight: 3000, height: 30, width: 30, length: 30 }
 export async function POST(req: Request) {
   const { city, province, zip, declaredValue } = await req.json()
 
-  if (!city) {
-    return NextResponse.json({ error: 'Falta la localidad' }, { status: 400 })
+  if (!city || !province) {
+    return NextResponse.json({ error: 'Falta la localidad o la provincia' }, { status: 400 })
   }
 
   const [isExpress, siteConfig] = await Promise.all([
-    isExpressLocality(city),
+    isExpressLocality(province, city),
     prisma.siteConfig.findUnique({ where: { id: 'singleton' } }),
   ])
 

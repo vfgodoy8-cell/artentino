@@ -84,7 +84,7 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: 'Datos incompletos' }, { status: 400 })
   }
 
-  if (shipping === 'delivery' && (!shippingAddress?.city || !shippingCourier)) {
+  if (shipping === 'delivery' && (!shippingAddress?.city || !shippingAddress?.province || !shippingCourier)) {
     return NextResponse.json({ error: 'Faltan datos de envío' }, { status: 400 })
   }
 

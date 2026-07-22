@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useCart, getEffectivePrice } from '@/app/context/cart-context'
 import { CASH_DISCOUNT, CASH_DISCOUNT_PCT } from '@/app/lib/constants'
+import AddressFields, { type AddressData } from './address-fields'
 
 function fmt(n: number) {
   return `$${n.toLocaleString('es-AR')}`
@@ -17,14 +18,6 @@ type ContactData = {
   phone: string
 }
 
-type AddressData = {
-  street: string
-  streetNumber: string
-  city: string
-  province: string
-  zip: string
-}
-
 type ShippingMethod = 'pickup' | 'delivery'
 type PaymentMethod = 'mercadopago' | 'cash' | 'transfer' | 'modo'
 type ShippingCourier = 'ARTENTINO_EXPRESS' | 'ZIPNOVA'
@@ -32,7 +25,7 @@ type ShippingOption = { courier: ShippingCourier; label: string; amount: number 
 
 const STEPS = ['Contacto', 'Envío', 'Pago', 'Resumen']
 
-export default function CheckoutClient() {
+export default function CheckoutClient({ expressLocalities }: { expressLocalities: string[] }) {
   const { items, getTotal, clearCart } = useCart()
   const router = useRouter()
 
@@ -78,7 +71,7 @@ export default function CheckoutClient() {
       return
     }
 
-    if (!address.city || !address.zip) return
+    if (!address.province || !address.city || !address.zip) return
 
     setQuoteLoading(true)
     setQuoteError(null)
@@ -317,55 +310,7 @@ export default function CheckoutClient() {
 
                 {shipping === 'delivery' && (
                   <div className="mt-4 grid grid-cols-2 gap-4">
-                    <div className="col-span-2 sm:col-span-1">
-                      <label className="mb-1.5 block text-xs font-black uppercase tracking-wider text-gray-500">Calle</label>
-                      <input
-                        type="text"
-                        value={address.street}
-                        onChange={(e) => setAddress({ ...address, street: e.target.value })}
-                        className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm font-semibold text-[#1E1E1E] outline-none focus:border-[#0eb1c3] focus:ring-2 focus:ring-[#0eb1c3]/20"
-                      />
-                    </div>
-                    <div>
-                      <label className="mb-1.5 block text-xs font-black uppercase tracking-wider text-gray-500">Número</label>
-                      <input
-                        type="text"
-                        value={address.streetNumber}
-                        onChange={(e) => setAddress({ ...address, streetNumber: e.target.value })}
-                        className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm font-semibold text-[#1E1E1E] outline-none focus:border-[#0eb1c3] focus:ring-2 focus:ring-[#0eb1c3]/20"
-                      />
-                    </div>
-                    <div>
-                      <label className="mb-1.5 block text-xs font-black uppercase tracking-wider text-gray-500">Localidad</label>
-                      <input
-                        type="text"
-                        required
-                        value={address.city}
-                        onChange={(e) => setAddress({ ...address, city: e.target.value })}
-                        placeholder="Ej: Pilar"
-                        className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm font-semibold text-[#1E1E1E] outline-none focus:border-[#0eb1c3] focus:ring-2 focus:ring-[#0eb1c3]/20"
-                      />
-                    </div>
-                    <div>
-                      <label className="mb-1.5 block text-xs font-black uppercase tracking-wider text-gray-500">Provincia</label>
-                      <input
-                        type="text"
-                        value={address.province}
-                        onChange={(e) => setAddress({ ...address, province: e.target.value })}
-                        placeholder="Ej: Buenos Aires"
-                        className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm font-semibold text-[#1E1E1E] outline-none focus:border-[#0eb1c3] focus:ring-2 focus:ring-[#0eb1c3]/20"
-                      />
-                    </div>
-                    <div>
-                      <label className="mb-1.5 block text-xs font-black uppercase tracking-wider text-gray-500">Código Postal</label>
-                      <input
-                        type="text"
-                        required
-                        value={address.zip}
-                        onChange={(e) => setAddress({ ...address, zip: e.target.value })}
-                        className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm font-semibold text-[#1E1E1E] outline-none focus:border-[#0eb1c3] focus:ring-2 focus:ring-[#0eb1c3]/20"
-                      />
-                    </div>
+                    <AddressFields address={address} onChange={setAddress} expressLocalities={expressLocalities} />
                   </div>
                 )}
 
@@ -384,7 +329,7 @@ export default function CheckoutClient() {
                   </button>
                   <button
                     onClick={handleContinueFromShipping}
-                    disabled={quoteLoading || (shipping === 'delivery' && (!address.city || !address.zip))}
+                    disabled={quoteLoading || (shipping === 'delivery' && (!address.province || !address.city || !address.zip))}
                     className="flex-[2] rounded-2xl py-4 text-sm font-black uppercase tracking-widest text-white transition-opacity disabled:opacity-40 hover:opacity-85"
                     style={{ backgroundColor: '#0eb1c3' }}
                   >
