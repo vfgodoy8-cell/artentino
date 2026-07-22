@@ -17,8 +17,18 @@ type ContactData = {
   phone: string
 }
 
+type AddressData = {
+  street: string
+  streetNumber: string
+  city: string
+  province: string
+  zip: string
+}
+
 type ShippingMethod = 'pickup' | 'delivery'
 type PaymentMethod = 'mercadopago' | 'cash' | 'transfer' | 'modo'
+type ShippingCourier = 'ARTENTINO_EXPRESS' | 'ZIPNOVA'
+type ShippingOption = { courier: ShippingCourier; label: string; amount: number }
 
 const STEPS = ['Contacto', 'Envío', 'Pago', 'Resumen']
 
@@ -29,6 +39,11 @@ export default function CheckoutClient() {
   const [step, setStep] = useState(0)
   const [contact, setContact] = useState<ContactData>({ name: '', surname: '', email: '', phone: '' })
   const [shipping, setShipping] = useState<ShippingMethod>('pickup')
+  const [address, setAddress] = useState<AddressData>({ street: '', streetNumber: '', city: '', province: '', zip: '' })
+  const [shippingOptions, setShippingOptions] = useState<ShippingOption[]>([])
+  const [courier, setCourier] = useState<ShippingCourier | null>(null)
+  const [quoteLoading, setQuoteLoading] = useState(false)
+  const [quoteError, setQuoteError] = useState<string | null>(null)
   const [payment, setPayment] = useState<PaymentMethod>('mercadopago')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -52,7 +67,46 @@ export default function CheckoutClient() {
 
   const isCashOrTransfer = payment === 'cash' || payment === 'transfer'
   const discountedTotal = Math.round(subtotal * (1 - CASH_DISCOUNT))
-  const displayTotal = isCashOrTransfer ? discountedTotal : subtotal
+  const shippingAmount = shipping === 'delivery' && courier
+    ? shippingOptions.find((o) => o.courier === courier)?.amount ?? 0
+    : 0
+  const displayTotal = (isCashOrTransfer ? discountedTotal : subtotal) + shippingAmount
+
+  async function handleContinueFromShipping() {
+    if (shipping === 'pickup') {
+      setStep(2)
+      return
+    }
+
+    if (!address.city || !address.zip) return
+
+    setQuoteLoading(true)
+    setQuoteError(null)
+    try {
+      const res = await fetch('/api/checkout/quote-shipping', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          city: address.city,
+          province: address.province,
+          zip: address.zip,
+          declaredValue: subtotal,
+        }),
+      })
+      const data = await res.json()
+      if (!res.ok) {
+        setQuoteError(data.error ?? 'No se pudo cotizar el envío')
+        return
+      }
+      setShippingOptions(data.options)
+      setCourier(data.options[0]?.courier ?? null)
+      setStep(2)
+    } catch {
+      setQuoteError('No se pudo cotizar el envío. Intentá de nuevo.')
+    } finally {
+      setQuoteLoading(false)
+    }
+  }
 
   async function handlePay() {
     setLoading(true)
@@ -72,6 +126,9 @@ export default function CheckoutClient() {
           payer: contact,
           shipping,
           paymentMethod: payment,
+          ...(shipping === 'delivery'
+            ? { shippingAddress: address, shippingCourier: courier, shippingQuotedAmount: shippingAmount }
+            : {}),
         }),
       })
 
@@ -258,6 +315,66 @@ export default function CheckoutClient() {
                   </label>
                 </div>
 
+                {shipping === 'delivery' && (
+                  <div className="mt-4 grid grid-cols-2 gap-4">
+                    <div className="col-span-2 sm:col-span-1">
+                      <label className="mb-1.5 block text-xs font-black uppercase tracking-wider text-gray-500">Calle</label>
+                      <input
+                        type="text"
+                        value={address.street}
+                        onChange={(e) => setAddress({ ...address, street: e.target.value })}
+                        className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm font-semibold text-[#1E1E1E] outline-none focus:border-[#0eb1c3] focus:ring-2 focus:ring-[#0eb1c3]/20"
+                      />
+                    </div>
+                    <div>
+                      <label className="mb-1.5 block text-xs font-black uppercase tracking-wider text-gray-500">Número</label>
+                      <input
+                        type="text"
+                        value={address.streetNumber}
+                        onChange={(e) => setAddress({ ...address, streetNumber: e.target.value })}
+                        className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm font-semibold text-[#1E1E1E] outline-none focus:border-[#0eb1c3] focus:ring-2 focus:ring-[#0eb1c3]/20"
+                      />
+                    </div>
+                    <div>
+                      <label className="mb-1.5 block text-xs font-black uppercase tracking-wider text-gray-500">Localidad</label>
+                      <input
+                        type="text"
+                        required
+                        value={address.city}
+                        onChange={(e) => setAddress({ ...address, city: e.target.value })}
+                        placeholder="Ej: Pilar"
+                        className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm font-semibold text-[#1E1E1E] outline-none focus:border-[#0eb1c3] focus:ring-2 focus:ring-[#0eb1c3]/20"
+                      />
+                    </div>
+                    <div>
+                      <label className="mb-1.5 block text-xs font-black uppercase tracking-wider text-gray-500">Provincia</label>
+                      <input
+                        type="text"
+                        value={address.province}
+                        onChange={(e) => setAddress({ ...address, province: e.target.value })}
+                        placeholder="Ej: Buenos Aires"
+                        className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm font-semibold text-[#1E1E1E] outline-none focus:border-[#0eb1c3] focus:ring-2 focus:ring-[#0eb1c3]/20"
+                      />
+                    </div>
+                    <div>
+                      <label className="mb-1.5 block text-xs font-black uppercase tracking-wider text-gray-500">Código Postal</label>
+                      <input
+                        type="text"
+                        required
+                        value={address.zip}
+                        onChange={(e) => setAddress({ ...address, zip: e.target.value })}
+                        className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm font-semibold text-[#1E1E1E] outline-none focus:border-[#0eb1c3] focus:ring-2 focus:ring-[#0eb1c3]/20"
+                      />
+                    </div>
+                  </div>
+                )}
+
+                {quoteError && (
+                  <div className="mt-4 rounded-xl bg-red-50 px-4 py-3 text-sm font-semibold text-red-500">
+                    {quoteError}
+                  </div>
+                )}
+
                 <div className="mt-6 flex gap-3">
                   <button
                     onClick={() => setStep(0)}
@@ -266,11 +383,12 @@ export default function CheckoutClient() {
                     Atrás
                   </button>
                   <button
-                    onClick={() => setStep(2)}
-                    className="flex-[2] rounded-2xl py-4 text-sm font-black uppercase tracking-widest text-white transition-opacity hover:opacity-85"
+                    onClick={handleContinueFromShipping}
+                    disabled={quoteLoading || (shipping === 'delivery' && (!address.city || !address.zip))}
+                    className="flex-[2] rounded-2xl py-4 text-sm font-black uppercase tracking-widest text-white transition-opacity disabled:opacity-40 hover:opacity-85"
                     style={{ backgroundColor: '#0eb1c3' }}
                   >
-                    Continuar
+                    {quoteLoading ? 'Cotizando…' : 'Continuar'}
                   </button>
                 </div>
               </div>
@@ -279,6 +397,47 @@ export default function CheckoutClient() {
             {/* STEP 2: Pago */}
             {step === 2 && (
               <div>
+                {shipping === 'delivery' && (
+                  <div className="mb-8">
+                    <h2 className="mb-6 text-base font-black uppercase tracking-wider text-[#1E1E1E]">
+                      Método de envío
+                    </h2>
+                    {shippingOptions.length === 0 ? (
+                      <div className="rounded-xl bg-red-50 px-4 py-3 text-sm font-semibold text-red-500">
+                        No hay opciones de envío disponibles para esta localidad por el momento.
+                      </div>
+                    ) : (
+                      <div className="space-y-3">
+                        {shippingOptions.map((option) => (
+                          <label
+                            key={option.courier}
+                            className={`flex cursor-pointer items-center justify-between gap-4 rounded-2xl border-2 p-4 transition-colors ${
+                              courier === option.courier ? 'border-[#0eb1c3] bg-[#0eb1c3]/5' : 'border-gray-100 hover:border-gray-200'
+                            }`}
+                          >
+                            <div className="flex items-center gap-4">
+                              <input
+                                type="radio"
+                                name="courier"
+                                checked={courier === option.courier}
+                                onChange={() => setCourier(option.courier)}
+                                className="accent-[#0eb1c3]"
+                              />
+                              <div>
+                                <p className="font-black text-[#1E1E1E]">{option.label}</p>
+                                <p className="text-sm text-gray-500">
+                                  {option.courier === 'ARTENTINO_EXPRESS' ? 'Gestionado por Artentino' : 'Gestionado por Zipnova'}
+                                </p>
+                              </div>
+                            </div>
+                            <span className="font-black text-[#1E1E1E]">{fmt(option.amount)}</span>
+                          </label>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                )}
+
                 <h2 className="mb-6 text-base font-black uppercase tracking-wider text-[#1E1E1E]">
                   Método de pago
                 </h2>
@@ -381,7 +540,8 @@ export default function CheckoutClient() {
                   </button>
                   <button
                     onClick={() => setStep(3)}
-                    className="flex-[2] rounded-2xl py-4 text-sm font-black uppercase tracking-widest text-white transition-opacity hover:opacity-85"
+                    disabled={shipping === 'delivery' && !courier}
+                    className="flex-[2] rounded-2xl py-4 text-sm font-black uppercase tracking-widest text-white transition-opacity disabled:opacity-40 hover:opacity-85"
                     style={{ backgroundColor: '#0eb1c3' }}
                   >
                     Ver resumen
@@ -407,8 +567,16 @@ export default function CheckoutClient() {
                 <div className="mb-4 rounded-xl bg-gray-50 px-4 py-3">
                   <p className="text-xs font-black uppercase tracking-wider text-gray-400">Envío</p>
                   <p className="mt-1 text-sm font-bold text-[#1E1E1E]">
-                    {shipping === 'pickup' ? 'Retiro en tienda — Colegiales CABA' : 'Envío a domicilio'}
+                    {shipping === 'pickup'
+                      ? 'Retiro en tienda — Colegiales CABA'
+                      : `${shippingOptions.find((o) => o.courier === courier)?.label ?? 'Envío a domicilio'} — ${fmt(shippingAmount)}`}
                   </p>
+                  {shipping === 'delivery' && (
+                    <p className="text-sm text-gray-500">
+                      {address.street} {address.streetNumber}, {address.city}
+                      {address.province ? `, ${address.province}` : ''} (CP {address.zip})
+                    </p>
+                  )}
                 </div>
 
                 <div className="mb-4 rounded-xl bg-gray-50 px-4 py-3">
@@ -524,7 +692,7 @@ export default function CheckoutClient() {
               <div className="flex items-center justify-between">
                 <span className="text-xs font-semibold text-gray-500">Envío</span>
                 <span className="text-xs font-bold text-gray-400">
-                  {shipping === 'pickup' ? 'Gratis' : 'A calcular'}
+                  {shipping === 'pickup' ? 'Gratis' : courier ? fmt(shippingAmount) : 'A calcular'}
                 </span>
               </div>
               {isCashOrTransfer && (

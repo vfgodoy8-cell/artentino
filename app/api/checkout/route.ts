@@ -4,6 +4,7 @@ import { auth } from '@/auth'
 import { prisma } from '@/lib/prisma'
 import { sendEmail, pickupCashEmail, adminNewOrderEmail } from '@/app/lib/email'
 import { CASH_DISCOUNT, CASH_DISCOUNT_PCT, ADMIN_NOTIFICATION_EMAIL } from '@/app/lib/constants'
+import { createZipnovaShipment } from '@/app/lib/zipnova'
 
 type CartItem = {
   productId: string
@@ -11,6 +12,14 @@ type CartItem = {
   price: number
   quantity: number
   attributeValueId?: string
+}
+
+type ShippingAddress = {
+  street?: string
+  streetNumber?: string
+  city: string
+  province?: string
+  zip?: string
 }
 
 type CheckoutBody = {
@@ -23,9 +32,44 @@ type CheckoutBody = {
   }
   shipping: 'pickup' | 'delivery'
   paymentMethod?: 'mercadopago' | 'cash' | 'transfer'
+  shippingAddress?: ShippingAddress
+  shippingCourier?: 'ARTENTINO_EXPRESS' | 'ZIPNOVA'
+  shippingQuotedAmount?: number
 }
 
 const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL!
+
+// Paquete genérico de referencia (30x30x30 cm, 3kg) — mismo criterio que /api/checkout/quote-shipping
+const DEFAULT_PACKAGE = { weight: 3000, height: 30, width: 30, length: 30 }
+
+/**
+ * Si el courier elegido es Zipnova, crea la solicitud de envío contra su API.
+ * Si es Artentino Express, no se crea nada — el pedido queda para gestión interna.
+ * Nunca rompe el checkout si la creación falla (mismo patrón que los emails).
+ */
+async function attachZipnovaShipment(orderId: string, body: CheckoutBody) {
+  if (body.shipping !== 'delivery' || body.shippingCourier !== 'ZIPNOVA' || !body.shippingAddress) return
+
+  try {
+    const shipment = await createZipnovaShipment({
+      externalId: orderId,
+      destinationName: `${body.payer.name} ${body.payer.surname}`,
+      destinationDocument: '',
+      destinationEmail: body.payer.email,
+      destinationPhone: body.payer.phone,
+      destinationStreet: body.shippingAddress.street,
+      destinationStreetNumber: body.shippingAddress.streetNumber,
+      city: body.shippingAddress.city,
+      province: body.shippingAddress.province,
+      zip: body.shippingAddress.zip,
+      declaredValue: body.shippingQuotedAmount ?? 0,
+      packages: [DEFAULT_PACKAGE],
+    })
+    await prisma.order.update({ where: { id: orderId }, data: { zipnovaShipmentId: shipment.id } })
+  } catch (error) {
+    console.error('[checkout] fallo al crear el envío en Zipnova:', error)
+  }
+}
 
 export async function POST(req: Request) {
   const session = await auth()
@@ -33,11 +77,18 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: 'No autorizado' }, { status: 401 })
   }
 
-  const { items, payer, shipping, paymentMethod = 'mercadopago' } = (await req.json()) as CheckoutBody
+  const body = (await req.json()) as CheckoutBody
+  const { items, payer, shipping, paymentMethod = 'mercadopago', shippingAddress, shippingCourier, shippingQuotedAmount } = body
 
   if (!items?.length || !payer?.email) {
     return NextResponse.json({ error: 'Datos incompletos' }, { status: 400 })
   }
+
+  if (shipping === 'delivery' && (!shippingAddress?.city || !shippingCourier)) {
+    return NextResponse.json({ error: 'Faltan datos de envío' }, { status: 400 })
+  }
+
+  const shippingAmount = shipping === 'delivery' ? (shippingQuotedAmount ?? 0) : 0
 
   // Server-side stock validation — prevents overselling even if front-end is bypassed
   for (const item of items) {
@@ -85,7 +136,7 @@ export async function POST(req: Request) {
 
   // ── Cash / transfer pickup flow ────────────────────────────────────────────
   if (paymentMethod === 'cash' || paymentMethod === 'transfer') {
-    const discountedTotal = Math.round(subtotal * (1 - CASH_DISCOUNT))
+    const discountedTotal = Math.round(subtotal * (1 - CASH_DISCOUNT)) + shippingAmount
     const order = await prisma.order.create({
       data: {
         userId: session.user.id,
@@ -93,6 +144,7 @@ export async function POST(req: Request) {
         shippingMethod: shipping,
         paymentMethod,
         status: 'PENDING_PICKUP_PAYMENT',
+        ...(shipping === 'delivery' ? { shippingAddress: { ...shippingAddress }, shippingCourier, shippingQuotedAmount } : {}),
         items: {
           create: items.map((item) => ({
             productId: item.productId,
@@ -103,6 +155,8 @@ export async function POST(req: Request) {
         },
       },
     })
+
+    await attachZipnovaShipment(order.id, body)
 
     // Fire-and-forget email
     sendEmail({
@@ -134,7 +188,7 @@ export async function POST(req: Request) {
   }
 
   // ── MercadoPago flow ────────────────────────────────────────────────────────
-  const total = subtotal
+  const total = subtotal + shippingAmount
 
   const order = await prisma.order.create({
     data: {
@@ -143,6 +197,7 @@ export async function POST(req: Request) {
       shippingMethod: shipping,
       paymentMethod: 'mercadopago',
       status: 'PENDING',
+      ...(shipping === 'delivery' ? { shippingAddress: { ...shippingAddress }, shippingCourier, shippingQuotedAmount } : {}),
       items: {
         create: items.map((item) => ({
           productId: item.productId,
@@ -169,9 +224,9 @@ export async function POST(req: Request) {
     if (shipping === 'delivery') {
       mpItems.push({
         id: 'envio',
-        title: 'Envío a domicilio',
+        title: shippingCourier === 'ARTENTINO_EXPRESS' ? 'Envío Express (Artentino)' : 'Envío Zipnova',
         quantity: 1,
-        unit_price: 0,
+        unit_price: shippingAmount,
         currency_id: 'ARS',
       })
     }
@@ -197,6 +252,8 @@ export async function POST(req: Request) {
 
     const initPoint = result.sandbox_init_point ?? result.init_point
 
+    await attachZipnovaShipment(order.id, body)
+
     if (ADMIN_NOTIFICATION_EMAIL) {
       sendEmail({
         to: ADMIN_NOTIFICATION_EMAIL,
@@ -207,6 +264,9 @@ export async function POST(req: Request) {
 
     return NextResponse.json({ initPoint })
   } catch (error) {
+    // Los OrderItem se crean junto con el Order (nested write) — hay que borrarlos primero,
+    // si no la FK RESTRICT de order_items rechaza el delete del Order.
+    await prisma.orderItem.deleteMany({ where: { orderId: order.id } })
     await prisma.order.delete({ where: { id: order.id } })
     console.error('MercadoPago error:', JSON.stringify(error, null, 2))
     return NextResponse.json({ error: 'Error al crear la preferencia de pago' }, { status: 500 })
