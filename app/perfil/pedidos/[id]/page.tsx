@@ -2,6 +2,8 @@
 import { redirect, notFound } from 'next/navigation'
 import { prisma } from '@/lib/prisma'
 import Link from 'next/link'
+import { isWithinArrepentimientoWindow } from '@/app/lib/arrepentimiento'
+import ArrepentimientoForm from '@/app/ui/arrepentimiento-form'
 
 const STATUS_MAP: Record<string, { label: string; bg: string; color: string }> = {
   PENDING:   { label: 'Pendiente',  bg: '#FEF3C7', color: '#D97706' },
@@ -38,6 +40,11 @@ export default async function PedidoDetallePage({
 
   const status = STATUS_MAP[order.status] ?? STATUS_MAP.PENDING
   const subtotal = order.items.reduce((s, i) => s + Number(i.price) * i.quantity, 0)
+
+  const canArrepentirse = order.status === 'DELIVERED' && isWithinArrepentimientoWindow(order.deliveredAt)
+  const existingRequest = canArrepentirse
+    ? await prisma.arrepentimientoRequest.findFirst({ where: { orderId: order.id } })
+    : null
 
   return (
     <main className="min-h-screen bg-[#F7F7F7]">
@@ -121,6 +128,19 @@ export default async function PedidoDetallePage({
             <span className="text-2xl font-black text-[#1E1E1E]">{fmt(Number(order.total))}</span>
           </div>
         </div>
+
+        {/* Botón de Arrepentimiento */}
+        {canArrepentirse && (
+          <div className="mt-4">
+            {existingRequest ? (
+              <div className="rounded-2xl border border-[#0eb1c3]/20 bg-[#f0fbfc] p-5 text-sm font-semibold text-[#0eb1c3]">
+                Ya solicitaste el arrepentimiento de este pedido. Te vamos a contactar a la brevedad.
+              </div>
+            ) : (
+              <ArrepentimientoForm orderId={order.id} />
+            )}
+          </div>
+        )}
 
       </div>
     </main>

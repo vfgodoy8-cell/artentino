@@ -65,6 +65,7 @@ export const ModelName = {
   PasswordResetToken: 'PasswordResetToken',
   Order: 'Order',
   OrderItem: 'OrderItem',
+  ArrepentimientoRequest: 'ArrepentimientoRequest',
   Appointment: 'Appointment',
   Contact: 'Contact',
   HeroSlide: 'HeroSlide',
@@ -263,6 +264,7 @@ export const OrderScalarFieldEnum = {
   shippingMethod: 'shippingMethod',
   paymentMethod: 'paymentMethod',
   shippingAddress: 'shippingAddress',
+  deliveredAt: 'deliveredAt',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -280,6 +282,18 @@ export const OrderItemScalarFieldEnum = {
 } as const
 
 export type OrderItemScalarFieldEnum = (typeof OrderItemScalarFieldEnum)[keyof typeof OrderItemScalarFieldEnum]
+
+
+export const ArrepentimientoRequestScalarFieldEnum = {
+  id: 'id',
+  orderId: 'orderId',
+  userId: 'userId',
+  motivo: 'motivo',
+  status: 'status',
+  createdAt: 'createdAt'
+} as const
+
+export type ArrepentimientoRequestScalarFieldEnum = (typeof ArrepentimientoRequestScalarFieldEnum)[keyof typeof ArrepentimientoRequestScalarFieldEnum]
 
 
 export const AppointmentScalarFieldEnum = {

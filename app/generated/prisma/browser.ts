@@ -88,6 +88,11 @@ export type Order = Prisma.OrderModel
  */
 export type OrderItem = Prisma.OrderItemModel
 /**
+ * Model ArrepentimientoRequest
+ * 
+ */
+export type ArrepentimientoRequest = Prisma.ArrepentimientoRequestModel
+/**
  * Model Appointment
  * 
  */

@@ -223,6 +223,7 @@ model User {
   role                Role                 @default(USER)
   orders              Order[]
   passwordResetTokens PasswordResetToken[]
+  arrepentimientoRequests ArrepentimientoRequest[]
   createdAt           DateTime             @default(now())
   updatedAt           DateTime             @updatedAt
 
@@ -243,17 +244,19 @@ model PasswordResetToken {
 }
 
 model Order {
-  id              String      @id @default(cuid())
-  userId          String
-  user            User        @relation(fields: [userId], references: [id])
-  status          OrderStatus @default(PENDING)
-  total           Decimal     @db.Decimal(10, 2)
-  shippingMethod  String?
-  paymentMethod   String?
-  shippingAddress Json?
-  items           OrderItem[]
-  createdAt       DateTime    @default(now())
-  updatedAt       DateTime    @updatedAt
+  id                       String                    @id @default(cuid())
+  userId                   String
+  user                     User                      @relation(fields: [userId], references: [id])
+  status                   OrderStatus               @default(PENDING)
+  total                    Decimal                   @db.Decimal(10, 2)
+  shippingMethod           String?
+  paymentMethod            String?
+  shippingAddress          Json?
+  deliveredAt              DateTime?
+  items                    OrderItem[]
+  arrepentimientoRequests  ArrepentimientoRequest[]
+  createdAt                DateTime                  @default(now())
+  updatedAt                DateTime                  @updatedAt
 
   @@index([userId])
   @@index([status])
@@ -274,6 +277,21 @@ model OrderItem {
   @@index([orderId])
   @@index([productId])
   @@map("order_items")
+}
+
+model ArrepentimientoRequest {
+  id        String   @id @default(cuid())
+  orderId   String
+  order     Order    @relation(fields: [orderId], references: [id])
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  motivo    String?  @db.Text
+  status    String   @default("PENDING")
+  createdAt DateTime @default(now())
+
+  @@index([orderId])
+  @@index([userId])
+  @@map("arrepentimiento_requests")
 }
 
 model Appointment {

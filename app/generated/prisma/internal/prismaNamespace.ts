@@ -398,6 +398,7 @@ export const ModelName = {
   PasswordResetToken: 'PasswordResetToken',
   Order: 'Order',
   OrderItem: 'OrderItem',
+  ArrepentimientoRequest: 'ArrepentimientoRequest',
   Appointment: 'Appointment',
   Contact: 'Contact',
   HeroSlide: 'HeroSlide',
@@ -420,7 +421,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "category" | "subcategory" | "product" | "productRelation" | "productComboPrice" | "attribute" | "attributeValue" | "productStock" | "productImage" | "productImageAttributeValue" | "user" | "passwordResetToken" | "order" | "orderItem" | "appointment" | "contact" | "heroSlide" | "heroBadge" | "emailTemplate" | "siteConfig" | "instagramToken"
+    modelProps: "category" | "subcategory" | "product" | "productRelation" | "productComboPrice" | "attribute" | "attributeValue" | "productStock" | "productImage" | "productImageAttributeValue" | "user" | "passwordResetToken" | "order" | "orderItem" | "arrepentimientoRequest" | "appointment" | "contact" | "heroSlide" | "heroBadge" | "emailTemplate" | "siteConfig" | "instagramToken"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1460,6 +1461,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    ArrepentimientoRequest: {
+      payload: Prisma.$ArrepentimientoRequestPayload<ExtArgs>
+      fields: Prisma.ArrepentimientoRequestFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.ArrepentimientoRequestFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ArrepentimientoRequestPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.ArrepentimientoRequestFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ArrepentimientoRequestPayload>
+        }
+        findFirst: {
+          args: Prisma.ArrepentimientoRequestFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ArrepentimientoRequestPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.ArrepentimientoRequestFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ArrepentimientoRequestPayload>
+        }
+        findMany: {
+          args: Prisma.ArrepentimientoRequestFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ArrepentimientoRequestPayload>[]
+        }
+        create: {
+          args: Prisma.ArrepentimientoRequestCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ArrepentimientoRequestPayload>
+        }
+        createMany: {
+          args: Prisma.ArrepentimientoRequestCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.ArrepentimientoRequestCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ArrepentimientoRequestPayload>[]
+        }
+        delete: {
+          args: Prisma.ArrepentimientoRequestDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ArrepentimientoRequestPayload>
+        }
+        update: {
+          args: Prisma.ArrepentimientoRequestUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ArrepentimientoRequestPayload>
+        }
+        deleteMany: {
+          args: Prisma.ArrepentimientoRequestDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.ArrepentimientoRequestUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.ArrepentimientoRequestUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ArrepentimientoRequestPayload>[]
+        }
+        upsert: {
+          args: Prisma.ArrepentimientoRequestUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ArrepentimientoRequestPayload>
+        }
+        aggregate: {
+          args: Prisma.ArrepentimientoRequestAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateArrepentimientoRequest>
+        }
+        groupBy: {
+          args: Prisma.ArrepentimientoRequestGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ArrepentimientoRequestGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.ArrepentimientoRequestCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ArrepentimientoRequestCountAggregateOutputType> | number
+        }
+      }
+    }
     Appointment: {
       payload: Prisma.$AppointmentPayload<ExtArgs>
       fields: Prisma.AppointmentFieldRefs
@@ -2190,6 +2265,7 @@ export const OrderScalarFieldEnum = {
   shippingMethod: 'shippingMethod',
   paymentMethod: 'paymentMethod',
   shippingAddress: 'shippingAddress',
+  deliveredAt: 'deliveredAt',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -2207,6 +2283,18 @@ export const OrderItemScalarFieldEnum = {
 } as const
 
 export type OrderItemScalarFieldEnum = (typeof OrderItemScalarFieldEnum)[keyof typeof OrderItemScalarFieldEnum]
+
+
+export const ArrepentimientoRequestScalarFieldEnum = {
+  id: 'id',
+  orderId: 'orderId',
+  userId: 'userId',
+  motivo: 'motivo',
+  status: 'status',
+  createdAt: 'createdAt'
+} as const
+
+export type ArrepentimientoRequestScalarFieldEnum = (typeof ArrepentimientoRequestScalarFieldEnum)[keyof typeof ArrepentimientoRequestScalarFieldEnum]
 
 
 export const AppointmentScalarFieldEnum = {
@@ -2632,6 +2720,7 @@ export type GlobalOmitConfig = {
   passwordResetToken?: Prisma.PasswordResetTokenOmit
   order?: Prisma.OrderOmit
   orderItem?: Prisma.OrderItemOmit
+  arrepentimientoRequest?: Prisma.ArrepentimientoRequestOmit
   appointment?: Prisma.AppointmentOmit
   contact?: Prisma.ContactOmit
   heroSlide?: Prisma.HeroSlideOmit

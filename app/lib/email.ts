@@ -236,6 +236,56 @@ export function adminNewOrderEmail({
   )
 }
 
+export function arrepentimientoCustomerEmail({
+  name,
+  orderId,
+}: {
+  name: string
+  orderId: string
+}) {
+  return (
+    WRAP_START +
+    HEADER.replace('{{title}}', 'Solicitud recibida') +
+    `<div style="padding:36px 32px;">
+      <p style="margin:0 0 8px;color:#1E1E1E;font-size:16px;">Hola <strong>${name}</strong>,</p>
+      <p style="margin:0 0 28px;color:#555;line-height:1.6;">
+        Recibimos tu solicitud de arrepentimiento de compra para el pedido
+        <strong>#${orderId.slice(-8).toUpperCase()}</strong>. Nuestro equipo se va a comunicar a la
+        brevedad para coordinar la devolución y el reintegro correspondiente.
+      </p>
+      <p style="margin:0;color:#0eb1c3;font-weight:900;">Equipo Artentino</p>
+    </div>` +
+    FOOTER +
+    WRAP_END
+  )
+}
+
+export function arrepentimientoAdminEmail({
+  orderId,
+  customerName,
+  customerEmail,
+  motivo,
+}: {
+  orderId: string
+  customerName: string
+  customerEmail: string
+  motivo?: string | null
+}) {
+  return (
+    WRAP_START +
+    HEADER.replace('{{title}}', 'Nueva solicitud de arrepentimiento') +
+    `<div style="padding:36px 32px;">
+      <p style="margin:0 0 8px;color:#1E1E1E;font-size:16px;">
+        Nueva solicitud de arrepentimiento del pedido <strong>#${orderId.slice(-8).toUpperCase()}</strong>,
+        cliente <strong>${customerName}</strong> (${customerEmail}).
+      </p>
+      <p style="margin:0;color:#555;">Motivo: ${motivo?.trim() || '(sin especificar)'}</p>
+    </div>` +
+    FOOTER +
+    WRAP_END
+  )
+}
+
 export function adminNewContactEmail({
   name,
   email,

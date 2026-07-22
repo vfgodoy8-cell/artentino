@@ -194,6 +194,9 @@ export default async function Footer() {
             <Link href="/terminos" className="text-xs text-[#9ca3af] transition-colors hover:text-[#0eb1c3]">
               Términos
             </Link>
+            <Link href="/arrepentimiento" className="text-xs text-[#9ca3af] transition-colors hover:text-[#0eb1c3]">
+              Botón de Arrepentimiento
+            </Link>
             <span className="flex items-center gap-1.5 text-xs text-[#9ca3af]">
               <LockIcon />
               Compra segura · MercadoPago
