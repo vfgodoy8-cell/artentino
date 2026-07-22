@@ -12,6 +12,8 @@ const sections = [
   { id: 'registro', label: 'Registro y compra' },
   { id: 'regalos', label: 'Regalos corporativos' },
   { id: 'cambios', label: 'Cambios y devoluciones' },
+  { id: 'privacidad', label: 'Privacidad' },
+  { id: 'terminos', label: 'Términos y condiciones' },
 ]
 
 function Section({ id, title, children }: { id: string; title: string; children: React.ReactNode }) {
@@ -245,6 +247,55 @@ export default function FAQPage() {
               <strong>Reintegros:</strong> una vez recibido y verificado el producto devuelto, se
               reintegra por el mismo medio de pago. Los costos de envío no son reembolsables; en
               devoluciones el envío corre por cuenta del cliente.
+            </p>
+          </Block>
+        </Section>
+
+        {/* ── PRIVACIDAD ── */}
+        <Section id="privacidad" title="Política de privacidad">
+          <div className="rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm font-semibold text-amber-700">
+            TODO — contenido legal pendiente de redacción/aprobación final. Lo que sigue es un placeholder, no el texto definitivo.
+          </div>
+          <Block>
+            <p className="mb-3 text-xs font-black uppercase tracking-wider text-gray-400">Qué datos recolectamos</p>
+            <p>TODO — detallar qué información personal se recolecta (nombre, email, teléfono, dirección de envío, datos de pago) y con qué finalidad.</p>
+          </Block>
+          <Block>
+            <p className="mb-3 text-xs font-black uppercase tracking-wider text-gray-400">Uso de la información</p>
+            <p>TODO — detallar para qué se usan los datos: procesar pedidos, enviar comunicaciones, mejorar el servicio, etc.</p>
+          </Block>
+          <Block>
+            <p className="mb-3 text-xs font-black uppercase tracking-wider text-gray-400">Terceros</p>
+            <p>TODO — aclarar qué proveedores externos (MercadoPago, Resend, Cloudinary, etc.) procesan datos en nombre de Artentino.</p>
+          </Block>
+          <Block>
+            <p className="mb-3 text-xs font-black uppercase tracking-wider text-gray-400">Tus derechos</p>
+            <p>TODO — detallar cómo acceder, rectificar o eliminar tus datos personales.</p>
+          </Block>
+        </Section>
+
+        {/* ── TÉRMINOS Y CONDICIONES ── */}
+        <Section id="terminos" title="Términos y condiciones">
+          <div className="rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm font-semibold text-amber-700">
+            TODO — contenido legal pendiente de redacción/aprobación final. Lo que sigue es un placeholder, no el texto definitivo.
+          </div>
+          <Block>
+            <p className="mb-3 text-xs font-black uppercase tracking-wider text-gray-400">Aceptación de los términos</p>
+            <p>TODO — al usar el sitio o realizar una compra, el usuario acepta estos términos y condiciones.</p>
+          </Block>
+          <Block>
+            <p className="mb-3 text-xs font-black uppercase tracking-wider text-gray-400">Precios y disponibilidad</p>
+            <p>TODO — detallar la política de precios, stock y disponibilidad de productos.</p>
+          </Block>
+          <Block>
+            <p className="mb-3 text-xs font-black uppercase tracking-wider text-gray-400">Envíos, pagos, cambios y devoluciones</p>
+            <p>
+              Ver el detalle vigente en las secciones{' '}
+              <a href="#envio" className="font-semibold" style={{ color: '#0eb1c3' }}>Envíos</a>,{' '}
+              <a href="#pago" className="font-semibold" style={{ color: '#0eb1c3' }}>Formas de pago</a>{' '}
+              y{' '}
+              <a href="#cambios" className="font-semibold" style={{ color: '#0eb1c3' }}>Cambios y devoluciones</a>{' '}
+              de este mismo FAQ.
             </p>
           </Block>
         </Section>
