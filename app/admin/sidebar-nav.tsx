@@ -65,6 +65,7 @@ const groups: NavGroup[] = [
     defaultOpen: true,
     items: [
       { href: '/admin/instagram', label: 'Instagram', icon: 'instagram' },
+      { href: '/admin/extension', label: 'Extensión', icon: 'puzzle' },
     ],
   },
 ]
