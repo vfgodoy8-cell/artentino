@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useTransition } from 'react'
+import { useSession } from 'next-auth/react'
 import {
   createAttribute,
   updateAttribute,
@@ -416,6 +417,8 @@ function ValuesPanel({
   const [newInput, setNewInput] = useState('')
   const [error, setError] = useState('')
   const [, startTransition] = useTransition()
+  const { data: sessionData } = useSession()
+  const isSuperAdmin = (sessionData?.user as { adminRole?: string } | undefined)?.adminRole === 'SUPERADMIN'
 
   function startEditValue(v: AttributeValueItem) {
     setEditingId(v.id)
@@ -529,14 +532,16 @@ function ValuesPanel({
                       ) : (
                         <>
                           <button onClick={() => startEditValue(v)} className="rounded-lg px-2.5 py-1 text-[11px] font-bold text-gray-400 hover:bg-gray-100 hover:text-[#1E1E1E]">Renombrar</button>
-                          <button
-                            onClick={() => handleDelete(v)}
-                            disabled={v.stockCount > 0}
-                            title={v.stockCount > 0 ? `En uso en ${v.stockCount} ítem(s) de stock` : 'Eliminar'}
-                            className="rounded-lg px-2.5 py-1 text-[11px] font-bold text-red-400 transition-colors hover:bg-red-50 hover:text-red-600 disabled:cursor-not-allowed disabled:opacity-30"
-                          >
-                            Eliminar
-                          </button>
+                          {isSuperAdmin && (
+                            <button
+                              onClick={() => handleDelete(v)}
+                              disabled={v.stockCount > 0}
+                              title={v.stockCount > 0 ? `En uso en ${v.stockCount} ítem(s) de stock` : 'Eliminar'}
+                              className="rounded-lg px-2.5 py-1 text-[11px] font-bold text-red-400 transition-colors hover:bg-red-50 hover:text-red-600 disabled:cursor-not-allowed disabled:opacity-30"
+                            >
+                              Eliminar
+                            </button>
+                          )}
                         </>
                       )}
                     </div>

@@ -4,6 +4,7 @@ import { useState, useTransition } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
+import { useSession } from 'next-auth/react'
 import { deleteProduct, updateProductSortOrder, updateProductActive } from './actions'
 
 type Product = {
@@ -89,6 +90,8 @@ function ProductRow({
   const [sortOrder, setSortOrder] = useState(product.sortOrder)
   const [active, setActive] = useState(product.active)
   const [, startTransition] = useTransition()
+  const { data: sessionData } = useSession()
+  const isSuperAdmin = (sessionData?.user as { adminRole?: string } | undefined)?.adminRole === 'SUPERADMIN'
 
   function handleSortBlur() {
     if (sortOrder === product.sortOrder) return
@@ -154,9 +157,11 @@ function ProductRow({
           <Link href={`/admin/productos/${product.id}/editar`} className="rounded-lg px-3 py-1.5 text-xs font-bold text-gray-500 transition-colors hover:bg-gray-100 hover:text-[#1E1E1E]">
             Editar
           </Link>
-          <button onClick={() => onDelete(product.id, product.name)} className="rounded-lg px-3 py-1.5 text-xs font-bold text-red-400 transition-colors hover:bg-red-50 hover:text-red-600">
-            Eliminar
-          </button>
+          {isSuperAdmin && (
+            <button onClick={() => onDelete(product.id, product.name)} className="rounded-lg px-3 py-1.5 text-xs font-bold text-red-400 transition-colors hover:bg-red-50 hover:text-red-600">
+              Eliminar
+            </button>
+          )}
         </div>
       </td>
     </tr>

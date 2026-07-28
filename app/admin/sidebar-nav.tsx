@@ -3,6 +3,7 @@
 import Link from 'next/link'
 import Image from 'next/image'
 import { usePathname } from 'next/navigation'
+import { useSession } from 'next-auth/react'
 import { useState, useEffect } from 'react'
 
 type NavItem = {
@@ -72,6 +73,22 @@ const groups: NavGroup[] = [
 
 export default function SidebarNav() {
   const pathname = usePathname()
+  const { data: sessionData } = useSession()
+  const adminRole = (sessionData?.user as { adminRole?: string } | undefined)?.adminRole
+
+  const visibleGroups: NavGroup[] = groups.map((g) =>
+    g.id === 'sistema' && adminRole === 'SUPERADMIN'
+      ? {
+          ...g,
+          items: [
+            ...g.items,
+            { href: '/admin/administradores', label: 'Administradores', icon: 'shield' },
+            { href: '/admin/auditoria', label: 'Auditoría', icon: 'list' },
+          ],
+        }
+      : g,
+  )
+
   // Defer active-path to client to avoid SSR/hydration mismatch when usePathname()
   // resolves to the layout path on the server but the full child path on the client.
   const [activePath, setActivePath] = useState<string | null>(null)
@@ -139,7 +156,7 @@ export default function SidebarNav() {
         </div>
 
         {/* Collapsible groups */}
-        {groups.map((group) => (
+        {visibleGroups.map((group) => (
           <div key={group.id} className="mb-1">
             <button
               onClick={() => toggle(group.id)}
@@ -243,6 +260,10 @@ function NavIcon({ name, size = 17 }: { name: string; size?: number }) {
       return <svg {...p}><path d="M3 11l19-9-9 19-2-8-8-2z" /></svg>
     case 'settings':
       return <svg {...p}><circle cx="12" cy="12" r="3" /><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" /></svg>
+    case 'shield':
+      return <svg {...p}><path d="M12 2 4 5v6c0 5.5 3.4 9.7 8 11 4.6-1.3 8-5.5 8-11V5z" /></svg>
+    case 'list':
+      return <svg {...p}><line x1="8" y1="6" x2="21" y2="6" /><line x1="8" y1="12" x2="21" y2="12" /><line x1="8" y1="18" x2="21" y2="18" /><line x1="3" y1="6" x2="3.01" y2="6" /><line x1="3" y1="12" x2="3.01" y2="12" /><line x1="3" y1="18" x2="3.01" y2="18" /></svg>
     default:
       return null
   }

@@ -2,6 +2,7 @@
 
 import { useState, useTransition, useRef, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
+import { useSession } from 'next-auth/react'
 import {
   DndContext, PointerSensor, TouchSensor, useSensor, useSensors, closestCenter,
   useDroppable,
@@ -313,6 +314,8 @@ function CategoryRow({
   const [addingSubcat, setAddingSubcat] = useState(false)
   const [isPending, startT] = useTransition()
   const scrollRef = useRef<HTMLDivElement>(null)
+  const { data: sessionData } = useSession()
+  const isSuperAdmin = (sessionData?.user as { adminRole?: string } | undefined)?.adminRole === 'SUPERADMIN'
 
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id: cat.id,
@@ -416,9 +419,11 @@ function CategoryRow({
             {!cat.isSpecial && (
               <>
                 <button onClick={() => setEditing(true)} disabled={isPending} className="rounded-lg px-2.5 py-1 text-xs font-semibold text-[#6b7280] hover:bg-[#f3f4f6] hover:text-[#1E1E1E] disabled:opacity-50">Editar</button>
-                <button onClick={remove} disabled={isPending} className="rounded-lg px-2.5 py-1 text-xs font-semibold text-[#ef4444] hover:bg-red-50 disabled:opacity-50">
-                  {isPending ? 'Borrando...' : 'Borrar'}
-                </button>
+                {isSuperAdmin && (
+                  <button onClick={remove} disabled={isPending} className="rounded-lg px-2.5 py-1 text-xs font-semibold text-[#ef4444] hover:bg-red-50 disabled:opacity-50">
+                    {isPending ? 'Borrando...' : 'Borrar'}
+                  </button>
+                )}
               </>
             )}
           </div>
@@ -474,6 +479,8 @@ function SubcatRow({
   const [form, setForm] = useState({ name: sub.name, slug: sub.slug, order: sub.order })
   const [isPending, startT] = useTransition()
   const scrollRef = useRef<HTMLDivElement>(null)
+  const { data: sessionData } = useSession()
+  const isSuperAdmin = (sessionData?.user as { adminRole?: string } | undefined)?.adminRole === 'SUPERADMIN'
 
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id: sub.id,
@@ -535,9 +542,11 @@ function SubcatRow({
           <span className="font-mono text-xs text-[#9ca3af]">{sub.slug}</span>
           <span className="w-8 text-center text-xs text-[#9ca3af]">{sub.order}</span>
           <button onClick={() => setEditing(true)} disabled={isPending} className="rounded-lg px-2.5 py-1 text-xs font-semibold text-[#6b7280] hover:bg-[#f3f4f6] hover:text-[#1E1E1E] disabled:opacity-50">Editar</button>
-          <button onClick={remove} disabled={isPending} className="rounded-lg px-2.5 py-1 text-xs font-semibold text-[#ef4444] hover:bg-red-50 disabled:opacity-50">
-            {isPending ? 'Borrando...' : 'Borrar'}
-          </button>
+          {isSuperAdmin && (
+            <button onClick={remove} disabled={isPending} className="rounded-lg px-2.5 py-1 text-xs font-semibold text-[#ef4444] hover:bg-red-50 disabled:opacity-50">
+              {isPending ? 'Borrando...' : 'Borrar'}
+            </button>
+          )}
         </>
       )}
     </div>

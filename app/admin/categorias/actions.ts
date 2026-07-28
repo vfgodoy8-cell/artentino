@@ -2,6 +2,9 @@
 
 import { prisma } from '@/lib/prisma'
 import { revalidatePath } from 'next/cache'
+import { auth } from '@/auth'
+import { requireRole } from '@/app/lib/permissions'
+import { logAudit } from '@/app/lib/audit'
 
 type ActionResult<T> = { success: true; data: T } | { success: false; error: string }
 
@@ -22,6 +25,10 @@ export async function createCategory(
 ): Promise<ActionResult<{ id: string }>> {
   try {
     const category = await prisma.category.create({ data })
+    const session = await auth()
+    if (session?.user) {
+      await logAudit({ userId: session.user.id, userEmail: session.user.email!, action: 'create', entity: 'Category', entityId: category.id, detail: data })
+    }
     revalidatePath('/admin/categorias')
     revalidatePath('/')
     revalidatePath('/catalogo')
@@ -37,6 +44,10 @@ export async function updateCategory(
 ): Promise<ActionResult<{ id: string }>> {
   try {
     const category = await prisma.category.update({ where: { id }, data })
+    const session = await auth()
+    if (session?.user) {
+      await logAudit({ userId: session.user.id, userEmail: session.user.email!, action: 'update', entity: 'Category', entityId: id, detail: data })
+    }
     revalidatePath('/admin/categorias')
     revalidatePath('/')
     revalidatePath('/catalogo')
@@ -47,8 +58,16 @@ export async function updateCategory(
 }
 
 export async function deleteCategory(id: string): Promise<ActionResult<null>> {
+  const session = await auth()
   try {
-    await prisma.category.delete({ where: { id } })
+    requireRole(session, ['SUPERADMIN'])
+  } catch (err) {
+    return { success: false, error: (err as Error).message }
+  }
+
+  try {
+    const category = await prisma.category.delete({ where: { id } })
+    await logAudit({ userId: session!.user.id, userEmail: session!.user.email!, action: 'delete', entity: 'Category', entityId: id, detail: { name: category.name } })
     revalidatePath('/admin/categorias')
     revalidatePath('/')
     revalidatePath('/catalogo')
@@ -79,6 +98,10 @@ export async function createSubcategory(
 ): Promise<ActionResult<{ id: string }>> {
   try {
     const subcategory = await prisma.subcategory.create({ data })
+    const session = await auth()
+    if (session?.user) {
+      await logAudit({ userId: session.user.id, userEmail: session.user.email!, action: 'create', entity: 'Subcategory', entityId: subcategory.id, detail: data })
+    }
     revalidatePath('/admin/categorias')
     revalidatePath('/catalogo')
     return { success: true, data: subcategory }
@@ -93,6 +116,10 @@ export async function updateSubcategory(
 ): Promise<ActionResult<{ id: string }>> {
   try {
     const subcategory = await prisma.subcategory.update({ where: { id }, data })
+    const session = await auth()
+    if (session?.user) {
+      await logAudit({ userId: session.user.id, userEmail: session.user.email!, action: 'update', entity: 'Subcategory', entityId: id, detail: data })
+    }
     revalidatePath('/admin/categorias')
     revalidatePath('/catalogo')
     return { success: true, data: subcategory }
@@ -102,8 +129,16 @@ export async function updateSubcategory(
 }
 
 export async function deleteSubcategory(id: string): Promise<ActionResult<null>> {
+  const session = await auth()
   try {
-    await prisma.subcategory.delete({ where: { id } })
+    requireRole(session, ['SUPERADMIN'])
+  } catch (err) {
+    return { success: false, error: (err as Error).message }
+  }
+
+  try {
+    const subcategory = await prisma.subcategory.delete({ where: { id } })
+    await logAudit({ userId: session!.user.id, userEmail: session!.user.email!, action: 'delete', entity: 'Subcategory', entityId: id, detail: { name: subcategory.name } })
     revalidatePath('/admin/categorias')
     revalidatePath('/catalogo')
     return { success: true, data: null }

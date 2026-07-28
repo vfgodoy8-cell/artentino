@@ -2,6 +2,9 @@
 
 import { prisma } from '@/lib/prisma'
 import { revalidatePath } from 'next/cache'
+import { auth } from '@/auth'
+import { requireRole } from '@/app/lib/permissions'
+import { logAudit } from '@/app/lib/audit'
 
 // ─── Product info ────────────────────────────────────────────────────────────
 
@@ -42,6 +45,10 @@ export async function updateProductInfo(
       weight: data.weight,
     },
   })
+  const session = await auth()
+  if (session?.user) {
+    await logAudit({ userId: session.user.id, userEmail: session.user.email!, action: 'update', entity: 'Product', entityId: id, detail: { name: data.name, price: data.price, active: data.active } })
+  }
   revalidatePath('/admin/productos')
   revalidatePath(`/admin/productos/${id}/editar`)
   revalidatePath('/')
@@ -185,8 +192,12 @@ export async function upsertGenericStock(
 // ─── Images ──────────────────────────────────────────────────────────────────
 
 export async function deleteProductImage(id: string, productId: string) {
+  const session = await auth()
+  requireRole(session, ['SUPERADMIN'])
+
   const img = await prisma.productImage.findUnique({ where: { id }, select: { isCover: true } })
   await prisma.productImage.delete({ where: { id } })
+  await logAudit({ userId: session!.user.id, userEmail: session!.user.email!, action: 'delete', entity: 'ProductImage', entityId: id, detail: { productId } })
 
   if (img?.isCover) {
     const next = await prisma.productImage.findFirst({

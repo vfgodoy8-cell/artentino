@@ -2,6 +2,7 @@
 
 import { useState, useRef, useTransition } from 'react'
 import { createPortal } from 'react-dom'
+import { useSession } from 'next-auth/react'
 import Image from 'next/image'
 import {
   DndContext,
@@ -51,6 +52,8 @@ export default function TabImagenes({
   const [selected, setSelected] = useState<Set<string>>(new Set())
   const [activeId, setActiveId] = useState<string | null>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
+  const { data: sessionData } = useSession()
+  const isSuperAdmin = (sessionData?.user as { adminRole?: string } | undefined)?.adminRole === 'SUPERADMIN'
   const [, startTransition] = useTransition()
 
   const sensors = useSensors(
@@ -217,7 +220,7 @@ export default function TabImagenes({
             </button>
           </>
         )}
-        {selected.size > 0 && (
+        {selected.size > 0 && isSuperAdmin && (
           <button
             type="button"
             onClick={handleDeleteSelected}
@@ -346,6 +349,8 @@ function ImageCard({
     if (!groupedValues.has(cv.attributeName)) groupedValues.set(cv.attributeName, [])
     groupedValues.get(cv.attributeName)!.push(cv)
   }
+  const { data: sessionData } = useSession()
+  const isSuperAdmin = (sessionData?.user as { adminRole?: string } | undefined)?.adminRole === 'SUPERADMIN'
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id: img.id,
   })
@@ -391,16 +396,18 @@ function ImageCard({
         </div>
 
         {/* Delete button */}
-        <button
-          type="button"
-          onClick={(e) => {
-            e.stopPropagation()
-            onDeleteOne()
-          }}
-          className="absolute right-1 top-1 z-10 flex h-6 w-6 items-center justify-center rounded-full bg-black/60 text-xs text-white opacity-0 transition-opacity group-hover:opacity-100"
-        >
-          ✕
-        </button>
+        {isSuperAdmin && (
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation()
+              onDeleteOne()
+            }}
+            className="absolute right-1 top-1 z-10 flex h-6 w-6 items-center justify-center rounded-full bg-black/60 text-xs text-white opacity-0 transition-opacity group-hover:opacity-100"
+          >
+            ✕
+          </button>
+        )}
 
         {/* Filename overlay */}
         <div className="absolute bottom-0 left-0 right-0 bg-black/50 px-1.5 py-1">
