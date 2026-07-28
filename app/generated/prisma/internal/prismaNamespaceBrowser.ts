@@ -295,9 +295,8 @@ export const OrderScalarFieldEnum = {
   paymentMethod: 'paymentMethod',
   shippingAddress: 'shippingAddress',
   deliveredAt: 'deliveredAt',
-  shippingCourier: 'shippingCourier',
+  shippingProvider: 'shippingProvider',
   shippingQuotedAmount: 'shippingQuotedAmount',
-  zipnovaShipmentId: 'zipnovaShipmentId',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const

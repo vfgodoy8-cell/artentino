@@ -2,6 +2,7 @@ import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { prisma } from '@/lib/prisma'
 import StatusSelect from './status-select'
+import { SHIPPING_PROVIDER_LABEL } from '@/app/lib/shipping-zones'
 
 const STATUS = {
   PENDING:                { label: 'Pendiente',        bg: '#FEF3C7', color: '#D97706' },
@@ -146,16 +147,30 @@ export default async function AdminPedidoDetallePage({ params }: Props) {
           )}
 
           {/* Envío */}
-          {(order.shippingMethod || shippingAddress) && (
+          {(order.shippingMethod || shippingAddress || order.shippingProvider) && (
             <div className="rounded-2xl border border-gray-100 bg-white px-5 py-4">
               <p className="mb-3 text-[10px] font-black uppercase tracking-wider text-gray-400">Envío</p>
+              {order.shippingProvider && (
+                <span
+                  className="mb-2 inline-block rounded-full px-3 py-1 text-xs font-black"
+                  style={{
+                    backgroundColor: order.shippingProvider === 'PICKUP' ? '#EDE9FE' : order.shippingProvider === 'ARTENTINO' ? '#CCFBF4' : '#DBEAFE',
+                    color: order.shippingProvider === 'PICKUP' ? '#7C3AED' : order.shippingProvider === 'ARTENTINO' ? '#0eb1c3' : '#2563EB',
+                  }}
+                >
+                  {SHIPPING_PROVIDER_LABEL[order.shippingProvider]}
+                </span>
+              )}
               {order.shippingMethod && (
                 <p className="font-semibold text-[#1E1E1E]">{order.shippingMethod}</p>
               )}
+              {order.shippingQuotedAmount != null && (
+                <p className="text-sm text-gray-500">Costo de envío: {fmt(Number(order.shippingQuotedAmount))}</p>
+              )}
               {shippingAddress && (
                 <div className="mt-1 text-sm text-gray-500 space-y-0.5">
-                  {shippingAddress.street && <p>{shippingAddress.street}</p>}
-                  {shippingAddress.city && <p>{shippingAddress.city}{shippingAddress.province ? `, ${shippingAddress.province}` : ''}</p>}
+                  {shippingAddress.street && <p>{shippingAddress.street} {shippingAddress.streetNumber}</p>}
+                  {shippingAddress.locality && <p>{shippingAddress.locality}</p>}
                   {shippingAddress.zip && <p>CP: {shippingAddress.zip}</p>}
                 </div>
               )}

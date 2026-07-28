@@ -70,9 +70,10 @@ export const ShippingZoneType = {
 export type ShippingZoneType = (typeof ShippingZoneType)[keyof typeof ShippingZoneType]
 
 
-export const ShippingCourier = {
-  ARTENTINO_EXPRESS: 'ARTENTINO_EXPRESS',
+export const ShippingProvider = {
+  PICKUP: 'PICKUP',
+  ARTENTINO: 'ARTENTINO',
   ZIPNOVA: 'ZIPNOVA'
 } as const
 
-export type ShippingCourier = (typeof ShippingCourier)[keyof typeof ShippingCourier]
+export type ShippingProvider = (typeof ShippingProvider)[keyof typeof ShippingProvider]

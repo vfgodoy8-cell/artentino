@@ -8,14 +8,14 @@ type Props = {
   initialLocalities: string[]
   initialExpressEnabled: boolean
   initialZipnovaEnabled: boolean
-  mockMode: boolean
+  zipnovaConfigured: boolean
 }
 
 export default function ExtensionClient({
   initialLocalities,
   initialExpressEnabled,
   initialZipnovaEnabled,
-  mockMode,
+  zipnovaConfigured,
 }: Props) {
   const router = useRouter()
   const [localities, setLocalities] = useState(initialLocalities)
@@ -128,17 +128,18 @@ export default function ExtensionClient({
         <h2 className="mb-4 text-xs font-black uppercase tracking-wider text-gray-400">Estado de la integración</h2>
         <div className="flex items-center justify-between">
           <div>
-            <p className="font-semibold text-[#1E1E1E]">Modo Zipnova</p>
+            <p className="font-semibold text-[#1E1E1E]">Credenciales de Zipnova</p>
             <p className="text-sm text-gray-500">
-              Definido por <code className="rounded bg-gray-100 px-1.5 py-0.5 text-xs">ZIPNOVA_MOCK_MODE</code> en el servidor — solo lectura.
+              Definido por <code className="rounded bg-gray-100 px-1.5 py-0.5 text-xs">ZIPNOVA_API_KEY</code> en el servidor — solo lectura.
+              {!zipnovaConfigured && ' Sin esto, el checkout con envío a domicilio no puede cotizar.'}
             </p>
           </div>
           <span
             className={`rounded-full px-3 py-1 text-xs font-black uppercase tracking-wider ${
-              mockMode ? 'bg-amber-100 text-amber-600' : 'bg-green-100 text-green-600'
+              zipnovaConfigured ? 'bg-green-100 text-green-600' : 'bg-amber-100 text-amber-600'
             }`}
           >
-            {mockMode ? 'Mock' : 'Producción'}
+            {zipnovaConfigured ? 'Configurado' : 'Sin configurar'}
           </span>
         </div>
       </div>

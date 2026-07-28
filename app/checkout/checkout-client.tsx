@@ -5,7 +5,6 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useCart, getEffectivePrice } from '@/app/context/cart-context'
 import { CASH_DISCOUNT, CASH_DISCOUNT_PCT } from '@/app/lib/constants'
-import AddressFields, { type AddressData } from './address-fields'
 
 function fmt(n: number) {
   return `$${n.toLocaleString('es-AR')}`
@@ -18,10 +17,22 @@ type ContactData = {
   phone: string
 }
 
+type AddressData = {
+  street: string
+  streetNumber: string
+  locality: string
+  zip: string
+}
+
 type ShippingMethod = 'pickup' | 'delivery'
 type PaymentMethod = 'mercadopago' | 'cash' | 'transfer' | 'modo'
-type ShippingCourier = 'ARTENTINO_EXPRESS' | 'ZIPNOVA'
-type ShippingOption = { courier: ShippingCourier; label: string; amount: number }
+type ShippingProvider = 'PICKUP' | 'ARTENTINO' | 'ZIPNOVA'
+
+const PROVIDER_LABEL: Record<ShippingProvider, string> = {
+  PICKUP: 'Retiro en tienda',
+  ARTENTINO: 'Envío Artentino',
+  ZIPNOVA: 'Envío Zipnova',
+}
 
 const STEPS = ['Contacto', 'Envío', 'Pago', 'Resumen']
 
@@ -32,14 +43,16 @@ export default function CheckoutClient({ expressLocalities }: { expressLocalitie
   const [step, setStep] = useState(0)
   const [contact, setContact] = useState<ContactData>({ name: '', surname: '', email: '', phone: '' })
   const [shipping, setShipping] = useState<ShippingMethod>('pickup')
-  const [address, setAddress] = useState<AddressData>({ street: '', streetNumber: '', city: '', province: '', zip: '' })
-  const [shippingOptions, setShippingOptions] = useState<ShippingOption[]>([])
-  const [courier, setCourier] = useState<ShippingCourier | null>(null)
+  const [address, setAddress] = useState<AddressData>({ street: '', streetNumber: '', locality: '', zip: '' })
+  const [shippingProvider, setShippingProvider] = useState<ShippingProvider | null>(null)
+  const [quotedAmount, setQuotedAmount] = useState<number | null>(null)
   const [quoteLoading, setQuoteLoading] = useState(false)
   const [quoteError, setQuoteError] = useState<string | null>(null)
   const [payment, setPayment] = useState<PaymentMethod>('mercadopago')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+
+  const localityOptions = ['CABA', ...[...expressLocalities].sort((a, b) => a.localeCompare(b, 'es')), 'Resto del país']
 
   if (items.length === 0) {
     return (
@@ -60,9 +73,7 @@ export default function CheckoutClient({ expressLocalities }: { expressLocalitie
 
   const isCashOrTransfer = payment === 'cash' || payment === 'transfer'
   const discountedTotal = Math.round(subtotal * (1 - CASH_DISCOUNT))
-  const shippingAmount = shipping === 'delivery' && courier
-    ? shippingOptions.find((o) => o.courier === courier)?.amount ?? 0
-    : 0
+  const shippingAmount = shipping === 'delivery' && quotedAmount ? quotedAmount : 0
   const displayTotal = (isCashOrTransfer ? discountedTotal : subtotal) + shippingAmount
 
   async function handleContinueFromShipping() {
@@ -71,7 +82,7 @@ export default function CheckoutClient({ expressLocalities }: { expressLocalitie
       return
     }
 
-    if (!address.province || !address.city || !address.zip) return
+    if (!address.street || !address.streetNumber || !address.locality || !address.zip) return
 
     setQuoteLoading(true)
     setQuoteError(null)
@@ -79,23 +90,20 @@ export default function CheckoutClient({ expressLocalities }: { expressLocalitie
       const res = await fetch('/api/checkout/quote-shipping', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          city: address.city,
-          province: address.province,
-          zip: address.zip,
-          declaredValue: subtotal,
-        }),
+        body: JSON.stringify({ locality: address.locality }),
       })
       const data = await res.json()
-      if (!res.ok) {
-        setQuoteError(data.error ?? 'No se pudo cotizar el envío')
+      if (!data.ok) {
+        setQuoteError(data.error ?? 'Envío a domicilio no disponible por el momento')
+        setShippingProvider(null)
+        setQuotedAmount(null)
         return
       }
-      setShippingOptions(data.options)
-      setCourier(data.options[0]?.courier ?? null)
+      setShippingProvider(data.provider)
+      setQuotedAmount(data.price)
       setStep(2)
     } catch {
-      setQuoteError('No se pudo cotizar el envío. Intentá de nuevo.')
+      setQuoteError('Envío a domicilio no disponible por el momento')
     } finally {
       setQuoteLoading(false)
     }
@@ -120,7 +128,7 @@ export default function CheckoutClient({ expressLocalities }: { expressLocalitie
           shipping,
           paymentMethod: payment,
           ...(shipping === 'delivery'
-            ? { shippingAddress: address, shippingCourier: courier, shippingQuotedAmount: shippingAmount }
+            ? { shippingAddress: address, shippingProvider, shippingQuotedAmount: quotedAmount }
             : {}),
         }),
       })
@@ -277,7 +285,7 @@ export default function CheckoutClient({ expressLocalities }: { expressLocalitie
                       name="shipping"
                       value="pickup"
                       checked={shipping === 'pickup'}
-                      onChange={() => setShipping('pickup')}
+                      onChange={() => { setShipping('pickup'); setQuoteError(null) }}
                       className="mt-0.5 accent-[#0eb1c3]"
                     />
                     <div className="flex-1">
@@ -310,7 +318,47 @@ export default function CheckoutClient({ expressLocalities }: { expressLocalitie
 
                 {shipping === 'delivery' && (
                   <div className="mt-4 grid grid-cols-2 gap-4">
-                    <AddressFields address={address} onChange={setAddress} expressLocalities={expressLocalities} />
+                    <div className="col-span-2 sm:col-span-1">
+                      <label className="mb-1.5 block text-xs font-black uppercase tracking-wider text-gray-500">Calle</label>
+                      <input
+                        type="text"
+                        value={address.street}
+                        onChange={(e) => setAddress({ ...address, street: e.target.value })}
+                        className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm font-semibold text-[#1E1E1E] outline-none focus:border-[#0eb1c3] focus:ring-2 focus:ring-[#0eb1c3]/20"
+                      />
+                    </div>
+                    <div>
+                      <label className="mb-1.5 block text-xs font-black uppercase tracking-wider text-gray-500">Número</label>
+                      <input
+                        type="text"
+                        value={address.streetNumber}
+                        onChange={(e) => setAddress({ ...address, streetNumber: e.target.value })}
+                        className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm font-semibold text-[#1E1E1E] outline-none focus:border-[#0eb1c3] focus:ring-2 focus:ring-[#0eb1c3]/20"
+                      />
+                    </div>
+                    <div>
+                      <label className="mb-1.5 block text-xs font-black uppercase tracking-wider text-gray-500">Localidad</label>
+                      <select
+                        value={address.locality}
+                        onChange={(e) => setAddress({ ...address, locality: e.target.value })}
+                        className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm font-semibold text-[#1E1E1E] outline-none focus:border-[#0eb1c3] focus:ring-2 focus:ring-[#0eb1c3]/20"
+                      >
+                        <option value="">Seleccioná tu localidad</option>
+                        {localityOptions.map((l) => (
+                          <option key={l} value={l}>{l}</option>
+                        ))}
+                      </select>
+                    </div>
+                    <div>
+                      <label className="mb-1.5 block text-xs font-black uppercase tracking-wider text-gray-500">Código Postal</label>
+                      <input
+                        type="text"
+                        required
+                        value={address.zip}
+                        onChange={(e) => setAddress({ ...address, zip: e.target.value })}
+                        className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm font-semibold text-[#1E1E1E] outline-none focus:border-[#0eb1c3] focus:ring-2 focus:ring-[#0eb1c3]/20"
+                      />
+                    </div>
                   </div>
                 )}
 
@@ -329,7 +377,7 @@ export default function CheckoutClient({ expressLocalities }: { expressLocalitie
                   </button>
                   <button
                     onClick={handleContinueFromShipping}
-                    disabled={quoteLoading || (shipping === 'delivery' && (!address.province || !address.city || !address.zip))}
+                    disabled={quoteLoading || (shipping === 'delivery' && (!address.street || !address.streetNumber || !address.locality || !address.zip))}
                     className="flex-[2] rounded-2xl py-4 text-sm font-black uppercase tracking-widest text-white transition-opacity disabled:opacity-40 hover:opacity-85"
                     style={{ backgroundColor: '#0eb1c3' }}
                   >
@@ -342,47 +390,6 @@ export default function CheckoutClient({ expressLocalities }: { expressLocalitie
             {/* STEP 2: Pago */}
             {step === 2 && (
               <div>
-                {shipping === 'delivery' && (
-                  <div className="mb-8">
-                    <h2 className="mb-6 text-base font-black uppercase tracking-wider text-[#1E1E1E]">
-                      Método de envío
-                    </h2>
-                    {shippingOptions.length === 0 ? (
-                      <div className="rounded-xl bg-red-50 px-4 py-3 text-sm font-semibold text-red-500">
-                        No hay opciones de envío disponibles para esta localidad por el momento.
-                      </div>
-                    ) : (
-                      <div className="space-y-3">
-                        {shippingOptions.map((option) => (
-                          <label
-                            key={option.courier}
-                            className={`flex cursor-pointer items-center justify-between gap-4 rounded-2xl border-2 p-4 transition-colors ${
-                              courier === option.courier ? 'border-[#0eb1c3] bg-[#0eb1c3]/5' : 'border-gray-100 hover:border-gray-200'
-                            }`}
-                          >
-                            <div className="flex items-center gap-4">
-                              <input
-                                type="radio"
-                                name="courier"
-                                checked={courier === option.courier}
-                                onChange={() => setCourier(option.courier)}
-                                className="accent-[#0eb1c3]"
-                              />
-                              <div>
-                                <p className="font-black text-[#1E1E1E]">{option.label}</p>
-                                <p className="text-sm text-gray-500">
-                                  {option.courier === 'ARTENTINO_EXPRESS' ? 'Gestionado por Artentino' : 'Gestionado por Zipnova'}
-                                </p>
-                              </div>
-                            </div>
-                            <span className="font-black text-[#1E1E1E]">{fmt(option.amount)}</span>
-                          </label>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                )}
-
                 <h2 className="mb-6 text-base font-black uppercase tracking-wider text-[#1E1E1E]">
                   Método de pago
                 </h2>
@@ -485,7 +492,7 @@ export default function CheckoutClient({ expressLocalities }: { expressLocalitie
                   </button>
                   <button
                     onClick={() => setStep(3)}
-                    disabled={shipping === 'delivery' && !courier}
+                    disabled={shipping === 'delivery' && !shippingProvider}
                     className="flex-[2] rounded-2xl py-4 text-sm font-black uppercase tracking-widest text-white transition-opacity disabled:opacity-40 hover:opacity-85"
                     style={{ backgroundColor: '#0eb1c3' }}
                   >
@@ -514,12 +521,11 @@ export default function CheckoutClient({ expressLocalities }: { expressLocalitie
                   <p className="mt-1 text-sm font-bold text-[#1E1E1E]">
                     {shipping === 'pickup'
                       ? 'Retiro en tienda — Av. Corrientes 5022, CABA'
-                      : `${shippingOptions.find((o) => o.courier === courier)?.label ?? 'Envío a domicilio'} — ${fmt(shippingAmount)}`}
+                      : `${shippingProvider ? PROVIDER_LABEL[shippingProvider] : 'Envío a domicilio'} — ${fmt(shippingAmount)}`}
                   </p>
                   {shipping === 'delivery' && (
                     <p className="text-sm text-gray-500">
-                      {address.street} {address.streetNumber}, {address.city}
-                      {address.province ? `, ${address.province}` : ''} (CP {address.zip})
+                      {address.street} {address.streetNumber}, {address.locality} (CP {address.zip})
                     </p>
                   )}
                 </div>
@@ -637,7 +643,7 @@ export default function CheckoutClient({ expressLocalities }: { expressLocalitie
               <div className="flex items-center justify-between">
                 <span className="text-xs font-semibold text-gray-500">Envío</span>
                 <span className="text-xs font-bold text-gray-400">
-                  {shipping === 'pickup' ? 'Gratis' : courier ? fmt(shippingAmount) : 'A calcular'}
+                  {shipping === 'pickup' ? 'Gratis' : quotedAmount ? fmt(shippingAmount) : 'A calcular'}
                 </span>
               </div>
               {isCashOrTransfer && (

@@ -20,7 +20,7 @@ export default async function AdminExtensionPage() {
         initialLocalities={expressZone?.localities ?? []}
         initialExpressEnabled={siteConfig.expressShippingEnabled}
         initialZipnovaEnabled={siteConfig.zipnovaShippingEnabled}
-        mockMode={process.env.ZIPNOVA_MOCK_MODE === 'true'}
+        zipnovaConfigured={!!process.env.ZIPNOVA_API_KEY}
       />
     </div>
   )

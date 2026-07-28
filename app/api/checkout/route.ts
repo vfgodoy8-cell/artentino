@@ -4,7 +4,8 @@ import { auth } from '@/auth'
 import { prisma } from '@/lib/prisma'
 import { sendEmail, pickupCashEmail, adminNewOrderEmail } from '@/app/lib/email'
 import { CASH_DISCOUNT, CASH_DISCOUNT_PCT, ADMIN_NOTIFICATION_EMAIL } from '@/app/lib/constants'
-import { createZipnovaShipment } from '@/app/lib/zipnova'
+import { isExpressLocality, resolveProvinceForLocality } from '@/app/lib/shipping-zones'
+import { getZipnovaQuote } from '@/app/lib/shipping/zipnova'
 
 type CartItem = {
   productId: string
@@ -17,10 +18,11 @@ type CartItem = {
 type ShippingAddress = {
   street?: string
   streetNumber?: string
-  city: string
-  province?: string
+  locality: string
   zip?: string
 }
+
+type ShippingProvider = 'PICKUP' | 'ARTENTINO' | 'ZIPNOVA'
 
 type CheckoutBody = {
   items: CartItem[]
@@ -33,43 +35,10 @@ type CheckoutBody = {
   shipping: 'pickup' | 'delivery'
   paymentMethod?: 'mercadopago' | 'cash' | 'transfer'
   shippingAddress?: ShippingAddress
-  shippingCourier?: 'ARTENTINO_EXPRESS' | 'ZIPNOVA'
-  shippingQuotedAmount?: number
 }
 
 const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL!
-
-// Paquete genérico de referencia (30x30x30 cm, 3kg) — mismo criterio que /api/checkout/quote-shipping
-const DEFAULT_PACKAGE = { weight: 3000, height: 30, width: 30, length: 30 }
-
-/**
- * Si el courier elegido es Zipnova, crea la solicitud de envío contra su API.
- * Si es Artentino Express, no se crea nada — el pedido queda para gestión interna.
- * Nunca rompe el checkout si la creación falla (mismo patrón que los emails).
- */
-async function attachZipnovaShipment(orderId: string, body: CheckoutBody) {
-  if (body.shipping !== 'delivery' || body.shippingCourier !== 'ZIPNOVA' || !body.shippingAddress) return
-
-  try {
-    const shipment = await createZipnovaShipment({
-      externalId: orderId,
-      destinationName: `${body.payer.name} ${body.payer.surname}`,
-      destinationDocument: '',
-      destinationEmail: body.payer.email,
-      destinationPhone: body.payer.phone,
-      destinationStreet: body.shippingAddress.street,
-      destinationStreetNumber: body.shippingAddress.streetNumber,
-      city: body.shippingAddress.city,
-      province: body.shippingAddress.province,
-      zip: body.shippingAddress.zip,
-      declaredValue: body.shippingQuotedAmount ?? 0,
-      packages: [DEFAULT_PACKAGE],
-    })
-    await prisma.order.update({ where: { id: orderId }, data: { zipnovaShipmentId: shipment.id } })
-  } catch (error) {
-    console.error('[checkout] fallo al crear el envío en Zipnova:', error)
-  }
-}
+const DEFAULT_WEIGHT_KG = 3
 
 export async function POST(req: Request) {
   const session = await auth()
@@ -78,17 +47,40 @@ export async function POST(req: Request) {
   }
 
   const body = (await req.json()) as CheckoutBody
-  const { items, payer, shipping, paymentMethod = 'mercadopago', shippingAddress, shippingCourier, shippingQuotedAmount } = body
+  const { items, payer, shipping, paymentMethod = 'mercadopago', shippingAddress } = body
 
   if (!items?.length || !payer?.email) {
     return NextResponse.json({ error: 'Datos incompletos' }, { status: 400 })
   }
 
-  if (shipping === 'delivery' && (!shippingAddress?.city || !shippingAddress?.province || !shippingCourier)) {
+  if (shipping === 'delivery' && !shippingAddress?.locality) {
     return NextResponse.json({ error: 'Faltan datos de envío' }, { status: 400 })
   }
 
-  const shippingAmount = shipping === 'delivery' ? (shippingQuotedAmount ?? 0) : 0
+  // Nunca confiar en el provider/monto que mande el cliente — se recalcula acá.
+  let shippingProvider: ShippingProvider = 'PICKUP'
+  let shippingAmount = 0
+
+  if (shipping === 'delivery') {
+    const locality = shippingAddress!.locality
+    const isExpress = await isExpressLocality(locality)
+    shippingProvider = isExpress ? 'ARTENTINO' : 'ZIPNOVA'
+
+    const quote = await getZipnovaQuote({
+      destinationLocality: locality,
+      destinationProvince: resolveProvinceForLocality(locality),
+      weightKg: DEFAULT_WEIGHT_KG,
+    })
+
+    if (!quote.ok) {
+      return NextResponse.json(
+        { error: 'Envío a domicilio no disponible por el momento. Probá con retiro en tienda.' },
+        { status: 409 },
+      )
+    }
+
+    shippingAmount = quote.price
+  }
 
   // Server-side stock validation — prevents overselling even if front-end is bypassed
   for (const item of items) {
@@ -144,7 +136,8 @@ export async function POST(req: Request) {
         shippingMethod: shipping,
         paymentMethod,
         status: 'PENDING_PICKUP_PAYMENT',
-        ...(shipping === 'delivery' ? { shippingAddress: { ...shippingAddress }, shippingCourier, shippingQuotedAmount } : {}),
+        shippingProvider,
+        ...(shipping === 'delivery' ? { shippingAddress: { ...shippingAddress }, shippingQuotedAmount: shippingAmount } : {}),
         items: {
           create: items.map((item) => ({
             productId: item.productId,
@@ -155,8 +148,6 @@ export async function POST(req: Request) {
         },
       },
     })
-
-    await attachZipnovaShipment(order.id, body)
 
     // Fire-and-forget email
     sendEmail({
@@ -197,7 +188,8 @@ export async function POST(req: Request) {
       shippingMethod: shipping,
       paymentMethod: 'mercadopago',
       status: 'PENDING',
-      ...(shipping === 'delivery' ? { shippingAddress: { ...shippingAddress }, shippingCourier, shippingQuotedAmount } : {}),
+      shippingProvider,
+      ...(shipping === 'delivery' ? { shippingAddress: { ...shippingAddress }, shippingQuotedAmount: shippingAmount } : {}),
       items: {
         create: items.map((item) => ({
           productId: item.productId,
@@ -224,7 +216,7 @@ export async function POST(req: Request) {
     if (shipping === 'delivery') {
       mpItems.push({
         id: 'envio',
-        title: shippingCourier === 'ARTENTINO_EXPRESS' ? 'Envío Express (Artentino)' : 'Envío Zipnova',
+        title: shippingProvider === 'ARTENTINO' ? 'Envío Artentino' : 'Envío Zipnova',
         quantity: 1,
         unit_price: shippingAmount,
         currency_id: 'ARS',
@@ -251,8 +243,6 @@ export async function POST(req: Request) {
     })
 
     const initPoint = result.sandbox_init_point ?? result.init_point
-
-    await attachZipnovaShipment(order.id, body)
 
     if (ADMIN_NOTIFICATION_EMAIL) {
       sendEmail({

@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import { prisma } from '@/lib/prisma'
+import { SHIPPING_PROVIDER_LABEL } from '@/app/lib/shipping-zones'
 
 const STATUS = {
   PENDING:                { label: 'Pendiente',        bg: '#FEF3C7', color: '#D97706' },
@@ -92,6 +93,7 @@ export default async function AdminPedidosPage({ searchParams }: Props) {
                 <th className="px-4 py-3 text-left text-[10px] font-black uppercase tracking-wider text-gray-400">Fecha</th>
                 <th className="px-4 py-3 text-left text-[10px] font-black uppercase tracking-wider text-gray-400">Ítems</th>
                 <th className="px-4 py-3 text-left text-[10px] font-black uppercase tracking-wider text-gray-400">Total</th>
+                <th className="px-4 py-3 text-left text-[10px] font-black uppercase tracking-wider text-gray-400">Envío</th>
                 <th className="px-4 py-3 text-left text-[10px] font-black uppercase tracking-wider text-gray-400">Estado</th>
                 <th className="px-4 py-3 text-right text-[10px] font-black uppercase tracking-wider text-gray-400">Acciones</th>
               </tr>
@@ -110,6 +112,9 @@ export default async function AdminPedidosPage({ searchParams }: Props) {
                     <td className="px-4 py-3 text-gray-500">{fmtDate(order.createdAt)}</td>
                     <td className="px-4 py-3 text-gray-500">{itemCount} {itemCount === 1 ? 'ítem' : 'ítems'}</td>
                     <td className="px-4 py-3 font-black text-[#1E1E1E]">{fmt(Number(order.total))}</td>
+                    <td className="px-4 py-3 text-gray-500">
+                      {order.shippingProvider ? SHIPPING_PROVIDER_LABEL[order.shippingProvider] : '—'}
+                    </td>
                     <td className="px-4 py-3">
                       <span
                         className="inline-block rounded-full px-2.5 py-0.5 text-[11px] font-black"

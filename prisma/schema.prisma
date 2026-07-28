@@ -49,8 +49,9 @@ enum ShippingZoneType {
   NATIONAL
 }
 
-enum ShippingCourier {
-  ARTENTINO_EXPRESS
+enum ShippingProvider {
+  PICKUP
+  ARTENTINO
   ZIPNOVA
 }
 
@@ -296,9 +297,8 @@ model Order {
   paymentMethod            String?
   shippingAddress          Json?
   deliveredAt              DateTime?
-  shippingCourier          ShippingCourier?
+  shippingProvider         ShippingProvider?
   shippingQuotedAmount     Decimal?                  @db.Decimal(10, 2)
-  zipnovaShipmentId        String?
   items                    OrderItem[]
   arrepentimientoRequests  ArrepentimientoRequest[]
   createdAt                DateTime                  @default(now())
