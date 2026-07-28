@@ -2,6 +2,7 @@ import { prisma } from '@/lib/prisma'
 import HeroSlidesTab from './hero-slides-tab'
 import HeroBadgesTab from './hero-badges-tab'
 import FooterTextSection from './footer-text-section'
+import MarqueeSection from './marquee-section'
 
 export const dynamic = 'force-dynamic'
 
@@ -59,6 +60,11 @@ export default async function AdminHomePage() {
         <HeroBadgesTab initial={rawBadges} categories={categories} />
         <div className="border-t border-[#e5e7eb]" />
         <FooterTextSection initial={siteConfig?.footerText ?? ''} />
+        <div className="border-t border-[#e5e7eb]" />
+        <MarqueeSection
+          initialEnabled={siteConfig?.marqueeEnabled ?? true}
+          initialItems={siteConfig?.marqueeItems ?? []}
+        />
       </div>
     </div>
   )

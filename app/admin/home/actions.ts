@@ -2,6 +2,8 @@
 
 import { prisma } from '@/lib/prisma'
 import { revalidatePath } from 'next/cache'
+import { auth } from '@/auth'
+import { logAudit } from '@/app/lib/audit'
 
 type SlideData = {
   imageUrl: string
@@ -67,12 +69,21 @@ export async function updateHeroBadge(order: number, data: BadgeData) {
   revalidatePath('/')
 }
 
-export async function updateSiteConfig(data: { heroIntervalSeconds?: number; footerText?: string }) {
+export async function updateSiteConfig(data: {
+  heroIntervalSeconds?: number
+  footerText?: string
+  marqueeEnabled?: boolean
+  marqueeItems?: string[]
+}) {
   await prisma.siteConfig.upsert({
     where: { id: 'singleton' },
     update: data,
     create: { id: 'singleton', heroIntervalSeconds: 6, ...data },
   })
+  const session = await auth()
+  if (session?.user) {
+    await logAudit({ userId: session.user.id, userEmail: session.user.email!, action: 'update', entity: 'SiteConfig', entityId: 'singleton', detail: data })
+  }
   revalidatePath('/admin/home')
-  revalidatePath('/')
+  revalidatePath('/', 'layout')
 }
