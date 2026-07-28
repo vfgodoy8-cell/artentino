@@ -394,6 +394,7 @@ export const ModelName = {
   ProductStock: 'ProductStock',
   ProductImage: 'ProductImage',
   ProductImageAttributeValue: 'ProductImageAttributeValue',
+  AuditLog: 'AuditLog',
   User: 'User',
   PasswordResetToken: 'PasswordResetToken',
   ShippingZone: 'ShippingZone',
@@ -422,7 +423,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "category" | "subcategory" | "product" | "productRelation" | "productComboPrice" | "attribute" | "attributeValue" | "productStock" | "productImage" | "productImageAttributeValue" | "user" | "passwordResetToken" | "shippingZone" | "order" | "orderItem" | "arrepentimientoRequest" | "appointment" | "contact" | "heroSlide" | "heroBadge" | "emailTemplate" | "siteConfig" | "instagramToken"
+    modelProps: "category" | "subcategory" | "product" | "productRelation" | "productComboPrice" | "attribute" | "attributeValue" | "productStock" | "productImage" | "productImageAttributeValue" | "auditLog" | "user" | "passwordResetToken" | "shippingZone" | "order" | "orderItem" | "arrepentimientoRequest" | "appointment" | "contact" | "heroSlide" | "heroBadge" | "emailTemplate" | "siteConfig" | "instagramToken"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1163,6 +1164,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.ProductImageAttributeValueCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.ProductImageAttributeValueCountAggregateOutputType> | number
+        }
+      }
+    }
+    AuditLog: {
+      payload: Prisma.$AuditLogPayload<ExtArgs>
+      fields: Prisma.AuditLogFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.AuditLogFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AuditLogPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.AuditLogFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AuditLogPayload>
+        }
+        findFirst: {
+          args: Prisma.AuditLogFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AuditLogPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.AuditLogFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AuditLogPayload>
+        }
+        findMany: {
+          args: Prisma.AuditLogFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AuditLogPayload>[]
+        }
+        create: {
+          args: Prisma.AuditLogCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AuditLogPayload>
+        }
+        createMany: {
+          args: Prisma.AuditLogCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.AuditLogCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AuditLogPayload>[]
+        }
+        delete: {
+          args: Prisma.AuditLogDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AuditLogPayload>
+        }
+        update: {
+          args: Prisma.AuditLogUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AuditLogPayload>
+        }
+        deleteMany: {
+          args: Prisma.AuditLogDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.AuditLogUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.AuditLogUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AuditLogPayload>[]
+        }
+        upsert: {
+          args: Prisma.AuditLogUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AuditLogPayload>
+        }
+        aggregate: {
+          args: Prisma.AuditLogAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateAuditLog>
+        }
+        groupBy: {
+          args: Prisma.AuditLogGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AuditLogGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.AuditLogCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AuditLogCountAggregateOutputType> | number
         }
       }
     }
@@ -2306,6 +2381,20 @@ export const ProductImageAttributeValueScalarFieldEnum = {
 export type ProductImageAttributeValueScalarFieldEnum = (typeof ProductImageAttributeValueScalarFieldEnum)[keyof typeof ProductImageAttributeValueScalarFieldEnum]
 
 
+export const AuditLogScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  userEmail: 'userEmail',
+  action: 'action',
+  entity: 'entity',
+  entityId: 'entityId',
+  detail: 'detail',
+  createdAt: 'createdAt'
+} as const
+
+export type AuditLogScalarFieldEnum = (typeof AuditLogScalarFieldEnum)[keyof typeof AuditLogScalarFieldEnum]
+
+
 export const UserScalarFieldEnum = {
   id: 'id',
   email: 'email',
@@ -2313,6 +2402,8 @@ export const UserScalarFieldEnum = {
   name: 'name',
   phone: 'phone',
   role: 'role',
+  adminRole: 'adminRole',
+  active: 'active',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -2379,6 +2470,7 @@ export const ArrepentimientoRequestScalarFieldEnum = {
   id: 'id',
   orderId: 'orderId',
   userId: 'userId',
+  contactEmail: 'contactEmail',
   motivo: 'motivo',
   status: 'status',
   createdAt: 'createdAt'
@@ -2464,7 +2556,9 @@ export const SiteConfigScalarFieldEnum = {
   footerText: 'footerText',
   featuredOrderMode: 'featuredOrderMode',
   expressShippingEnabled: 'expressShippingEnabled',
-  zipnovaShippingEnabled: 'zipnovaShippingEnabled'
+  zipnovaShippingEnabled: 'zipnovaShippingEnabled',
+  marqueeEnabled: 'marqueeEnabled',
+  marqueeItems: 'marqueeItems'
 } as const
 
 export type SiteConfigScalarFieldEnum = (typeof SiteConfigScalarFieldEnum)[keyof typeof SiteConfigScalarFieldEnum]
@@ -2592,6 +2686,20 @@ export type ListDecimalFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaMo
 
 
 /**
+ * Reference to a field of type 'Json'
+ */
+export type JsonFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Json'>
+    
+
+
+/**
+ * Reference to a field of type 'QueryMode'
+ */
+export type EnumQueryModeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'QueryMode'>
+    
+
+
+/**
  * Reference to a field of type 'Role'
  */
 export type EnumRoleFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Role'>
@@ -2602,6 +2710,20 @@ export type EnumRoleFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel
  * Reference to a field of type 'Role[]'
  */
 export type ListEnumRoleFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Role[]'>
+    
+
+
+/**
+ * Reference to a field of type 'AdminRole'
+ */
+export type EnumAdminRoleFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'AdminRole'>
+    
+
+
+/**
+ * Reference to a field of type 'AdminRole[]'
+ */
+export type ListEnumAdminRoleFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'AdminRole[]'>
     
 
 
@@ -2630,20 +2752,6 @@ export type EnumOrderStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$Pris
  * Reference to a field of type 'OrderStatus[]'
  */
 export type ListEnumOrderStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'OrderStatus[]'>
-    
-
-
-/**
- * Reference to a field of type 'Json'
- */
-export type JsonFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Json'>
-    
-
-
-/**
- * Reference to a field of type 'QueryMode'
- */
-export type EnumQueryModeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'QueryMode'>
     
 
 
@@ -2836,6 +2944,7 @@ export type GlobalOmitConfig = {
   productStock?: Prisma.ProductStockOmit
   productImage?: Prisma.ProductImageOmit
   productImageAttributeValue?: Prisma.ProductImageAttributeValueOmit
+  auditLog?: Prisma.AuditLogOmit
   user?: Prisma.UserOmit
   passwordResetToken?: Prisma.PasswordResetTokenOmit
   shippingZone?: Prisma.ShippingZoneOmit

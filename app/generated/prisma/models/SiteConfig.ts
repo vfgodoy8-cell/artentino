@@ -41,6 +41,7 @@ export type SiteConfigMinAggregateOutputType = {
   featuredOrderMode: string | null
   expressShippingEnabled: boolean | null
   zipnovaShippingEnabled: boolean | null
+  marqueeEnabled: boolean | null
 }
 
 export type SiteConfigMaxAggregateOutputType = {
@@ -50,6 +51,7 @@ export type SiteConfigMaxAggregateOutputType = {
   featuredOrderMode: string | null
   expressShippingEnabled: boolean | null
   zipnovaShippingEnabled: boolean | null
+  marqueeEnabled: boolean | null
 }
 
 export type SiteConfigCountAggregateOutputType = {
@@ -59,6 +61,8 @@ export type SiteConfigCountAggregateOutputType = {
   featuredOrderMode: number
   expressShippingEnabled: number
   zipnovaShippingEnabled: number
+  marqueeEnabled: number
+  marqueeItems: number
   _all: number
 }
 
@@ -78,6 +82,7 @@ export type SiteConfigMinAggregateInputType = {
   featuredOrderMode?: true
   expressShippingEnabled?: true
   zipnovaShippingEnabled?: true
+  marqueeEnabled?: true
 }
 
 export type SiteConfigMaxAggregateInputType = {
@@ -87,6 +92,7 @@ export type SiteConfigMaxAggregateInputType = {
   featuredOrderMode?: true
   expressShippingEnabled?: true
   zipnovaShippingEnabled?: true
+  marqueeEnabled?: true
 }
 
 export type SiteConfigCountAggregateInputType = {
@@ -96,6 +102,8 @@ export type SiteConfigCountAggregateInputType = {
   featuredOrderMode?: true
   expressShippingEnabled?: true
   zipnovaShippingEnabled?: true
+  marqueeEnabled?: true
+  marqueeItems?: true
   _all?: true
 }
 
@@ -192,6 +200,8 @@ export type SiteConfigGroupByOutputType = {
   featuredOrderMode: string
   expressShippingEnabled: boolean
   zipnovaShippingEnabled: boolean
+  marqueeEnabled: boolean
+  marqueeItems: string[]
   _count: SiteConfigCountAggregateOutputType | null
   _avg: SiteConfigAvgAggregateOutputType | null
   _sum: SiteConfigSumAggregateOutputType | null
@@ -224,6 +234,8 @@ export type SiteConfigWhereInput = {
   featuredOrderMode?: Prisma.StringFilter<"SiteConfig"> | string
   expressShippingEnabled?: Prisma.BoolFilter<"SiteConfig"> | boolean
   zipnovaShippingEnabled?: Prisma.BoolFilter<"SiteConfig"> | boolean
+  marqueeEnabled?: Prisma.BoolFilter<"SiteConfig"> | boolean
+  marqueeItems?: Prisma.StringNullableListFilter<"SiteConfig">
 }
 
 export type SiteConfigOrderByWithRelationInput = {
@@ -233,6 +245,8 @@ export type SiteConfigOrderByWithRelationInput = {
   featuredOrderMode?: Prisma.SortOrder
   expressShippingEnabled?: Prisma.SortOrder
   zipnovaShippingEnabled?: Prisma.SortOrder
+  marqueeEnabled?: Prisma.SortOrder
+  marqueeItems?: Prisma.SortOrder
 }
 
 export type SiteConfigWhereUniqueInput = Prisma.AtLeast<{
@@ -245,6 +259,8 @@ export type SiteConfigWhereUniqueInput = Prisma.AtLeast<{
   featuredOrderMode?: Prisma.StringFilter<"SiteConfig"> | string
   expressShippingEnabled?: Prisma.BoolFilter<"SiteConfig"> | boolean
   zipnovaShippingEnabled?: Prisma.BoolFilter<"SiteConfig"> | boolean
+  marqueeEnabled?: Prisma.BoolFilter<"SiteConfig"> | boolean
+  marqueeItems?: Prisma.StringNullableListFilter<"SiteConfig">
 }, "id">
 
 export type SiteConfigOrderByWithAggregationInput = {
@@ -254,6 +270,8 @@ export type SiteConfigOrderByWithAggregationInput = {
   featuredOrderMode?: Prisma.SortOrder
   expressShippingEnabled?: Prisma.SortOrder
   zipnovaShippingEnabled?: Prisma.SortOrder
+  marqueeEnabled?: Prisma.SortOrder
+  marqueeItems?: Prisma.SortOrder
   _count?: Prisma.SiteConfigCountOrderByAggregateInput
   _avg?: Prisma.SiteConfigAvgOrderByAggregateInput
   _max?: Prisma.SiteConfigMaxOrderByAggregateInput
@@ -271,6 +289,8 @@ export type SiteConfigScalarWhereWithAggregatesInput = {
   featuredOrderMode?: Prisma.StringWithAggregatesFilter<"SiteConfig"> | string
   expressShippingEnabled?: Prisma.BoolWithAggregatesFilter<"SiteConfig"> | boolean
   zipnovaShippingEnabled?: Prisma.BoolWithAggregatesFilter<"SiteConfig"> | boolean
+  marqueeEnabled?: Prisma.BoolWithAggregatesFilter<"SiteConfig"> | boolean
+  marqueeItems?: Prisma.StringNullableListFilter<"SiteConfig">
 }
 
 export type SiteConfigCreateInput = {
@@ -280,6 +300,8 @@ export type SiteConfigCreateInput = {
   featuredOrderMode?: string
   expressShippingEnabled?: boolean
   zipnovaShippingEnabled?: boolean
+  marqueeEnabled?: boolean
+  marqueeItems?: Prisma.SiteConfigCreatemarqueeItemsInput | string[]
 }
 
 export type SiteConfigUncheckedCreateInput = {
@@ -289,6 +311,8 @@ export type SiteConfigUncheckedCreateInput = {
   featuredOrderMode?: string
   expressShippingEnabled?: boolean
   zipnovaShippingEnabled?: boolean
+  marqueeEnabled?: boolean
+  marqueeItems?: Prisma.SiteConfigCreatemarqueeItemsInput | string[]
 }
 
 export type SiteConfigUpdateInput = {
@@ -298,6 +322,8 @@ export type SiteConfigUpdateInput = {
   featuredOrderMode?: Prisma.StringFieldUpdateOperationsInput | string
   expressShippingEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   zipnovaShippingEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  marqueeEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  marqueeItems?: Prisma.SiteConfigUpdatemarqueeItemsInput | string[]
 }
 
 export type SiteConfigUncheckedUpdateInput = {
@@ -307,6 +333,8 @@ export type SiteConfigUncheckedUpdateInput = {
   featuredOrderMode?: Prisma.StringFieldUpdateOperationsInput | string
   expressShippingEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   zipnovaShippingEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  marqueeEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  marqueeItems?: Prisma.SiteConfigUpdatemarqueeItemsInput | string[]
 }
 
 export type SiteConfigCreateManyInput = {
@@ -316,6 +344,8 @@ export type SiteConfigCreateManyInput = {
   featuredOrderMode?: string
   expressShippingEnabled?: boolean
   zipnovaShippingEnabled?: boolean
+  marqueeEnabled?: boolean
+  marqueeItems?: Prisma.SiteConfigCreatemarqueeItemsInput | string[]
 }
 
 export type SiteConfigUpdateManyMutationInput = {
@@ -325,6 +355,8 @@ export type SiteConfigUpdateManyMutationInput = {
   featuredOrderMode?: Prisma.StringFieldUpdateOperationsInput | string
   expressShippingEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   zipnovaShippingEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  marqueeEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  marqueeItems?: Prisma.SiteConfigUpdatemarqueeItemsInput | string[]
 }
 
 export type SiteConfigUncheckedUpdateManyInput = {
@@ -334,6 +366,8 @@ export type SiteConfigUncheckedUpdateManyInput = {
   featuredOrderMode?: Prisma.StringFieldUpdateOperationsInput | string
   expressShippingEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   zipnovaShippingEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  marqueeEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  marqueeItems?: Prisma.SiteConfigUpdatemarqueeItemsInput | string[]
 }
 
 export type SiteConfigCountOrderByAggregateInput = {
@@ -343,6 +377,8 @@ export type SiteConfigCountOrderByAggregateInput = {
   featuredOrderMode?: Prisma.SortOrder
   expressShippingEnabled?: Prisma.SortOrder
   zipnovaShippingEnabled?: Prisma.SortOrder
+  marqueeEnabled?: Prisma.SortOrder
+  marqueeItems?: Prisma.SortOrder
 }
 
 export type SiteConfigAvgOrderByAggregateInput = {
@@ -356,6 +392,7 @@ export type SiteConfigMaxOrderByAggregateInput = {
   featuredOrderMode?: Prisma.SortOrder
   expressShippingEnabled?: Prisma.SortOrder
   zipnovaShippingEnabled?: Prisma.SortOrder
+  marqueeEnabled?: Prisma.SortOrder
 }
 
 export type SiteConfigMinOrderByAggregateInput = {
@@ -365,10 +402,20 @@ export type SiteConfigMinOrderByAggregateInput = {
   featuredOrderMode?: Prisma.SortOrder
   expressShippingEnabled?: Prisma.SortOrder
   zipnovaShippingEnabled?: Prisma.SortOrder
+  marqueeEnabled?: Prisma.SortOrder
 }
 
 export type SiteConfigSumOrderByAggregateInput = {
   heroIntervalSeconds?: Prisma.SortOrder
+}
+
+export type SiteConfigCreatemarqueeItemsInput = {
+  set: string[]
+}
+
+export type SiteConfigUpdatemarqueeItemsInput = {
+  set?: string[]
+  push?: string | string[]
 }
 
 
@@ -380,6 +427,8 @@ export type SiteConfigSelect<ExtArgs extends runtime.Types.Extensions.InternalAr
   featuredOrderMode?: boolean
   expressShippingEnabled?: boolean
   zipnovaShippingEnabled?: boolean
+  marqueeEnabled?: boolean
+  marqueeItems?: boolean
 }, ExtArgs["result"]["siteConfig"]>
 
 export type SiteConfigSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -389,6 +438,8 @@ export type SiteConfigSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Ex
   featuredOrderMode?: boolean
   expressShippingEnabled?: boolean
   zipnovaShippingEnabled?: boolean
+  marqueeEnabled?: boolean
+  marqueeItems?: boolean
 }, ExtArgs["result"]["siteConfig"]>
 
 export type SiteConfigSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -398,6 +449,8 @@ export type SiteConfigSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Ex
   featuredOrderMode?: boolean
   expressShippingEnabled?: boolean
   zipnovaShippingEnabled?: boolean
+  marqueeEnabled?: boolean
+  marqueeItems?: boolean
 }, ExtArgs["result"]["siteConfig"]>
 
 export type SiteConfigSelectScalar = {
@@ -407,9 +460,11 @@ export type SiteConfigSelectScalar = {
   featuredOrderMode?: boolean
   expressShippingEnabled?: boolean
   zipnovaShippingEnabled?: boolean
+  marqueeEnabled?: boolean
+  marqueeItems?: boolean
 }
 
-export type SiteConfigOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "heroIntervalSeconds" | "footerText" | "featuredOrderMode" | "expressShippingEnabled" | "zipnovaShippingEnabled", ExtArgs["result"]["siteConfig"]>
+export type SiteConfigOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "heroIntervalSeconds" | "footerText" | "featuredOrderMode" | "expressShippingEnabled" | "zipnovaShippingEnabled" | "marqueeEnabled" | "marqueeItems", ExtArgs["result"]["siteConfig"]>
 
 export type $SiteConfigPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "SiteConfig"
@@ -421,6 +476,8 @@ export type $SiteConfigPayload<ExtArgs extends runtime.Types.Extensions.Internal
     featuredOrderMode: string
     expressShippingEnabled: boolean
     zipnovaShippingEnabled: boolean
+    marqueeEnabled: boolean
+    marqueeItems: string[]
   }, ExtArgs["result"]["siteConfig"]>
   composites: {}
 }
@@ -850,6 +907,8 @@ export interface SiteConfigFieldRefs {
   readonly featuredOrderMode: Prisma.FieldRef<"SiteConfig", 'String'>
   readonly expressShippingEnabled: Prisma.FieldRef<"SiteConfig", 'Boolean'>
   readonly zipnovaShippingEnabled: Prisma.FieldRef<"SiteConfig", 'Boolean'>
+  readonly marqueeEnabled: Prisma.FieldRef<"SiteConfig", 'Boolean'>
+  readonly marqueeItems: Prisma.FieldRef<"SiteConfig", 'String[]'>
 }
     
 

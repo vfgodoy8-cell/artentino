@@ -28,6 +28,7 @@ export type ArrepentimientoRequestMinAggregateOutputType = {
   id: string | null
   orderId: string | null
   userId: string | null
+  contactEmail: string | null
   motivo: string | null
   status: string | null
   createdAt: Date | null
@@ -37,6 +38,7 @@ export type ArrepentimientoRequestMaxAggregateOutputType = {
   id: string | null
   orderId: string | null
   userId: string | null
+  contactEmail: string | null
   motivo: string | null
   status: string | null
   createdAt: Date | null
@@ -46,6 +48,7 @@ export type ArrepentimientoRequestCountAggregateOutputType = {
   id: number
   orderId: number
   userId: number
+  contactEmail: number
   motivo: number
   status: number
   createdAt: number
@@ -57,6 +60,7 @@ export type ArrepentimientoRequestMinAggregateInputType = {
   id?: true
   orderId?: true
   userId?: true
+  contactEmail?: true
   motivo?: true
   status?: true
   createdAt?: true
@@ -66,6 +70,7 @@ export type ArrepentimientoRequestMaxAggregateInputType = {
   id?: true
   orderId?: true
   userId?: true
+  contactEmail?: true
   motivo?: true
   status?: true
   createdAt?: true
@@ -75,6 +80,7 @@ export type ArrepentimientoRequestCountAggregateInputType = {
   id?: true
   orderId?: true
   userId?: true
+  contactEmail?: true
   motivo?: true
   status?: true
   createdAt?: true
@@ -156,7 +162,8 @@ export type ArrepentimientoRequestGroupByArgs<ExtArgs extends runtime.Types.Exte
 export type ArrepentimientoRequestGroupByOutputType = {
   id: string
   orderId: string
-  userId: string
+  userId: string | null
+  contactEmail: string
   motivo: string | null
   status: string
   createdAt: Date
@@ -186,18 +193,20 @@ export type ArrepentimientoRequestWhereInput = {
   NOT?: Prisma.ArrepentimientoRequestWhereInput | Prisma.ArrepentimientoRequestWhereInput[]
   id?: Prisma.StringFilter<"ArrepentimientoRequest"> | string
   orderId?: Prisma.StringFilter<"ArrepentimientoRequest"> | string
-  userId?: Prisma.StringFilter<"ArrepentimientoRequest"> | string
+  userId?: Prisma.StringNullableFilter<"ArrepentimientoRequest"> | string | null
+  contactEmail?: Prisma.StringFilter<"ArrepentimientoRequest"> | string
   motivo?: Prisma.StringNullableFilter<"ArrepentimientoRequest"> | string | null
   status?: Prisma.StringFilter<"ArrepentimientoRequest"> | string
   createdAt?: Prisma.DateTimeFilter<"ArrepentimientoRequest"> | Date | string
   order?: Prisma.XOR<Prisma.OrderScalarRelationFilter, Prisma.OrderWhereInput>
-  user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
+  user?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
 }
 
 export type ArrepentimientoRequestOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   orderId?: Prisma.SortOrder
-  userId?: Prisma.SortOrder
+  userId?: Prisma.SortOrderInput | Prisma.SortOrder
+  contactEmail?: Prisma.SortOrder
   motivo?: Prisma.SortOrderInput | Prisma.SortOrder
   status?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -211,18 +220,20 @@ export type ArrepentimientoRequestWhereUniqueInput = Prisma.AtLeast<{
   OR?: Prisma.ArrepentimientoRequestWhereInput[]
   NOT?: Prisma.ArrepentimientoRequestWhereInput | Prisma.ArrepentimientoRequestWhereInput[]
   orderId?: Prisma.StringFilter<"ArrepentimientoRequest"> | string
-  userId?: Prisma.StringFilter<"ArrepentimientoRequest"> | string
+  userId?: Prisma.StringNullableFilter<"ArrepentimientoRequest"> | string | null
+  contactEmail?: Prisma.StringFilter<"ArrepentimientoRequest"> | string
   motivo?: Prisma.StringNullableFilter<"ArrepentimientoRequest"> | string | null
   status?: Prisma.StringFilter<"ArrepentimientoRequest"> | string
   createdAt?: Prisma.DateTimeFilter<"ArrepentimientoRequest"> | Date | string
   order?: Prisma.XOR<Prisma.OrderScalarRelationFilter, Prisma.OrderWhereInput>
-  user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
+  user?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
 }, "id">
 
 export type ArrepentimientoRequestOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   orderId?: Prisma.SortOrder
-  userId?: Prisma.SortOrder
+  userId?: Prisma.SortOrderInput | Prisma.SortOrder
+  contactEmail?: Prisma.SortOrder
   motivo?: Prisma.SortOrderInput | Prisma.SortOrder
   status?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -237,7 +248,8 @@ export type ArrepentimientoRequestScalarWhereWithAggregatesInput = {
   NOT?: Prisma.ArrepentimientoRequestScalarWhereWithAggregatesInput | Prisma.ArrepentimientoRequestScalarWhereWithAggregatesInput[]
   id?: Prisma.StringWithAggregatesFilter<"ArrepentimientoRequest"> | string
   orderId?: Prisma.StringWithAggregatesFilter<"ArrepentimientoRequest"> | string
-  userId?: Prisma.StringWithAggregatesFilter<"ArrepentimientoRequest"> | string
+  userId?: Prisma.StringNullableWithAggregatesFilter<"ArrepentimientoRequest"> | string | null
+  contactEmail?: Prisma.StringWithAggregatesFilter<"ArrepentimientoRequest"> | string
   motivo?: Prisma.StringNullableWithAggregatesFilter<"ArrepentimientoRequest"> | string | null
   status?: Prisma.StringWithAggregatesFilter<"ArrepentimientoRequest"> | string
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"ArrepentimientoRequest"> | Date | string
@@ -245,17 +257,19 @@ export type ArrepentimientoRequestScalarWhereWithAggregatesInput = {
 
 export type ArrepentimientoRequestCreateInput = {
   id?: string
+  contactEmail: string
   motivo?: string | null
   status?: string
   createdAt?: Date | string
   order: Prisma.OrderCreateNestedOneWithoutArrepentimientoRequestsInput
-  user: Prisma.UserCreateNestedOneWithoutArrepentimientoRequestsInput
+  user?: Prisma.UserCreateNestedOneWithoutArrepentimientoRequestsInput
 }
 
 export type ArrepentimientoRequestUncheckedCreateInput = {
   id?: string
   orderId: string
-  userId: string
+  userId?: string | null
+  contactEmail: string
   motivo?: string | null
   status?: string
   createdAt?: Date | string
@@ -263,17 +277,19 @@ export type ArrepentimientoRequestUncheckedCreateInput = {
 
 export type ArrepentimientoRequestUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  contactEmail?: Prisma.StringFieldUpdateOperationsInput | string
   motivo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   order?: Prisma.OrderUpdateOneRequiredWithoutArrepentimientoRequestsNestedInput
-  user?: Prisma.UserUpdateOneRequiredWithoutArrepentimientoRequestsNestedInput
+  user?: Prisma.UserUpdateOneWithoutArrepentimientoRequestsNestedInput
 }
 
 export type ArrepentimientoRequestUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   orderId?: Prisma.StringFieldUpdateOperationsInput | string
-  userId?: Prisma.StringFieldUpdateOperationsInput | string
+  userId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  contactEmail?: Prisma.StringFieldUpdateOperationsInput | string
   motivo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -282,7 +298,8 @@ export type ArrepentimientoRequestUncheckedUpdateInput = {
 export type ArrepentimientoRequestCreateManyInput = {
   id?: string
   orderId: string
-  userId: string
+  userId?: string | null
+  contactEmail: string
   motivo?: string | null
   status?: string
   createdAt?: Date | string
@@ -290,6 +307,7 @@ export type ArrepentimientoRequestCreateManyInput = {
 
 export type ArrepentimientoRequestUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  contactEmail?: Prisma.StringFieldUpdateOperationsInput | string
   motivo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -298,7 +316,8 @@ export type ArrepentimientoRequestUpdateManyMutationInput = {
 export type ArrepentimientoRequestUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   orderId?: Prisma.StringFieldUpdateOperationsInput | string
-  userId?: Prisma.StringFieldUpdateOperationsInput | string
+  userId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  contactEmail?: Prisma.StringFieldUpdateOperationsInput | string
   motivo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -318,6 +337,7 @@ export type ArrepentimientoRequestCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   orderId?: Prisma.SortOrder
   userId?: Prisma.SortOrder
+  contactEmail?: Prisma.SortOrder
   motivo?: Prisma.SortOrder
   status?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -327,6 +347,7 @@ export type ArrepentimientoRequestMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   orderId?: Prisma.SortOrder
   userId?: Prisma.SortOrder
+  contactEmail?: Prisma.SortOrder
   motivo?: Prisma.SortOrder
   status?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -336,6 +357,7 @@ export type ArrepentimientoRequestMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   orderId?: Prisma.SortOrder
   userId?: Prisma.SortOrder
+  contactEmail?: Prisma.SortOrder
   motivo?: Prisma.SortOrder
   status?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -427,6 +449,7 @@ export type ArrepentimientoRequestUncheckedUpdateManyWithoutOrderNestedInput = {
 
 export type ArrepentimientoRequestCreateWithoutUserInput = {
   id?: string
+  contactEmail: string
   motivo?: string | null
   status?: string
   createdAt?: Date | string
@@ -436,6 +459,7 @@ export type ArrepentimientoRequestCreateWithoutUserInput = {
 export type ArrepentimientoRequestUncheckedCreateWithoutUserInput = {
   id?: string
   orderId: string
+  contactEmail: string
   motivo?: string | null
   status?: string
   createdAt?: Date | string
@@ -473,7 +497,8 @@ export type ArrepentimientoRequestScalarWhereInput = {
   NOT?: Prisma.ArrepentimientoRequestScalarWhereInput | Prisma.ArrepentimientoRequestScalarWhereInput[]
   id?: Prisma.StringFilter<"ArrepentimientoRequest"> | string
   orderId?: Prisma.StringFilter<"ArrepentimientoRequest"> | string
-  userId?: Prisma.StringFilter<"ArrepentimientoRequest"> | string
+  userId?: Prisma.StringNullableFilter<"ArrepentimientoRequest"> | string | null
+  contactEmail?: Prisma.StringFilter<"ArrepentimientoRequest"> | string
   motivo?: Prisma.StringNullableFilter<"ArrepentimientoRequest"> | string | null
   status?: Prisma.StringFilter<"ArrepentimientoRequest"> | string
   createdAt?: Prisma.DateTimeFilter<"ArrepentimientoRequest"> | Date | string
@@ -481,15 +506,17 @@ export type ArrepentimientoRequestScalarWhereInput = {
 
 export type ArrepentimientoRequestCreateWithoutOrderInput = {
   id?: string
+  contactEmail: string
   motivo?: string | null
   status?: string
   createdAt?: Date | string
-  user: Prisma.UserCreateNestedOneWithoutArrepentimientoRequestsInput
+  user?: Prisma.UserCreateNestedOneWithoutArrepentimientoRequestsInput
 }
 
 export type ArrepentimientoRequestUncheckedCreateWithoutOrderInput = {
   id?: string
-  userId: string
+  userId?: string | null
+  contactEmail: string
   motivo?: string | null
   status?: string
   createdAt?: Date | string
@@ -524,6 +551,7 @@ export type ArrepentimientoRequestUpdateManyWithWhereWithoutOrderInput = {
 export type ArrepentimientoRequestCreateManyUserInput = {
   id?: string
   orderId: string
+  contactEmail: string
   motivo?: string | null
   status?: string
   createdAt?: Date | string
@@ -531,6 +559,7 @@ export type ArrepentimientoRequestCreateManyUserInput = {
 
 export type ArrepentimientoRequestUpdateWithoutUserInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  contactEmail?: Prisma.StringFieldUpdateOperationsInput | string
   motivo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -540,6 +569,7 @@ export type ArrepentimientoRequestUpdateWithoutUserInput = {
 export type ArrepentimientoRequestUncheckedUpdateWithoutUserInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   orderId?: Prisma.StringFieldUpdateOperationsInput | string
+  contactEmail?: Prisma.StringFieldUpdateOperationsInput | string
   motivo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -548,6 +578,7 @@ export type ArrepentimientoRequestUncheckedUpdateWithoutUserInput = {
 export type ArrepentimientoRequestUncheckedUpdateManyWithoutUserInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   orderId?: Prisma.StringFieldUpdateOperationsInput | string
+  contactEmail?: Prisma.StringFieldUpdateOperationsInput | string
   motivo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -555,7 +586,8 @@ export type ArrepentimientoRequestUncheckedUpdateManyWithoutUserInput = {
 
 export type ArrepentimientoRequestCreateManyOrderInput = {
   id?: string
-  userId: string
+  userId?: string | null
+  contactEmail: string
   motivo?: string | null
   status?: string
   createdAt?: Date | string
@@ -563,15 +595,17 @@ export type ArrepentimientoRequestCreateManyOrderInput = {
 
 export type ArrepentimientoRequestUpdateWithoutOrderInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  contactEmail?: Prisma.StringFieldUpdateOperationsInput | string
   motivo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  user?: Prisma.UserUpdateOneRequiredWithoutArrepentimientoRequestsNestedInput
+  user?: Prisma.UserUpdateOneWithoutArrepentimientoRequestsNestedInput
 }
 
 export type ArrepentimientoRequestUncheckedUpdateWithoutOrderInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  userId?: Prisma.StringFieldUpdateOperationsInput | string
+  userId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  contactEmail?: Prisma.StringFieldUpdateOperationsInput | string
   motivo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -579,7 +613,8 @@ export type ArrepentimientoRequestUncheckedUpdateWithoutOrderInput = {
 
 export type ArrepentimientoRequestUncheckedUpdateManyWithoutOrderInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  userId?: Prisma.StringFieldUpdateOperationsInput | string
+  userId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  contactEmail?: Prisma.StringFieldUpdateOperationsInput | string
   motivo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -591,68 +626,73 @@ export type ArrepentimientoRequestSelect<ExtArgs extends runtime.Types.Extension
   id?: boolean
   orderId?: boolean
   userId?: boolean
+  contactEmail?: boolean
   motivo?: boolean
   status?: boolean
   createdAt?: boolean
   order?: boolean | Prisma.OrderDefaultArgs<ExtArgs>
-  user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  user?: boolean | Prisma.ArrepentimientoRequest$userArgs<ExtArgs>
 }, ExtArgs["result"]["arrepentimientoRequest"]>
 
 export type ArrepentimientoRequestSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   orderId?: boolean
   userId?: boolean
+  contactEmail?: boolean
   motivo?: boolean
   status?: boolean
   createdAt?: boolean
   order?: boolean | Prisma.OrderDefaultArgs<ExtArgs>
-  user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  user?: boolean | Prisma.ArrepentimientoRequest$userArgs<ExtArgs>
 }, ExtArgs["result"]["arrepentimientoRequest"]>
 
 export type ArrepentimientoRequestSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   orderId?: boolean
   userId?: boolean
+  contactEmail?: boolean
   motivo?: boolean
   status?: boolean
   createdAt?: boolean
   order?: boolean | Prisma.OrderDefaultArgs<ExtArgs>
-  user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  user?: boolean | Prisma.ArrepentimientoRequest$userArgs<ExtArgs>
 }, ExtArgs["result"]["arrepentimientoRequest"]>
 
 export type ArrepentimientoRequestSelectScalar = {
   id?: boolean
   orderId?: boolean
   userId?: boolean
+  contactEmail?: boolean
   motivo?: boolean
   status?: boolean
   createdAt?: boolean
 }
 
-export type ArrepentimientoRequestOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "orderId" | "userId" | "motivo" | "status" | "createdAt", ExtArgs["result"]["arrepentimientoRequest"]>
+export type ArrepentimientoRequestOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "orderId" | "userId" | "contactEmail" | "motivo" | "status" | "createdAt", ExtArgs["result"]["arrepentimientoRequest"]>
 export type ArrepentimientoRequestInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   order?: boolean | Prisma.OrderDefaultArgs<ExtArgs>
-  user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  user?: boolean | Prisma.ArrepentimientoRequest$userArgs<ExtArgs>
 }
 export type ArrepentimientoRequestIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   order?: boolean | Prisma.OrderDefaultArgs<ExtArgs>
-  user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  user?: boolean | Prisma.ArrepentimientoRequest$userArgs<ExtArgs>
 }
 export type ArrepentimientoRequestIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   order?: boolean | Prisma.OrderDefaultArgs<ExtArgs>
-  user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  user?: boolean | Prisma.ArrepentimientoRequest$userArgs<ExtArgs>
 }
 
 export type $ArrepentimientoRequestPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "ArrepentimientoRequest"
   objects: {
     order: Prisma.$OrderPayload<ExtArgs>
-    user: Prisma.$UserPayload<ExtArgs>
+    user: Prisma.$UserPayload<ExtArgs> | null
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
     orderId: string
-    userId: string
+    userId: string | null
+    contactEmail: string
     motivo: string | null
     status: string
     createdAt: Date
@@ -1051,7 +1091,7 @@ readonly fields: ArrepentimientoRequestFieldRefs;
 export interface Prisma__ArrepentimientoRequestClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
   order<T extends Prisma.OrderDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.OrderDefaultArgs<ExtArgs>>): Prisma.Prisma__OrderClient<runtime.Types.Result.GetResult<Prisma.$OrderPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
-  user<T extends Prisma.UserDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.UserDefaultArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  user<T extends Prisma.ArrepentimientoRequest$userArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ArrepentimientoRequest$userArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1084,6 +1124,7 @@ export interface ArrepentimientoRequestFieldRefs {
   readonly id: Prisma.FieldRef<"ArrepentimientoRequest", 'String'>
   readonly orderId: Prisma.FieldRef<"ArrepentimientoRequest", 'String'>
   readonly userId: Prisma.FieldRef<"ArrepentimientoRequest", 'String'>
+  readonly contactEmail: Prisma.FieldRef<"ArrepentimientoRequest", 'String'>
   readonly motivo: Prisma.FieldRef<"ArrepentimientoRequest", 'String'>
   readonly status: Prisma.FieldRef<"ArrepentimientoRequest", 'String'>
   readonly createdAt: Prisma.FieldRef<"ArrepentimientoRequest", 'DateTime'>
@@ -1485,6 +1526,25 @@ export type ArrepentimientoRequestDeleteManyArgs<ExtArgs extends runtime.Types.E
    * Limit how many ArrepentimientoRequests to delete.
    */
   limit?: number
+}
+
+/**
+ * ArrepentimientoRequest.user
+ */
+export type ArrepentimientoRequest$userArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the User
+   */
+  select?: Prisma.UserSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the User
+   */
+  omit?: Prisma.UserOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.UserInclude<ExtArgs> | null
+  where?: Prisma.UserWhereInput
 }
 
 /**

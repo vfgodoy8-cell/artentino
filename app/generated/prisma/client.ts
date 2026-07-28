@@ -92,6 +92,11 @@ export type ProductImage = Prisma.ProductImageModel
  */
 export type ProductImageAttributeValue = Prisma.ProductImageAttributeValueModel
 /**
+ * Model AuditLog
+ * 
+ */
+export type AuditLog = Prisma.AuditLogModel
+/**
  * Model User
  * 
  */

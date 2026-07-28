@@ -61,6 +61,7 @@ export const ModelName = {
   ProductStock: 'ProductStock',
   ProductImage: 'ProductImage',
   ProductImageAttributeValue: 'ProductImageAttributeValue',
+  AuditLog: 'AuditLog',
   User: 'User',
   PasswordResetToken: 'PasswordResetToken',
   ShippingZone: 'ShippingZone',
@@ -231,6 +232,20 @@ export const ProductImageAttributeValueScalarFieldEnum = {
 export type ProductImageAttributeValueScalarFieldEnum = (typeof ProductImageAttributeValueScalarFieldEnum)[keyof typeof ProductImageAttributeValueScalarFieldEnum]
 
 
+export const AuditLogScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  userEmail: 'userEmail',
+  action: 'action',
+  entity: 'entity',
+  entityId: 'entityId',
+  detail: 'detail',
+  createdAt: 'createdAt'
+} as const
+
+export type AuditLogScalarFieldEnum = (typeof AuditLogScalarFieldEnum)[keyof typeof AuditLogScalarFieldEnum]
+
+
 export const UserScalarFieldEnum = {
   id: 'id',
   email: 'email',
@@ -238,6 +253,8 @@ export const UserScalarFieldEnum = {
   name: 'name',
   phone: 'phone',
   role: 'role',
+  adminRole: 'adminRole',
+  active: 'active',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -304,6 +321,7 @@ export const ArrepentimientoRequestScalarFieldEnum = {
   id: 'id',
   orderId: 'orderId',
   userId: 'userId',
+  contactEmail: 'contactEmail',
   motivo: 'motivo',
   status: 'status',
   createdAt: 'createdAt'
@@ -389,7 +407,9 @@ export const SiteConfigScalarFieldEnum = {
   footerText: 'footerText',
   featuredOrderMode: 'featuredOrderMode',
   expressShippingEnabled: 'expressShippingEnabled',
-  zipnovaShippingEnabled: 'zipnovaShippingEnabled'
+  zipnovaShippingEnabled: 'zipnovaShippingEnabled',
+  marqueeEnabled: 'marqueeEnabled',
+  marqueeItems: 'marqueeItems'
 } as const
 
 export type SiteConfigScalarFieldEnum = (typeof SiteConfigScalarFieldEnum)[keyof typeof SiteConfigScalarFieldEnum]

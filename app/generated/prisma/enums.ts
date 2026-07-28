@@ -17,6 +17,14 @@ export const Role = {
 export type Role = (typeof Role)[keyof typeof Role]
 
 
+export const AdminRole = {
+  SUPERADMIN: 'SUPERADMIN',
+  ADMIN: 'ADMIN'
+} as const
+
+export type AdminRole = (typeof AdminRole)[keyof typeof AdminRole]
+
+
 export const OrderStatus = {
   PENDING: 'PENDING',
   PENDING_PICKUP_PAYMENT: 'PENDING_PICKUP_PAYMENT',
