@@ -38,7 +38,7 @@ const HEADER = `
 
 const FOOTER = `
   <div style="background:#F7F7F7;padding:20px 32px;text-align:center;">
-    <p style="margin:0;color:#aaa;font-size:12px;">© 2025 Artentino — Colegiales, CABA</p>
+    <p style="margin:0;color:#aaa;font-size:12px;">© 2025 Artentino — Av. Corrientes 5022, CABA</p>
   </div>`
 
 const WRAP_START = `<!DOCTYPE html><html lang="es">
@@ -143,7 +143,7 @@ export function pickupCashEmail({
       <div style="background:#f0fbfc;border-radius:12px;padding:16px 20px;margin-bottom:28px;border:1px solid #c8eff4;">
         <p style="margin:0 0 4px;color:#0eb1c3;font-weight:900;font-size:12px;text-transform:uppercase;letter-spacing:1px;">Método de pago</p>
         <p style="margin:0;color:#1E1E1E;font-weight:700;">${paymentMethod === 'cash' ? 'Efectivo — abonás al retirar en el local' : 'Transferencia bancaria — envianos el comprobante antes de retirar'}</p>
-        <p style="margin:6px 0 0;color:#555;font-size:13px;">Retiro en tienda · Colegiales, CABA</p>
+        <p style="margin:6px 0 0;color:#555;font-size:13px;">Retiro en tienda · Av. Corrientes 5022, CABA</p>
       </div>
       <p style="margin:0;color:#0eb1c3;font-weight:900;">Equipo Artentino</p>
     </div>` +
@@ -307,6 +307,39 @@ export function adminNewContactEmail({
   )
 }
 
+export function adminInviteEmail({
+  name,
+  email,
+  tempPassword,
+  adminRole,
+}: {
+  name: string
+  email: string
+  tempPassword: string
+  adminRole: 'SUPERADMIN' | 'ADMIN'
+}) {
+  return (
+    WRAP_START +
+    HEADER.replace('{{title}}', 'Acceso al panel de administración') +
+    `<div style="padding:36px 32px;">
+      <p style="margin:0 0 8px;color:#1E1E1E;font-size:16px;">Hola <strong>${name}</strong>,</p>
+      <p style="margin:0 0 28px;color:#555;line-height:1.6;">
+        Se creó una cuenta de administrador para vos en Artentino, con rol <strong>${adminRole}</strong>.
+        Ingresá con estas credenciales temporales y cambiá tu contraseña lo antes posible.
+      </p>
+      <div style="background:#F7F7F7;border-radius:12px;padding:20px 24px;margin-bottom:28px;">
+        <p style="margin:0 0 4px;color:#888;font-size:11px;font-weight:900;text-transform:uppercase;letter-spacing:1px;">Email</p>
+        <p style="margin:0 0 12px;color:#1E1E1E;font-weight:700;">${email}</p>
+        <p style="margin:0 0 4px;color:#888;font-size:11px;font-weight:900;text-transform:uppercase;letter-spacing:1px;">Contraseña temporal</p>
+        <p style="margin:0;color:#1E1E1E;font-weight:700;">${tempPassword}</p>
+      </div>
+      <p style="margin:0;color:#0eb1c3;font-weight:900;">Equipo Artentino</p>
+    </div>` +
+    FOOTER +
+    WRAP_END
+  )
+}
+
 export function purchaseConfirmationEmail({
   name,
   items,
@@ -319,7 +352,7 @@ export function purchaseConfirmationEmail({
   shipping: 'pickup' | 'delivery'
 }) {
   const shippingLabel =
-    shipping === 'pickup' ? 'Retiro en tienda — Colegiales, CABA' : 'Envío a domicilio'
+    shipping === 'pickup' ? 'Retiro en tienda — Av. Corrientes 5022, CABA' : 'Envío a domicilio'
 
   const itemRows = items
     .map(

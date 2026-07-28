@@ -40,7 +40,7 @@ export default async function CheckoutConfirmadoPage({ searchParams }: Props) {
           {isCash && (
             <>
               <p className="font-black text-[#1E1E1E]">Efectivo</p>
-              <p className="mt-0.5 text-sm text-gray-500">Abonás al retirar en el local · Colegiales, CABA</p>
+              <p className="mt-0.5 text-sm text-gray-500">Abonás al retirar en el local · Av. Corrientes 5022, CABA</p>
               <p className="mt-3 text-sm text-gray-500">
                 Aguardá nuestro contacto para pasar por el Showroom a retirar.
               </p>
@@ -92,7 +92,7 @@ export default async function CheckoutConfirmadoPage({ searchParams }: Props) {
           {isLegacy && (
             <>
               <p className="font-black text-[#1E1E1E]">Efectivo o transferencia</p>
-              <p className="mt-0.5 text-sm text-gray-500">Abonás al retirar en el local · Colegiales, CABA</p>
+              <p className="mt-0.5 text-sm text-gray-500">Abonás al retirar en el local · Av. Corrientes 5022, CABA</p>
             </>
           )}
 

@@ -160,14 +160,14 @@ export default async function Footer() {
                   <PinIcon />
                 </span>
                 <a
-                  href="https://maps.app.goo.gl/vYdUfZ1vPTeStfdWA"
+                  href="https://www.google.com/maps/search/?api=1&query=Av.+Corrientes+5022,+CABA"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-sm leading-relaxed text-[#374151] transition-colors hover:text-[#0eb1c3]"
                 >
-                  Cramer 886 — Av. Federico Lacroze
+                  Av. Corrientes 5022 — A metros de Scalabrini Ortiz
                   <br />
-                  Colegiales, CABA CP 1426
+                  CABA CP 1414 (Subte B, Est. Malabia)
                 </a>
               </li>
               <li className="flex items-center gap-3">

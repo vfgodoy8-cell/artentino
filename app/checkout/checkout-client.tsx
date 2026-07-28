@@ -282,7 +282,7 @@ export default function CheckoutClient({ expressLocalities }: { expressLocalitie
                     />
                     <div className="flex-1">
                       <p className="font-black text-[#1E1E1E]">Retiro en tienda</p>
-                      <p className="text-sm text-gray-500">Colegiales, CABA — Coordinamos por WhatsApp</p>
+                      <p className="text-sm text-gray-500">Av. Corrientes 5022, CABA — Coordinamos por WhatsApp</p>
                     </div>
                     <span className="font-black text-[#0eb1c3]">Gratis</span>
                   </label>
@@ -513,7 +513,7 @@ export default function CheckoutClient({ expressLocalities }: { expressLocalitie
                   <p className="text-xs font-black uppercase tracking-wider text-gray-400">Envío</p>
                   <p className="mt-1 text-sm font-bold text-[#1E1E1E]">
                     {shipping === 'pickup'
-                      ? 'Retiro en tienda — Colegiales CABA'
+                      ? 'Retiro en tienda — Av. Corrientes 5022, CABA'
                       : `${shippingOptions.find((o) => o.courier === courier)?.label ?? 'Envío a domicilio'} — ${fmt(shippingAmount)}`}
                   </p>
                   {shipping === 'delivery' && (

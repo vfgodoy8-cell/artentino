@@ -12,8 +12,6 @@ const sections = [
   { id: 'registro', label: 'Registro y compra' },
   { id: 'regalos', label: 'Regalos corporativos' },
   { id: 'cambios', label: 'Cambios y devoluciones' },
-  { id: 'privacidad', label: 'Privacidad' },
-  { id: 'terminos', label: 'Términos y condiciones' },
 ]
 
 function Section({ id, title, children }: { id: string; title: string; children: React.ReactNode }) {
@@ -100,16 +98,15 @@ export default function FAQPage() {
             <p className="mt-2">
               <strong>Dirección:</strong>{' '}
               <a
-                href="https://maps.app.goo.gl/vYdUfZ1vPTeStfdWA"
+                href="https://www.google.com/maps/search/?api=1&query=Av.+Corrientes+5022,+CABA"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="font-semibold"
                 style={{ color: '#0eb1c3' }}
               >
-                Cramer 886, CABA (CP 1426)
+                Av. Corrientes 5022, CABA (CP 1414)
               </a>
-              , frente a la Estación Colegiales (Tren Mitre), a metros de Av. Federico Lacroze y
-              cerca de Av. Cabildo (Subte D, Estación Olleros). Estacionamiento gratuito para clientes.
+              , a metros de Av. Scalabrini Ortiz y de la Estación Malabia (Subte B).
             </p>
             <p className="mt-2">
               <strong>Atención:</strong> Lunes a Viernes de 8:30 a 17:30 y Sábados de 10 a 15.
@@ -251,55 +248,6 @@ export default function FAQPage() {
           </Block>
         </Section>
 
-        {/* ── PRIVACIDAD ── */}
-        <Section id="privacidad" title="Política de privacidad">
-          <div className="rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm font-semibold text-amber-700">
-            TODO — contenido legal pendiente de redacción/aprobación final. Lo que sigue es un placeholder, no el texto definitivo.
-          </div>
-          <Block>
-            <p className="mb-3 text-xs font-black uppercase tracking-wider text-gray-400">Qué datos recolectamos</p>
-            <p>TODO — detallar qué información personal se recolecta (nombre, email, teléfono, dirección de envío, datos de pago) y con qué finalidad.</p>
-          </Block>
-          <Block>
-            <p className="mb-3 text-xs font-black uppercase tracking-wider text-gray-400">Uso de la información</p>
-            <p>TODO — detallar para qué se usan los datos: procesar pedidos, enviar comunicaciones, mejorar el servicio, etc.</p>
-          </Block>
-          <Block>
-            <p className="mb-3 text-xs font-black uppercase tracking-wider text-gray-400">Terceros</p>
-            <p>TODO — aclarar qué proveedores externos (MercadoPago, Resend, Cloudinary, etc.) procesan datos en nombre de Artentino.</p>
-          </Block>
-          <Block>
-            <p className="mb-3 text-xs font-black uppercase tracking-wider text-gray-400">Tus derechos</p>
-            <p>TODO — detallar cómo acceder, rectificar o eliminar tus datos personales.</p>
-          </Block>
-        </Section>
-
-        {/* ── TÉRMINOS Y CONDICIONES ── */}
-        <Section id="terminos" title="Términos y condiciones">
-          <div className="rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm font-semibold text-amber-700">
-            TODO — contenido legal pendiente de redacción/aprobación final. Lo que sigue es un placeholder, no el texto definitivo.
-          </div>
-          <Block>
-            <p className="mb-3 text-xs font-black uppercase tracking-wider text-gray-400">Aceptación de los términos</p>
-            <p>TODO — al usar el sitio o realizar una compra, el usuario acepta estos términos y condiciones.</p>
-          </Block>
-          <Block>
-            <p className="mb-3 text-xs font-black uppercase tracking-wider text-gray-400">Precios y disponibilidad</p>
-            <p>TODO — detallar la política de precios, stock y disponibilidad de productos.</p>
-          </Block>
-          <Block>
-            <p className="mb-3 text-xs font-black uppercase tracking-wider text-gray-400">Envíos, pagos, cambios y devoluciones</p>
-            <p>
-              Ver el detalle vigente en las secciones{' '}
-              <a href="#envio" className="font-semibold" style={{ color: '#0eb1c3' }}>Envíos</a>,{' '}
-              <a href="#pago" className="font-semibold" style={{ color: '#0eb1c3' }}>Formas de pago</a>{' '}
-              y{' '}
-              <a href="#cambios" className="font-semibold" style={{ color: '#0eb1c3' }}>Cambios y devoluciones</a>{' '}
-              de este mismo FAQ.
-            </p>
-          </Block>
-        </Section>
-
         {/* ── Contacto al pie ── */}
         <div className="rounded-2xl border border-[#0eb1c3]/20 bg-[#f0fbfc] p-6 text-center">
           <p className="mb-1 text-xs font-black uppercase tracking-wider" style={{ color: '#0eb1c3' }}>
@@ -329,7 +277,7 @@ export default function FAQPage() {
               WhatsApp +54 9 11 3936 3333
             </a>
             <a
-              href="https://maps.app.goo.gl/vYdUfZ1vPTeStfdWA"
+              href="https://www.google.com/maps/search/?api=1&query=Av.+Corrientes+5022,+CABA"
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-2 rounded-xl border border-gray-200 px-5 py-2.5 text-sm font-bold text-gray-600 transition-all hover:border-[#0eb1c3] hover:text-[#0eb1c3]"
@@ -338,7 +286,7 @@ export default function FAQPage() {
                 <path strokeLinecap="round" strokeLinejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                 <path strokeLinecap="round" strokeLinejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
               </svg>
-              Cramer 886, Colegiales CABA
+              Av. Corrientes 5022, CABA
             </a>
           </div>
         </div>

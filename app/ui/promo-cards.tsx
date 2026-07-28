@@ -19,7 +19,7 @@ const promos = [
   {
     icon: <PinIcon />,
     title: 'Showroom CABA',
-    desc: 'Visitanos en Colegiales, Buenos Aires, de lunes a sábados.',
+    desc: 'Visitanos en Av. Corrientes 5022, CABA, de lunes a sábados.',
   },
 ]
 

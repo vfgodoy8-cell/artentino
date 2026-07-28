@@ -53,7 +53,7 @@ export async function POST(req: Request) {
     if (newStatus === 'CONFIRMED') {
       const shippingLabel =
         order.shippingMethod === 'pickup'
-          ? 'Retiro en tienda — Colegiales, CABA'
+          ? 'Retiro en tienda — Av. Corrientes 5022, CABA'
           : 'Envío a domicilio'
 
       const itemsData = order.items.map((i) => ({

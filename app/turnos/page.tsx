@@ -205,7 +205,7 @@ export default function TurnosPage() {
             <div className="space-y-3">
               {(
                 [
-                  { value: 'PRESENCIAL', label: 'Presencial', desc: 'En nuestro showroom — Colegiales, CABA' },
+                  { value: 'PRESENCIAL', label: 'Presencial', desc: 'En nuestro showroom — Av. Corrientes 5022, CABA' },
                   { value: 'WHATSAPP', label: 'WhatsApp por cámara', desc: 'Videollamada desde donde estés' },
                 ] as const
               ).map((opt) => (

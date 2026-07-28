@@ -25,11 +25,11 @@ export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_BASE_URL ?? 'https://artentino.com'),
   title: "Artentino — Deco, hogar y regalos únicos",
   description:
-    "Explorá nuestro catálogo de deco, hogar y regalos únicos. Cuotas sin interés, envíos a todo el país y showroom en Colegiales CABA.",
+    "Explorá nuestro catálogo de deco, hogar y regalos únicos. Cuotas sin interés, envíos a todo el país y showroom en Av. Corrientes 5022, CABA.",
   openGraph: {
     title: "Artentino — Deco, hogar y regalos únicos",
     description:
-      "Explorá nuestro catálogo de deco, hogar y regalos únicos. Cuotas sin interés, envíos a todo el país y showroom en Colegiales CABA.",
+      "Explorá nuestro catálogo de deco, hogar y regalos únicos. Cuotas sin interés, envíos a todo el país y showroom en Av. Corrientes 5022, CABA.",
     images: [{ url: "/og-image.jpg", width: 1200, height: 630, alt: "Artentino" }],
     locale: "es_AR",
     type: "website",
@@ -38,7 +38,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Artentino — Deco, hogar y regalos únicos",
     description:
-      "Explorá nuestro catálogo de deco, hogar y regalos únicos. Cuotas sin interés, envíos a todo el país y showroom en Colegiales CABA.",
+      "Explorá nuestro catálogo de deco, hogar y regalos únicos. Cuotas sin interés, envíos a todo el país y showroom en Av. Corrientes 5022, CABA.",
     images: ["/og-image.jpg"],
   },
 };

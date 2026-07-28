@@ -24,7 +24,7 @@ const TEMPLATE_VARS: Record<string, { variable: string; description: string }[]>
     { variable: '{{nombreCliente}}', description: 'Nombre del cliente' },
     { variable: '{{itemsHtml}}', description: 'Filas HTML de los ítems del pedido (generado automáticamente)' },
     { variable: '{{total}}', description: 'Total del pedido — ej: 12.500 (sin $, se agrega en el template)' },
-    { variable: '{{envio}}', description: '"Retiro en tienda — Colegiales, CABA" o "Envío a domicilio"' },
+    { variable: '{{envio}}', description: '"Retiro en tienda — Av. Corrientes 5022, CABA" o "Envío a domicilio"' },
   ],
 }
 

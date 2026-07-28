@@ -6,9 +6,7 @@ const nextConfig: NextConfig = {
   },
   async redirects() {
     return [
-      { source: '/privacidad', destination: '/faq#privacidad', permanent: true },
-      { source: '/terminos', destination: '/faq#terminos', permanent: true },
-      { source: '/términos', destination: '/faq#terminos', permanent: true },
+      { source: '/términos', destination: '/terminos', permanent: true },
     ]
   },
   images: {
