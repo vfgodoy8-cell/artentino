@@ -34,7 +34,7 @@ const DEFAULT_APPOINTMENT_HTML = `<!DOCTYPE html><html lang="es">
       <p style="margin:0;color:#0eb1c3;font-weight:900;">Equipo Artentino</p>
     </div>
     <div style="background:#F7F7F7;padding:20px 32px;text-align:center;">
-      <p style="margin:0;color:#aaa;font-size:12px;">© 2025 Artentino — Av. Corrientes 5022, CABA</p>
+      <p style="margin:0;color:#aaa;font-size:12px;">© ${new Date().getFullYear()} Artentino — Av. Corrientes 5022, CABA</p>
     </div>
   </div>
 </body></html>`
@@ -72,7 +72,7 @@ const DEFAULT_ORDER_HTML = `<!DOCTYPE html><html lang="es">
       <p style="margin:0;color:#0eb1c3;font-weight:900;">Equipo Artentino</p>
     </div>
     <div style="background:#F7F7F7;padding:20px 32px;text-align:center;">
-      <p style="margin:0;color:#aaa;font-size:12px;">© 2025 Artentino — Av. Corrientes 5022, CABA</p>
+      <p style="margin:0;color:#aaa;font-size:12px;">© ${new Date().getFullYear()} Artentino — Av. Corrientes 5022, CABA</p>
     </div>
   </div>
 </body></html>`

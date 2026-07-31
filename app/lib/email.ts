@@ -36,10 +36,12 @@ const HEADER = `
     <h1 style="margin:8px 0 0;color:#fff;font-size:22px;font-weight:900;letter-spacing:1px;">{{title}}</h1>
   </div>`
 
-const FOOTER = `
+function emailFooter() {
+  return `
   <div style="background:#F7F7F7;padding:20px 32px;text-align:center;">
-    <p style="margin:0;color:#aaa;font-size:12px;">© 2025 Artentino — Av. Corrientes 5022, CABA</p>
+    <p style="margin:0;color:#aaa;font-size:12px;">© ${new Date().getFullYear()} Artentino — Av. Corrientes 5022, CABA</p>
   </div>`
+}
 
 const WRAP_START = `<!DOCTYPE html><html lang="es">
 <head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head>
@@ -87,7 +89,7 @@ export function appointmentConfirmationEmail({
       </p>
       <p style="margin:0;color:#0eb1c3;font-weight:900;">Equipo Artentino</p>
     </div>` +
-    FOOTER +
+    emailFooter() +
     WRAP_END
   )
 }
@@ -147,7 +149,7 @@ export function pickupCashEmail({
       </div>
       <p style="margin:0;color:#0eb1c3;font-weight:900;">Equipo Artentino</p>
     </div>` +
-    FOOTER +
+    emailFooter() +
     WRAP_END
   )
 }
@@ -178,7 +180,7 @@ export function passwordResetEmail({
       </p>
       <p style="margin:0;color:#0eb1c3;font-weight:900;">Equipo Artentino</p>
     </div>` +
-    FOOTER +
+    emailFooter() +
     WRAP_END
   )
 }
@@ -210,7 +212,7 @@ export function orderStatusUpdateEmail({
       </div>
       <p style="margin:0;color:#0eb1c3;font-weight:900;">Equipo Artentino</p>
     </div>` +
-    FOOTER +
+    emailFooter() +
     WRAP_END
   )
 }
@@ -231,7 +233,7 @@ export function adminNewOrderEmail({
       <p style="margin:0 0 8px;color:#1E1E1E;font-size:16px;">Nuevo pedido de <strong>${customerName}</strong>.</p>
       <p style="margin:0;color:#555;">Pedido #${orderId.slice(-8).toUpperCase()} — $${total.toLocaleString('es-AR')}</p>
     </div>` +
-    FOOTER +
+    emailFooter() +
     WRAP_END
   )
 }
@@ -255,7 +257,7 @@ export function arrepentimientoCustomerEmail({
       </p>
       <p style="margin:0;color:#0eb1c3;font-weight:900;">Equipo Artentino</p>
     </div>` +
-    FOOTER +
+    emailFooter() +
     WRAP_END
   )
 }
@@ -281,7 +283,7 @@ export function arrepentimientoAdminEmail({
       </p>
       <p style="margin:0;color:#555;">Motivo: ${motivo?.trim() || '(sin especificar)'}</p>
     </div>` +
-    FOOTER +
+    emailFooter() +
     WRAP_END
   )
 }
@@ -302,7 +304,7 @@ export function adminNewContactEmail({
       <p style="margin:0 0 8px;color:#1E1E1E;font-size:16px;">Nuevo mensaje de contacto de <strong>${name}</strong> (${email}).</p>
       <p style="margin:0;color:#555;white-space:pre-wrap;">${message}</p>
     </div>` +
-    FOOTER +
+    emailFooter() +
     WRAP_END
   )
 }
@@ -335,7 +337,7 @@ export function adminInviteEmail({
       </div>
       <p style="margin:0;color:#0eb1c3;font-weight:900;">Equipo Artentino</p>
     </div>` +
-    FOOTER +
+    emailFooter() +
     WRAP_END
   )
 }
@@ -394,7 +396,7 @@ export function purchaseConfirmationEmail({
       </div>
       <p style="margin:0;color:#0eb1c3;font-weight:900;">Equipo Artentino</p>
     </div>` +
-    FOOTER +
+    emailFooter() +
     WRAP_END
   )
 }
