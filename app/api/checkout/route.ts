@@ -256,7 +256,7 @@ export async function POST(req: Request) {
       },
     })
 
-    const initPoint = result.sandbox_init_point ?? result.init_point
+    const initPoint = result.init_point ?? result.sandbox_init_point
 
     if (ADMIN_NOTIFICATION_EMAIL) {
       sendEmail({
