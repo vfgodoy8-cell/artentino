@@ -28,6 +28,8 @@ export async function submitArrepentimiento({ orderNumber, email, motivo }: Subm
       return { success: false, error: 'No encontramos un pedido con ese número. Revisalo e intentá de nuevo.' }
     }
 
+    const customerName = order.contactName ?? order.user?.name ?? 'Cliente'
+
     await prisma.arrepentimientoRequest.create({
       data: {
         orderId: order.id,
@@ -39,7 +41,7 @@ export async function submitArrepentimiento({ orderNumber, email, motivo }: Subm
     sendEmail({
       to: contactEmail,
       subject: 'Artentino — Recibimos tu solicitud de arrepentimiento',
-      html: arrepentimientoCustomerEmail({ name: order.user.name, orderId: order.id }),
+      html: arrepentimientoCustomerEmail({ name: customerName, orderId: order.id }),
     }).catch(() => {})
 
     if (ADMIN_NOTIFICATION_EMAIL) {
@@ -48,7 +50,7 @@ export async function submitArrepentimiento({ orderNumber, email, motivo }: Subm
         subject: 'Artentino — Nueva solicitud de arrepentimiento',
         html: arrepentimientoAdminEmail({
           orderId: order.id,
-          customerName: order.user.name,
+          customerName,
           customerEmail: contactEmail,
           motivo,
         }),

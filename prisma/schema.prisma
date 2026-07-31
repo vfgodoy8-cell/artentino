@@ -289,8 +289,11 @@ model ShippingZone {
 
 model Order {
   id                       String                    @id @default(cuid())
-  userId                   String
-  user                     User                      @relation(fields: [userId], references: [id])
+  userId                   String?
+  user                     User?                     @relation(fields: [userId], references: [id])
+  contactName              String?
+  contactEmail             String?
+  contactPhone             String?
   status                   OrderStatus               @default(PENDING)
   total                    Decimal                   @db.Decimal(10, 2)
   shippingMethod           String?

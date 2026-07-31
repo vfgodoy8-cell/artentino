@@ -56,9 +56,6 @@ const DEFAULT_WEIGHT_KG = 3
 
 export async function POST(req: Request) {
   const session = await auth()
-  if (!session?.user?.id) {
-    return NextResponse.json({ error: 'No autorizado' }, { status: 401 })
-  }
 
   const body = (await req.json()) as CheckoutBody
   const { items, payer, shipping, paymentMethod = 'mercadopago', shippingAddress } = body
@@ -145,7 +142,10 @@ export async function POST(req: Request) {
     const discountedTotal = Math.round(subtotal * (1 - CASH_DISCOUNT)) + shippingAmount
     const order = await prisma.order.create({
       data: {
-        userId: session.user.id,
+        userId: session?.user?.id ?? null,
+        contactName: `${payer.name} ${payer.surname}`.trim(),
+        contactEmail: payer.email,
+        contactPhone: payer.phone,
         total: discountedTotal,
         shippingMethod: shipping,
         paymentMethod,
@@ -197,7 +197,10 @@ export async function POST(req: Request) {
 
   const order = await prisma.order.create({
     data: {
-      userId: session.user.id,
+      userId: session?.user?.id ?? null,
+      contactName: `${payer.name} ${payer.surname}`.trim(),
+      contactEmail: payer.email,
+      contactPhone: payer.phone,
       total,
       shippingMethod: shipping,
       paymentMethod: 'mercadopago',

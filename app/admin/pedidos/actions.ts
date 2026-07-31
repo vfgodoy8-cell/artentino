@@ -24,12 +24,15 @@ export async function updateOrderStatus(orderId: string, status: string) {
   revalidatePath('/admin/pedidos')
   revalidatePath(`/admin/pedidos/${orderId}`)
 
-  if (status === 'SHIPPED' || status === 'DELIVERED') {
+  const customerName = order.contactName ?? order.user?.name
+  const customerEmail = order.contactEmail ?? order.user?.email
+
+  if ((status === 'SHIPPED' || status === 'DELIVERED') && customerName && customerEmail) {
     try {
       const result = await sendEmail({
-        to: order.user.email,
+        to: customerEmail,
         subject: status === 'SHIPPED' ? 'Artentino — Tu pedido está en camino' : 'Artentino — Tu pedido fue entregado',
-        html: orderStatusUpdateEmail({ name: order.user.name, orderId: order.id, status }),
+        html: orderStatusUpdateEmail({ name: customerName, orderId: order.id, status }),
       })
       if (result?.error) {
         console.error('[updateOrderStatus] resend error:', result.error)

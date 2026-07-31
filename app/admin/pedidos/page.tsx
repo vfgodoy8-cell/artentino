@@ -106,8 +106,8 @@ export default async function AdminPedidosPage({ searchParams }: Props) {
                   <tr key={order.id} className="transition-colors hover:bg-gray-50/50">
                     <td className="px-4 py-3 font-mono text-xs text-gray-400">{order.id.slice(-8).toUpperCase()}</td>
                     <td className="px-4 py-3">
-                      <p className="font-semibold text-[#1E1E1E]">{order.user.name}</p>
-                      <p className="text-xs text-gray-400">{order.user.email}</p>
+                      <p className="font-semibold text-[#1E1E1E]">{order.contactName ?? order.user?.name}</p>
+                      <p className="text-xs text-gray-400">{order.contactEmail ?? order.user?.email}</p>
                     </td>
                     <td className="px-4 py-3 text-gray-500">{fmtDate(order.createdAt)}</td>
                     <td className="px-4 py-3 text-gray-500">{itemCount} {itemCount === 1 ? 'ítem' : 'ítems'}</td>

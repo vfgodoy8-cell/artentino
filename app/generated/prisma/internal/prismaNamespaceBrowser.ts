@@ -289,6 +289,9 @@ export type ShippingZoneScalarFieldEnum = (typeof ShippingZoneScalarFieldEnum)[k
 export const OrderScalarFieldEnum = {
   id: 'id',
   userId: 'userId',
+  contactName: 'contactName',
+  contactEmail: 'contactEmail',
+  contactPhone: 'contactPhone',
   status: 'status',
   total: 'total',
   shippingMethod: 'shippingMethod',

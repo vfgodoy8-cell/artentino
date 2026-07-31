@@ -125,9 +125,11 @@ export default async function AdminPedidoDetallePage({ params }: Props) {
           {/* Cliente */}
           <div className="rounded-2xl border border-gray-100 bg-white px-5 py-4">
             <p className="mb-3 text-[10px] font-black uppercase tracking-wider text-gray-400">Cliente</p>
-            <p className="font-semibold text-[#1E1E1E]">{order.user.name}</p>
-            <p className="text-sm text-gray-400">{order.user.email}</p>
-            {order.user.phone && <p className="text-sm text-gray-400">{order.user.phone}</p>}
+            <p className="font-semibold text-[#1E1E1E]">{order.contactName ?? order.user?.name}</p>
+            <p className="text-sm text-gray-400">{order.contactEmail ?? order.user?.email}</p>
+            {(order.contactPhone ?? order.user?.phone) && (
+              <p className="text-sm text-gray-400">{order.contactPhone ?? order.user?.phone}</p>
+            )}
           </div>
 
           {/* Pago */}

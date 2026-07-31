@@ -51,6 +51,11 @@ export async function POST(req: Request) {
     })
 
     if (newStatus === 'CONFIRMED') {
+      const customerName = order.contactName ?? order.user?.name
+      const customerEmail = order.contactEmail ?? order.user?.email
+
+      if (!customerName || !customerEmail) return NextResponse.json({ ok: true })
+
       const shippingLabel =
         order.shippingMethod === 'pickup'
           ? 'Retiro en tienda — Av. Corrientes 5022, CABA'
@@ -71,7 +76,7 @@ export async function POST(req: Request) {
 
           const html = template
             ? interpolate(template.htmlBody, {
-                nombreCliente: order.user.name,
+                nombreCliente: customerName,
                 itemsHtml: itemsData
                   .map(
                     (item) =>
@@ -86,7 +91,7 @@ export async function POST(req: Request) {
                 envio: shippingLabel,
               })
             : purchaseConfirmationEmail({
-                name: order.user.name,
+                name: customerName,
                 items: itemsData,
                 total: Number(order.total),
                 shipping: (order.shippingMethod as 'pickup' | 'delivery') ?? 'pickup',
@@ -94,7 +99,7 @@ export async function POST(req: Request) {
 
           const subject = template?.subject ?? '¡Gracias por tu compra en Artentino!'
 
-          await sendEmail({ to: order.user.email, subject, html })
+          await sendEmail({ to: customerEmail, subject, html })
         } catch (err) {
           console.error('[webhook] email failed:', err)
         }
