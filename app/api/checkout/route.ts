@@ -4,8 +4,8 @@ import { auth } from '@/auth'
 import { prisma } from '@/lib/prisma'
 import { sendEmail, pickupCashEmail, adminNewOrderEmail } from '@/app/lib/email'
 import { CASH_DISCOUNT, CASH_DISCOUNT_PCT, ADMIN_NOTIFICATION_EMAIL } from '@/app/lib/constants'
-import { isExpressLocality, resolveProvinceForLocality } from '@/app/lib/shipping-zones'
-import { getZipnovaQuote } from '@/app/lib/shipping/zipnova'
+import { CABA_LOCALITY, isExpressLocality } from '@/app/lib/shipping-zones'
+import { getZipnovaQuote, type ZipnovaQuoteItem } from '@/app/lib/shipping/zipnova'
 
 type CartItem = {
   productId: string
@@ -52,7 +52,9 @@ function resolveBaseUrl(): string {
 }
 
 const BASE_URL = resolveBaseUrl()
-const DEFAULT_WEIGHT_KG = 3
+// Fallback cuando el producto no tiene peso/dimensiones cargados en el admin.
+const DEFAULT_WEIGHT_GRAMS = 3000
+const DEFAULT_DIMENSION_CM = 30
 
 export async function POST(req: Request) {
   const session = await auth()
@@ -77,10 +79,30 @@ export async function POST(req: Request) {
     const isExpress = await isExpressLocality(locality)
     shippingProvider = isExpress ? 'ARTENTINO' : 'ZIPNOVA'
 
+    const shippingProducts = await prisma.product.findMany({
+      where: { id: { in: items.map((i) => i.productId) } },
+      select: { id: true, height: true, width: true, length: true, weight: true },
+    })
+    const shippingProductMap = new Map(shippingProducts.map((p) => [p.id, p]))
+
+    const quoteItems: ZipnovaQuoteItem[] = items.map((item) => {
+      const product = shippingProductMap.get(item.productId)
+      return {
+        weightGrams: product?.weight ? Math.round(Number(product.weight) * 1000) : DEFAULT_WEIGHT_GRAMS,
+        heightCm: product?.height ? Number(product.height) : DEFAULT_DIMENSION_CM,
+        widthCm: product?.width ? Number(product.width) : DEFAULT_DIMENSION_CM,
+        lengthCm: product?.length ? Number(product.length) : DEFAULT_DIMENSION_CM,
+        quantity: item.quantity,
+      }
+    })
+
+    const declaredValue = items.reduce((sum, item) => sum + item.price * item.quantity, 0)
+
     const quote = await getZipnovaQuote({
       destinationLocality: locality,
-      destinationProvince: resolveProvinceForLocality(locality),
-      weightKg: DEFAULT_WEIGHT_KG,
+      isCapital: locality === CABA_LOCALITY,
+      items: quoteItems,
+      declaredValue,
     })
 
     if (!quote.ok) {

@@ -90,7 +90,14 @@ export default function CheckoutClient({ expressLocalities }: { expressLocalitie
       const res = await fetch('/api/checkout/quote-shipping', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ locality: address.locality }),
+        body: JSON.stringify({
+          locality: address.locality,
+          items: items.map((i) => ({
+            productId: i.productId,
+            price: getEffectivePrice(i),
+            quantity: i.quantity,
+          })),
+        }),
       })
       const data = await res.json()
       if (!data.ok) {
