@@ -4,7 +4,9 @@
  *   Auth: Basic base64(ZIPNOVA_KEY:ZIPNOVA_SECRET)
  *   Body: { account_id, source, declared_value, destination: {city, state, zipcode},
  *           items: [{ weight (g), height/width/length (cm) }] }
- *   Response: { results: [{ service_type, amounts: {price, price_incl_tax}, ... }] }
+ *   Response: { results: { [service_type_code]: { selectable, service_type: {code, name},
+ *               amounts: {price, price_incl_tax}, delivery_time: {estimated_delivery, ...} } },
+ *               all_results: [...] } — results es un objeto indexado por código, no un array.
  */
 
 const ZIPNOVA_ACCOUNT_ID = 19612
@@ -113,31 +115,37 @@ async function requestRealQuote(
     return { ok: false, error: `Zipnova respondió ${res.status}` }
   }
 
-  if (!parsedBody || !Array.isArray(parsedBody.results)) {
+  // `results` es un objeto indexado por service_type.code (ej: { standard_delivery: {...} }),
+  // no un array — `all_results` sí es array, pero incluye opciones no seleccionables.
+  if (!parsedBody || typeof parsedBody.results !== 'object' || parsedBody.results === null || Array.isArray(parsedBody.results)) {
     console.error('[zipnova] respuesta 200 con shape inesperado — request:', JSON.stringify(requestBody), '— response:', rawBody)
     return { ok: false, error: 'Zipnova devolvió una respuesta inesperada' }
   }
 
-  const results: Array<{
-    service_type?: string
+  const results: Record<string, {
+    selectable?: boolean
+    service_type?: { code?: string; name?: string }
     amounts?: { price?: number; price_incl_tax?: number }
-    delivery_time?: { times?: { total?: { max?: string } } }
+    delivery_time?: { estimated_delivery?: string; times?: { total?: { max?: string } } }
   }> = parsedBody.results
 
-  const withPrice = results.filter((r) => typeof r.amounts?.price_incl_tax === 'number')
-  if (withPrice.length === 0) {
-    console.error('[zipnova] sin opciones con precio — request:', JSON.stringify(requestBody), '— response:', rawBody)
-    return { ok: false, error: 'Zipnova no tiene opciones para ese destino' }
+  const selectable = Object.values(results).filter(
+    (r) => r.selectable === true && typeof r.amounts?.price_incl_tax === 'number',
+  )
+
+  if (selectable.length === 0) {
+    console.error('[zipnova] sin opciones seleccionables — request:', JSON.stringify(requestBody), '— response:', rawBody)
+    return { ok: false, error: 'sin_opciones_disponibles' }
   }
 
-  const best = withPrice.reduce((min, r) =>
+  const best = selectable.reduce((min, r) =>
     (r.amounts!.price_incl_tax as number) < (min.amounts!.price_incl_tax as number) ? r : min,
   )
 
   return {
     ok: true,
     price: best.amounts!.price_incl_tax as number,
-    serviceTypeCode: best.service_type ?? 'unknown',
-    etaEstimate: best.delivery_time?.times?.total?.max,
+    serviceTypeCode: best.service_type?.code ?? 'unknown',
+    etaEstimate: best.delivery_time?.estimated_delivery ?? best.delivery_time?.times?.total?.max,
   }
 }
