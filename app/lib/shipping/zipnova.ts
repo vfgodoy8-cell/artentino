@@ -29,6 +29,15 @@ export type ZipnovaQuoteResult =
   | { ok: true; price: number; serviceTypeCode: string; etaEstimate?: string }
   | { ok: false; error: string }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function safeJsonParse(text: string): any {
+  try {
+    return JSON.parse(text)
+  } catch {
+    return null
+  }
+}
+
 export async function getZipnovaQuote(params: ZipnovaQuoteParams): Promise<ZipnovaQuoteResult> {
   const key = process.env.ZIPNOVA_KEY
   const secret = process.env.ZIPNOVA_SECRET
@@ -62,6 +71,18 @@ async function requestRealQuote(
     })),
   )
 
+  const requestBody = {
+    account_id: ZIPNOVA_ACCOUNT_ID,
+    source: 'artentino-web',
+    declared_value: params.declaredValue,
+    destination: {
+      city: params.destinationCity,
+      state: params.destinationState,
+      ...(params.destinationZipcode ? { zipcode: params.destinationZipcode } : {}),
+    },
+    items: expandedItems,
+  }
+
   const res = await fetch(`${baseUrl}/v2/shipments/quote`, {
     method: 'POST',
     headers: {
@@ -69,23 +90,18 @@ async function requestRealQuote(
       'Content-Type': 'application/json',
       Authorization: `Basic ${basicAuth}`,
     },
-    body: JSON.stringify({
-      account_id: ZIPNOVA_ACCOUNT_ID,
-      source: 'artentino-web',
-      declared_value: params.declaredValue,
-      destination: {
-        city: params.destinationCity,
-        state: params.destinationState,
-        ...(params.destinationZipcode ? { zipcode: params.destinationZipcode } : {}),
-      },
-      items: expandedItems,
-    }),
+    body: JSON.stringify(requestBody),
     signal: AbortSignal.timeout(8000),
   })
 
+  // Se lee como texto primero para poder loguear el body crudo en cualquier
+  // camino de error, sea 400, otro status, o un 200 con un shape inesperado.
+  const rawBody = await res.text()
+  const parsedBody = safeJsonParse(rawBody)
+
   if (res.status === 400) {
-    const errorBody = await res.json().catch(() => null)
-    const message: string = errorBody?.message ?? errorBody?.error ?? ''
+    console.error('[zipnova] 400 al cotizar — request:', JSON.stringify(requestBody), '— response:', rawBody)
+    const message: string = parsedBody?.message ?? parsedBody?.error ?? ''
     if (/sin saldo|saldo insuficiente|cuenta inactiva|account.*inactive/i.test(message)) {
       return { ok: false, error: 'zipnova_sin_saldo' }
     }
@@ -93,18 +109,24 @@ async function requestRealQuote(
   }
 
   if (!res.ok) {
+    console.error(`[zipnova] respuesta ${res.status} inesperada — request:`, JSON.stringify(requestBody), '— response:', rawBody)
     return { ok: false, error: `Zipnova respondió ${res.status}` }
   }
 
-  const data = await res.json()
+  if (!parsedBody || !Array.isArray(parsedBody.results)) {
+    console.error('[zipnova] respuesta 200 con shape inesperado — request:', JSON.stringify(requestBody), '— response:', rawBody)
+    return { ok: false, error: 'Zipnova devolvió una respuesta inesperada' }
+  }
+
   const results: Array<{
     service_type?: string
     amounts?: { price?: number; price_incl_tax?: number }
     delivery_time?: { times?: { total?: { max?: string } } }
-  }> = data.results ?? []
+  }> = parsedBody.results
 
   const withPrice = results.filter((r) => typeof r.amounts?.price_incl_tax === 'number')
   if (withPrice.length === 0) {
+    console.error('[zipnova] sin opciones con precio — request:', JSON.stringify(requestBody), '— response:', rawBody)
     return { ok: false, error: 'Zipnova no tiene opciones para ese destino' }
   }
 
