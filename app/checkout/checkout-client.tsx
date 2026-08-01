@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useCart, getEffectivePrice } from '@/app/context/cart-context'
@@ -28,6 +28,37 @@ type AddressData = {
 
 const OTHER_COUNTRY_LOCALITY = 'Resto del país'
 
+// Lista fija — no depende de ninguna llamada a API. IDs verificados contra
+// GET https://apis.datos.gob.ar/georef/api/provincias (códigos INDEC).
+const ARGENTINE_PROVINCES = [
+  { id: '06', nombre: 'Buenos Aires' },
+  { id: '10', nombre: 'Catamarca' },
+  { id: '22', nombre: 'Chaco' },
+  { id: '26', nombre: 'Chubut' },
+  { id: '02', nombre: 'Ciudad Autónoma de Buenos Aires' },
+  { id: '14', nombre: 'Córdoba' },
+  { id: '18', nombre: 'Corrientes' },
+  { id: '30', nombre: 'Entre Ríos' },
+  { id: '34', nombre: 'Formosa' },
+  { id: '38', nombre: 'Jujuy' },
+  { id: '42', nombre: 'La Pampa' },
+  { id: '46', nombre: 'La Rioja' },
+  { id: '50', nombre: 'Mendoza' },
+  { id: '54', nombre: 'Misiones' },
+  { id: '58', nombre: 'Neuquén' },
+  { id: '62', nombre: 'Río Negro' },
+  { id: '66', nombre: 'Salta' },
+  { id: '70', nombre: 'San Juan' },
+  { id: '74', nombre: 'San Luis' },
+  { id: '78', nombre: 'Santa Cruz' },
+  { id: '82', nombre: 'Santa Fe' },
+  { id: '86', nombre: 'Santiago del Estero' },
+  { id: '94', nombre: 'Tierra del Fuego, Antártida e Islas del Atlántico Sur' },
+  { id: '90', nombre: 'Tucumán' },
+] as const
+
+type GeorefLocalidad = { id: string; nombre: string }
+
 type ShippingMethod = 'pickup' | 'delivery'
 type PaymentMethod = 'mercadopago' | 'cash' | 'transfer' | 'modo'
 type ShippingProvider = 'PICKUP' | 'ARTENTINO' | 'ZIPNOVA'
@@ -48,6 +79,10 @@ export default function CheckoutClient({ expressLocalities }: { expressLocalitie
   const [contact, setContact] = useState<ContactData>({ name: '', surname: '', email: '', phone: '' })
   const [shipping, setShipping] = useState<ShippingMethod>('pickup')
   const [address, setAddress] = useState<AddressData>({ street: '', streetNumber: '', locality: '', zip: '', city: '', province: '' })
+  const [cityQuery, setCityQuery] = useState('')
+  const [citySuggestions, setCitySuggestions] = useState<GeorefLocalidad[]>([])
+  const [cityLoading, setCityLoading] = useState(false)
+  const [showCitySuggestions, setShowCitySuggestions] = useState(false)
   const [shippingProvider, setShippingProvider] = useState<ShippingProvider | null>(null)
   const [quotedAmount, setQuotedAmount] = useState<number | null>(null)
   const [quoteLoading, setQuoteLoading] = useState(false)
@@ -55,6 +90,38 @@ export default function CheckoutClient({ expressLocalities }: { expressLocalitie
   const [payment, setPayment] = useState<PaymentMethod>('mercadopago')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+
+  // Autocompletado de localidad (Georef API) para "Resto del país" — debounced, filtrado por provincia.
+  useEffect(() => {
+    const controller = new AbortController()
+    const timeoutId = setTimeout(async () => {
+      if (!address.province || cityQuery.trim().length < 2 || cityQuery === address.city) {
+        setCitySuggestions([])
+        return
+      }
+      const provinceId = ARGENTINE_PROVINCES.find((p) => p.nombre === address.province)?.id
+      if (!provinceId) return
+
+      setCityLoading(true)
+      try {
+        const res = await fetch(
+          `https://apis.datos.gob.ar/georef/api/localidades?nombre=${encodeURIComponent(cityQuery.trim())}&provincia=${provinceId}&max=8&campos=id,nombre`,
+          { signal: controller.signal },
+        )
+        const data = await res.json()
+        setCitySuggestions(data.localidades ?? [])
+      } catch {
+        // abort esperado al tipear rápido, o error de red puntual — no bloquea el form
+      } finally {
+        setCityLoading(false)
+      }
+    }, 300)
+
+    return () => {
+      clearTimeout(timeoutId)
+      controller.abort()
+    }
+  }, [cityQuery, address.province, address.city])
 
   const localityOptions = ['CABA', ...[...expressLocalities].sort((a, b) => a.localeCompare(b, 'es')), OTHER_COUNTRY_LOCALITY]
 
@@ -378,24 +445,64 @@ export default function CheckoutClient({ expressLocalities }: { expressLocalitie
                     {address.locality === OTHER_COUNTRY_LOCALITY && (
                       <>
                         <div className="col-span-2 sm:col-span-1">
+                          <label className="mb-1.5 block text-xs font-black uppercase tracking-wider text-gray-500">Provincia</label>
+                          <select
+                            required
+                            value={address.province}
+                            onChange={(e) => {
+                              setAddress({ ...address, province: e.target.value, city: '' })
+                              setCityQuery('')
+                              setCitySuggestions([])
+                            }}
+                            className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm font-semibold text-[#1E1E1E] outline-none focus:border-[#0eb1c3] focus:ring-2 focus:ring-[#0eb1c3]/20"
+                          >
+                            <option value="">Seleccioná tu provincia</option>
+                            {ARGENTINE_PROVINCES.map((p) => (
+                              <option key={p.id} value={p.nombre}>{p.nombre}</option>
+                            ))}
+                          </select>
+                        </div>
+                        <div className="relative col-span-2 sm:col-span-1">
                           <label className="mb-1.5 block text-xs font-black uppercase tracking-wider text-gray-500">Ciudad / Localidad</label>
                           <input
                             type="text"
                             required
-                            value={address.city}
-                            onChange={(e) => setAddress({ ...address, city: e.target.value })}
-                            className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm font-semibold text-[#1E1E1E] outline-none focus:border-[#0eb1c3] focus:ring-2 focus:ring-[#0eb1c3]/20"
+                            disabled={!address.province}
+                            value={cityQuery}
+                            placeholder={address.province ? 'Empezá a escribir…' : 'Elegí una provincia primero'}
+                            onChange={(e) => {
+                              setCityQuery(e.target.value)
+                              if (address.city) setAddress({ ...address, city: '' })
+                            }}
+                            onFocus={() => setShowCitySuggestions(true)}
+                            onBlur={() => setTimeout(() => setShowCitySuggestions(false), 150)}
+                            className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm font-semibold text-[#1E1E1E] outline-none focus:border-[#0eb1c3] focus:ring-2 focus:ring-[#0eb1c3]/20 disabled:bg-gray-50 disabled:text-gray-400"
                           />
-                        </div>
-                        <div className="col-span-2 sm:col-span-1">
-                          <label className="mb-1.5 block text-xs font-black uppercase tracking-wider text-gray-500">Provincia</label>
-                          <input
-                            type="text"
-                            required
-                            value={address.province}
-                            onChange={(e) => setAddress({ ...address, province: e.target.value })}
-                            className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm font-semibold text-[#1E1E1E] outline-none focus:border-[#0eb1c3] focus:ring-2 focus:ring-[#0eb1c3]/20"
-                          />
+                          {showCitySuggestions && (cityLoading || citySuggestions.length > 0) && (
+                            <ul className="absolute z-10 mt-1 max-h-48 w-full overflow-auto rounded-xl border border-gray-200 bg-white shadow-lg">
+                              {cityLoading ? (
+                                <li className="px-4 py-2 text-sm text-gray-400">Buscando…</li>
+                              ) : (
+                                citySuggestions.map((s) => (
+                                  <li key={s.id}>
+                                    <button
+                                      type="button"
+                                      onMouseDown={(e) => e.preventDefault()}
+                                      onClick={() => {
+                                        setAddress({ ...address, city: s.nombre })
+                                        setCityQuery(s.nombre)
+                                        setCitySuggestions([])
+                                        setShowCitySuggestions(false)
+                                      }}
+                                      className="block w-full px-4 py-2 text-left text-sm font-semibold text-[#1E1E1E] hover:bg-gray-50"
+                                    >
+                                      {s.nombre}
+                                    </button>
+                                  </li>
+                                ))
+                              )}
+                            </ul>
+                          )}
                         </div>
                       </>
                     )}
