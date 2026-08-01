@@ -4,7 +4,7 @@ import { auth } from '@/auth'
 import { prisma } from '@/lib/prisma'
 import { sendEmail, pickupCashEmail, adminNewOrderEmail } from '@/app/lib/email'
 import { CASH_DISCOUNT, CASH_DISCOUNT_PCT, ADMIN_NOTIFICATION_EMAIL } from '@/app/lib/constants'
-import { CABA_LOCALITY, isExpressLocality } from '@/app/lib/shipping-zones'
+import { CABA_LOCALITY, OTHER_COUNTRY_LOCALITY, isExpressLocality } from '@/app/lib/shipping-zones'
 import { getZipnovaQuote, type ZipnovaQuoteItem } from '@/app/lib/shipping/zipnova'
 
 type CartItem = {
@@ -20,6 +20,8 @@ type ShippingAddress = {
   streetNumber?: string
   locality: string
   zip?: string
+  city?: string
+  province?: string
 }
 
 type ShippingProvider = 'PICKUP' | 'ARTENTINO' | 'ZIPNOVA'
@@ -70,6 +72,14 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: 'Faltan datos de envío' }, { status: 400 })
   }
 
+  if (
+    shipping === 'delivery' &&
+    shippingAddress!.locality === OTHER_COUNTRY_LOCALITY &&
+    (!shippingAddress?.city || !shippingAddress?.province)
+  ) {
+    return NextResponse.json({ error: 'Faltan ciudad y provincia para el destino' }, { status: 400 })
+  }
+
   // Nunca confiar en el provider/monto que mande el cliente — se recalcula acá.
   let shippingProvider: ShippingProvider = 'PICKUP'
   let shippingAmount = 0
@@ -98,9 +108,20 @@ export async function POST(req: Request) {
 
     const declaredValue = items.reduce((sum, item) => sum + item.price * item.quantity, 0)
 
+    // "Resto del país" no es una localidad real de Zipnova — usa la ciudad/provincia
+    // que cargó el usuario. Para CABA/GBA, la localidad elegida en el dropdown es la ciudad real.
+    const destinationCity = locality === OTHER_COUNTRY_LOCALITY ? shippingAddress!.city! : locality
+    const destinationState =
+      locality === OTHER_COUNTRY_LOCALITY
+        ? shippingAddress!.province!
+        : locality === CABA_LOCALITY
+        ? 'Capital Federal'
+        : 'Buenos Aires'
+
     const quote = await getZipnovaQuote({
-      destinationLocality: locality,
-      isCapital: locality === CABA_LOCALITY,
+      destinationCity,
+      destinationState,
+      destinationZipcode: shippingAddress!.zip,
       items: quoteItems,
       declaredValue,
     })

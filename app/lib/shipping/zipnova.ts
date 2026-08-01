@@ -2,7 +2,7 @@
  * Adapter de cotización de Zipnova — API v2 "Envíos".
  *   POST https://api.zipnova.com.ar/v2/shipments/quote
  *   Auth: Basic base64(ZIPNOVA_KEY:ZIPNOVA_SECRET)
- *   Body: { account_id, source, declared_value, destination: {city, state},
+ *   Body: { account_id, source, declared_value, destination: {city, state, zipcode},
  *           items: [{ weight (g), height/width/length (cm) }] }
  *   Response: { results: [{ service_type, amounts: {price, price_incl_tax}, ... }] }
  */
@@ -18,8 +18,9 @@ export type ZipnovaQuoteItem = {
 }
 
 export type ZipnovaQuoteParams = {
-  destinationLocality: string
-  isCapital: boolean
+  destinationCity: string
+  destinationState: string
+  destinationZipcode?: string
   items: ZipnovaQuoteItem[]
   declaredValue: number
 }
@@ -73,8 +74,9 @@ async function requestRealQuote(
       source: 'artentino-web',
       declared_value: params.declaredValue,
       destination: {
-        city: params.destinationLocality,
-        state: params.isCapital ? 'Capital Federal' : 'Buenos Aires',
+        city: params.destinationCity,
+        state: params.destinationState,
+        ...(params.destinationZipcode ? { zipcode: params.destinationZipcode } : {}),
       },
       items: expandedItems,
     }),

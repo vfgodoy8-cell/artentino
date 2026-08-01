@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
-import { CABA_LOCALITY, isExpressLocality } from '@/app/lib/shipping-zones'
+import { CABA_LOCALITY, OTHER_COUNTRY_LOCALITY, isExpressLocality } from '@/app/lib/shipping-zones'
 import { getZipnovaQuote, type ZipnovaQuoteItem } from '@/app/lib/shipping/zipnova'
 
 // Fallback cuando el producto no tiene peso/dimensiones cargados en el admin.
@@ -14,8 +14,11 @@ type QuoteCartItem = {
 }
 
 export async function POST(req: Request) {
-  const { locality, items } = (await req.json()) as {
+  const { locality, city, province, zip, items } = (await req.json()) as {
     locality?: string
+    city?: string
+    province?: string
+    zip?: string
     items?: QuoteCartItem[]
   }
 
@@ -25,6 +28,10 @@ export async function POST(req: Request) {
 
   if (!items?.length) {
     return NextResponse.json({ ok: false, error: 'Faltan los productos del carrito' }, { status: 400 })
+  }
+
+  if (locality === OTHER_COUNTRY_LOCALITY && (!city || !province)) {
+    return NextResponse.json({ ok: false, error: 'Faltan ciudad y provincia para el destino' }, { status: 400 })
   }
 
   const isExpress = await isExpressLocality(locality)
@@ -49,9 +56,16 @@ export async function POST(req: Request) {
 
   const declaredValue = items.reduce((sum, item) => sum + item.price * item.quantity, 0)
 
+  // "Resto del país" no es una localidad real de Zipnova — usa la ciudad/provincia
+  // que cargó el usuario. Para CABA/GBA, la localidad elegida en el dropdown es la ciudad real.
+  const destinationCity = locality === OTHER_COUNTRY_LOCALITY ? city! : locality
+  const destinationState =
+    locality === OTHER_COUNTRY_LOCALITY ? province! : locality === CABA_LOCALITY ? 'Capital Federal' : 'Buenos Aires'
+
   const quote = await getZipnovaQuote({
-    destinationLocality: locality,
-    isCapital: locality === CABA_LOCALITY,
+    destinationCity,
+    destinationState,
+    destinationZipcode: zip,
     items: quoteItems,
     declaredValue,
   })

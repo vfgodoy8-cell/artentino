@@ -22,7 +22,11 @@ type AddressData = {
   streetNumber: string
   locality: string
   zip: string
+  city: string
+  province: string
 }
+
+const OTHER_COUNTRY_LOCALITY = 'Resto del país'
 
 type ShippingMethod = 'pickup' | 'delivery'
 type PaymentMethod = 'mercadopago' | 'cash' | 'transfer' | 'modo'
@@ -43,7 +47,7 @@ export default function CheckoutClient({ expressLocalities }: { expressLocalitie
   const [step, setStep] = useState(0)
   const [contact, setContact] = useState<ContactData>({ name: '', surname: '', email: '', phone: '' })
   const [shipping, setShipping] = useState<ShippingMethod>('pickup')
-  const [address, setAddress] = useState<AddressData>({ street: '', streetNumber: '', locality: '', zip: '' })
+  const [address, setAddress] = useState<AddressData>({ street: '', streetNumber: '', locality: '', zip: '', city: '', province: '' })
   const [shippingProvider, setShippingProvider] = useState<ShippingProvider | null>(null)
   const [quotedAmount, setQuotedAmount] = useState<number | null>(null)
   const [quoteLoading, setQuoteLoading] = useState(false)
@@ -52,7 +56,7 @@ export default function CheckoutClient({ expressLocalities }: { expressLocalitie
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  const localityOptions = ['CABA', ...[...expressLocalities].sort((a, b) => a.localeCompare(b, 'es')), 'Resto del país']
+  const localityOptions = ['CABA', ...[...expressLocalities].sort((a, b) => a.localeCompare(b, 'es')), OTHER_COUNTRY_LOCALITY]
 
   if (items.length === 0) {
     return (
@@ -83,6 +87,7 @@ export default function CheckoutClient({ expressLocalities }: { expressLocalitie
     }
 
     if (!address.street || !address.streetNumber || !address.locality || !address.zip) return
+    if (address.locality === OTHER_COUNTRY_LOCALITY && (!address.city || !address.province)) return
 
     setQuoteLoading(true)
     setQuoteError(null)
@@ -92,6 +97,9 @@ export default function CheckoutClient({ expressLocalities }: { expressLocalitie
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           locality: address.locality,
+          city: address.city,
+          province: address.province,
+          zip: address.zip,
           items: items.map((i) => ({
             productId: i.productId,
             price: getEffectivePrice(i),
@@ -366,6 +374,31 @@ export default function CheckoutClient({ expressLocalities }: { expressLocalitie
                         className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm font-semibold text-[#1E1E1E] outline-none focus:border-[#0eb1c3] focus:ring-2 focus:ring-[#0eb1c3]/20"
                       />
                     </div>
+
+                    {address.locality === OTHER_COUNTRY_LOCALITY && (
+                      <>
+                        <div className="col-span-2 sm:col-span-1">
+                          <label className="mb-1.5 block text-xs font-black uppercase tracking-wider text-gray-500">Ciudad / Localidad</label>
+                          <input
+                            type="text"
+                            required
+                            value={address.city}
+                            onChange={(e) => setAddress({ ...address, city: e.target.value })}
+                            className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm font-semibold text-[#1E1E1E] outline-none focus:border-[#0eb1c3] focus:ring-2 focus:ring-[#0eb1c3]/20"
+                          />
+                        </div>
+                        <div className="col-span-2 sm:col-span-1">
+                          <label className="mb-1.5 block text-xs font-black uppercase tracking-wider text-gray-500">Provincia</label>
+                          <input
+                            type="text"
+                            required
+                            value={address.province}
+                            onChange={(e) => setAddress({ ...address, province: e.target.value })}
+                            className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm font-semibold text-[#1E1E1E] outline-none focus:border-[#0eb1c3] focus:ring-2 focus:ring-[#0eb1c3]/20"
+                          />
+                        </div>
+                      </>
+                    )}
                   </div>
                 )}
 
@@ -384,7 +417,15 @@ export default function CheckoutClient({ expressLocalities }: { expressLocalitie
                   </button>
                   <button
                     onClick={handleContinueFromShipping}
-                    disabled={quoteLoading || (shipping === 'delivery' && (!address.street || !address.streetNumber || !address.locality || !address.zip))}
+                    disabled={
+                      quoteLoading ||
+                      (shipping === 'delivery' &&
+                        (!address.street ||
+                          !address.streetNumber ||
+                          !address.locality ||
+                          !address.zip ||
+                          (address.locality === OTHER_COUNTRY_LOCALITY && (!address.city || !address.province))))
+                    }
                     className="flex-[2] rounded-2xl py-4 text-sm font-black uppercase tracking-widest text-white transition-opacity disabled:opacity-40 hover:opacity-85"
                     style={{ backgroundColor: '#0eb1c3' }}
                   >
@@ -532,7 +573,11 @@ export default function CheckoutClient({ expressLocalities }: { expressLocalitie
                   </p>
                   {shipping === 'delivery' && (
                     <p className="text-sm text-gray-500">
-                      {address.street} {address.streetNumber}, {address.locality} (CP {address.zip})
+                      {address.street} {address.streetNumber},{' '}
+                      {address.locality === OTHER_COUNTRY_LOCALITY
+                        ? `${address.city}, ${address.province}`
+                        : address.locality}{' '}
+                      (CP {address.zip})
                     </p>
                   )}
                 </div>
