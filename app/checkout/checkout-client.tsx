@@ -20,44 +20,12 @@ type ContactData = {
 type AddressData = {
   street: string
   streetNumber: string
-  locality: string
   zip: string
-  city: string
+  locality: string
   province: string
 }
 
-const OTHER_COUNTRY_LOCALITY = 'Resto del país'
-
-// Lista fija — no depende de ninguna llamada a API. IDs verificados contra
-// GET https://apis.datos.gob.ar/georef/api/provincias (códigos INDEC).
-const ARGENTINE_PROVINCES = [
-  { id: '06', nombre: 'Buenos Aires' },
-  { id: '10', nombre: 'Catamarca' },
-  { id: '22', nombre: 'Chaco' },
-  { id: '26', nombre: 'Chubut' },
-  { id: '02', nombre: 'Ciudad Autónoma de Buenos Aires' },
-  { id: '14', nombre: 'Córdoba' },
-  { id: '18', nombre: 'Corrientes' },
-  { id: '30', nombre: 'Entre Ríos' },
-  { id: '34', nombre: 'Formosa' },
-  { id: '38', nombre: 'Jujuy' },
-  { id: '42', nombre: 'La Pampa' },
-  { id: '46', nombre: 'La Rioja' },
-  { id: '50', nombre: 'Mendoza' },
-  { id: '54', nombre: 'Misiones' },
-  { id: '58', nombre: 'Neuquén' },
-  { id: '62', nombre: 'Río Negro' },
-  { id: '66', nombre: 'Salta' },
-  { id: '70', nombre: 'San Juan' },
-  { id: '74', nombre: 'San Luis' },
-  { id: '78', nombre: 'Santa Cruz' },
-  { id: '82', nombre: 'Santa Fe' },
-  { id: '86', nombre: 'Santiago del Estero' },
-  { id: '94', nombre: 'Tierra del Fuego, Antártida e Islas del Atlántico Sur' },
-  { id: '90', nombre: 'Tucumán' },
-] as const
-
-type GeorefLocalidad = { id: string; nombre: string }
+type GeorefLocalidad = { id: string; nombre: string; provincia: { nombre: string } }
 
 type ShippingMethod = 'pickup' | 'delivery'
 type PaymentMethod = 'mercadopago' | 'cash' | 'transfer' | 'modo'
@@ -71,18 +39,18 @@ const PROVIDER_LABEL: Record<ShippingProvider, string> = {
 
 const STEPS = ['Contacto', 'Envío', 'Pago', 'Resumen']
 
-export default function CheckoutClient({ expressLocalities }: { expressLocalities: string[] }) {
+export default function CheckoutClient() {
   const { items, getTotal, clearCart } = useCart()
   const router = useRouter()
 
   const [step, setStep] = useState(0)
   const [contact, setContact] = useState<ContactData>({ name: '', surname: '', email: '', phone: '' })
   const [shipping, setShipping] = useState<ShippingMethod>('pickup')
-  const [address, setAddress] = useState<AddressData>({ street: '', streetNumber: '', locality: '', zip: '', city: '', province: '' })
-  const [cityQuery, setCityQuery] = useState('')
-  const [citySuggestions, setCitySuggestions] = useState<GeorefLocalidad[]>([])
-  const [cityLoading, setCityLoading] = useState(false)
-  const [showCitySuggestions, setShowCitySuggestions] = useState(false)
+  const [address, setAddress] = useState<AddressData>({ street: '', streetNumber: '', zip: '', locality: '', province: '' })
+  const [localityQuery, setLocalityQuery] = useState('')
+  const [localitySuggestions, setLocalitySuggestions] = useState<GeorefLocalidad[]>([])
+  const [localityLoading, setLocalityLoading] = useState(false)
+  const [showLocalitySuggestions, setShowLocalitySuggestions] = useState(false)
   const [shippingProvider, setShippingProvider] = useState<ShippingProvider | null>(null)
   const [quotedAmount, setQuotedAmount] = useState<number | null>(null)
   const [quoteLoading, setQuoteLoading] = useState(false)
@@ -91,29 +59,27 @@ export default function CheckoutClient({ expressLocalities }: { expressLocalitie
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  // Autocompletado de localidad (Georef API) para "Resto del país" — debounced, filtrado por provincia.
+  // Autocompletado de localidad (Georef API) — búsqueda en todo el país, debounced.
   useEffect(() => {
     const controller = new AbortController()
     const timeoutId = setTimeout(async () => {
-      if (!address.province || cityQuery.trim().length < 2 || cityQuery === address.city) {
-        setCitySuggestions([])
+      if (localityQuery.trim().length < 2 || localityQuery === address.locality) {
+        setLocalitySuggestions([])
         return
       }
-      const provinceId = ARGENTINE_PROVINCES.find((p) => p.nombre === address.province)?.id
-      if (!provinceId) return
 
-      setCityLoading(true)
+      setLocalityLoading(true)
       try {
         const res = await fetch(
-          `https://apis.datos.gob.ar/georef/api/localidades?nombre=${encodeURIComponent(cityQuery.trim())}&provincia=${provinceId}&max=8&campos=id,nombre`,
+          `https://apis.datos.gob.ar/georef/api/localidades?nombre=${encodeURIComponent(localityQuery.trim())}&max=8&campos=id,nombre,provincia`,
           { signal: controller.signal },
         )
         const data = await res.json()
-        setCitySuggestions(data.localidades ?? [])
+        setLocalitySuggestions(data.localidades ?? [])
       } catch {
         // abort esperado al tipear rápido, o error de red puntual — no bloquea el form
       } finally {
-        setCityLoading(false)
+        setLocalityLoading(false)
       }
     }, 300)
 
@@ -121,9 +87,7 @@ export default function CheckoutClient({ expressLocalities }: { expressLocalitie
       clearTimeout(timeoutId)
       controller.abort()
     }
-  }, [cityQuery, address.province, address.city])
-
-  const localityOptions = ['CABA', ...[...expressLocalities].sort((a, b) => a.localeCompare(b, 'es')), OTHER_COUNTRY_LOCALITY]
+  }, [localityQuery, address.locality])
 
   if (items.length === 0) {
     return (
@@ -153,8 +117,7 @@ export default function CheckoutClient({ expressLocalities }: { expressLocalitie
       return
     }
 
-    if (!address.street || !address.streetNumber || !address.locality || !address.zip) return
-    if (address.locality === OTHER_COUNTRY_LOCALITY && (!address.city || !address.province)) return
+    if (!address.street || !address.streetNumber || !address.locality || !address.province || !address.zip) return
 
     setQuoteLoading(true)
     setQuoteError(null)
@@ -164,7 +127,6 @@ export default function CheckoutClient({ expressLocalities }: { expressLocalitie
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           locality: address.locality,
-          city: address.city,
           province: address.province,
           zip: address.zip,
           items: items.map((i) => ({
@@ -418,18 +380,46 @@ export default function CheckoutClient({ expressLocalities }: { expressLocalitie
                         className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm font-semibold text-[#1E1E1E] outline-none focus:border-[#0eb1c3] focus:ring-2 focus:ring-[#0eb1c3]/20"
                       />
                     </div>
-                    <div>
+                    <div className="relative col-span-2 sm:col-span-1">
                       <label className="mb-1.5 block text-xs font-black uppercase tracking-wider text-gray-500">Localidad</label>
-                      <select
-                        value={address.locality}
-                        onChange={(e) => setAddress({ ...address, locality: e.target.value })}
+                      <input
+                        type="text"
+                        required
+                        value={localityQuery}
+                        placeholder="Empezá a escribir tu localidad…"
+                        onChange={(e) => {
+                          setLocalityQuery(e.target.value)
+                          if (address.locality) setAddress({ ...address, locality: '', province: '' })
+                        }}
+                        onFocus={() => setShowLocalitySuggestions(true)}
+                        onBlur={() => setTimeout(() => setShowLocalitySuggestions(false), 150)}
                         className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm font-semibold text-[#1E1E1E] outline-none focus:border-[#0eb1c3] focus:ring-2 focus:ring-[#0eb1c3]/20"
-                      >
-                        <option value="">Seleccioná tu localidad</option>
-                        {localityOptions.map((l) => (
-                          <option key={l} value={l}>{l}</option>
-                        ))}
-                      </select>
+                      />
+                      {showLocalitySuggestions && (localityLoading || localitySuggestions.length > 0) && (
+                        <ul className="absolute z-10 mt-1 max-h-48 w-full overflow-auto rounded-xl border border-gray-200 bg-white shadow-lg">
+                          {localityLoading ? (
+                            <li className="px-4 py-2 text-sm text-gray-400">Buscando…</li>
+                          ) : (
+                            localitySuggestions.map((s) => (
+                              <li key={s.id}>
+                                <button
+                                  type="button"
+                                  onMouseDown={(e) => e.preventDefault()}
+                                  onClick={() => {
+                                    setAddress({ ...address, locality: s.nombre, province: s.provincia.nombre })
+                                    setLocalityQuery(s.nombre)
+                                    setLocalitySuggestions([])
+                                    setShowLocalitySuggestions(false)
+                                  }}
+                                  className="block w-full px-4 py-2 text-left text-sm font-semibold text-[#1E1E1E] hover:bg-gray-50"
+                                >
+                                  {s.nombre} <span className="text-gray-400">— {s.provincia.nombre}</span>
+                                </button>
+                              </li>
+                            ))
+                          )}
+                        </ul>
+                      )}
                     </div>
                     <div>
                       <label className="mb-1.5 block text-xs font-black uppercase tracking-wider text-gray-500">Código Postal</label>
@@ -441,71 +431,6 @@ export default function CheckoutClient({ expressLocalities }: { expressLocalitie
                         className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm font-semibold text-[#1E1E1E] outline-none focus:border-[#0eb1c3] focus:ring-2 focus:ring-[#0eb1c3]/20"
                       />
                     </div>
-
-                    {address.locality === OTHER_COUNTRY_LOCALITY && (
-                      <>
-                        <div className="col-span-2 sm:col-span-1">
-                          <label className="mb-1.5 block text-xs font-black uppercase tracking-wider text-gray-500">Provincia</label>
-                          <select
-                            required
-                            value={address.province}
-                            onChange={(e) => {
-                              setAddress({ ...address, province: e.target.value, city: '' })
-                              setCityQuery('')
-                              setCitySuggestions([])
-                            }}
-                            className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm font-semibold text-[#1E1E1E] outline-none focus:border-[#0eb1c3] focus:ring-2 focus:ring-[#0eb1c3]/20"
-                          >
-                            <option value="">Seleccioná tu provincia</option>
-                            {ARGENTINE_PROVINCES.map((p) => (
-                              <option key={p.id} value={p.nombre}>{p.nombre}</option>
-                            ))}
-                          </select>
-                        </div>
-                        <div className="relative col-span-2 sm:col-span-1">
-                          <label className="mb-1.5 block text-xs font-black uppercase tracking-wider text-gray-500">Ciudad / Localidad</label>
-                          <input
-                            type="text"
-                            required
-                            disabled={!address.province}
-                            value={cityQuery}
-                            placeholder={address.province ? 'Empezá a escribir…' : 'Elegí una provincia primero'}
-                            onChange={(e) => {
-                              setCityQuery(e.target.value)
-                              if (address.city) setAddress({ ...address, city: '' })
-                            }}
-                            onFocus={() => setShowCitySuggestions(true)}
-                            onBlur={() => setTimeout(() => setShowCitySuggestions(false), 150)}
-                            className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm font-semibold text-[#1E1E1E] outline-none focus:border-[#0eb1c3] focus:ring-2 focus:ring-[#0eb1c3]/20 disabled:bg-gray-50 disabled:text-gray-400"
-                          />
-                          {showCitySuggestions && (cityLoading || citySuggestions.length > 0) && (
-                            <ul className="absolute z-10 mt-1 max-h-48 w-full overflow-auto rounded-xl border border-gray-200 bg-white shadow-lg">
-                              {cityLoading ? (
-                                <li className="px-4 py-2 text-sm text-gray-400">Buscando…</li>
-                              ) : (
-                                citySuggestions.map((s) => (
-                                  <li key={s.id}>
-                                    <button
-                                      type="button"
-                                      onMouseDown={(e) => e.preventDefault()}
-                                      onClick={() => {
-                                        setAddress({ ...address, city: s.nombre })
-                                        setCityQuery(s.nombre)
-                                        setCitySuggestions([])
-                                        setShowCitySuggestions(false)
-                                      }}
-                                      className="block w-full px-4 py-2 text-left text-sm font-semibold text-[#1E1E1E] hover:bg-gray-50"
-                                    >
-                                      {s.nombre}
-                                    </button>
-                                  </li>
-                                ))
-                              )}
-                            </ul>
-                          )}
-                        </div>
-                      </>
-                    )}
                   </div>
                 )}
 
@@ -527,11 +452,7 @@ export default function CheckoutClient({ expressLocalities }: { expressLocalitie
                     disabled={
                       quoteLoading ||
                       (shipping === 'delivery' &&
-                        (!address.street ||
-                          !address.streetNumber ||
-                          !address.locality ||
-                          !address.zip ||
-                          (address.locality === OTHER_COUNTRY_LOCALITY && (!address.city || !address.province))))
+                        (!address.street || !address.streetNumber || !address.locality || !address.province || !address.zip))
                     }
                     className="flex-[2] rounded-2xl py-4 text-sm font-black uppercase tracking-widest text-white transition-opacity disabled:opacity-40 hover:opacity-85"
                     style={{ backgroundColor: '#0eb1c3' }}
@@ -680,10 +601,7 @@ export default function CheckoutClient({ expressLocalities }: { expressLocalitie
                   </p>
                   {shipping === 'delivery' && (
                     <p className="text-sm text-gray-500">
-                      {address.street} {address.streetNumber},{' '}
-                      {address.locality === OTHER_COUNTRY_LOCALITY
-                        ? `${address.city}, ${address.province}`
-                        : address.locality}{' '}
+                      {address.street} {address.streetNumber}, {address.locality}, {address.province}{' '}
                       (CP {address.zip})
                     </p>
                   )}

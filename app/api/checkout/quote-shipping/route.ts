@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
-import { CABA_LOCALITY, OTHER_COUNTRY_LOCALITY, isExpressLocality } from '@/app/lib/shipping-zones'
+import { resolveShippingProvider } from '@/app/lib/shipping-zones'
 import { getZipnovaQuote, type ZipnovaQuoteItem } from '@/app/lib/shipping/zipnova'
 
 // Fallback cuando el producto no tiene peso/dimensiones cargados en el admin.
@@ -14,15 +14,14 @@ type QuoteCartItem = {
 }
 
 export async function POST(req: Request) {
-  const { locality, city, province, zip, items } = (await req.json()) as {
+  const { locality, province, zip, items } = (await req.json()) as {
     locality?: string
-    city?: string
     province?: string
     zip?: string
     items?: QuoteCartItem[]
   }
 
-  if (!locality) {
+  if (!locality || !province) {
     return NextResponse.json({ ok: false, error: 'Falta la localidad' }, { status: 400 })
   }
 
@@ -30,12 +29,7 @@ export async function POST(req: Request) {
     return NextResponse.json({ ok: false, error: 'Faltan los productos del carrito' }, { status: 400 })
   }
 
-  if (locality === OTHER_COUNTRY_LOCALITY && (!city || !province)) {
-    return NextResponse.json({ ok: false, error: 'Faltan ciudad y provincia para el destino' }, { status: 400 })
-  }
-
-  const isExpress = await isExpressLocality(locality)
-  const provider = isExpress ? 'ARTENTINO' : 'ZIPNOVA'
+  const provider = await resolveShippingProvider(locality, province)
 
   const products = await prisma.product.findMany({
     where: { id: { in: items.map((i) => i.productId) } },
@@ -56,15 +50,9 @@ export async function POST(req: Request) {
 
   const declaredValue = items.reduce((sum, item) => sum + item.price * item.quantity, 0)
 
-  // "Resto del país" no es una localidad real de Zipnova — usa la ciudad/provincia
-  // que cargó el usuario. Para CABA/GBA, la localidad elegida en el dropdown es la ciudad real.
-  const destinationCity = locality === OTHER_COUNTRY_LOCALITY ? city! : locality
-  const destinationState =
-    locality === OTHER_COUNTRY_LOCALITY ? province! : locality === CABA_LOCALITY ? 'Capital Federal' : 'Buenos Aires'
-
   const quote = await getZipnovaQuote({
-    destinationCity,
-    destinationState,
+    destinationCity: locality,
+    destinationState: province,
     destinationZipcode: zip,
     items: quoteItems,
     declaredValue,
