@@ -280,8 +280,8 @@ export default function TabInfo({ product, comboPrices, categories }: TabInfoPro
             <input type="number" value={form.length} onChange={(e) => setField('length', e.target.value)} min={0} step="0.01" className={inp} placeholder="—" />
           </div>
           <div>
-            <label className={lbl}>Peso (kg)</label>
-            <input type="number" value={form.weight} onChange={(e) => setField('weight', e.target.value)} min={0} step="0.001" className={inp} placeholder="—" />
+            <label className={lbl}>Peso (gramos)</label>
+            <input type="number" value={form.weight} onChange={(e) => setField('weight', e.target.value)} min={0} step="1" className={inp} placeholder="—" />
           </div>
         </div>
       </div>

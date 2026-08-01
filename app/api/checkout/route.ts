@@ -89,7 +89,7 @@ export async function POST(req: Request) {
     const quoteItems: ZipnovaQuoteItem[] = items.map((item) => {
       const product = shippingProductMap.get(item.productId)
       return {
-        weightGrams: product?.weight ? Math.round(Number(product.weight) * 1000) : DEFAULT_WEIGHT_GRAMS,
+        weightGrams: product?.weight ? Math.round(Number(product.weight)) : DEFAULT_WEIGHT_GRAMS,
         heightCm: product?.height ? Number(product.height) : DEFAULT_DIMENSION_CM,
         widthCm: product?.width ? Number(product.width) : DEFAULT_DIMENSION_CM,
         lengthCm: product?.length ? Number(product.length) : DEFAULT_DIMENSION_CM,
