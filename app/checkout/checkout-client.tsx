@@ -89,6 +89,61 @@ export default function CheckoutClient() {
     }
   }, [localityQuery, address.locality])
 
+  // Cotización automática a Zipnova apenas Localidad (con provincia resuelta) y CP están completos —
+  // debounced, se invalida y vuelve a cotizar solo si cambia alguno de los tres valores.
+  useEffect(() => {
+    const controller = new AbortController()
+    const timeoutId = setTimeout(async () => {
+      if (shipping !== 'delivery' || !address.locality || !address.province || !address.zip) {
+        setQuotedAmount(null)
+        setShippingProvider(null)
+        setQuoteError(null)
+        return
+      }
+
+      setQuoteLoading(true)
+      setQuoteError(null)
+      try {
+        const res = await fetch('/api/checkout/quote-shipping', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            locality: address.locality,
+            province: address.province,
+            zip: address.zip,
+            items: items.map((i) => ({
+              productId: i.productId,
+              price: getEffectivePrice(i),
+              quantity: i.quantity,
+            })),
+          }),
+          signal: controller.signal,
+        })
+        const data = await res.json()
+        if (!data.ok) {
+          setQuoteError(data.error ?? 'Envío a domicilio no disponible por el momento')
+          setShippingProvider(null)
+          setQuotedAmount(null)
+          return
+        }
+        setShippingProvider(data.provider)
+        setQuotedAmount(data.price)
+      } catch {
+        if (controller.signal.aborted) return
+        setQuoteError('Envío a domicilio no disponible por el momento')
+        setShippingProvider(null)
+        setQuotedAmount(null)
+      } finally {
+        setQuoteLoading(false)
+      }
+    }, 400)
+
+    return () => {
+      clearTimeout(timeoutId)
+      controller.abort()
+    }
+  }, [shipping, address.locality, address.province, address.zip, items])
+
   if (items.length === 0) {
     return (
       <main className="flex min-h-[60vh] flex-col items-center justify-center px-4 text-center">
@@ -111,46 +166,19 @@ export default function CheckoutClient() {
   const shippingAmount = shipping === 'delivery' && quotedAmount ? quotedAmount : 0
   const displayTotal = (isCashOrTransfer ? discountedTotal : subtotal) + shippingAmount
 
-  async function handleContinueFromShipping() {
+  function handleContinueFromShipping() {
     if (shipping === 'pickup') {
       setStep(2)
       return
     }
 
-    if (!address.street || !address.streetNumber || !address.locality || !address.province || !address.zip) return
-
-    setQuoteLoading(true)
-    setQuoteError(null)
-    try {
-      const res = await fetch('/api/checkout/quote-shipping', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          locality: address.locality,
-          province: address.province,
-          zip: address.zip,
-          items: items.map((i) => ({
-            productId: i.productId,
-            price: getEffectivePrice(i),
-            quantity: i.quantity,
-          })),
-        }),
-      })
-      const data = await res.json()
-      if (!data.ok) {
-        setQuoteError(data.error ?? 'Envío a domicilio no disponible por el momento')
-        setShippingProvider(null)
-        setQuotedAmount(null)
-        return
-      }
-      setShippingProvider(data.provider)
-      setQuotedAmount(data.price)
-      setStep(2)
-    } catch {
-      setQuoteError('Envío a domicilio no disponible por el momento')
-    } finally {
-      setQuoteLoading(false)
+    // La cotización ya se disparó automáticamente al completar Localidad + CP (ver useEffect arriba) —
+    // acá solo se valida que haya una cotización exitosa antes de avanzar.
+    if (!address.street || !address.streetNumber || !address.locality || !address.province || !address.zip || quotedAmount === null) {
+      return
     }
+
+    setStep(2)
   }
 
   async function handlePay() {
@@ -420,6 +448,11 @@ export default function CheckoutClient() {
                           )}
                         </ul>
                       )}
+                      {address.locality && address.province && (
+                        <p className="mt-1.5 px-1 text-xs font-semibold text-[#1E1E1E]">
+                          {address.locality} <span className="font-normal text-gray-400">— {address.province}</span>
+                        </p>
+                      )}
                     </div>
                     <div>
                       <label className="mb-1.5 block text-xs font-black uppercase tracking-wider text-gray-500">Código Postal</label>
@@ -452,7 +485,12 @@ export default function CheckoutClient() {
                     disabled={
                       quoteLoading ||
                       (shipping === 'delivery' &&
-                        (!address.street || !address.streetNumber || !address.locality || !address.province || !address.zip))
+                        (!address.street ||
+                          !address.streetNumber ||
+                          !address.locality ||
+                          !address.province ||
+                          !address.zip ||
+                          quotedAmount === null))
                     }
                     className="flex-[2] rounded-2xl py-4 text-sm font-black uppercase tracking-widest text-white transition-opacity disabled:opacity-40 hover:opacity-85"
                     style={{ backgroundColor: '#0eb1c3' }}
@@ -720,7 +758,22 @@ export default function CheckoutClient() {
               <div className="flex items-center justify-between">
                 <span className="text-xs font-semibold text-gray-500">Envío</span>
                 <span className="text-xs font-bold text-gray-400">
-                  {shipping === 'pickup' ? 'Gratis' : quotedAmount ? fmt(shippingAmount) : 'A calcular'}
+                  {shipping === 'pickup' ? (
+                    'Gratis'
+                  ) : quoteLoading ? (
+                    <span className="flex items-center gap-1.5 text-gray-400">
+                      <svg className="h-3 w-3 animate-spin" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round">
+                        <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83" />
+                      </svg>
+                      Calculando…
+                    </span>
+                  ) : quotedAmount !== null ? (
+                    fmt(shippingAmount)
+                  ) : quoteError ? (
+                    <span className="text-red-500">No disponible</span>
+                  ) : (
+                    'A calcular'
+                  )}
                 </span>
               </div>
               {isCashOrTransfer && (
