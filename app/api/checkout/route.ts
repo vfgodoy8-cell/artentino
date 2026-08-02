@@ -6,6 +6,7 @@ import { sendEmail, pickupCashEmail, adminNewOrderEmail } from '@/app/lib/email'
 import { CASH_DISCOUNT, CASH_DISCOUNT_PCT, ADMIN_NOTIFICATION_EMAIL } from '@/app/lib/constants'
 import { resolveShippingProvider } from '@/app/lib/shipping-zones'
 import { getZipnovaQuote, type ZipnovaQuoteItem } from '@/app/lib/shipping/zipnova'
+import { resolveBaseUrl } from '@/app/lib/base-url'
 
 type CartItem = {
   productId: string
@@ -37,20 +38,6 @@ type CheckoutBody = {
   shipping: 'pickup' | 'delivery'
   paymentMethod?: 'mercadopago' | 'cash' | 'transfer'
   shippingAddress?: ShippingAddress
-}
-
-function resolveBaseUrl(): string {
-  if (process.env.NEXT_PUBLIC_BASE_URL) return process.env.NEXT_PUBLIC_BASE_URL
-
-  console.warn(
-    '[checkout] NEXT_PUBLIC_BASE_URL no está seteada — los back_urls de MercadoPago pueden apuntar mal. Revisar variables de entorno en Vercel.',
-  )
-  // Fallback controlado: en Vercel, VERCEL_PROJECT_PRODUCTION_URL siempre está presente
-  // y apunta al dominio real de producción, evitando que un back_url termine en localhost.
-  if (process.env.VERCEL_PROJECT_PRODUCTION_URL) {
-    return `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
-  }
-  return 'http://localhost:3000'
 }
 
 const BASE_URL = resolveBaseUrl()

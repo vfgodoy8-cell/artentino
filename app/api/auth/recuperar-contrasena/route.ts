@@ -2,8 +2,9 @@ import { NextResponse } from 'next/server'
 import crypto from 'crypto'
 import { prisma } from '@/lib/prisma'
 import { sendEmail, passwordResetEmail } from '@/app/lib/email'
+import { resolveBaseUrl } from '@/app/lib/base-url'
 
-const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL!
+const BASE_URL = resolveBaseUrl('https://artentino.com.ar')
 
 export async function POST(req: Request) {
   const { email } = await req.json()
