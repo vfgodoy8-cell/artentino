@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import { MercadoPagoConfig, Payment } from 'mercadopago'
 import { prisma } from '@/lib/prisma'
 import { sendEmail, purchaseConfirmationEmail, interpolate } from '@/app/lib/email'
+import { triggerZipnovaShipmentIfNeeded } from '@/app/lib/shipping/zipnova'
 
 const MP_STATUS_MAP: Record<string, 'CONFIRMED' | 'CANCELLED'> = {
   approved: 'CONFIRMED',
@@ -51,6 +52,8 @@ export async function POST(req: Request) {
     })
 
     if (newStatus === 'CONFIRMED') {
+      await triggerZipnovaShipmentIfNeeded(orderId)
+
       const customerName = order.contactName ?? order.user?.name
       const customerEmail = order.contactEmail ?? order.user?.email
 

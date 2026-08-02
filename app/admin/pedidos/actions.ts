@@ -3,6 +3,7 @@
 import { revalidatePath } from 'next/cache'
 import { prisma } from '@/lib/prisma'
 import { sendEmail, orderStatusUpdateEmail } from '@/app/lib/email'
+import { triggerZipnovaShipmentIfNeeded } from '@/app/lib/shipping/zipnova'
 
 const VALID_STATUSES = ['PENDING', 'CONFIRMED', 'SHIPPED', 'DELIVERED', 'CANCELLED'] as const
 type OrderStatus = (typeof VALID_STATUSES)[number]
@@ -24,6 +25,10 @@ export async function updateOrderStatus(orderId: string, status: string) {
   revalidatePath('/admin/pedidos')
   revalidatePath(`/admin/pedidos/${orderId}`)
 
+  if (status === 'CONFIRMED') {
+    await triggerZipnovaShipmentIfNeeded(orderId)
+  }
+
   const customerName = order.contactName ?? order.user?.name
   const customerEmail = order.contactEmail ?? order.user?.email
 
@@ -44,5 +49,11 @@ export async function updateOrderStatus(orderId: string, status: string) {
     }
   }
 
+  return { success: true }
+}
+
+export async function retryZipnovaShipment(orderId: string) {
+  await triggerZipnovaShipmentIfNeeded(orderId)
+  revalidatePath(`/admin/pedidos/${orderId}`)
   return { success: true }
 }

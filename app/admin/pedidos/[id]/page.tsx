@@ -2,6 +2,7 @@ import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { prisma } from '@/lib/prisma'
 import StatusSelect from './status-select'
+import ZipnovaShipmentBlock from './zipnova-shipment-block'
 import { SHIPPING_PROVIDER_LABEL } from '@/app/lib/shipping-zones'
 
 const STATUS = {
@@ -177,6 +178,16 @@ export default async function AdminPedidoDetallePage({ params }: Props) {
                 </div>
               )}
             </div>
+          )}
+
+          {/* Envío Zipnova */}
+          {order.shippingProvider === 'ZIPNOVA' && (
+            <ZipnovaShipmentBlock
+              orderId={order.id}
+              zipnovaShipmentId={order.zipnovaShipmentId}
+              zipnovaShipmentStatus={order.zipnovaShipmentStatus}
+              zipnovaShipmentError={order.zipnovaShipmentError}
+            />
           )}
 
         </div>

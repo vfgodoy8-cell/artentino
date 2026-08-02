@@ -294,6 +294,7 @@ model Order {
   contactName              String?
   contactEmail             String?
   contactPhone             String?
+  contactDocument          String?
   status                   OrderStatus               @default(PENDING)
   total                    Decimal                   @db.Decimal(10, 2)
   shippingMethod           String?
@@ -302,6 +303,11 @@ model Order {
   deliveredAt              DateTime?
   shippingProvider         ShippingProvider?
   shippingQuotedAmount     Decimal?                  @db.Decimal(10, 2)
+  zipnovaShipmentId        Int?
+  zipnovaServiceTypeCode   String?
+  zipnovaShipmentStatus    String?
+  zipnovaShipmentCreatedAt DateTime?
+  zipnovaShipmentError     String?
   items                    OrderItem[]
   arrepentimientoRequests  ArrepentimientoRequest[]
   createdAt                DateTime                  @default(now())

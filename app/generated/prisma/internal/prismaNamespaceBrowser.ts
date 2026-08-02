@@ -292,6 +292,7 @@ export const OrderScalarFieldEnum = {
   contactName: 'contactName',
   contactEmail: 'contactEmail',
   contactPhone: 'contactPhone',
+  contactDocument: 'contactDocument',
   status: 'status',
   total: 'total',
   shippingMethod: 'shippingMethod',
@@ -300,6 +301,11 @@ export const OrderScalarFieldEnum = {
   deliveredAt: 'deliveredAt',
   shippingProvider: 'shippingProvider',
   shippingQuotedAmount: 'shippingQuotedAmount',
+  zipnovaShipmentId: 'zipnovaShipmentId',
+  zipnovaServiceTypeCode: 'zipnovaServiceTypeCode',
+  zipnovaShipmentStatus: 'zipnovaShipmentStatus',
+  zipnovaShipmentCreatedAt: 'zipnovaShipmentCreatedAt',
+  zipnovaShipmentError: 'zipnovaShipmentError',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const

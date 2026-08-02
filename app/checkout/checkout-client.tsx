@@ -15,6 +15,7 @@ type ContactData = {
   surname: string
   email: string
   phone: string
+  dni: string
 }
 
 type AddressData = {
@@ -44,7 +45,7 @@ export default function CheckoutClient() {
   const router = useRouter()
 
   const [step, setStep] = useState(0)
-  const [contact, setContact] = useState<ContactData>({ name: '', surname: '', email: '', phone: '' })
+  const [contact, setContact] = useState<ContactData>({ name: '', surname: '', email: '', phone: '', dni: '' })
   const [shipping, setShipping] = useState<ShippingMethod>('pickup')
   const [address, setAddress] = useState<AddressData>({ street: '', streetNumber: '', zip: '', locality: '', province: '' })
   const [localityQuery, setLocalityQuery] = useState('')
@@ -160,6 +161,7 @@ export default function CheckoutClient() {
   }
 
   const subtotal = getTotal()
+  const isDniValid = /^\d{7,11}$/.test(contact.dni)
 
   const isCashOrTransfer = payment === 'cash' || payment === 'transfer'
   const discountedTotal = Math.round(subtotal * (1 - CASH_DISCOUNT))
@@ -197,6 +199,7 @@ export default function CheckoutClient() {
             attributeValueId: i.attributeValueId,
           })),
           payer: contact,
+          contactDocument: contact.dni,
           shipping,
           paymentMethod: payment,
           ...(shipping === 'delivery'
@@ -325,13 +328,25 @@ export default function CheckoutClient() {
                       className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm font-semibold text-[#1E1E1E] outline-none focus:border-[#0eb1c3] focus:ring-2 focus:ring-[#0eb1c3]/20"
                     />
                   </div>
+                  <div className="col-span-2">
+                    <label className="mb-1.5 block text-xs font-black uppercase tracking-wider text-gray-500">DNI</label>
+                    <input
+                      type="text"
+                      required
+                      inputMode="numeric"
+                      placeholder="Sin puntos"
+                      value={contact.dni}
+                      onChange={(e) => setContact({ ...contact, dni: e.target.value.replace(/\D/g, '') })}
+                      className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm font-semibold text-[#1E1E1E] outline-none focus:border-[#0eb1c3] focus:ring-2 focus:ring-[#0eb1c3]/20"
+                    />
+                  </div>
                 </div>
                 <button
                   onClick={() => {
-                    if (!contact.name || !contact.surname || !contact.email) return
+                    if (!contact.name || !contact.surname || !contact.email || !isDniValid) return
                     setStep(1)
                   }}
-                  disabled={!contact.name || !contact.surname || !contact.email}
+                  disabled={!contact.name || !contact.surname || !contact.email || !isDniValid}
                   className="mt-6 w-full rounded-2xl py-4 text-sm font-black uppercase tracking-widest text-white transition-opacity disabled:opacity-40"
                   style={{ backgroundColor: '#0eb1c3' }}
                 >

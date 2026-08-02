@@ -33,6 +33,7 @@ type CheckoutBody = {
     email: string
     phone: string
   }
+  contactDocument?: string
   shipping: 'pickup' | 'delivery'
   paymentMethod?: 'mercadopago' | 'cash' | 'transfer'
   shippingAddress?: ShippingAddress
@@ -61,7 +62,7 @@ export async function POST(req: Request) {
   const session = await auth()
 
   const body = (await req.json()) as CheckoutBody
-  const { items, payer, shipping, paymentMethod = 'mercadopago', shippingAddress } = body
+  const { items, payer, shipping, paymentMethod = 'mercadopago', shippingAddress, contactDocument } = body
 
   if (!items?.length || !payer?.email) {
     return NextResponse.json({ error: 'Datos incompletos' }, { status: 400 })
@@ -74,6 +75,7 @@ export async function POST(req: Request) {
   // Nunca confiar en el provider/monto que mande el cliente — se recalcula acá.
   let shippingProvider: ShippingProvider = 'PICKUP'
   let shippingAmount = 0
+  let zipnovaServiceTypeCode: string | null = null
 
   if (shipping === 'delivery') {
     const locality = shippingAddress!.locality
@@ -115,6 +117,7 @@ export async function POST(req: Request) {
     }
 
     shippingAmount = quote.price
+    zipnovaServiceTypeCode = quote.serviceTypeCode
   }
 
   // Server-side stock validation — prevents overselling even if front-end is bypassed
@@ -175,7 +178,10 @@ export async function POST(req: Request) {
         paymentMethod,
         status: 'PENDING_PICKUP_PAYMENT',
         shippingProvider,
-        ...(shipping === 'delivery' ? { shippingAddress: { ...shippingAddress }, shippingQuotedAmount: shippingAmount } : {}),
+        contactDocument: contactDocument ?? null,
+        ...(shipping === 'delivery'
+          ? { shippingAddress: { ...shippingAddress }, shippingQuotedAmount: shippingAmount, zipnovaServiceTypeCode }
+          : {}),
         items: {
           create: items.map((item) => ({
             productId: item.productId,
@@ -230,7 +236,10 @@ export async function POST(req: Request) {
       paymentMethod: 'mercadopago',
       status: 'PENDING',
       shippingProvider,
-      ...(shipping === 'delivery' ? { shippingAddress: { ...shippingAddress }, shippingQuotedAmount: shippingAmount } : {}),
+      contactDocument: contactDocument ?? null,
+      ...(shipping === 'delivery'
+        ? { shippingAddress: { ...shippingAddress }, shippingQuotedAmount: shippingAmount, zipnovaServiceTypeCode }
+        : {}),
       items: {
         create: items.map((item) => ({
           productId: item.productId,
