@@ -2,6 +2,7 @@
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import { logout } from '@/app/actions/auth'
+import PasswordForm from './password-form'
 
 export default async function PerfilPage() {
   const session = await auth()
@@ -41,6 +42,12 @@ export default async function PerfilPage() {
             <Row label="Nombre" value={name ?? '—'} />
             <Row label="Email" value={email ?? '—'} />
           </dl>
+        </div>
+
+        {/* Cambiar contraseña */}
+        <div className="mb-6 rounded-2xl bg-white p-6 shadow-sm">
+          <h2 className="mb-5 text-xs font-black uppercase tracking-wider text-gray-400">Cambiar contraseña</h2>
+          <PasswordForm />
         </div>
 
         {/* Quick links */}
