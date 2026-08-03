@@ -185,6 +185,26 @@ export function passwordResetEmail({
   )
 }
 
+export function passwordChangedEmail({ name }: { name: string }) {
+  return (
+    WRAP_START +
+    HEADER.replace('{{title}}', 'Tu contraseña fue cambiada') +
+    `<div style="padding:36px 32px;">
+      <p style="margin:0 0 8px;color:#1E1E1E;font-size:16px;">Hola <strong>${name}</strong>,</p>
+      <p style="margin:0 0 24px;color:#555;line-height:1.6;">
+        Te avisamos que la contraseña de tu cuenta en Artentino fue cambiada recién.
+      </p>
+      <p style="margin:0 0 24px;color:#888;font-size:13px;line-height:1.6;">
+        Si fuiste vos, no necesitás hacer nada más. Si no reconocés este cambio, contactanos
+        a la brevedad a través de nuestra web para asegurar tu cuenta.
+      </p>
+      <p style="margin:0;color:#0eb1c3;font-weight:900;">Equipo Artentino</p>
+    </div>` +
+    emailFooter() +
+    WRAP_END
+  )
+}
+
 export function orderStatusUpdateEmail({
   name,
   orderId,

@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import bcrypt from 'bcryptjs'
 import { prisma } from '@/lib/prisma'
+import { sendEmail, passwordChangedEmail } from '@/app/lib/email'
 
 export async function POST(req: Request) {
   const { token, password } = await req.json()
@@ -12,7 +13,10 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: 'La contraseña debe tener al menos 6 caracteres' }, { status: 400 })
   }
 
-  const resetToken = await prisma.passwordResetToken.findUnique({ where: { token } })
+  const resetToken = await prisma.passwordResetToken.findUnique({
+    where: { token },
+    include: { user: { select: { name: true, email: true } } },
+  })
 
   if (!resetToken || resetToken.usedAt || resetToken.expiresAt < new Date()) {
     return NextResponse.json({ error: 'El link es inválido o expiró' }, { status: 400 })
@@ -24,6 +28,12 @@ export async function POST(req: Request) {
     prisma.user.update({ where: { id: resetToken.userId }, data: { password: hash } }),
     prisma.passwordResetToken.update({ where: { id: resetToken.id }, data: { usedAt: new Date() } }),
   ])
+
+  sendEmail({
+    to: resetToken.user.email,
+    subject: 'Artentino — Tu contraseña fue cambiada',
+    html: passwordChangedEmail({ name: resetToken.user.name }),
+  }).catch(() => {})
 
   return NextResponse.json({ success: true })
 }
