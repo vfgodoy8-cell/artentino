@@ -205,6 +205,48 @@ export function passwordChangedEmail({ name }: { name: string }) {
   )
 }
 
+export function instagramTokenReminderEmail({
+  daysRemaining,
+  expiresAt,
+}: {
+  daysRemaining: number
+  expiresAt: Date
+}) {
+  const dd = String(expiresAt.getDate()).padStart(2, '0')
+  const mm = String(expiresAt.getMonth() + 1).padStart(2, '0')
+  const yyyy = expiresAt.getFullYear()
+  const formattedDate = `${dd}/${mm}/${yyyy}`
+
+  return (
+    WRAP_START +
+    HEADER.replace('{{title}}', 'El token de Instagram vence pronto') +
+    `<div style="padding:36px 32px;">
+      <p style="margin:0 0 8px;color:#1E1E1E;font-size:16px;">Hola,</p>
+      <p style="margin:0 0 28px;color:#555;line-height:1.6;">
+        El feed de Instagram del sitio depende de un token que vence el <strong>${formattedDate}</strong>
+        — faltan <strong>${daysRemaining} día${daysRemaining === 1 ? '' : 's'}</strong>. Convendría renovarlo
+        antes de que eso pase.
+      </p>
+      <div style="background:#F7F7F7;border-radius:12px;padding:20px 24px;margin-bottom:28px;">
+        <p style="margin:0 0 12px;color:#888;font-size:11px;font-weight:900;text-transform:uppercase;letter-spacing:1px;">Cómo renovarlo</p>
+        <ol style="margin:0;padding-left:18px;color:#1E1E1E;line-height:1.9;">
+          <li>Entrá a <strong>developers.facebook.com/tools/explorer</strong> con la app "Artentino" seleccionada.</li>
+          <li>En la fila de la cuenta "artentino", hacé clic en "Generar token" (o el link que corresponda en ese momento).</li>
+          <li>Copiá el token generado.</li>
+          <li>Entrá a <strong>artentino.com.ar/admin/instagram</strong>, pegalo, y guardá.</li>
+        </ol>
+      </div>
+      <p style="margin:0 0 24px;color:#888;font-size:13px;line-height:1.6;">
+        Si no se renueva antes del vencimiento, el feed de Instagram del sitio va a caer a las imágenes
+        de respaldo automáticamente (el sitio sigue funcionando igual, solo se pierde el feed real).
+      </p>
+      <p style="margin:0;color:#0eb1c3;font-weight:900;">Equipo Artentino</p>
+    </div>` +
+    emailFooter() +
+    WRAP_END
+  )
+}
+
 export function orderStatusUpdateEmail({
   name,
   orderId,

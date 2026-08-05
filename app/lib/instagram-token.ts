@@ -10,7 +10,9 @@ export async function saveInstagramToken(
   igUserId?: string,
 ) {
   const existing = await prisma.instagramToken.findFirst({ select: { id: true } })
-  const data = { accessToken, expiresAt, ...(igUserId ? { igUserId } : {}) }
+  // Cualquier guardado de token (paste manual o refresh exitoso del cron) reinicia el
+  // ciclo de aviso de vencimiento — el próximo recordatorio se calcula desde este momento.
+  const data = { accessToken, expiresAt, reminderSentAt: null, ...(igUserId ? { igUserId } : {}) }
   if (existing) {
     return prisma.instagramToken.update({ where: { id: existing.id }, data })
   }

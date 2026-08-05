@@ -441,11 +441,12 @@ model SiteConfig {
 // ─── Instagram ──────────────────────────────────────────────────────────────
 
 model InstagramToken {
-  id          String   @id @default(cuid())
-  accessToken String   @db.Text
-  igUserId    String?
-  expiresAt   DateTime
-  updatedAt   DateTime @updatedAt
+  id             String    @id @default(cuid())
+  accessToken    String    @db.Text
+  igUserId       String?
+  expiresAt      DateTime
+  reminderSentAt DateTime?
+  updatedAt      DateTime  @updatedAt
 
   @@map("instagram_token")
 }

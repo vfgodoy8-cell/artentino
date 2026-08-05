@@ -29,6 +29,7 @@ export type InstagramTokenMinAggregateOutputType = {
   accessToken: string | null
   igUserId: string | null
   expiresAt: Date | null
+  reminderSentAt: Date | null
   updatedAt: Date | null
 }
 
@@ -37,6 +38,7 @@ export type InstagramTokenMaxAggregateOutputType = {
   accessToken: string | null
   igUserId: string | null
   expiresAt: Date | null
+  reminderSentAt: Date | null
   updatedAt: Date | null
 }
 
@@ -45,6 +47,7 @@ export type InstagramTokenCountAggregateOutputType = {
   accessToken: number
   igUserId: number
   expiresAt: number
+  reminderSentAt: number
   updatedAt: number
   _all: number
 }
@@ -55,6 +58,7 @@ export type InstagramTokenMinAggregateInputType = {
   accessToken?: true
   igUserId?: true
   expiresAt?: true
+  reminderSentAt?: true
   updatedAt?: true
 }
 
@@ -63,6 +67,7 @@ export type InstagramTokenMaxAggregateInputType = {
   accessToken?: true
   igUserId?: true
   expiresAt?: true
+  reminderSentAt?: true
   updatedAt?: true
 }
 
@@ -71,6 +76,7 @@ export type InstagramTokenCountAggregateInputType = {
   accessToken?: true
   igUserId?: true
   expiresAt?: true
+  reminderSentAt?: true
   updatedAt?: true
   _all?: true
 }
@@ -152,6 +158,7 @@ export type InstagramTokenGroupByOutputType = {
   accessToken: string
   igUserId: string | null
   expiresAt: Date
+  reminderSentAt: Date | null
   updatedAt: Date
   _count: InstagramTokenCountAggregateOutputType | null
   _min: InstagramTokenMinAggregateOutputType | null
@@ -181,6 +188,7 @@ export type InstagramTokenWhereInput = {
   accessToken?: Prisma.StringFilter<"InstagramToken"> | string
   igUserId?: Prisma.StringNullableFilter<"InstagramToken"> | string | null
   expiresAt?: Prisma.DateTimeFilter<"InstagramToken"> | Date | string
+  reminderSentAt?: Prisma.DateTimeNullableFilter<"InstagramToken"> | Date | string | null
   updatedAt?: Prisma.DateTimeFilter<"InstagramToken"> | Date | string
 }
 
@@ -189,6 +197,7 @@ export type InstagramTokenOrderByWithRelationInput = {
   accessToken?: Prisma.SortOrder
   igUserId?: Prisma.SortOrderInput | Prisma.SortOrder
   expiresAt?: Prisma.SortOrder
+  reminderSentAt?: Prisma.SortOrderInput | Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
 
@@ -200,6 +209,7 @@ export type InstagramTokenWhereUniqueInput = Prisma.AtLeast<{
   accessToken?: Prisma.StringFilter<"InstagramToken"> | string
   igUserId?: Prisma.StringNullableFilter<"InstagramToken"> | string | null
   expiresAt?: Prisma.DateTimeFilter<"InstagramToken"> | Date | string
+  reminderSentAt?: Prisma.DateTimeNullableFilter<"InstagramToken"> | Date | string | null
   updatedAt?: Prisma.DateTimeFilter<"InstagramToken"> | Date | string
 }, "id">
 
@@ -208,6 +218,7 @@ export type InstagramTokenOrderByWithAggregationInput = {
   accessToken?: Prisma.SortOrder
   igUserId?: Prisma.SortOrderInput | Prisma.SortOrder
   expiresAt?: Prisma.SortOrder
+  reminderSentAt?: Prisma.SortOrderInput | Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.InstagramTokenCountOrderByAggregateInput
   _max?: Prisma.InstagramTokenMaxOrderByAggregateInput
@@ -222,6 +233,7 @@ export type InstagramTokenScalarWhereWithAggregatesInput = {
   accessToken?: Prisma.StringWithAggregatesFilter<"InstagramToken"> | string
   igUserId?: Prisma.StringNullableWithAggregatesFilter<"InstagramToken"> | string | null
   expiresAt?: Prisma.DateTimeWithAggregatesFilter<"InstagramToken"> | Date | string
+  reminderSentAt?: Prisma.DateTimeNullableWithAggregatesFilter<"InstagramToken"> | Date | string | null
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"InstagramToken"> | Date | string
 }
 
@@ -230,6 +242,7 @@ export type InstagramTokenCreateInput = {
   accessToken: string
   igUserId?: string | null
   expiresAt: Date | string
+  reminderSentAt?: Date | string | null
   updatedAt?: Date | string
 }
 
@@ -238,6 +251,7 @@ export type InstagramTokenUncheckedCreateInput = {
   accessToken: string
   igUserId?: string | null
   expiresAt: Date | string
+  reminderSentAt?: Date | string | null
   updatedAt?: Date | string
 }
 
@@ -246,6 +260,7 @@ export type InstagramTokenUpdateInput = {
   accessToken?: Prisma.StringFieldUpdateOperationsInput | string
   igUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   expiresAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  reminderSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -254,6 +269,7 @@ export type InstagramTokenUncheckedUpdateInput = {
   accessToken?: Prisma.StringFieldUpdateOperationsInput | string
   igUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   expiresAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  reminderSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -262,6 +278,7 @@ export type InstagramTokenCreateManyInput = {
   accessToken: string
   igUserId?: string | null
   expiresAt: Date | string
+  reminderSentAt?: Date | string | null
   updatedAt?: Date | string
 }
 
@@ -270,6 +287,7 @@ export type InstagramTokenUpdateManyMutationInput = {
   accessToken?: Prisma.StringFieldUpdateOperationsInput | string
   igUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   expiresAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  reminderSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -278,6 +296,7 @@ export type InstagramTokenUncheckedUpdateManyInput = {
   accessToken?: Prisma.StringFieldUpdateOperationsInput | string
   igUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   expiresAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  reminderSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -286,6 +305,7 @@ export type InstagramTokenCountOrderByAggregateInput = {
   accessToken?: Prisma.SortOrder
   igUserId?: Prisma.SortOrder
   expiresAt?: Prisma.SortOrder
+  reminderSentAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
 
@@ -294,6 +314,7 @@ export type InstagramTokenMaxOrderByAggregateInput = {
   accessToken?: Prisma.SortOrder
   igUserId?: Prisma.SortOrder
   expiresAt?: Prisma.SortOrder
+  reminderSentAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
 
@@ -302,6 +323,7 @@ export type InstagramTokenMinOrderByAggregateInput = {
   accessToken?: Prisma.SortOrder
   igUserId?: Prisma.SortOrder
   expiresAt?: Prisma.SortOrder
+  reminderSentAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
 
@@ -312,6 +334,7 @@ export type InstagramTokenSelect<ExtArgs extends runtime.Types.Extensions.Intern
   accessToken?: boolean
   igUserId?: boolean
   expiresAt?: boolean
+  reminderSentAt?: boolean
   updatedAt?: boolean
 }, ExtArgs["result"]["instagramToken"]>
 
@@ -320,6 +343,7 @@ export type InstagramTokenSelectCreateManyAndReturn<ExtArgs extends runtime.Type
   accessToken?: boolean
   igUserId?: boolean
   expiresAt?: boolean
+  reminderSentAt?: boolean
   updatedAt?: boolean
 }, ExtArgs["result"]["instagramToken"]>
 
@@ -328,6 +352,7 @@ export type InstagramTokenSelectUpdateManyAndReturn<ExtArgs extends runtime.Type
   accessToken?: boolean
   igUserId?: boolean
   expiresAt?: boolean
+  reminderSentAt?: boolean
   updatedAt?: boolean
 }, ExtArgs["result"]["instagramToken"]>
 
@@ -336,10 +361,11 @@ export type InstagramTokenSelectScalar = {
   accessToken?: boolean
   igUserId?: boolean
   expiresAt?: boolean
+  reminderSentAt?: boolean
   updatedAt?: boolean
 }
 
-export type InstagramTokenOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "accessToken" | "igUserId" | "expiresAt" | "updatedAt", ExtArgs["result"]["instagramToken"]>
+export type InstagramTokenOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "accessToken" | "igUserId" | "expiresAt" | "reminderSentAt" | "updatedAt", ExtArgs["result"]["instagramToken"]>
 
 export type $InstagramTokenPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "InstagramToken"
@@ -349,6 +375,7 @@ export type $InstagramTokenPayload<ExtArgs extends runtime.Types.Extensions.Inte
     accessToken: string
     igUserId: string | null
     expiresAt: Date
+    reminderSentAt: Date | null
     updatedAt: Date
   }, ExtArgs["result"]["instagramToken"]>
   composites: {}
@@ -777,6 +804,7 @@ export interface InstagramTokenFieldRefs {
   readonly accessToken: Prisma.FieldRef<"InstagramToken", 'String'>
   readonly igUserId: Prisma.FieldRef<"InstagramToken", 'String'>
   readonly expiresAt: Prisma.FieldRef<"InstagramToken", 'DateTime'>
+  readonly reminderSentAt: Prisma.FieldRef<"InstagramToken", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"InstagramToken", 'DateTime'>
 }
     

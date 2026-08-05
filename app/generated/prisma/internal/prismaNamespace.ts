@@ -2577,6 +2577,7 @@ export const InstagramTokenScalarFieldEnum = {
   accessToken: 'accessToken',
   igUserId: 'igUserId',
   expiresAt: 'expiresAt',
+  reminderSentAt: 'reminderSentAt',
   updatedAt: 'updatedAt'
 } as const
 
