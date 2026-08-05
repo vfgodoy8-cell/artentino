@@ -61,8 +61,8 @@ export default async function AdminPedidoDetallePage({ params }: Props) {
           ← Volver a pedidos
         </Link>
         <div className="flex flex-wrap items-start justify-between gap-4">
-          <div>
-            <h1 className="text-2xl font-black uppercase tracking-wide text-[#1E1E1E]">
+          <div className="min-w-0">
+            <h1 className="break-words text-2xl font-black uppercase tracking-wide text-[#1E1E1E]">
               Pedido #{order.id.slice(-8).toUpperCase()}
             </h1>
             <p className="mt-0.5 text-sm text-gray-400">{fmtDate(order.createdAt)}</p>
@@ -71,10 +71,10 @@ export default async function AdminPedidoDetallePage({ params }: Props) {
         </div>
       </div>
 
-      <div className="grid gap-6 lg:grid-cols-3">
+      <div className="grid min-w-0 grid-cols-1 gap-6 lg:grid-cols-3">
 
         {/* Items */}
-        <div className="lg:col-span-2">
+        <div className="min-w-0 lg:col-span-2">
           <div className="overflow-hidden rounded-2xl border border-gray-100 bg-white">
             <div className="border-b border-gray-100 px-5 py-4">
               <p className="text-[10px] font-black uppercase tracking-wider text-gray-400">Productos</p>
@@ -110,7 +110,7 @@ export default async function AdminPedidoDetallePage({ params }: Props) {
         </div>
 
         {/* Sidebar */}
-        <div className="flex flex-col gap-4">
+        <div className="flex min-w-0 flex-col gap-4">
 
           {/* Estado */}
           <div className="rounded-2xl border border-gray-100 bg-white px-5 py-4">
