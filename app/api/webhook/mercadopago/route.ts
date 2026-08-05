@@ -102,7 +102,18 @@ export async function POST(req: Request) {
 
           const subject = template?.subject ?? '¡Gracias por tu compra en Artentino!'
 
-          await sendEmail({ to: customerEmail, subject, html })
+          // Independientes entre sí — si uno falla, el otro tiene que intentar igual.
+          await sendEmail({ to: customerEmail, subject, html }).catch((err) => {
+            console.error('[webhook] email al cliente falló:', err)
+          })
+
+          await sendEmail({
+            to: 'info@artentino.com.ar',
+            subject: `Nuevo pedido — ${customerName} — $${Number(order.total).toLocaleString('es-AR')}`,
+            html,
+          }).catch((err) => {
+            console.error('[webhook] copia a info@ falló:', err)
+          })
         } catch (err) {
           console.error('[webhook] email failed:', err)
         }

@@ -181,21 +181,30 @@ export async function POST(req: Request) {
     })
 
     // Fire-and-forget email
+    const pickupCashHtml = pickupCashEmail({
+      name: payer.name,
+      items: items.map((i) => ({
+        name: i.name,
+        quantity: i.quantity,
+        price: i.price,
+        variantName: i.attributeValueId ? avMap[i.attributeValueId] : undefined,
+      })),
+      total: discountedTotal,
+      discountPct: CASH_DISCOUNT_PCT,
+      paymentMethod,
+    })
+
     sendEmail({
       to: payer.email,
       subject: 'Artentino — Pedido registrado',
-      html: pickupCashEmail({
-        name: payer.name,
-        items: items.map((i) => ({
-          name: i.name,
-          quantity: i.quantity,
-          price: i.price,
-          variantName: i.attributeValueId ? avMap[i.attributeValueId] : undefined,
-        })),
-        total: discountedTotal,
-        discountPct: CASH_DISCOUNT_PCT,
-        paymentMethod,
-      }),
+      html: pickupCashHtml,
+    }).catch(() => {})
+
+    // Copia a info@ — independiente del mail al cliente, no debe bloquearse entre sí.
+    sendEmail({
+      to: 'info@artentino.com.ar',
+      subject: `Nuevo pedido — ${payer.name} — $${discountedTotal.toLocaleString('es-AR')}`,
+      html: pickupCashHtml,
     }).catch(() => {})
 
     if (ADMIN_NOTIFICATION_EMAIL) {
