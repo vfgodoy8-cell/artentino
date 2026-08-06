@@ -132,10 +132,10 @@ export default function ContactoPage() {
           <p className="mt-2 text-sm text-[#6b7280]">
             ¿Tenés una consulta? Completá el formulario o contactanos por mail a{' '}
             <a
-              href="mailto:info@artentino.com.ar"
+              href="mailto:info@artentino.com"
               className="font-semibold text-[#0eb1c3] transition-opacity hover:opacity-70"
             >
-              info@artentino.com.ar
+              info@artentino.com
             </a>
           </p>
         </div>

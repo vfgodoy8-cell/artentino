@@ -108,7 +108,7 @@ export async function POST(req: Request) {
           })
 
           await sendEmail({
-            to: 'info@artentino.com.ar',
+            to: 'info@artentino.com',
             subject: `Nuevo pedido — ${customerName} — $${Number(order.total).toLocaleString('es-AR')}`,
             html,
           }).catch((err) => {

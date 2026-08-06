@@ -202,7 +202,7 @@ export async function POST(req: Request) {
 
     // Copia a info@ — independiente del mail al cliente, no debe bloquearse entre sí.
     sendEmail({
-      to: 'info@artentino.com.ar',
+      to: 'info@artentino.com',
       subject: `Nuevo pedido — ${payer.name} — $${discountedTotal.toLocaleString('es-AR')}`,
       html: pickupCashHtml,
     }).catch(() => {})
