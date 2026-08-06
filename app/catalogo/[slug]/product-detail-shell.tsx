@@ -183,7 +183,7 @@ export default function ProductDetailShell({
           {/* Back link */}
           <Link
             href="/catalogo"
-            className="mt-6 text-center text-sm font-semibold text-[#0eb1c3] transition-colors hover:underline"
+            className="mt-3 flex items-center justify-center py-3 text-center text-sm font-semibold text-[#0eb1c3] transition-colors hover:underline lg:mt-6 lg:py-0"
           >
             ← Volver al catálogo
           </Link>

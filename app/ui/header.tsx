@@ -76,7 +76,7 @@ export default function Header() {
                 <Link
                   key={link.href}
                   href={link.href}
-                  className={`text-sm font-bold uppercase tracking-widest transition-colors hover:text-[#0eb1c3] ${
+                  className={`py-3 text-sm font-bold uppercase tracking-widest transition-colors hover:text-[#0eb1c3] lg:py-0 ${
                     isActive(link.href) ? 'text-[#0eb1c3]' : 'text-[#1E1E1E]'
                   }`}
                 >
@@ -138,7 +138,7 @@ export default function Header() {
                 ) : (
                   <Link
                     href="/login"
-                    className="rounded-full border border-gray-200 px-4 py-2 text-sm font-black text-[#1E1E1E] transition-[transform,color,border-color] duration-[160ms] [transition-timing-function:var(--ease-out)] hover:border-[#0eb1c3] hover:text-[#0eb1c3] active:scale-[0.97]"
+                    className="inline-flex min-h-11 items-center justify-center rounded-full border border-gray-200 px-4 py-2 text-sm font-black text-[#1E1E1E] transition-[transform,color,border-color] duration-[160ms] [transition-timing-function:var(--ease-out)] hover:border-[#0eb1c3] hover:text-[#0eb1c3] active:scale-[0.97] lg:min-h-0"
                   >
                     Ingresar
                   </Link>
@@ -149,7 +149,7 @@ export default function Header() {
               <button
                 aria-label="Ver carrito"
                 onClick={() => setCartOpen(true)}
-                className={`relative flex h-10 w-10 items-center justify-center rounded-full bg-[#0eb1c3] text-white transition-[background-color] duration-[160ms] [transition-timing-function:var(--ease-out)] hover:bg-[#0ca3b4] active:scale-[0.90] ${bouncing ? 'animate-cart-bounce' : ''}`}
+                className={`relative flex h-11 w-11 items-center justify-center rounded-full bg-[#0eb1c3] text-white transition-[background-color] duration-[160ms] [transition-timing-function:var(--ease-out)] hover:bg-[#0ca3b4] active:scale-[0.90] lg:h-10 lg:w-10 ${bouncing ? 'animate-cart-bounce' : ''}`}
               >
                 <CartIcon />
                 {cartCount > 0 && (
@@ -166,7 +166,7 @@ export default function Header() {
               <button
                 aria-label={menuOpen ? 'Cerrar menú' : 'Abrir menú'}
                 onClick={() => setMenuOpen((prev) => !prev)}
-                className="flex h-10 w-10 flex-col items-center justify-center gap-[5px] md:hidden"
+                className="flex h-11 w-11 flex-col items-center justify-center gap-[5px] md:hidden"
               >
                 <span className={`block h-px w-6 bg-[#1E1E1E] transition-transform duration-200 ${menuOpen ? 'translate-y-[6px] rotate-45' : ''}`} />
                 <span className={`block h-px w-6 bg-[#1E1E1E] transition-opacity duration-200 ${menuOpen ? 'opacity-0' : ''}`} />

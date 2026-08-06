@@ -86,21 +86,21 @@ export default async function ProductoPage({ params }: Props) {
       <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
 
         {/* Breadcrumb */}
-        <nav className="mb-8 flex items-center gap-2 text-sm text-gray-400">
-          <Link href="/" className="transition-colors hover:text-[#0eb1c3]">Inicio</Link>
+        <nav className="-mt-3 mb-5 flex flex-wrap items-center gap-2 text-sm text-gray-400">
+          <Link href="/" className="py-3 transition-colors hover:text-[#0eb1c3] lg:py-0">Inicio</Link>
           <span>/</span>
-          <Link href="/catalogo" className="transition-colors hover:text-[#0eb1c3]">Catálogo</Link>
+          <Link href="/catalogo" className="py-3 transition-colors hover:text-[#0eb1c3] lg:py-0">Catálogo</Link>
           <span>/</span>
           <Link
             href={`/catalogo?categoria=${product.category.category.slug}`}
-            className="transition-colors hover:text-[#0eb1c3]"
+            className="py-3 transition-colors hover:text-[#0eb1c3] lg:py-0"
           >
             {product.category.category.name}
           </Link>
           <span>/</span>
           <Link
             href={`/catalogo?categoria=${product.category.slug}`}
-            className="transition-colors hover:text-[#0eb1c3]"
+            className="py-3 transition-colors hover:text-[#0eb1c3] lg:py-0"
           >
             {product.category.name}
           </Link>

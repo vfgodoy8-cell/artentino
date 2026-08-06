@@ -41,9 +41,9 @@ export default function AddToCartButton({
         onClick={handleClick}
         disabled={disabled}
         aria-label="Agregar al carrito"
-        className={`relative flex h-9 w-9 items-center justify-center rounded-full bg-white shadow-[0_2px_8px_rgba(0,0,0,0.12)]
+        className={`relative flex h-11 w-11 items-center justify-center rounded-full bg-white shadow-[0_2px_8px_rgba(0,0,0,0.12)]
           transition-[transform,color,background-color] duration-[160ms] [transition-timing-function:cubic-bezier(0.23,1,0.32,1)]
-          active:scale-[0.90] disabled:opacity-40
+          active:scale-[0.90] disabled:opacity-40 lg:h-9 lg:w-9
           ${added ? 'bg-[#0eb1c3] text-white' : 'text-[#1E1E1E] hover:text-[#0eb1c3]'}`}
       >
         <span className={`absolute inset-0 flex items-center justify-center transition-[opacity,transform] duration-[150ms] ${added ? 'scale-90 opacity-0' : 'scale-100 opacity-100'}`}>
@@ -94,9 +94,9 @@ export default function AddToCartButton({
     <button
       onClick={handleClick}
       disabled={disabled}
-      className={`relative mt-4 w-full overflow-hidden rounded-xl py-3 text-xs font-black uppercase tracking-widest text-white
+      className={`relative mt-4 flex min-h-11 w-full items-center justify-center overflow-hidden rounded-xl py-3 text-xs font-black uppercase tracking-widest text-white
         transition-[transform,background-color] duration-[180ms] [transition-timing-function:cubic-bezier(0.23,1,0.32,1)]
-        active:scale-[0.97] disabled:opacity-40
+        active:scale-[0.97] disabled:opacity-40 lg:min-h-0
         ${added ? 'bg-[#1E1E1E]' : 'bg-[#0eb1c3] hover:bg-[#0a8f9e]'}`}
     >
       {/* Default label */}

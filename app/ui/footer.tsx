@@ -44,7 +44,7 @@ export default async function Footer() {
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="Instagram"
-                className="flex h-9 w-9 items-center justify-center rounded-full border border-[#b3e8ee] text-[#6b7280] transition-all hover:border-[#0eb1c3] hover:text-[#0eb1c3]"
+                className="flex h-11 w-11 items-center justify-center rounded-full border border-[#b3e8ee] text-[#6b7280] transition-all hover:border-[#0eb1c3] hover:text-[#0eb1c3] lg:h-9 lg:w-9"
               >
                 <InstagramIcon />
               </a>
@@ -53,7 +53,7 @@ export default async function Footer() {
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="Facebook"
-                className="flex h-9 w-9 items-center justify-center rounded-full border border-[#b3e8ee] text-[#6b7280] transition-all hover:border-[#0eb1c3] hover:text-[#0eb1c3]"
+                className="flex h-11 w-11 items-center justify-center rounded-full border border-[#b3e8ee] text-[#6b7280] transition-all hover:border-[#0eb1c3] hover:text-[#0eb1c3] lg:h-9 lg:w-9"
               >
                 <FacebookIcon />
               </a>
@@ -62,7 +62,7 @@ export default async function Footer() {
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="TikTok"
-                className="flex h-9 w-9 items-center justify-center rounded-full border border-[#b3e8ee] text-[#6b7280] transition-all hover:border-[#0eb1c3] hover:text-[#0eb1c3]"
+                className="flex h-11 w-11 items-center justify-center rounded-full border border-[#b3e8ee] text-[#6b7280] transition-all hover:border-[#0eb1c3] hover:text-[#0eb1c3] lg:h-9 lg:w-9"
               >
                 <TikTokIcon />
               </a>
@@ -71,7 +71,7 @@ export default async function Footer() {
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="YouTube"
-                className="flex h-9 w-9 items-center justify-center rounded-full border border-[#b3e8ee] text-[#6b7280] transition-all hover:border-[#0eb1c3] hover:text-[#0eb1c3]"
+                className="flex h-11 w-11 items-center justify-center rounded-full border border-[#b3e8ee] text-[#6b7280] transition-all hover:border-[#0eb1c3] hover:text-[#0eb1c3] lg:h-9 lg:w-9"
               >
                 <YouTubeIcon />
               </a>
@@ -80,7 +80,7 @@ export default async function Footer() {
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="WhatsApp"
-                className="flex h-9 w-9 items-center justify-center rounded-full border border-[#b3e8ee] text-[#6b7280] transition-all hover:border-[#0eb1c3] hover:text-[#0eb1c3]"
+                className="flex h-11 w-11 items-center justify-center rounded-full border border-[#b3e8ee] text-[#6b7280] transition-all hover:border-[#0eb1c3] hover:text-[#0eb1c3] lg:h-9 lg:w-9"
               >
                 <WhatsAppIcon />
               </a>
@@ -89,15 +89,15 @@ export default async function Footer() {
 
           {/* Col 2 — Navegar */}
           <div>
-            <h3 className="mb-5 text-[11px] font-black uppercase tracking-[0.2em] text-[#0eb1c3]">
+            <h3 className="mb-5 text-xs font-black uppercase tracking-[0.2em] text-[#0eb1c3]">
               Navegar
             </h3>
-            <ul className="space-y-3">
+            <ul className="lg:space-y-3">
               {navLinks.map((link) => (
                 <li key={link.href}>
                   <Link
                     href={link.href}
-                    className="text-sm text-[#374151] transition-colors hover:text-[#0eb1c3]"
+                    className="inline-block py-3 text-sm text-[#374151] transition-colors hover:text-[#0eb1c3] lg:py-0"
                   >
                     {link.label}
                   </Link>
@@ -108,15 +108,15 @@ export default async function Footer() {
 
           {/* Col 3 — Ayuda */}
           <div>
-            <h3 className="mb-5 text-[11px] font-black uppercase tracking-[0.2em] text-[#0eb1c3]">
+            <h3 className="mb-5 text-xs font-black uppercase tracking-[0.2em] text-[#0eb1c3]">
               Ayuda
             </h3>
-            <ul className="space-y-3">
+            <ul className="lg:space-y-3">
               {helpLinks.map((link) => (
                 <li key={link.href}>
                   <Link
                     href={link.href}
-                    className="text-sm text-[#374151] transition-colors hover:text-[#0eb1c3]"
+                    className="inline-block py-3 text-sm text-[#374151] transition-colors hover:text-[#0eb1c3] lg:py-0"
                   >
                     {link.label}
                   </Link>
@@ -127,7 +127,7 @@ export default async function Footer() {
 
           {/* Col 4 — Contacto */}
           <div>
-            <h3 className="mb-5 text-[11px] font-black uppercase tracking-[0.2em] text-[#0eb1c3]">
+            <h3 className="mb-5 text-xs font-black uppercase tracking-[0.2em] text-[#0eb1c3]">
               Contacto
             </h3>
             <ul className="space-y-4">
@@ -139,7 +139,7 @@ export default async function Footer() {
                   href="https://wa.me/5491139363333"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-sm text-[#374151] transition-colors hover:text-[#0eb1c3]"
+                  className="inline-flex items-center py-3 text-sm text-[#374151] transition-colors hover:text-[#0eb1c3] lg:py-0"
                 >
                   +54 9 11 3936 3333
                 </a>
@@ -150,7 +150,7 @@ export default async function Footer() {
                 </span>
                 <a
                   href="mailto:info@artentino.com"
-                  className="text-sm text-[#374151] transition-colors hover:text-[#0eb1c3]"
+                  className="inline-flex items-center py-3 text-sm text-[#374151] transition-colors hover:text-[#0eb1c3] lg:py-0"
                 >
                   info@artentino.com
                 </a>
@@ -187,14 +187,14 @@ export default async function Footer() {
           <p className="text-xs text-[#9ca3af]">
             © 2026 Artentino · Todos los derechos reservados
           </p>
-          <div className="flex items-center gap-4">
-            <Link href="/privacidad" className="text-xs text-[#9ca3af] transition-colors hover:text-[#0eb1c3]">
+          <div className="flex flex-wrap items-center gap-4">
+            <Link href="/privacidad" className="inline-flex items-center py-3.5 text-xs text-[#9ca3af] transition-colors hover:text-[#0eb1c3] lg:py-0">
               Privacidad
             </Link>
-            <Link href="/terminos" className="text-xs text-[#9ca3af] transition-colors hover:text-[#0eb1c3]">
+            <Link href="/terminos" className="inline-flex items-center py-3.5 text-xs text-[#9ca3af] transition-colors hover:text-[#0eb1c3] lg:py-0">
               Términos
             </Link>
-            <Link href="/arrepentimiento" className="text-xs text-[#9ca3af] transition-colors hover:text-[#0eb1c3]">
+            <Link href="/arrepentimiento" className="inline-flex items-center py-3.5 text-xs text-[#9ca3af] transition-colors hover:text-[#0eb1c3] lg:py-0">
               Botón de Arrepentimiento
             </Link>
             <span className="flex items-center gap-1.5 text-xs text-[#9ca3af]">

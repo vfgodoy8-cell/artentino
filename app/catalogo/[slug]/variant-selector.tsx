@@ -46,7 +46,7 @@ export default function VariantSelector({ variantGroups, stockByValueId, onSelec
                       onSelect?.(attr, newId)
                     }}
                     title={isOutOfStock ? 'Sin stock' : undefined}
-                    className={`rounded-full border px-3 py-1 text-xs font-semibold transition-all ${
+                    className={`flex items-center rounded-full border px-3 py-3.5 text-xs font-semibold transition-all lg:py-1 ${
                       isOutOfStock
                         ? 'cursor-not-allowed border-gray-100 bg-gray-50 text-gray-300 line-through'
                         : isSelected

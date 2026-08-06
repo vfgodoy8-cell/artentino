@@ -13,7 +13,7 @@ function Track({ items, hidden }: { items: string[]; hidden?: boolean }) {
       {items.flatMap((item, i) => [
         <span
           key={`item-${i}`}
-          className="whitespace-nowrap text-[11px] font-bold uppercase tracking-[0.2em] text-white"
+          className="whitespace-nowrap text-xs font-bold uppercase tracking-[0.2em] text-white"
         >
           {item}
         </span>,

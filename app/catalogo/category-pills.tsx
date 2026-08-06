@@ -59,7 +59,7 @@ export default function CategoryPills({
     activePillRef.current?.scrollIntoView({ inline: 'center', block: 'nearest', behavior })
   }, [activeSlug, openGroup])
 
-  const pillBase = 'cursor-pointer shrink-0 rounded-full border px-4 py-1.5 text-sm font-semibold transition-all duration-150'
+  const pillBase = 'cursor-pointer shrink-0 flex items-center rounded-full border px-4 py-3 lg:py-1.5 text-sm font-semibold transition-all duration-150'
   const pillActive = 'border-[#0eb1c3] bg-[#0eb1c3] text-white'
   const pillIdle = 'border-gray-200 bg-white text-[#1E1E1E] hover:border-[#0eb1c3] hover:bg-[#0eb1c3] hover:text-white'
   const arrowBase = 'hidden sm:flex absolute top-1/2 -translate-y-1/2 z-20 h-7 w-7 items-center justify-center rounded-full border bg-white text-lg font-semibold leading-none shadow-sm transition-all duration-150'
@@ -110,7 +110,7 @@ export default function CategoryPills({
               >
                 <Link
                   href={`/catalogo?categoria=${cat.slug}`}
-                  className={`cursor-pointer px-4 py-1.5 transition-colors ${
+                  className={`flex cursor-pointer items-center px-4 py-3 transition-colors lg:py-1.5 ${
                     isGroupHighlighted ? 'hover:bg-[#0ca0b0]' : 'hover:bg-[#0eb1c3] hover:text-white'
                   }`}
                 >
@@ -120,7 +120,7 @@ export default function CategoryPills({
                   <button
                     onClick={() => setOpenGroup(isGroupOpen ? null : cat.slug)}
                     aria-label={`Ver subcategorías de ${cat.name}`}
-                    className={`cursor-pointer border-l px-2.5 transition-colors ${
+                    className={`flex cursor-pointer items-center border-l px-4 transition-colors lg:px-2.5 ${
                       isGroupHighlighted
                         ? 'border-white/30 hover:bg-[#0ca0b0]'
                         : 'border-gray-200 hover:bg-[#0eb1c3] hover:text-white'

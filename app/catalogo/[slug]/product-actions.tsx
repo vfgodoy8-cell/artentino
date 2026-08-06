@@ -198,7 +198,7 @@ export default function ProductActions({
           <button
             type="button"
             onClick={() => setQty((q) => Math.max(1, q - 1))}
-            className="flex h-9 w-9 items-center justify-center text-lg text-gray-500 transition-colors hover:bg-gray-50"
+            className="flex h-11 w-11 items-center justify-center text-lg text-gray-500 transition-colors hover:bg-gray-50 lg:h-9 lg:w-9"
           >
             −
           </button>
@@ -206,7 +206,7 @@ export default function ProductActions({
           <button
             type="button"
             onClick={() => setQty((q) => Math.min(maxQty, q + 1))}
-            className="flex h-9 w-9 items-center justify-center text-lg text-gray-500 transition-colors hover:bg-gray-50"
+            className="flex h-11 w-11 items-center justify-center text-lg text-gray-500 transition-colors hover:bg-gray-50 lg:h-9 lg:w-9"
           >
             +
           </button>
