@@ -1,4 +1,4 @@
-import { NextResponse } from 'next/server'
+import { NextResponse, after } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { sendEmail, appointmentConfirmationEmail, interpolate } from '@/app/lib/email'
 
@@ -49,8 +49,10 @@ export async function POST(req: Request) {
 
   const modalityLabel = modality === 'PRESENCIAL' ? 'Presencial en showroom' : 'WhatsApp por cámara'
 
-  // Fire-and-forget: look up DB template, fall back to hardcoded HTML
-  ;(async () => {
+  // after() extiende la invocación serverless hasta que esta promesa resuelva —
+  // sin esto, Vercel puede congelar el proceso apenas se manda la response y el
+  // fetch a Resend nunca llega a completarse.
+  after(async () => {
     try {
       const template = await prisma.emailTemplate.findUnique({
         where: { key: 'APPOINTMENT_CONFIRMATION' },
@@ -71,7 +73,7 @@ export async function POST(req: Request) {
     } catch (err) {
       console.error('[email] appointment confirmation failed:', err)
     }
-  })()
+  })
 
   return NextResponse.json({ success: true, id: appointment.id })
 }

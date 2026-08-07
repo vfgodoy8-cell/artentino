@@ -1,6 +1,7 @@
 'use server'
 
 import bcrypt from 'bcryptjs'
+import { after } from 'next/server'
 import { auth } from '@/auth'
 import { prisma } from '@/lib/prisma'
 import { sendEmail, passwordChangedEmail } from '@/app/lib/email'
@@ -42,11 +43,17 @@ export async function changePassword(
     const hash = await bcrypt.hash(newPassword, 10)
     await prisma.user.update({ where: { id: user.id }, data: { password: hash } })
 
-    sendEmail({
-      to: user.email,
-      subject: 'Artentino — Tu contraseña fue cambiada',
-      html: passwordChangedEmail({ name: user.name }),
-    }).catch(() => {})
+    after(async () => {
+      try {
+        await sendEmail({
+          to: user.email,
+          subject: 'Artentino — Tu contraseña fue cambiada',
+          html: passwordChangedEmail({ name: user.name }),
+        })
+      } catch (err) {
+        console.error('[email] aviso de contraseña cambiada falló:', err)
+      }
+    })
 
     return { success: true }
   } catch {

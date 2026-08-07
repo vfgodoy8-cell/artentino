@@ -1,4 +1,4 @@
-import { NextResponse } from 'next/server'
+import { NextResponse, after } from 'next/server'
 import bcrypt from 'bcryptjs'
 import { prisma } from '@/lib/prisma'
 import { sendEmail, passwordChangedEmail } from '@/app/lib/email'
@@ -29,11 +29,17 @@ export async function POST(req: Request) {
     prisma.passwordResetToken.update({ where: { id: resetToken.id }, data: { usedAt: new Date() } }),
   ])
 
-  sendEmail({
-    to: resetToken.user.email,
-    subject: 'Artentino — Tu contraseña fue cambiada',
-    html: passwordChangedEmail({ name: resetToken.user.name }),
-  }).catch(() => {})
+  after(async () => {
+    try {
+      await sendEmail({
+        to: resetToken.user.email,
+        subject: 'Artentino — Tu contraseña fue cambiada',
+        html: passwordChangedEmail({ name: resetToken.user.name }),
+      })
+    } catch (err) {
+      console.error('[email] aviso de contraseña cambiada falló:', err)
+    }
+  })
 
   return NextResponse.json({ success: true })
 }

@@ -1,4 +1,4 @@
-import { NextResponse } from 'next/server'
+import { NextResponse, after } from 'next/server'
 import crypto from 'crypto'
 import { prisma } from '@/lib/prisma'
 import { sendEmail, passwordResetEmail } from '@/app/lib/email'
@@ -23,14 +23,20 @@ export async function POST(req: Request) {
       data: { userId: user.id, token, expiresAt },
     })
 
-    sendEmail({
-      to: user.email,
-      subject: 'Artentino — Recuperar contraseña',
-      html: passwordResetEmail({
-        name: user.name,
-        resetUrl: `${BASE_URL}/restablecer-contrasena?token=${token}`,
-      }),
-    }).catch(() => {})
+    after(async () => {
+      try {
+        await sendEmail({
+          to: user.email,
+          subject: 'Artentino — Recuperar contraseña',
+          html: passwordResetEmail({
+            name: user.name,
+            resetUrl: `${BASE_URL}/restablecer-contrasena?token=${token}`,
+          }),
+        })
+      } catch (err) {
+        console.error('[email] link de recuperación de contraseña falló:', err)
+      }
+    })
   }
 
   // Respuesta genérica — nunca revela si el email existe

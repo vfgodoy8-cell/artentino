@@ -1,9 +1,9 @@
-import { NextResponse } from 'next/server'
+import { NextResponse, after } from 'next/server'
 import { MercadoPagoConfig, Preference } from 'mercadopago'
 import { auth } from '@/auth'
 import { prisma } from '@/lib/prisma'
 import { sendEmail, pickupCashEmail, adminNewOrderEmail } from '@/app/lib/email'
-import { CASH_DISCOUNT, CASH_DISCOUNT_PCT, ADMIN_NOTIFICATION_EMAIL } from '@/app/lib/constants'
+import { CASH_DISCOUNT, CASH_DISCOUNT_PCT } from '@/app/lib/constants'
 import { resolveShippingProvider } from '@/app/lib/shipping-zones'
 import { getZipnovaQuote, type ZipnovaQuoteItem } from '@/app/lib/shipping/zipnova'
 import { resolveBaseUrl } from '@/app/lib/base-url'
@@ -194,26 +194,31 @@ export async function POST(req: Request) {
       paymentMethod,
     })
 
-    sendEmail({
-      to: payer.email,
-      subject: 'Artentino — Pedido registrado',
-      html: pickupCashHtml,
-    }).catch(() => {})
+    // after() extiende la invocación serverless hasta que estas promesas resuelvan —
+    // sin esto, Vercel puede congelar el proceso apenas se manda la response y el
+    // fetch a Resend nunca llega a completarse.
+    after(async () => {
+      try {
+        await sendEmail({
+          to: payer.email,
+          subject: 'Artentino — Pedido registrado',
+          html: pickupCashHtml,
+        })
+      } catch (err) {
+        console.error('[email] pedido cash/transfer al cliente falló:', err)
+      }
 
-    // Copia a info@ — independiente del mail al cliente, no debe bloquearse entre sí.
-    sendEmail({
-      to: 'info@artentino.com',
-      subject: `Nuevo pedido — ${payer.name} — $${discountedTotal.toLocaleString('es-AR')}`,
-      html: pickupCashHtml,
-    }).catch(() => {})
-
-    if (ADMIN_NOTIFICATION_EMAIL) {
-      sendEmail({
-        to: ADMIN_NOTIFICATION_EMAIL,
-        subject: 'Artentino — Nuevo pedido',
-        html: adminNewOrderEmail({ orderId: order.id, customerName: payer.name, total: discountedTotal }),
-      }).catch(() => {})
-    }
+      // Independiente del mail al cliente — si el de arriba falla, este igual se intenta.
+      try {
+        await sendEmail({
+          to: 'info@artentino.com',
+          subject: `Nuevo pedido — ${payer.name} — $${discountedTotal.toLocaleString('es-AR')}`,
+          html: pickupCashHtml,
+        })
+      } catch (err) {
+        console.error('[email] copia a info@ (cash/transfer) falló:', err)
+      }
+    })
 
     return NextResponse.json({ confirmed: true, orderId: order.id })
   }
@@ -290,13 +295,19 @@ export async function POST(req: Request) {
 
     const initPoint = result.init_point ?? result.sandbox_init_point
 
-    if (ADMIN_NOTIFICATION_EMAIL) {
-      sendEmail({
-        to: ADMIN_NOTIFICATION_EMAIL,
-        subject: 'Artentino — Nuevo pedido',
-        html: adminNewOrderEmail({ orderId: order.id, customerName: payer.name, total }),
-      }).catch(() => {})
-    }
+    // Notifica a info@ apenas se inicia el checkout de MercadoPago (orden en PENDING) —
+    // distinto del mail que manda el webhook cuando el pago se confirma.
+    after(async () => {
+      try {
+        await sendEmail({
+          to: 'info@artentino.com',
+          subject: 'Artentino — Nuevo pedido',
+          html: adminNewOrderEmail({ orderId: order.id, customerName: payer.name, total }),
+        })
+      } catch (err) {
+        console.error('[email] notificación de nuevo pedido MercadoPago falló:', err)
+      }
+    })
 
     return NextResponse.json({ initPoint })
   } catch (error) {

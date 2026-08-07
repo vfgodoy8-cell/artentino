@@ -1,8 +1,8 @@
 'use server'
 
+import { after } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { sendEmail, arrepentimientoCustomerEmail, arrepentimientoAdminEmail } from '@/app/lib/email'
-import { ADMIN_NOTIFICATION_EMAIL } from '@/app/lib/constants'
 
 type SubmitArrepentimientoInput = {
   orderNumber: string
@@ -38,24 +38,34 @@ export async function submitArrepentimiento({ orderNumber, email, motivo }: Subm
       },
     })
 
-    sendEmail({
-      to: contactEmail,
-      subject: 'Artentino — Recibimos tu solicitud de arrepentimiento',
-      html: arrepentimientoCustomerEmail({ name: customerName, orderId: order.id }),
-    }).catch(() => {})
+    after(async () => {
+      try {
+        await sendEmail({
+          to: contactEmail,
+          subject: 'Artentino — Recibimos tu solicitud de arrepentimiento',
+          html: arrepentimientoCustomerEmail({ name: customerName, orderId: order.id }),
+        })
+      } catch (err) {
+        console.error('[email] arrepentimiento al cliente falló:', err)
+      }
+    })
 
-    if (ADMIN_NOTIFICATION_EMAIL) {
-      sendEmail({
-        to: ADMIN_NOTIFICATION_EMAIL,
-        subject: 'Artentino — Nueva solicitud de arrepentimiento',
-        html: arrepentimientoAdminEmail({
-          orderId: order.id,
-          customerName,
-          customerEmail: contactEmail,
-          motivo,
-        }),
-      }).catch(() => {})
-    }
+    after(async () => {
+      try {
+        await sendEmail({
+          to: 'info@artentino.com',
+          subject: 'Artentino — Nueva solicitud de arrepentimiento',
+          html: arrepentimientoAdminEmail({
+            orderId: order.id,
+            customerName,
+            customerEmail: contactEmail,
+            motivo,
+          }),
+        })
+      } catch (err) {
+        console.error('[email] copia a info@ (arrepentimiento) falló:', err)
+      }
+    })
 
     return { success: true }
   } catch (error) {

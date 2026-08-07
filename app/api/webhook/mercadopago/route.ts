@@ -1,4 +1,4 @@
-import { NextResponse } from 'next/server'
+import { NextResponse, after } from 'next/server'
 import { MercadoPagoConfig, Payment } from 'mercadopago'
 import { prisma } from '@/lib/prisma'
 import { sendEmail, purchaseConfirmationEmail, interpolate } from '@/app/lib/email'
@@ -70,8 +70,10 @@ export async function POST(req: Request) {
         price: Number(i.price),
       }))
 
-      // Fire-and-forget: look up DB template, fall back to hardcoded HTML
-      ;(async () => {
+      // after() extiende la invocación serverless hasta que estas promesas resuelvan —
+      // sin esto, Vercel puede congelar el proceso apenas se manda la response y el
+      // fetch a Resend nunca llega a completarse.
+      after(async () => {
         try {
           const template = await prisma.emailTemplate.findUnique({
             where: { key: 'ORDER_PRE_CONFIRMATION' },
@@ -117,7 +119,7 @@ export async function POST(req: Request) {
         } catch (err) {
           console.error('[webhook] email failed:', err)
         }
-      })()
+      })
     }
 
     return NextResponse.json({ ok: true })

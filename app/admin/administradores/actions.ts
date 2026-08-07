@@ -2,6 +2,7 @@
 
 import bcrypt from 'bcryptjs'
 import crypto from 'crypto'
+import { after } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { revalidatePath } from 'next/cache'
 import { auth } from '@/auth'
@@ -50,11 +51,17 @@ export async function createAdmin(data: {
     detail: { email: data.email, adminRole: data.adminRole },
   })
 
-  sendEmail({
-    to: data.email,
-    subject: 'Artentino — Acceso al panel de administración',
-    html: adminInviteEmail({ name: data.name, email: data.email, tempPassword, adminRole: data.adminRole }),
-  }).catch(() => {})
+  after(async () => {
+    try {
+      await sendEmail({
+        to: data.email,
+        subject: 'Artentino — Acceso al panel de administración',
+        html: adminInviteEmail({ name: data.name, email: data.email, tempPassword, adminRole: data.adminRole }),
+      })
+    } catch (err) {
+      console.error('[email] invitación de administrador falló:', err)
+    }
+  })
 
   revalidatePath('/admin/administradores')
   return { success: true, data: { tempPassword } }
