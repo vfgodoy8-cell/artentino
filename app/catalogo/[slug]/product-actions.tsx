@@ -118,11 +118,11 @@ export default function ProductActions({
           onMouseEnter={() => setShowTooltip(true)}
           onMouseLeave={() => setShowTooltip(false)}
         >
-          {/* Transfer tooltip */}
+          {/* Transfer tooltip — opens downward on mobile (so it doesn't cover the price block above), upward on desktop (original placement) */}
           {showTooltip && (
-            <div className="absolute -top-11 left-1/2 z-20 -translate-x-1/2 rounded-lg bg-[#1E1E1E] px-3 py-2 text-center text-xs font-semibold text-white shadow-lg">
+            <div className="absolute left-1/2 top-full z-30 mt-2 w-max max-w-[240px] -translate-x-1/2 rounded-lg bg-[#1E1E1E] px-3 py-2 text-center text-xs font-semibold text-white shadow-lg lg:-top-11 lg:mt-0 lg:w-auto lg:max-w-none">
               Si comprás con efectivo o transferencia, tenés un {CASH_DISCOUNT_PCT}% de descuento
-              <div className="absolute -bottom-1.5 left-1/2 h-3 w-3 -translate-x-1/2 rotate-45 bg-[#1E1E1E]" />
+              <div className="absolute -top-1.5 left-1/2 h-3 w-3 -translate-x-1/2 rotate-45 bg-[#1E1E1E] lg:-bottom-1.5 lg:top-auto" />
             </div>
           )}
 
@@ -159,7 +159,7 @@ export default function ProductActions({
                       <td className="px-4 py-2.5 font-bold text-[#1E1E1E]">{c.quantity}+ unidades</td>
                       <td className="px-4 py-2.5 font-black text-[#1E1E1E]">{fmt(c.price)}</td>
                       <td className="px-4 py-2.5">
-                        <span className="rounded-full bg-[#0eb1c3] px-2.5 py-0.5 text-xs font-black text-white">
+                        <span className="whitespace-nowrap rounded-full bg-[#0eb1c3] px-2.5 py-0.5 text-xs font-black text-white">
                           {pct}% off
                         </span>
                       </td>

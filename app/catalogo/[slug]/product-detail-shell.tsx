@@ -88,7 +88,7 @@ export default function ProductDetailShell({
         />
 
         {/* Right: info + actions */}
-        <div className="flex flex-col">
+        <div className="flex min-w-0 flex-col">
           {/* Category badge */}
           <span
             className="mb-4 inline-flex w-fit rounded-full px-3 py-1 text-[10px] font-black uppercase tracking-widest text-white"

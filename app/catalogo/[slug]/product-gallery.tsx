@@ -90,7 +90,7 @@ export default function ProductGallery({
   }
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex min-w-0 flex-col gap-4">
       {/* Main image or video */}
       <div
         className="relative aspect-square overflow-hidden rounded-2xl bg-gray-50"

@@ -268,9 +268,9 @@ export default function HeroCarousel({
         </>
       )}
 
-      {/* Floating badges */}
+      {/* Floating badges — hidden on mobile: they overlap and cover hero content at narrow widths */}
       {badges.length > 0 && (
-        <div className="absolute bottom-8 right-6 z-20 flex flex-col gap-2.5">
+        <div className="absolute bottom-8 right-6 z-20 hidden flex-col gap-2.5 sm:flex">
           {badges.map((badge, i) => (
             <BadgeCard key={badge.id} badge={badge} isTeal={i === 1} />
           ))}
@@ -401,7 +401,7 @@ function HeroFallback({ badges }: { badges: Badge[] }) {
         </div>
       </div>
       {badges.length > 0 && (
-        <div className="absolute bottom-8 right-6 z-20 flex flex-col gap-2.5">
+        <div className="absolute bottom-8 right-6 z-20 hidden flex-col gap-2.5 sm:flex">
           {badges.map((badge, i) => (
             <BadgeCard key={badge.id} badge={badge} isTeal={i === 1} />
           ))}
