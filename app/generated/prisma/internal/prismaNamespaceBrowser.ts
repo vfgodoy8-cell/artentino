@@ -74,7 +74,8 @@ export const ModelName = {
   HeroBadge: 'HeroBadge',
   EmailTemplate: 'EmailTemplate',
   SiteConfig: 'SiteConfig',
-  InstagramToken: 'InstagramToken'
+  InstagramToken: 'InstagramToken',
+  InstagramExcludedPost: 'InstagramExcludedPost'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -433,6 +434,15 @@ export const InstagramTokenScalarFieldEnum = {
 } as const
 
 export type InstagramTokenScalarFieldEnum = (typeof InstagramTokenScalarFieldEnum)[keyof typeof InstagramTokenScalarFieldEnum]
+
+
+export const InstagramExcludedPostScalarFieldEnum = {
+  id: 'id',
+  mediaId: 'mediaId',
+  createdAt: 'createdAt'
+} as const
+
+export type InstagramExcludedPostScalarFieldEnum = (typeof InstagramExcludedPostScalarFieldEnum)[keyof typeof InstagramExcludedPostScalarFieldEnum]
 
 
 export const SortOrder = {

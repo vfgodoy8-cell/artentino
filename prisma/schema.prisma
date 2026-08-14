@@ -450,3 +450,13 @@ model InstagramToken {
 
   @@map("instagram_token")
 }
+
+// Posts excluidos manualmente del feed público — curación editorial (ej. sacar fotos
+// donde una persona queda muy protagonista), sin depender de un fix de código.
+model InstagramExcludedPost {
+  id        String   @id @default(cuid())
+  mediaId   String   @unique
+  createdAt DateTime @default(now())
+
+  @@map("instagram_excluded_posts")
+}

@@ -407,7 +407,8 @@ export const ModelName = {
   HeroBadge: 'HeroBadge',
   EmailTemplate: 'EmailTemplate',
   SiteConfig: 'SiteConfig',
-  InstagramToken: 'InstagramToken'
+  InstagramToken: 'InstagramToken',
+  InstagramExcludedPost: 'InstagramExcludedPost'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -423,7 +424,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "category" | "subcategory" | "product" | "productRelation" | "productComboPrice" | "attribute" | "attributeValue" | "productStock" | "productImage" | "productImageAttributeValue" | "auditLog" | "user" | "passwordResetToken" | "shippingZone" | "order" | "orderItem" | "arrepentimientoRequest" | "appointment" | "contact" | "heroSlide" | "heroBadge" | "emailTemplate" | "siteConfig" | "instagramToken"
+    modelProps: "category" | "subcategory" | "product" | "productRelation" | "productComboPrice" | "attribute" | "attributeValue" | "productStock" | "productImage" | "productImageAttributeValue" | "auditLog" | "user" | "passwordResetToken" | "shippingZone" | "order" | "orderItem" | "arrepentimientoRequest" | "appointment" | "contact" | "heroSlide" | "heroBadge" | "emailTemplate" | "siteConfig" | "instagramToken" | "instagramExcludedPost"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -2203,6 +2204,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    InstagramExcludedPost: {
+      payload: Prisma.$InstagramExcludedPostPayload<ExtArgs>
+      fields: Prisma.InstagramExcludedPostFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.InstagramExcludedPostFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$InstagramExcludedPostPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.InstagramExcludedPostFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$InstagramExcludedPostPayload>
+        }
+        findFirst: {
+          args: Prisma.InstagramExcludedPostFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$InstagramExcludedPostPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.InstagramExcludedPostFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$InstagramExcludedPostPayload>
+        }
+        findMany: {
+          args: Prisma.InstagramExcludedPostFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$InstagramExcludedPostPayload>[]
+        }
+        create: {
+          args: Prisma.InstagramExcludedPostCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$InstagramExcludedPostPayload>
+        }
+        createMany: {
+          args: Prisma.InstagramExcludedPostCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.InstagramExcludedPostCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$InstagramExcludedPostPayload>[]
+        }
+        delete: {
+          args: Prisma.InstagramExcludedPostDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$InstagramExcludedPostPayload>
+        }
+        update: {
+          args: Prisma.InstagramExcludedPostUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$InstagramExcludedPostPayload>
+        }
+        deleteMany: {
+          args: Prisma.InstagramExcludedPostDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.InstagramExcludedPostUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.InstagramExcludedPostUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$InstagramExcludedPostPayload>[]
+        }
+        upsert: {
+          args: Prisma.InstagramExcludedPostUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$InstagramExcludedPostPayload>
+        }
+        aggregate: {
+          args: Prisma.InstagramExcludedPostAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateInstagramExcludedPost>
+        }
+        groupBy: {
+          args: Prisma.InstagramExcludedPostGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.InstagramExcludedPostGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.InstagramExcludedPostCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.InstagramExcludedPostCountAggregateOutputType> | number
+        }
+      }
+    }
   }
 } & {
   other: {
@@ -2582,6 +2657,15 @@ export const InstagramTokenScalarFieldEnum = {
 } as const
 
 export type InstagramTokenScalarFieldEnum = (typeof InstagramTokenScalarFieldEnum)[keyof typeof InstagramTokenScalarFieldEnum]
+
+
+export const InstagramExcludedPostScalarFieldEnum = {
+  id: 'id',
+  mediaId: 'mediaId',
+  createdAt: 'createdAt'
+} as const
+
+export type InstagramExcludedPostScalarFieldEnum = (typeof InstagramExcludedPostScalarFieldEnum)[keyof typeof InstagramExcludedPostScalarFieldEnum]
 
 
 export const SortOrder = {
@@ -2967,6 +3051,7 @@ export type GlobalOmitConfig = {
   emailTemplate?: Prisma.EmailTemplateOmit
   siteConfig?: Prisma.SiteConfigOmit
   instagramToken?: Prisma.InstagramTokenOmit
+  instagramExcludedPost?: Prisma.InstagramExcludedPostOmit
 }
 
 /* Types for Logging */

@@ -4,6 +4,10 @@ export async function getInstagramToken() {
   return prisma.instagramToken.findFirst()
 }
 
+export function isTokenValid(token: { igUserId: string | null; expiresAt: Date } | null) {
+  return !!token && !!token.igUserId && token.expiresAt.getTime() > Date.now()
+}
+
 export async function saveInstagramToken(
   accessToken: string,
   expiresAt: Date,

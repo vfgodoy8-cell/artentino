@@ -161,3 +161,8 @@ export type SiteConfig = Prisma.SiteConfigModel
  * 
  */
 export type InstagramToken = Prisma.InstagramTokenModel
+/**
+ * Model InstagramExcludedPost
+ * 
+ */
+export type InstagramExcludedPost = Prisma.InstagramExcludedPostModel

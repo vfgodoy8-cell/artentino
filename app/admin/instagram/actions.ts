@@ -1,6 +1,7 @@
 'use server'
 
 import { revalidatePath } from 'next/cache'
+import { prisma } from '@/lib/prisma'
 import { saveInstagramToken } from '@/app/lib/instagram-token'
 
 type MeResponse = {
@@ -64,4 +65,19 @@ export async function saveInitialToken(token: string) {
   await saveInstagramToken(refreshedToken, expiresAt, igUserId)
   revalidatePath('/admin/instagram')
   return { ok: true as const, expiresAt: expiresAt.toISOString(), igUserId }
+}
+
+// Curación manual del feed público: excluir/reincluir un post puntual sin tocar código.
+export async function setPostExcluded(mediaId: string, excluded: boolean) {
+  if (excluded) {
+    await prisma.instagramExcludedPost.upsert({
+      where: { mediaId },
+      update: {},
+      create: { mediaId },
+    })
+  } else {
+    await prisma.instagramExcludedPost.deleteMany({ where: { mediaId } })
+  }
+  revalidatePath('/admin/instagram')
+  revalidatePath('/')
 }
