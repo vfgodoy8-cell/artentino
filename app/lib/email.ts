@@ -454,7 +454,8 @@ export function purchaseConfirmationEmail({
         </tfoot>
       </table>
       <div style="background:#F7F7F7;border-radius:12px;padding:16px 20px;margin-bottom:28px;">
-        <p style="margin:0;color:#555;"><strong style="color:#1E1E1E;">Envío:</strong> ${shippingLabel}</p>
+        <p style="margin:0 0 ${shipping === 'pickup' ? '6px' : '0'};color:#555;"><strong style="color:#1E1E1E;">Envío:</strong> ${shippingLabel}</p>
+        ${shipping === 'pickup' ? '<p style="margin:0;color:#555;font-size:14px;">Aguarda nuestro contacto para pasar por el showroom.</p>' : ''}
       </div>
       <p style="margin:0;color:#0eb1c3;font-weight:900;">Equipo Artentino</p>
     </div>` +

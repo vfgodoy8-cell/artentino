@@ -2,7 +2,7 @@ import { NextResponse, after } from 'next/server'
 import { MercadoPagoConfig, Preference } from 'mercadopago'
 import { auth } from '@/auth'
 import { prisma } from '@/lib/prisma'
-import { sendEmail, pickupCashEmail, adminNewOrderEmail } from '@/app/lib/email'
+import { sendEmail, pickupCashEmail } from '@/app/lib/email'
 import { CASH_DISCOUNT, CASH_DISCOUNT_PCT } from '@/app/lib/constants'
 import { resolveShippingProvider } from '@/app/lib/shipping-zones'
 import { getZipnovaQuote, type ZipnovaQuoteItem } from '@/app/lib/shipping/zipnova'
@@ -294,20 +294,6 @@ export async function POST(req: Request) {
     })
 
     const initPoint = result.init_point ?? result.sandbox_init_point
-
-    // Notifica a info@ apenas se inicia el checkout de MercadoPago (orden en PENDING) —
-    // distinto del mail que manda el webhook cuando el pago se confirma.
-    after(async () => {
-      try {
-        await sendEmail({
-          to: 'info@artentino.com',
-          subject: 'Artentino — Nuevo pedido',
-          html: adminNewOrderEmail({ orderId: order.id, customerName: payer.name, total }),
-        })
-      } catch (err) {
-        console.error('[email] notificación de nuevo pedido MercadoPago falló:', err)
-      }
-    })
 
     return NextResponse.json({ initPoint })
   } catch (error) {
