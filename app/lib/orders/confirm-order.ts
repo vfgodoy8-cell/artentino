@@ -3,6 +3,7 @@ import { prisma } from '@/lib/prisma'
 import { sendEmail, purchaseConfirmationEmail, interpolate } from '@/app/lib/email'
 import { triggerZipnovaShipmentIfNeeded } from '@/app/lib/shipping/zipnova'
 import { getSiteContact } from '@/app/lib/site-contact'
+import { addContactToBrevo } from '@/app/lib/brevo'
 
 type ApplyResult = { ok: true } | { ok: false; reason: string }
 
@@ -45,6 +46,9 @@ export async function applyOrderConfirmedEffects(orderId: string): Promise<Apply
   // sin esto, Vercel puede congelar el proceso apenas se manda la response y el
   // fetch a Resend nunca llega a completarse.
   after(async () => {
+    // Independiente del envío de mails — si Brevo falla no debe afectarlos (ni viceversa).
+    await addContactToBrevo(customerEmail, { PRENOM: customerName })
+
     try {
       const template = await prisma.emailTemplate.findUnique({
         where: { key: 'ORDER_PRE_CONFIRMATION' },

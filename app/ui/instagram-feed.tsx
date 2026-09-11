@@ -1,4 +1,5 @@
 import { getInstagramFeedImages } from '@/app/lib/instagram-media'
+import NewsletterForm from './newsletter-form'
 
 const INSTAGRAM_URL = 'https://instagram.com/artentino'
 
@@ -77,6 +78,8 @@ export default async function InstagramFeed() {
           >
             Seguinos @artentino →
           </a>
+
+          <NewsletterForm />
         </div>
       </div>
     </section>

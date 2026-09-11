@@ -1,9 +1,11 @@
 'use server'
 
+import { after } from 'next/server'
 import { revalidatePath } from 'next/cache'
 import { prisma } from '@/lib/prisma'
 import { sendEmail, orderStatusUpdateEmail } from '@/app/lib/email'
 import { triggerZipnovaShipmentIfNeeded } from '@/app/lib/shipping/zipnova'
+import { addContactToBrevo } from '@/app/lib/brevo'
 
 const VALID_STATUSES = ['PENDING', 'CONFIRMED', 'SHIPPED', 'DELIVERED', 'CANCELLED'] as const
 type OrderStatus = (typeof VALID_STATUSES)[number]
@@ -25,12 +27,18 @@ export async function updateOrderStatus(orderId: string, status: string) {
   revalidatePath('/admin/pedidos')
   revalidatePath(`/admin/pedidos/${orderId}`)
 
-  if (status === 'CONFIRMED') {
-    await triggerZipnovaShipmentIfNeeded(orderId)
-  }
-
   const customerName = order.contactName ?? order.user?.name
   const customerEmail = order.contactEmail ?? order.user?.email
+
+  if (status === 'CONFIRMED') {
+    await triggerZipnovaShipmentIfNeeded(orderId)
+
+    if (customerEmail) {
+      after(async () => {
+        await addContactToBrevo(customerEmail, { PRENOM: customerName })
+      })
+    }
+  }
 
   if ((status === 'SHIPPED' || status === 'DELIVERED') && customerName && customerEmail) {
     try {
