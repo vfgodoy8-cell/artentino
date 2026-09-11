@@ -8,7 +8,8 @@ const HOUR_MS = 60 * 60 * 1000
 type MpPayment = { status: string }
 
 // Red de contención para cuando el webhook de MP no llega a confirmar un pago (timeout,
-// error puntual, etc.) — ver diagnóstico del pedido #O528HVJM. Corre cada 6hs (vercel.ts):
+// error puntual, etc.) — ver diagnóstico del pedido #O528HVJM. Corre una vez al día
+// (vercel.ts — el plan Hobby de Vercel no permite crons más frecuentes que diarios):
 // - Pedido PENDING con un payment `approved` en MP pero sin procesar acá → lo confirma,
 //   con los mismos efectos secundarios que dispara el webhook (Zipnova + mails).
 // - Pedido PENDING sin ningún payment en MP y ya viejo (RECONCILE_CANCEL_AGE_HOURS) →
