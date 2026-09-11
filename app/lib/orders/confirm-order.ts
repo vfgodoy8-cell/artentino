@@ -2,6 +2,7 @@ import { after } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { sendEmail, purchaseConfirmationEmail, interpolate } from '@/app/lib/email'
 import { triggerZipnovaShipmentIfNeeded } from '@/app/lib/shipping/zipnova'
+import { getSiteContact } from '@/app/lib/site-contact'
 
 type ApplyResult = { ok: true } | { ok: false; reason: string }
 
@@ -28,9 +29,10 @@ export async function applyOrderConfirmedEffects(orderId: string): Promise<Apply
 
   if (!customerName || !customerEmail) return { ok: false, reason: 'missing-contact' }
 
+  const contact = await getSiteContact()
   const shippingLabel =
     order.shippingMethod === 'pickup'
-      ? 'Retiro en tienda — Av. Corrientes 5022, CABA'
+      ? `Retiro en tienda — ${contact.addressLine1}`
       : 'Envío a domicilio'
 
   const itemsData = order.items.map((i) => ({

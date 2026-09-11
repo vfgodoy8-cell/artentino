@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import Image from 'next/image'
 import { prisma } from '@/lib/prisma'
+import { deriveSiteContact } from '@/app/lib/site-contact'
 
 const FOOTER_TEXT_DEFAULT =
   'Deco, hogar y regalos únicos con diseño argentino. Cuotas sin interés y envíos a todo el país.'
@@ -22,6 +23,7 @@ const helpLinks = [
 export default async function Footer() {
   const siteConfig = await prisma.siteConfig.findUnique({ where: { id: 'singleton' } })
   const footerText = siteConfig?.footerText ?? FOOTER_TEXT_DEFAULT
+  const contact = deriveSiteContact(siteConfig)
 
   return (
     <footer style={{ backgroundColor: '#F0FBFC' }}>
@@ -76,7 +78,7 @@ export default async function Footer() {
                 <YouTubeIcon />
               </a>
               <a
-                href="https://api.whatsapp.com/send?phone=5491139363333"
+                href={contact.whatsappUrl}
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="WhatsApp"
@@ -136,12 +138,12 @@ export default async function Footer() {
                   <WhatsAppIcon />
                 </span>
                 <a
-                  href="https://wa.me/5491139363333"
+                  href={contact.whatsappUrl}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="inline-flex items-center py-3 text-sm text-[#374151] transition-colors hover:text-[#0eb1c3] lg:py-0"
                 >
-                  +54 9 11 3936 3333
+                  {contact.phone}
                 </a>
               </li>
               <li className="flex items-center gap-3">
@@ -149,10 +151,10 @@ export default async function Footer() {
                   <MailIcon />
                 </span>
                 <a
-                  href="mailto:info@artentino.com"
+                  href={`mailto:${contact.email}`}
                   className="inline-flex items-center py-3 text-sm text-[#374151] transition-colors hover:text-[#0eb1c3] lg:py-0"
                 >
-                  info@artentino.com
+                  {contact.email}
                 </a>
               </li>
               <li className="flex items-start gap-3">
@@ -160,14 +162,14 @@ export default async function Footer() {
                   <PinIcon />
                 </span>
                 <a
-                  href="https://www.google.com/maps/search/?api=1&query=Av.+Corrientes+5022,+CABA"
+                  href={contact.mapsUrl}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-sm leading-relaxed text-[#374151] transition-colors hover:text-[#0eb1c3]"
                 >
-                  Av. Corrientes 5022 — A metros de Scalabrini Ortiz
+                  {contact.addressLine1}
                   <br />
-                  CABA CP 1414 (Subte B, Est. Malabia)
+                  {contact.addressLine2}
                 </a>
               </li>
               <li className="flex items-center gap-3">
@@ -175,7 +177,7 @@ export default async function Footer() {
                   <ClockIcon />
                 </span>
                 <span className="text-sm text-[#374151]">
-                  Lunes a Viernes 9 a 19hs
+                  {contact.businessHours}
                 </span>
               </li>
             </ul>

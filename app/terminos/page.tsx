@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import type { Metadata } from 'next'
+import { getSiteContact } from '@/app/lib/site-contact'
 
 export const metadata: Metadata = {
   title: 'Términos y Condiciones — Artentino',
@@ -15,7 +16,8 @@ function Block({ title, children }: { title: string; children: React.ReactNode }
   )
 }
 
-export default function TerminosPage() {
+export default async function TerminosPage() {
+  const contact = await getSiteContact()
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Hero */}
@@ -138,18 +140,18 @@ export default function TerminosPage() {
         <Block title="11. Contacto">
           <p>
             Ante cualquier consulta sobre estos términos, escribinos a{' '}
-            <a href="mailto:info@artentino.com" className="font-semibold" style={{ color: '#0eb1c3' }}>
-              info@artentino.com
+            <a href={`mailto:${contact.email}`} className="font-semibold" style={{ color: '#0eb1c3' }}>
+              {contact.email}
             </a>{' '}
             o por WhatsApp al{' '}
             <a
-              href="https://api.whatsapp.com/send?phone=5491139363333"
+              href={contact.whatsappUrl}
               target="_blank"
               rel="noopener noreferrer"
               className="font-semibold"
               style={{ color: '#0eb1c3' }}
             >
-              +54 9 11 3936 3333
+              {contact.phone}
             </a>
             .
           </p>

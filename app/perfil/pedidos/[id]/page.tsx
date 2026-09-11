@@ -2,6 +2,7 @@
 import { redirect, notFound } from 'next/navigation'
 import { prisma } from '@/lib/prisma'
 import Link from 'next/link'
+import { getSiteContact } from '@/app/lib/site-contact'
 
 const STATUS_MAP: Record<string, { label: string; bg: string; color: string }> = {
   PENDING:   { label: 'Pendiente',  bg: '#FEF3C7', color: '#D97706' },
@@ -36,6 +37,7 @@ export default async function PedidoDetallePage({
 
   if (!order || order.userId !== session.user.id) notFound()
 
+  const contact = await getSiteContact()
   const status = STATUS_MAP[order.status] ?? STATUS_MAP.PENDING
   const subtotal = order.items.reduce((s, i) => s + Number(i.price) * i.quantity, 0)
 
@@ -103,7 +105,7 @@ export default async function PedidoDetallePage({
           <h2 className="mb-3 text-xs font-black uppercase tracking-wider text-gray-400">Método de envío</h2>
           <p className="text-sm font-bold text-[#1E1E1E]">
             {order.shippingMethod === 'pickup'
-              ? 'Retiro en tienda — Av. Corrientes 5022, CABA'
+              ? `Retiro en tienda — ${contact.addressLine1}`
               : order.shippingMethod === 'delivery'
               ? 'Envío a domicilio'
               : order.shippingMethod ?? '—'}

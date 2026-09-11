@@ -7,6 +7,7 @@ import Footer from "./ui/footer";
 import InstagramFeed from "./ui/instagram-feed";
 import Providers from "./providers"
 import WhatsAppButton from "./ui/whatsapp-button";
+import { getSiteContact } from "./lib/site-contact";
 
 const nunito = Nunito({
   variable: "--font-nunito",
@@ -43,11 +44,12 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const contact = await getSiteContact();
   return (
     <html
       lang="es"
@@ -60,7 +62,7 @@ export default function RootLayout({
           <main className="flex flex-1 flex-col">{children}</main>
           <InstagramFeed />
           <Footer />
-          <WhatsAppButton />
+          <WhatsAppButton whatsappUrl={contact.whatsappUrl} />
         </Providers>
       </body>
     </html>

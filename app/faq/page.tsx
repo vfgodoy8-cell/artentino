@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import type { Metadata } from 'next'
+import { getSiteContact } from '@/app/lib/site-contact'
 
 export const metadata: Metadata = {
   title: 'Preguntas Frecuentes — Artentino',
@@ -46,7 +47,8 @@ function Block({ children }: { children: React.ReactNode }) {
   )
 }
 
-export default function FAQPage() {
+export default async function FAQPage() {
+  const contact = await getSiteContact()
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Hero */}
@@ -90,23 +92,23 @@ export default function FAQPage() {
             <p>
               Sí, sin costo. Te enviamos un email cuando tu pedido está listo. Podés autorizar a un
               tercero informando nombre, apellido y DNI a{' '}
-              <a href="mailto:info@artentino.com" className="font-semibold" style={{ color: '#0eb1c3' }}>
-                info@artentino.com
+              <a href={`mailto:${contact.email}`} className="font-semibold" style={{ color: '#0eb1c3' }}>
+                {contact.email}
               </a>
               .
             </p>
             <p className="mt-2">
               <strong>Dirección:</strong>{' '}
               <a
-                href="https://www.google.com/maps/search/?api=1&query=Av.+Corrientes+5022,+CABA"
+                href={contact.mapsUrl}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="font-semibold"
                 style={{ color: '#0eb1c3' }}
               >
-                Av. Corrientes 5022, CABA (CP 1414)
+                {contact.addressLine1}, {contact.addressLine2}
               </a>
-              , a metros de Av. Scalabrini Ortiz y de la Estación Malabia (Subte B).
+              .
             </p>
             <p className="mt-2">
               <strong>Atención:</strong> Lunes a Viernes de 8:30 a 17:30 y Sábados de 10 a 15.
@@ -177,18 +179,18 @@ export default function FAQPage() {
           <QA q="Me registré y no puedo ingresar, o compré y no recibí mail de confirmación.">
             Revisá la carpeta <strong>SPAM</strong> o Correo no deseado. Si no está ahí, escribinos
             a{' '}
-            <a href="mailto:info@artentino.com" className="font-semibold" style={{ color: '#0eb1c3' }}>
-              info@artentino.com
+            <a href={`mailto:${contact.email}`} className="font-semibold" style={{ color: '#0eb1c3' }}>
+              {contact.email}
             </a>{' '}
             o al WhatsApp{' '}
             <a
-              href="https://api.whatsapp.com/send?phone=5491139363333"
+              href={contact.whatsappUrl}
               target="_blank"
               rel="noopener noreferrer"
               className="font-semibold"
               style={{ color: '#0eb1c3' }}
             >
-              11 3936 3333
+              {contact.phone}
             </a>
             , mencionando tu número de pedido.
           </QA>
@@ -203,18 +205,18 @@ export default function FAQPage() {
             </p>
             <p className="mt-3">
               Para consultas escribinos a{' '}
-              <a href="mailto:info@artentino.com" className="font-semibold" style={{ color: '#0eb1c3' }}>
-                info@artentino.com
+              <a href={`mailto:${contact.email}`} className="font-semibold" style={{ color: '#0eb1c3' }}>
+                {contact.email}
               </a>{' '}
               o al{' '}
               <a
-                href="https://api.whatsapp.com/send?phone=5491139363333"
+                href={contact.whatsappUrl}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="font-semibold"
                 style={{ color: '#0eb1c3' }}
               >
-                WhatsApp +54 9 11 3936 3333
+                WhatsApp {contact.phone}
               </a>
               .
             </p>
@@ -256,16 +258,16 @@ export default function FAQPage() {
           <p className="mb-5 text-[#1E1E1E] font-semibold">Contactanos directamente</p>
           <div className="flex flex-wrap items-center justify-center gap-4">
             <a
-              href="mailto:info@artentino.com"
+              href={`mailto:${contact.email}`}
               className="inline-flex items-center gap-2 rounded-xl border border-gray-200 px-5 py-2.5 text-sm font-bold text-gray-600 transition-all hover:border-[#0eb1c3] hover:text-[#0eb1c3]"
             >
               <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
               </svg>
-              info@artentino.com
+              {contact.email}
             </a>
             <a
-              href="https://api.whatsapp.com/send?phone=5491139363333"
+              href={contact.whatsappUrl}
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-2 rounded-xl px-5 py-2.5 text-sm font-bold text-white transition-opacity hover:opacity-90"
@@ -274,10 +276,10 @@ export default function FAQPage() {
               <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.75}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M21 11.5a8.38 8.38 0 01-.9 3.8 8.5 8.5 0 01-7.6 4.7 8.38 8.38 0 01-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 01-.9-3.8 8.5 8.5 0 014.7-7.6 8.38 8.38 0 013.8-.9h.5a8.48 8.48 0 018 8v.5z" />
               </svg>
-              WhatsApp +54 9 11 3936 3333
+              WhatsApp {contact.phone}
             </a>
             <a
-              href="https://www.google.com/maps/search/?api=1&query=Av.+Corrientes+5022,+CABA"
+              href={contact.mapsUrl}
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-2 rounded-xl border border-gray-200 px-5 py-2.5 text-sm font-bold text-gray-600 transition-all hover:border-[#0eb1c3] hover:text-[#0eb1c3]"
@@ -286,7 +288,7 @@ export default function FAQPage() {
                 <path strokeLinecap="round" strokeLinejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                 <path strokeLinecap="round" strokeLinejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
               </svg>
-              Av. Corrientes 5022, CABA
+              {contact.addressLine1}
             </a>
           </div>
         </div>

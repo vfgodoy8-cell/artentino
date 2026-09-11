@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import { getSiteContact } from '@/app/lib/site-contact'
 
 export const metadata: Metadata = {
   title: 'Política de Privacidad — Artentino',
@@ -14,7 +15,8 @@ function Block({ title, children }: { title: string; children: React.ReactNode }
   )
 }
 
-export default function PrivacidadPage() {
+export default async function PrivacidadPage() {
+  const contact = await getSiteContact()
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Hero */}
@@ -97,8 +99,8 @@ export default function PrivacidadPage() {
           </p>
           <p>
             Para ejercer estos derechos, escribinos a{' '}
-            <a href="mailto:info@artentino.com" className="font-semibold" style={{ color: '#0eb1c3' }}>
-              info@artentino.com
+            <a href={`mailto:${contact.email}`} className="font-semibold" style={{ color: '#0eb1c3' }}>
+              {contact.email}
             </a>
             .
           </p>
@@ -122,18 +124,18 @@ export default function PrivacidadPage() {
         <Block title="9. Contacto">
           <p>
             Ante cualquier consulta sobre esta política, escribinos a{' '}
-            <a href="mailto:info@artentino.com" className="font-semibold" style={{ color: '#0eb1c3' }}>
-              info@artentino.com
+            <a href={`mailto:${contact.email}`} className="font-semibold" style={{ color: '#0eb1c3' }}>
+              {contact.email}
             </a>{' '}
             o por WhatsApp al{' '}
             <a
-              href="https://api.whatsapp.com/send?phone=5491139363333"
+              href={contact.whatsappUrl}
               target="_blank"
               rel="noopener noreferrer"
               className="font-semibold"
               style={{ color: '#0eb1c3' }}
             >
-              +54 9 11 3936 3333
+              {contact.phone}
             </a>
             .
           </p>

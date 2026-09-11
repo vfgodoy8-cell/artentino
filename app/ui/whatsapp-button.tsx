@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 
-export default function WhatsAppButton() {
+export default function WhatsAppButton({ whatsappUrl }: { whatsappUrl: string }) {
   const [visible, setVisible] = useState(false)
 
   useEffect(() => {
@@ -12,7 +12,7 @@ export default function WhatsAppButton() {
 
   return (
     <a
-      href="https://wa.me/5491139363333"
+      href={whatsappUrl}
       target="_blank"
       rel="noopener noreferrer"
       aria-label="Chateá con nosotros por WhatsApp"

@@ -1,29 +1,32 @@
-﻿import type { ReactNode } from 'react'
+import type { ReactNode } from 'react'
+import { getSiteContact } from '@/app/lib/site-contact'
 
-const promos = [
-  {
-    icon: <CreditCardIcon />,
-    title: 'Cuotas sin interés',
-    desc: 'Hasta 6 cuotas sin interés con todas las tarjetas bancarias.',
-  },
-  {
-    icon: <TruckIcon />,
-    title: 'Envíos seguros',
-    desc: 'Entregamos en todo el país con seguimiento en tiempo real.',
-  },
-  {
-    icon: <BoxIcon />,
-    title: 'Lotes mayoristas',
-    desc: 'Precios especiales por volumen. Consultá nuestros packs.',
-  },
-  {
-    icon: <PinIcon />,
-    title: 'Showroom CABA',
-    desc: 'Visitanos en Av. Corrientes 5022, CABA, de lunes a sábados.',
-  },
-]
+export default async function PromoCards() {
+  const contact = await getSiteContact()
 
-export default function PromoCards() {
+  const promos = [
+    {
+      icon: <CreditCardIcon />,
+      title: 'Cuotas sin interés',
+      desc: 'Hasta 6 cuotas sin interés con todas las tarjetas bancarias.',
+    },
+    {
+      icon: <TruckIcon />,
+      title: 'Envíos seguros',
+      desc: 'Entregamos en todo el país con seguimiento en tiempo real.',
+    },
+    {
+      icon: <BoxIcon />,
+      title: 'Lotes mayoristas',
+      desc: 'Precios especiales por volumen. Consultá nuestros packs.',
+    },
+    {
+      icon: <PinIcon />,
+      title: 'Showroom CABA',
+      desc: `Visitanos en ${contact.addressLine1}, de lunes a sábados.`,
+    },
+  ]
+
   return (
     <section className="mx-auto w-full max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-4 lg:gap-4">

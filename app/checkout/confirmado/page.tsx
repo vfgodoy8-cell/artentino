@@ -1,12 +1,12 @@
 import Link from 'next/link'
 import { CASH_DISCOUNT_PCT } from '@/app/lib/constants'
-
-const WA_HREF = 'https://wa.me/5491139363333'
+import { getSiteContact } from '@/app/lib/site-contact'
 
 type Props = { searchParams: Promise<{ method?: string }> }
 
 export default async function CheckoutConfirmadoPage({ searchParams }: Props) {
   const { method } = await searchParams
+  const contact = await getSiteContact()
   const isCash = method === 'cash'
   const isTransfer = method === 'transfer'
   const isLegacy = method === 'cash_transfer'
@@ -40,7 +40,7 @@ export default async function CheckoutConfirmadoPage({ searchParams }: Props) {
           {isCash && (
             <>
               <p className="font-black text-[#1E1E1E]">Efectivo</p>
-              <p className="mt-0.5 text-sm text-gray-500">Abonás al retirar en el local · Av. Corrientes 5022, CABA</p>
+              <p className="mt-0.5 text-sm text-gray-500">Abonás al retirar en el local · {contact.addressLine1}</p>
               <p className="mt-3 text-sm text-gray-500">
                 Aguardá nuestro contacto para pasar por el Showroom a retirar.
               </p>
@@ -53,7 +53,7 @@ export default async function CheckoutConfirmadoPage({ searchParams }: Props) {
               <p className="mt-0.5 text-sm text-gray-500">
                 Hacelo a las siguientes cuentas y luego envianos el comprobante por{' '}
                 <a
-                  href={WA_HREF}
+                  href={contact.whatsappUrl}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="font-bold text-[#0eb1c3] hover:underline"
@@ -92,7 +92,7 @@ export default async function CheckoutConfirmadoPage({ searchParams }: Props) {
           {isLegacy && (
             <>
               <p className="font-black text-[#1E1E1E]">Efectivo o transferencia</p>
-              <p className="mt-0.5 text-sm text-gray-500">Abonás al retirar en el local · Av. Corrientes 5022, CABA</p>
+              <p className="mt-0.5 text-sm text-gray-500">Abonás al retirar en el local · {contact.addressLine1}</p>
             </>
           )}
 
