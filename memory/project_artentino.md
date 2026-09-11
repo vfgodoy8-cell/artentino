@@ -1,10 +1,11 @@
 ---
 name: project-artentino
-description: "Artentino e-commerce — tech stack, design system, DB, current UI state and component inventory (updated 2026-07-13)"
+description: "Artentino e-commerce — tech stack, design system, DB, current UI state and component inventory (updated 2026-08-01: guest checkout, MercadoPago init_point fix, Zipnova real integration + unified locality autocomplete + weight unit fix, Resend domain blocked)"
 metadata: 
   node_type: memory
   type: project
   originSessionId: 6d7a1ecb-f10c-42b0-9aad-0eb35639be0a
+  modified: 2026-08-02T00:49:14.238Z
 ---
 
 Argentine deco/home goods e-commerce site at `C:\proyectos\bardot\artentino`.
@@ -124,7 +125,7 @@ model OrderItem {
   product          Product         @relation(...)
   quantity         Int
   price            Decimal         @db.Decimal(10, 2)
-  attributeValueId String?                              // nullable — persiste la variante elegida
+  attributeValueId String?                              // ← NUEVO — nullable
   attributeValue   AttributeValue? @relation(...)
   @@index([orderId])
   @@index([productId])
@@ -210,6 +211,7 @@ Scroll horizontal con flechas ‹ ›. Pills split (body navega, caret expande s
   - Columna derecha: label gris `text-sm font-black uppercase` + precio lista `text-5xl font-bold text-[#1E1E1E]` + cuotas `text-sm text-gray-400`
   - **Ambos precios: `font-bold` (700), NO `font-black` (900)**
   - Layout: `flex-col items-start gap-y-3 sm:flex-row sm:items-start sm:gap-x-6`
+  - Cuotas viven dentro de la columna de precio de lista
 
 ### `product-gallery.tsx`
 
@@ -217,17 +219,19 @@ Scroll horizontal con flechas ‹ ›. Pills split (body navega, caret expande s
 - Loop: `goToIdx()` con módulo envuelto
 - Touch swipe: `onTouchStart/onTouchEnd`, umbral 50px
 - Oculta flechas si solo hay 1 ítem
+- Thumbnails sincronizados con índice activo
 
 ### `product-actions.tsx`
 
 - Combo table header: label + subtítulo "Son acumulables con el {CASH_DISCOUNT_PCT}% OFF Efectivo - Transferencia!"
-- Botón principal: cuando `disabledReason === 'no-color'` → dos chevron-up SVG flanqueando "Seleccioná una variante"
+- Botón principal: cuando `disabledReason === 'no-color'` → `inline-flex gap-2` con dos chevron-up SVG flanqueando "Seleccioná una variante"; `disabled:opacity-60`
 
 ---
 
 ## FAQ (`app/faq/page.tsx`)
 
-Botón Email: `border-gray-200 text-gray-600 hover:border-[#0eb1c3] hover:text-[#0eb1c3]`, sin `hover:bg` ni inline style.
+Botón Email de la sección de contacto: fixed hover bug (inline `style={{ color }}` sobreescribía `hover:text-white`).
+Ahora usa: `border-gray-200 text-gray-600 hover:border-[#0eb1c3] hover:text-[#0eb1c3]`, sin `hover:bg`.
 
 ---
 
@@ -235,6 +239,7 @@ Botón Email: `border-gray-200 text-gray-600 hover:border-[#0eb1c3] hover:text-[
 
 - Query incluye `comboPrices: { orderBy: { quantity: 'asc' } }`
 - Tabla: columnas "Precio Pack 1" (idx 0) y "Precio Pack 2" (idx 1)
+- `Product` type incluye `comboPrices?: { id: string; price: number; quantity: number }[]`
 
 ---
 
@@ -243,56 +248,70 @@ Botón Email: `border-gray-200 text-gray-600 hover:border-[#0eb1c3] hover:text-[
 ### `app/checkout/checkout-client.tsx`
 
 - `PaymentMethod = 'mercadopago' | 'cash' | 'transfer' | 'modo'`
-- Step 2: **dos radios separados** "Efectivo" y "Transferencia bancaria", ambos con badge 25% OFF, solo cuando shipping === 'pickup'
+- Step 2: **dos radios separados** para cash y transfer (ambos con badge 25% OFF), solo visibles cuando shipping === 'pickup'
 - `isCashOrTransfer = payment === 'cash' || payment === 'transfer'`
 - Al cambiar a delivery se resetea `cash`/`transfer` → `mercadopago`
-- Al confirmar navega a `/checkout/confirmado?method=${payment}`
+- Sidebar muestra descuento 25% cuando `isCashOrTransfer`
+- Al confirmar navega a `/checkout/confirmado?method=${payment}` (pasa el método por query param)
 
 ### `app/api/checkout/route.ts`
 
-- Branch para cash/transfer: `if (paymentMethod === 'cash' || paymentMethod === 'transfer')`
-- Guarda el valor exacto (`'cash'` o `'transfer'`) en `Order.paymentMethod`
-- Lookup batch de `attributeValue.value` antes del email para resolver nombres de variante
-- Ambos flows incluyen `attributeValueId` en `OrderItem.create`
-- Status: `PENDING_PICKUP_PAYMENT` para cash/transfer, `PENDING` para MP
+- Branch se dispara con `cash || transfer`, guarda el valor exacto en DB (`paymentMethod`)
+- Lookup batch de `attributeValue.value` para nombres de variante antes de armar el email
+- Ambos flows (cash/transfer y MP) incluyen `attributeValueId` en `OrderItem.create`
+- `status: 'PENDING_PICKUP_PAYMENT'` para cash/transfer; `'PENDING'` para MP
 
 ### `app/checkout/confirmado/page.tsx`
 
-Lee `searchParams.method` y muestra:
+Lee `searchParams.method` y muestra contenido distinto:
 - `'cash'`: "Efectivo", dirección del local, leyenda Showroom
-- `'transfer'`: "Transferencia bancaria", tarjetas de cuentas (MP alias **artentino** CVU 0000003100132288095792; Supervielle alias **artentinosuper** CBU 0270020510037812120025), link WhatsApp, leyenda Showroom
-- `'cash_transfer'` (legacy): texto genérico
+- `'transfer'`: "Transferencia bancaria", dos tarjetas de cuentas con alias en negrita (MP: **artentino**, Supervielle: **artentinosuper**), link WhatsApp, leyenda Showroom
+- `'cash_transfer'` (legacy): texto genérico sin romper pedidos viejos
 - Bloque "Descuento aplicado 25% OFF" en los tres casos
 
 ---
 
 ## CartDrawer
 
-Banner `bg-[#f0fbfc]`: "Pagando en efectivo o transferencia, tenés {CASH_DISCOUNT_PCT}% OFF"
+Banner `bg-[#f0fbfc]` con icono shield: "Pagando en efectivo o transferencia, tenés {CASH_DISCOUNT_PCT}% OFF"
 
 ---
 
 ## CartAddPopup
 
-- Observa `addCount`, abre popup al incrementar
+- Observa `addCount` del cart context, abre popup al incrementar
 - Countdown 5 min (300s) `mm:ss`
+- Con relacionado: sugerencia + countdown. Sin relacionado: total + "Ver carrito"
+
+---
+
+## Admin — Categorías (`/admin/categorias`) — drag-and-drop entre grupos
+
+`app/admin/categorias/categorias-table.tsx` usa un **único `DndContext` compartido** (id `categorias-dnd`) para reordenar categorías Y subcategorías, discriminado por `data: { type: 'category' | 'subcategory' | 'group-header' | 'group' }` en cada `useSortable`/`useDroppable`, con un `collisionDetection` custom que filtra `droppableContainers` por `type` antes de delegar a `closestCenter`. Permite:
+- Reorder de categorías entre sí, y de subcategorías dentro de su propio grupo (`reorderCategories`, `reorderSubcategories`).
+- Mover una subcategoría a otro grupo (`moveSubcategory(subcategoryId, newCategoryId, newOrder)` en `actions.ts`) — actualiza `categoryId` y recompacta el `order` en origen y destino en una transacción.
+- Auto-expand: si se mantiene una subcategoría sobre el header de un grupo colapsado ~600ms (`AUTO_EXPAND_DELAY`), el grupo se expande solo vía `setOpenExplicit`.
+- Estado `openGroups` (expandido/colapsado) vive en `CategoriasTable`, no en `CategoryRow` — necesario para que el drag pueda togglear cualquier grupo.
+
+Este único-`DndContext` es la única forma correcta de resolverlo: anidar un `DndContext` hijo dentro de otro (para separar drag de categorías vs. subcategorías) rompe la resolución de colisiones, porque `useSortable`/`useDroppable` se bindean al contexto más cercano por posición en el árbol de React, no por intención lógica.
 
 ---
 
 ## Admin — Relacionados
 
-Tab en `/admin/productos/[id]/editar`: search con debounce 350ms.
+Tab en `/admin/productos/[id]/editar`: search con debounce 350ms, tabla miniatura/nombre/SKU/precio/sortOrder.
 
 ---
 
 ## Admin — Pedidos
 
-### STATUS dict (ambos archivos `page.tsx` y `[id]/page.tsx`)
+### `app/admin/pedidos/page.tsx` y `[id]/page.tsx`
 
+STATUS dict (ambos archivos):
 ```typescript
 const STATUS = {
   PENDING:                { label: 'Pendiente',  bg: '#FEF3C7', color: '#D97706' },
-  PENDING_PICKUP_PAYMENT: { label: 'A retirar',  bg: '#EDE9FE', color: '#7C3AED' },
+  PENDING_PICKUP_PAYMENT: { label: 'A retirar',  bg: '#EDE9FE', color: '#7C3AED' },  // ← badge violeta
   CONFIRMED:              { label: 'Confirmado', bg: '#CCFBF4', color: '#0eb1c3' },
   SHIPPED:                { label: 'Enviado',    bg: '#DBEAFE', color: '#2563EB' },
   DELIVERED:              { label: 'Entregado',  bg: '#D1FAE5', color: '#059669' },
@@ -302,22 +321,27 @@ const STATUS = {
 
 ### Vista detalle `[id]/page.tsx`
 
-- Include: `items: { include: { product: { select: { name, slug, imageUrl } }, attributeValue: { select: { value } } } }`
-- Formato item: nombre del producto + `"{Color} · x{cantidad}"` en línea secundaria
-- Sidebar: tarjeta "Método de pago" con label legible (Efectivo / Transferencia bancaria / MercadoPago)
+- Include de `attributeValue: { select: { value: true } }` en los items
+- Formato en cada item: `"{Nombre producto}"` + `"{Color} · x{cantidad}"` en la línea secundaria
+- Sidebar tiene tarjeta "Método de pago": muestra "Efectivo" / "Transferencia bancaria" / "MercadoPago"
+- Query: `include: { items: { include: { product: {...}, attributeValue: { select: { value: true } } } } }`
 
 ---
 
-## Email (`app/lib/email.ts`)
+## Email
 
-### `pickupCashEmail({ name, items, total, discountPct, paymentMethod })`
+`app/lib/email.ts`: `interpolate()`, `appointmentConfirmationEmail`, `pickupCashEmail`, `purchaseConfirmationEmail`.
 
-- `items: Array<{ name, quantity, price, variantName? }>` — muestra "Producto · Color" en tabla
-- `paymentMethod: 'cash' | 'transfer'` — diferencia el texto de la sección "Método de pago"
+### `pickupCashEmail`
 
-### `purchaseConfirmationEmail({ name, items, total, shipping })`
+Parámetros: `{ name, items, total, discountPct, paymentMethod: 'cash' | 'transfer' }`
+- `items` incluye `variantName?: string` → se muestra como "Producto · Color" en la tabla
+- Sección "Método de pago": "Efectivo — abonás al retirar" vs "Transferencia bancaria — envianos el comprobante"
 
-- `items: Array<{ name, quantity, price, variantName? }>` — mismo formato
+### `purchaseConfirmationEmail`
+
+Parámetros: `{ name, items, total, shipping }`
+- `items` incluye `variantName?: string` → igual formato "Producto · Color"
 
 ---
 
@@ -327,14 +351,32 @@ keyframes en `app/globals.css`: `cart-bounce`, `toast-in`, `gallery-fade`, `hero
 
 ---
 
-## Assets / WhatsApp
+## Assets
 
-- `app/icon.png` — favicon actual
-- WhatsApp botón flotante: `app/ui/whatsapp-button.tsx` → `href="https://wa.me/5491139363333"`
-- Footer: `href="https://api.whatsapp.com/send?phone=5491139363333"`
+- `app/icon.png` — favicon actual (reemplazó `app/favicon.ico`)
+
+---
+
+## WhatsApp
+
+- Botón flotante: `app/ui/whatsapp-button.tsx` → `href="https://wa.me/5491139363333"`
+- Footer: `href="https://api.whatsapp.com/send?phone=5491139363333"` (dos instancias)
 - Número: +54 9 11 3936 3333
 
 ---
 
+---
+
+## Checkout / envíos — estado 2026-08-01 (sesión larga, ver `CONTEXT.md` en la raíz del repo para el detalle completo por commit)
+
+- **Guest checkout**: `/checkout` ya no requiere sesión. `Order.userId` es `String?`; `Order.contactName/contactEmail/contactPhone` son la fuente de verdad (con fallback a `user?.X`) en todo lo que antes asumía `order.user` sin null-check (webhook MP, admin/pedidos, arrepentimiento).
+- **MercadoPago**: `MP_ACCESS_TOKEN` es de producción real (cuenta 263472498, verificada). El bug de `init_point` era `result.sandbox_init_point ?? result.init_point` (prioridad invertida) — MP siempre puede devolver `sandbox_init_point` sin importar el tipo de token.
+- **Envío a domicilio — arquitectura actual**: un único combo "Localidad" (`app/checkout/checkout-client.tsx`) con autocomplete nacional contra Georef API (`apis.datos.gob.ar/georef/api/localidades`, pública, sin auth, CORS abierto). La provincia se resuelve automáticamente de la respuesta elegida — ya NO hay dropdown cerrado GBA/CABA ni campo de Provincia separado (esa UI existió brevemente y fue reemplazada en la misma sesión). `app/lib/shipping-zones.ts::resolveShippingProvider(locality, province)` decide ARTENTINO (CABA siempre, o localidad normalizada matcheando la lista fija de `/admin/extension`) vs ZIPNOVA.
+- **Zipnova**: `app/lib/shipping/zipnova.ts`. La respuesta real de la API tiene `results` como **objeto** indexado por `service_type.code` (no array — la doc induce a error acá). `Product.weight` está en **GRAMOS** en toda la DB (155/155 productos auditados) — nunca convertir a la hora de cotizar.
+- **Cotización automática**: se dispara sola (debounce 400ms) al completar Localidad+CP en el paso "Envío" del checkout, ya no hace falta llegar al paso "Pago". Sidebar muestra el estado en tiempo real.
+- **Resend bloqueado**: el dominio `artentino.com.ar` no está verificado en Resend → 403 en todos los envíos de mail transaccional. Pendiente de acción manual (DNS) del lado de Valentín, no resoluble por código.
+
+---
+
 **Why:** Complete e-commerce for Argentine home goods brand.
-**How to apply:** Peso formatting `toLocaleString('es-AR')`, teal `#0eb1c3` as primary, Prisma 7 + Tailwind v4 + Next.js 16 conventions. Never use `middleware.ts`. Products→Subcategory for categoryId. Discount constants always from `app/lib/constants.ts`. Never inline `style={{ color }}` on hover elements. PaymentMethod: `'cash'`, `'transfer'`, `'mercadopago'` (legacy `'cash_transfer'` may exist). OrderItem.attributeValueId always include in OrderItem.create. Price numbers in product detail: `font-bold` (700) NOT `font-black`.
+**How to apply:** Peso formatting `toLocaleString('es-AR')`, teal `#0eb1c3` as primary, Prisma 7 + Tailwind v4 + Next.js 16 conventions. Never use `middleware.ts`. Products→Subcategory (not Category) for categoryId. Hero badges→Category padre. Discount constants always from `app/lib/constants.ts`. Never inline `style={{ color }}` on elements that need hover color change — use className instead. PaymentMethod values: `'cash'`, `'transfer'`, `'mercadopago'` (legacy `'cash_transfer'` may exist in old orders). OrderItem.attributeValueId persists the chosen variant — always include it in OrderItem.create from the CartItem. Price numbers in product detail: `font-bold` (700), NOT `font-black`.

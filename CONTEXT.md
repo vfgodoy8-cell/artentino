@@ -1,11 +1,11 @@
-# Proyecto Artentino — Contexto actualizado 2026-08-07
+# Proyecto Artentino — Contexto actualizado 2026-08-14
 
 E-commerce de decoración, hogar y regalos con diseño argentino.
 
 **Repo:** `C:\proyectos\bardot\artentino\` · Branch: `main`  
-**Último commit:** `2c9431a` — fix(email): unificar dirección de contacto a info@artentino.com (sin .ar)
+**Último commit:** `4c894ee` — feat(instagram): curación manual de posts en el feed público (ver "Cambios recientes" 08-14 por más detalle — hay trabajo posterior sin commitear todavía, el cron de reconciliación de órdenes)
 
-**Dominio propio ya en producción:** `artentino.com.ar` (cutover de DNS hecho — antes solo existía `artentino.vercel.app`). `NEXT_PUBLIC_BASE_URL` en Vercel Production apunta a `https://artentino.com.ar` (variable "Sensitive", confirmado indirectamente vía `og:image` del HTML servido, no legible con `vercel env pull`).
+**Dominios en producción:** confirmado vía `vercel inspect` que el deployment activo tiene **4 alias funcionando en simultáneo**: `artentino.com`, `www.artentino.com`, `artentino.com.ar`, `www.artentino.com.ar` — todos apuntan al mismo deployment, no hay dominio viejo/roto. `NEXT_PUBLIC_BASE_URL` en Vercel Production sigue "Sensitive" (no legible vía CLI), configurada hace 60+ días, sin cambios recientes.
 
 ---
 
@@ -64,6 +64,7 @@ E-commerce de decoración, hogar y regalos con diseño argentino.
 | `ProductStock` | unique [productId, attributeId, value] |
 | `Order` | `userId` **opcional** (`String?`) — invitado si es null. `contactName/contactEmail/contactPhone` siempre poblados desde el form de checkout, son la fuente de verdad para emails/admin cuando no hay `user`. **Nuevo:** `contactDocument` (DNI, requerido para Zipnova), `zipnovaShipmentId`/`zipnovaServiceTypeCode`/`zipnovaShipmentStatus`/`zipnovaShipmentCreatedAt`/`zipnovaShipmentError` (ver "Cambios recientes") |
 | `InstagramToken` | Singleton (un solo row). `accessToken`, `igUserId`, `expiresAt`, `reminderSentAt` (`DateTime?`, se resetea a `null` en cada guardado de token — nuevo o refresh — para reiniciar el ciclo de aviso de vencimiento), `updatedAt` |
+| `InstagramExcludedPost` | **Nuevo** (08-14). `mediaId` único (id del post en Instagram) — curación manual del feed público desde `/admin/instagram`, sin depender de un fix de código |
 | `Role` (enum) | `USER` \| `ADMIN` — separado de `AdminRole` (enum) `SUPERADMIN` \| `ADMIN`, este último solo relevante dentro del panel (`User.adminRole`, opcional) |
 | `Condition` | **ELIMINADO** |
 
@@ -93,10 +94,10 @@ E-commerce de decoración, hogar y regalos con diseño argentino.
 - **No se volvió a testear explícitamente en la sesión del 08-07** pese a agregar dos features nuevas de mail (copia de compra a `info@`, aviso de vencimiento de Instagram) — como `sendEmail()` siempre se llama con `.catch(() => {})` (fire-and-forget), un 403 no genera ningún error visible. Antes de confiar en que estos mails salen, verificar de nuevo.
 - Acción pendiente del lado de Valentín: verificar `artentino.com.ar` en `resend.com/domains` (agregar registros DNS SPF/DKIM que pida el panel).
 
-**`CRON_SECRET` no existe en Vercel Production (bloqueante, encontrado 2026-08-05, sin resolver):**
-- `vercel env ls production` no lista `CRON_SECRET` — solo existe en `.env` local (`dev-test-secret-12345`, un placeholder de dev). El cron diario de Instagram (`app/api/cron/instagram-refresh/route.ts`, corre 06:00 UTC) empieza con `if (!process.env.CRON_SECRET || authHeader !== ...) return 401` — si la env var no existe en Production, **la ruta rechaza con 401 a cualquiera, incluido el propio cron de Vercel**, por lo que probablemente nunca corrió exitosamente en producción desde que se agregó.
-- Esto también bloquea el recordatorio por mail de vencimiento del token de Instagram (mismo endpoint, ver "Cambios recientes" 08-05).
-- Acción pendiente: generar un `CRON_SECRET` real y setearlo en Vercel Production. No lo generé yo mismo sin que el usuario lo supiera — quedó pendiente de decisión.
+**`CRON_SECRET` no existe en Vercel Production (bloqueante, encontrado 2026-08-05, sin resolver — confirmado de nuevo 08-14, sigue igual):**
+- `vercel env ls production` no lista `CRON_SECRET` — solo existe en `.env` local (`dev-test-secret-12345`, un placeholder de dev). **Ahora bloquea DOS crons** (antes solo uno): `app/api/cron/instagram-refresh` (06:00 UTC) y el nuevo `app/api/cron/reconcile-orders` (cada 6hs, ver "Cambios recientes" 08-14). Ambos empiezan con `if (!process.env.CRON_SECRET || authHeader !== ...) return 401` — si la env var no existe en Production, **la ruta rechaza con 401 a cualquiera, incluido el propio cron de Vercel**, por lo que ninguno de los dos corre solo en producción todavía.
+- Esto también bloquea el recordatorio por mail de vencimiento del token de Instagram (mismo endpoint instagram-refresh).
+- Acción pendiente: generar un `CRON_SECRET` real y setearlo en Vercel Production. No lo generé yo mismo sin que el usuario lo supiera — quedó pendiente de decisión (van dos sesiones seguidas sin resolverse).
 
 ---
 
@@ -208,6 +209,44 @@ E-commerce de decoración, hogar y regalos con diseño argentino.
 - `purchaseConfirmationEmail` (usado en el webhook de MP al confirmarse el pago) **no vive en `checkout/route.ts`** — está en `app/api/webhook/mercadopago/route.ts`, y ahí mismo hay un sistema de override: si existe un `EmailTemplate` en DB con `key: 'ORDER_PRE_CONFIRMATION'` (existe en producción), se usa ese HTML en vez del fallback hardcodeado — la copia a admin se agregó **después** de resolver `html` (sea cual sea el origen), no adentro del branch del fallback, para que funcione sin importar cuál se esté usando.
 - Ambos flujos (webhook MP y `checkout/route.ts` para cash/transfer) mandan ahora una copia independiente (`sendEmail(...).catch(...)` propio, no bloquea ni depende del mail al cliente) a la dirección de contacto.
 - Bug de deploy: esa copia se pusheó primero con `info@artentino.com.ar` — **la dirección correcta es `info@artentino.com`, sin `.ar`** (confirmado por Valentín). Unificadas las 4 ocurrencias que tenían el dominio incorrecto (`checkout/route.ts`, `webhook/mercadopago/route.ts`, `contacto/page.tsx`); el resto del sitio (`footer.tsx`, `faq/page.tsx`, `terminos/page.tsx`, `privacidad/page.tsx`) ya usaba la variante correcta. **`noreply@artentino.com.ar`** (remitente de Resend, dominio de propósito distinto) no se tocó.
+
+---
+
+## Cambios recientes (sesión 2026-08-14 — mobile, emails, Instagram, diagnóstico + cron MP)
+
+**18. Fixes de mobile: hero, galería y ficha de producto (commit `1e2904d`)**
+- Hero (`app/ui/hero-carousel.tsx`): las tarjetas flotantes de categoría ("ESPEJOS"/"MUEBLES") se superponían con el contenido del hero en mobile. Se ocultan con `hidden sm:flex` (tanto en el carousel real como en `HeroFallback`) — sin rediseño, simplemente no se muestran por debajo de 640px.
+- Ficha de producto (`app/catalogo/[slug]/product-gallery.tsx` y `product-detail-shell.tsx`): la imagen principal se desbordaba hasta ~1900px de ancho en mobile (confirmado con Playwright a 375px real, no se puede simular resize de ventana en este entorno de browser automation). Causa: los contenedores raíz de ambas columnas del grid de dos columnas son grid items sin `min-w-0` — por default CSS les da `min-width: auto`, y el `<img>` sin `width`/`height` HTML aporta su tamaño intrínseco (1000×1000px real) como mínimo de contenido, empujando toda la columna. Fix: `min-w-0` en ambos contenedores. Mismo patrón que ya se había arreglado antes en `/admin/pedidos/[id]` (commit `2ff4e16`, sesión anterior).
+- Tooltip del badge "25% OFF" (`product-actions.tsx`): abría hacia arriba (`-top-11`) y tapaba el bloque de precio de lista en mobile. Ahora abre hacia abajo en mobile (`top-full`, `max-w-[240px]`) y mantiene el placement original hacia arriba en desktop (`lg:-top-11`) — verificado que no cambió nada en `lg:`.
+- Badge de % en la tabla de combos: le faltaba `whitespace-nowrap`, el "15% off" rompía en dos líneas. Un solo `whitespace-nowrap` lo resuelve — no tenía ancho fijo, no hacía falta tocar nada más.
+
+**19. Ícono del botón "Seleccioná una variante" (commit `67ddf77`)**
+- Chevron abierto (`strokeWidth 3`, inconsistente con el resto de los íconos del proyecto que usan `2.5`) reemplazado por una flecha completa (línea + punta, apuntando hacia arriba) a pedido — dos iteraciones (Fase 4 ajustó el stroke, Fase 5 cambió la forma entera).
+
+**20. Leyenda de showroom + una sola notificación admin por orden MP (commit `21e4972`)**
+- `purchaseConfirmationEmail()` (`app/lib/email.ts`): agrega "Aguarda nuestro contacto para pasar por el showroom." debajo del método de envío, solo cuando `shipping === 'pickup'`.
+- **Diagnóstico previo (sin código, solo investigación):** el mail a `info@artentino.com` se mandaba DOS veces por cada orden de MercadoPago — una vez al iniciar el checkout (`checkout/route.ts`, vía `adminNewOrderEmail()`, **sin** detalle de productos porque esa función nunca tuvo `items` en su firma) y otra vez cuando el webhook confirmaba el pago (con detalle completo). Si el comprador abandonaba el checkout de MP sin pagar, la única notificación que existía para esa orden era la que no tenía productos — no intermitente, sistemático para todo MP no confirmado.
+- Fix: se eliminó el bloque de notificación temprana en `checkout/route.ts` (rama MercadoPago). `adminNewOrderEmail()` quedó **sin ningún uso en el código** (`app/lib/email.ts`) — no se borró, a la espera de decisión. Cash/transferencia no se tocó: ese flujo sigue mandando un único mail al crear la orden (antes del pago real, no hay confirmación automática en ese medio).
+
+**21. Curación manual del feed de Instagram (commit `4c894ee`)**
+- Nuevo modelo `InstagramExcludedPost` (`mediaId` único). `app/lib/instagram-media.ts` refactorizado: `fetchRawInstagramMedia()` compartido; el feed público (`getInstagramFeedImages()`) ahora pide 24 posts crudos (antes 12) y filtra excluidos antes de tomar los primeros 4 — el buffer evita que ocultar posts vacíe el feed.
+- Nueva sección "Curar posts del feed público" en `/admin/instagram` (reutiliza la página existente, no se agregó entrada nueva al sidebar) — grid de posts con toggle "Ocultar del sitio"/"Mostrar" vía Server Action `setPostExcluded()`.
+- Verificado end-to-end con Playwright + login admin real (`admin@test.com`/`admin1234`, ver `seed_admin.mjs` sin trackear en la raíz del repo — **tiene la connection string de producción hardcodeada en texto plano**, ojo con eso, no se commiteó).
+- Gotcha de sesión: el dev server hay que reiniciarlo después de un `prisma db push` — el singleton de `PrismaClient` en memoria no recoge modelos nuevos solo, tira `Cannot read properties of undefined (reading 'findMany')` hasta reiniciar.
+- Gotcha de lint: `Date.now()` no se puede llamar directo en el cuerpo de un Server Component (regla de pureza de `eslint-plugin-react-hooks` / React Compiler) — hay que sacarlo a un helper fuera del componente (`isTokenValid()` en `app/lib/instagram-token.ts`).
+
+**22. Diagnóstico: pedido #O528HVJM en "Pendiente" (sin código — solo investigación)**
+- Se sospechaba un fallo del webhook de MP. Se descartó consultando **directamente la API de MercadoPago** (`GET /v1/payments/search?external_reference=<orderId>`) — **0 pagos existen en MP para esa orden**. No es un bug: el cliente nunca completó (ni llegó a intentar) el pago, MP no genera un objeto `payment` hasta que el usuario intenta pagar de verdad.
+- De paso: los logs de Vercel (`vercel logs`) no tienen retención suficiente para ver requests de hace más de ~12-13hs en este plan — no sirven para diagnósticos de más de medio día atrás. Para eso, la API de MP (o la DB) es la fuente confiable.
+- Se detectó que el sistema no tiene ningún mecanismo de reconciliación/retry — depende 100% de que el webhook llegue una sola vez sin fallar. Ver punto 23.
+
+**23. Cron de reconciliación de órdenes PENDING de MercadoPago (código listo, sin commitear todavía)**
+- `app/lib/orders/confirm-order.ts` (nuevo): se extrajo `applyOrderConfirmedEffects(orderId)` — la lógica de efectos secundarios (Zipnova + mails) que antes vivía duplicada inline en el webhook. Ahora es compartida entre `webhook/mercadopago/route.ts` (refactorizado, bajó de ~130 a ~60 líneas) y el cron nuevo.
+- `app/api/cron/reconcile-orders/route.ts` (nuevo): cada 6hs (`vercel.ts`, no `vercel.json` — este proyecto usa el config nuevo `@vercel/config/v1`) revisa órdenes `PENDING`+`mercadopago` de más de `RECONCILE_MIN_AGE_HOURS` (1h, en `app/lib/constants.ts`), busca cada una en MP por `external_reference`: `approved` → confirma + dispara efectos; sin ningún payment y más de `RECONCILE_CANCEL_AGE_HOURS` (72h) → cancela; cualquier otro caso → no toca. Soporta `?orderId=<id>` para correr acotado a una sola orden (debug/test, mismo patrón que `forceReminder` en instagram-refresh).
+- Probado manualmente con 3 órdenes descartables (creadas y borradas en la misma sesión, no se tocó ninguna orden real): vieja+sin pago → `CANCELLED` ✓, reciente+sin pago → sin tocar ✓, confirmación forzada → `applyOrderConfirmedEffects()` corrió sin errores (no se pudo probar la rama "MP devuelve approved" con un pago real — no se fabricó una transacción real).
+- **Bloqueado por el mismo problema de `CRON_SECRET` faltante** (ver "Notas importantes") — no va a correr solo en producción hasta que se resuelva.
+- **Las 23 órdenes `PENDING`/`mercadopago` reales que ya existen en la DB (todas sin pago en MP, la más vieja del 22/07) no se tocaron a propósito** — decisión explícita de Valentín (2026-08-14/24): revisarlas una por una manualmente antes de dejar correr el cron sin acotar. Si se corre `GET /api/cron/reconcile-orders` sin `?orderId=`, las va a cancelar a todas de una — pensarlo dos veces antes de invocarlo sin acotar contra prod.
+- **Código sin commitear al cierre de esta sesión** (a diferencia de los puntos 18-21, que sí se pushearon) — confirmar con Valentín antes de commitear/pushear.
 
 ---
 
