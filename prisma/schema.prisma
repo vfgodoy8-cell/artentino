@@ -434,6 +434,12 @@ model SiteConfig {
   zipnovaShippingEnabled Boolean  @default(true)
   marqueeEnabled         Boolean  @default(true)
   marqueeItems           String[] @default([])
+  phone                  String?
+  whatsappNumber         String?
+  email                  String?
+  addressLine1           String?
+  addressLine2           String?
+  businessHours          String?
 
   @@map("site_config")
 }

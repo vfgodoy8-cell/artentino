@@ -3,6 +3,7 @@ import HeroSlidesTab from './hero-slides-tab'
 import HeroBadgesTab from './hero-badges-tab'
 import FooterTextSection from './footer-text-section'
 import MarqueeSection from './marquee-section'
+import ContactSection from './contact-section'
 
 export const dynamic = 'force-dynamic'
 
@@ -64,6 +65,17 @@ export default async function AdminHomePage() {
         <MarqueeSection
           initialEnabled={siteConfig?.marqueeEnabled ?? true}
           initialItems={siteConfig?.marqueeItems ?? []}
+        />
+        <div className="border-t border-[#e5e7eb]" />
+        <ContactSection
+          initial={{
+            phone: siteConfig?.phone ?? '',
+            whatsappNumber: siteConfig?.whatsappNumber ?? '',
+            email: siteConfig?.email ?? '',
+            addressLine1: siteConfig?.addressLine1 ?? '',
+            addressLine2: siteConfig?.addressLine2 ?? '',
+            businessHours: siteConfig?.businessHours ?? '',
+          }}
         />
       </div>
     </div>

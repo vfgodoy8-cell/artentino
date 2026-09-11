@@ -42,6 +42,12 @@ export type SiteConfigMinAggregateOutputType = {
   expressShippingEnabled: boolean | null
   zipnovaShippingEnabled: boolean | null
   marqueeEnabled: boolean | null
+  phone: string | null
+  whatsappNumber: string | null
+  email: string | null
+  addressLine1: string | null
+  addressLine2: string | null
+  businessHours: string | null
 }
 
 export type SiteConfigMaxAggregateOutputType = {
@@ -52,6 +58,12 @@ export type SiteConfigMaxAggregateOutputType = {
   expressShippingEnabled: boolean | null
   zipnovaShippingEnabled: boolean | null
   marqueeEnabled: boolean | null
+  phone: string | null
+  whatsappNumber: string | null
+  email: string | null
+  addressLine1: string | null
+  addressLine2: string | null
+  businessHours: string | null
 }
 
 export type SiteConfigCountAggregateOutputType = {
@@ -63,6 +75,12 @@ export type SiteConfigCountAggregateOutputType = {
   zipnovaShippingEnabled: number
   marqueeEnabled: number
   marqueeItems: number
+  phone: number
+  whatsappNumber: number
+  email: number
+  addressLine1: number
+  addressLine2: number
+  businessHours: number
   _all: number
 }
 
@@ -83,6 +101,12 @@ export type SiteConfigMinAggregateInputType = {
   expressShippingEnabled?: true
   zipnovaShippingEnabled?: true
   marqueeEnabled?: true
+  phone?: true
+  whatsappNumber?: true
+  email?: true
+  addressLine1?: true
+  addressLine2?: true
+  businessHours?: true
 }
 
 export type SiteConfigMaxAggregateInputType = {
@@ -93,6 +117,12 @@ export type SiteConfigMaxAggregateInputType = {
   expressShippingEnabled?: true
   zipnovaShippingEnabled?: true
   marqueeEnabled?: true
+  phone?: true
+  whatsappNumber?: true
+  email?: true
+  addressLine1?: true
+  addressLine2?: true
+  businessHours?: true
 }
 
 export type SiteConfigCountAggregateInputType = {
@@ -104,6 +134,12 @@ export type SiteConfigCountAggregateInputType = {
   zipnovaShippingEnabled?: true
   marqueeEnabled?: true
   marqueeItems?: true
+  phone?: true
+  whatsappNumber?: true
+  email?: true
+  addressLine1?: true
+  addressLine2?: true
+  businessHours?: true
   _all?: true
 }
 
@@ -202,6 +238,12 @@ export type SiteConfigGroupByOutputType = {
   zipnovaShippingEnabled: boolean
   marqueeEnabled: boolean
   marqueeItems: string[]
+  phone: string | null
+  whatsappNumber: string | null
+  email: string | null
+  addressLine1: string | null
+  addressLine2: string | null
+  businessHours: string | null
   _count: SiteConfigCountAggregateOutputType | null
   _avg: SiteConfigAvgAggregateOutputType | null
   _sum: SiteConfigSumAggregateOutputType | null
@@ -236,6 +278,12 @@ export type SiteConfigWhereInput = {
   zipnovaShippingEnabled?: Prisma.BoolFilter<"SiteConfig"> | boolean
   marqueeEnabled?: Prisma.BoolFilter<"SiteConfig"> | boolean
   marqueeItems?: Prisma.StringNullableListFilter<"SiteConfig">
+  phone?: Prisma.StringNullableFilter<"SiteConfig"> | string | null
+  whatsappNumber?: Prisma.StringNullableFilter<"SiteConfig"> | string | null
+  email?: Prisma.StringNullableFilter<"SiteConfig"> | string | null
+  addressLine1?: Prisma.StringNullableFilter<"SiteConfig"> | string | null
+  addressLine2?: Prisma.StringNullableFilter<"SiteConfig"> | string | null
+  businessHours?: Prisma.StringNullableFilter<"SiteConfig"> | string | null
 }
 
 export type SiteConfigOrderByWithRelationInput = {
@@ -247,6 +295,12 @@ export type SiteConfigOrderByWithRelationInput = {
   zipnovaShippingEnabled?: Prisma.SortOrder
   marqueeEnabled?: Prisma.SortOrder
   marqueeItems?: Prisma.SortOrder
+  phone?: Prisma.SortOrderInput | Prisma.SortOrder
+  whatsappNumber?: Prisma.SortOrderInput | Prisma.SortOrder
+  email?: Prisma.SortOrderInput | Prisma.SortOrder
+  addressLine1?: Prisma.SortOrderInput | Prisma.SortOrder
+  addressLine2?: Prisma.SortOrderInput | Prisma.SortOrder
+  businessHours?: Prisma.SortOrderInput | Prisma.SortOrder
 }
 
 export type SiteConfigWhereUniqueInput = Prisma.AtLeast<{
@@ -261,6 +315,12 @@ export type SiteConfigWhereUniqueInput = Prisma.AtLeast<{
   zipnovaShippingEnabled?: Prisma.BoolFilter<"SiteConfig"> | boolean
   marqueeEnabled?: Prisma.BoolFilter<"SiteConfig"> | boolean
   marqueeItems?: Prisma.StringNullableListFilter<"SiteConfig">
+  phone?: Prisma.StringNullableFilter<"SiteConfig"> | string | null
+  whatsappNumber?: Prisma.StringNullableFilter<"SiteConfig"> | string | null
+  email?: Prisma.StringNullableFilter<"SiteConfig"> | string | null
+  addressLine1?: Prisma.StringNullableFilter<"SiteConfig"> | string | null
+  addressLine2?: Prisma.StringNullableFilter<"SiteConfig"> | string | null
+  businessHours?: Prisma.StringNullableFilter<"SiteConfig"> | string | null
 }, "id">
 
 export type SiteConfigOrderByWithAggregationInput = {
@@ -272,6 +332,12 @@ export type SiteConfigOrderByWithAggregationInput = {
   zipnovaShippingEnabled?: Prisma.SortOrder
   marqueeEnabled?: Prisma.SortOrder
   marqueeItems?: Prisma.SortOrder
+  phone?: Prisma.SortOrderInput | Prisma.SortOrder
+  whatsappNumber?: Prisma.SortOrderInput | Prisma.SortOrder
+  email?: Prisma.SortOrderInput | Prisma.SortOrder
+  addressLine1?: Prisma.SortOrderInput | Prisma.SortOrder
+  addressLine2?: Prisma.SortOrderInput | Prisma.SortOrder
+  businessHours?: Prisma.SortOrderInput | Prisma.SortOrder
   _count?: Prisma.SiteConfigCountOrderByAggregateInput
   _avg?: Prisma.SiteConfigAvgOrderByAggregateInput
   _max?: Prisma.SiteConfigMaxOrderByAggregateInput
@@ -291,6 +357,12 @@ export type SiteConfigScalarWhereWithAggregatesInput = {
   zipnovaShippingEnabled?: Prisma.BoolWithAggregatesFilter<"SiteConfig"> | boolean
   marqueeEnabled?: Prisma.BoolWithAggregatesFilter<"SiteConfig"> | boolean
   marqueeItems?: Prisma.StringNullableListFilter<"SiteConfig">
+  phone?: Prisma.StringNullableWithAggregatesFilter<"SiteConfig"> | string | null
+  whatsappNumber?: Prisma.StringNullableWithAggregatesFilter<"SiteConfig"> | string | null
+  email?: Prisma.StringNullableWithAggregatesFilter<"SiteConfig"> | string | null
+  addressLine1?: Prisma.StringNullableWithAggregatesFilter<"SiteConfig"> | string | null
+  addressLine2?: Prisma.StringNullableWithAggregatesFilter<"SiteConfig"> | string | null
+  businessHours?: Prisma.StringNullableWithAggregatesFilter<"SiteConfig"> | string | null
 }
 
 export type SiteConfigCreateInput = {
@@ -302,6 +374,12 @@ export type SiteConfigCreateInput = {
   zipnovaShippingEnabled?: boolean
   marqueeEnabled?: boolean
   marqueeItems?: Prisma.SiteConfigCreatemarqueeItemsInput | string[]
+  phone?: string | null
+  whatsappNumber?: string | null
+  email?: string | null
+  addressLine1?: string | null
+  addressLine2?: string | null
+  businessHours?: string | null
 }
 
 export type SiteConfigUncheckedCreateInput = {
@@ -313,6 +391,12 @@ export type SiteConfigUncheckedCreateInput = {
   zipnovaShippingEnabled?: boolean
   marqueeEnabled?: boolean
   marqueeItems?: Prisma.SiteConfigCreatemarqueeItemsInput | string[]
+  phone?: string | null
+  whatsappNumber?: string | null
+  email?: string | null
+  addressLine1?: string | null
+  addressLine2?: string | null
+  businessHours?: string | null
 }
 
 export type SiteConfigUpdateInput = {
@@ -324,6 +408,12 @@ export type SiteConfigUpdateInput = {
   zipnovaShippingEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   marqueeEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   marqueeItems?: Prisma.SiteConfigUpdatemarqueeItemsInput | string[]
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  whatsappNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  addressLine1?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  addressLine2?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  businessHours?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type SiteConfigUncheckedUpdateInput = {
@@ -335,6 +425,12 @@ export type SiteConfigUncheckedUpdateInput = {
   zipnovaShippingEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   marqueeEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   marqueeItems?: Prisma.SiteConfigUpdatemarqueeItemsInput | string[]
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  whatsappNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  addressLine1?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  addressLine2?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  businessHours?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type SiteConfigCreateManyInput = {
@@ -346,6 +442,12 @@ export type SiteConfigCreateManyInput = {
   zipnovaShippingEnabled?: boolean
   marqueeEnabled?: boolean
   marqueeItems?: Prisma.SiteConfigCreatemarqueeItemsInput | string[]
+  phone?: string | null
+  whatsappNumber?: string | null
+  email?: string | null
+  addressLine1?: string | null
+  addressLine2?: string | null
+  businessHours?: string | null
 }
 
 export type SiteConfigUpdateManyMutationInput = {
@@ -357,6 +459,12 @@ export type SiteConfigUpdateManyMutationInput = {
   zipnovaShippingEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   marqueeEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   marqueeItems?: Prisma.SiteConfigUpdatemarqueeItemsInput | string[]
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  whatsappNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  addressLine1?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  addressLine2?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  businessHours?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type SiteConfigUncheckedUpdateManyInput = {
@@ -368,6 +476,12 @@ export type SiteConfigUncheckedUpdateManyInput = {
   zipnovaShippingEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   marqueeEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   marqueeItems?: Prisma.SiteConfigUpdatemarqueeItemsInput | string[]
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  whatsappNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  addressLine1?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  addressLine2?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  businessHours?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type SiteConfigCountOrderByAggregateInput = {
@@ -379,6 +493,12 @@ export type SiteConfigCountOrderByAggregateInput = {
   zipnovaShippingEnabled?: Prisma.SortOrder
   marqueeEnabled?: Prisma.SortOrder
   marqueeItems?: Prisma.SortOrder
+  phone?: Prisma.SortOrder
+  whatsappNumber?: Prisma.SortOrder
+  email?: Prisma.SortOrder
+  addressLine1?: Prisma.SortOrder
+  addressLine2?: Prisma.SortOrder
+  businessHours?: Prisma.SortOrder
 }
 
 export type SiteConfigAvgOrderByAggregateInput = {
@@ -393,6 +513,12 @@ export type SiteConfigMaxOrderByAggregateInput = {
   expressShippingEnabled?: Prisma.SortOrder
   zipnovaShippingEnabled?: Prisma.SortOrder
   marqueeEnabled?: Prisma.SortOrder
+  phone?: Prisma.SortOrder
+  whatsappNumber?: Prisma.SortOrder
+  email?: Prisma.SortOrder
+  addressLine1?: Prisma.SortOrder
+  addressLine2?: Prisma.SortOrder
+  businessHours?: Prisma.SortOrder
 }
 
 export type SiteConfigMinOrderByAggregateInput = {
@@ -403,6 +529,12 @@ export type SiteConfigMinOrderByAggregateInput = {
   expressShippingEnabled?: Prisma.SortOrder
   zipnovaShippingEnabled?: Prisma.SortOrder
   marqueeEnabled?: Prisma.SortOrder
+  phone?: Prisma.SortOrder
+  whatsappNumber?: Prisma.SortOrder
+  email?: Prisma.SortOrder
+  addressLine1?: Prisma.SortOrder
+  addressLine2?: Prisma.SortOrder
+  businessHours?: Prisma.SortOrder
 }
 
 export type SiteConfigSumOrderByAggregateInput = {
@@ -429,6 +561,12 @@ export type SiteConfigSelect<ExtArgs extends runtime.Types.Extensions.InternalAr
   zipnovaShippingEnabled?: boolean
   marqueeEnabled?: boolean
   marqueeItems?: boolean
+  phone?: boolean
+  whatsappNumber?: boolean
+  email?: boolean
+  addressLine1?: boolean
+  addressLine2?: boolean
+  businessHours?: boolean
 }, ExtArgs["result"]["siteConfig"]>
 
 export type SiteConfigSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -440,6 +578,12 @@ export type SiteConfigSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Ex
   zipnovaShippingEnabled?: boolean
   marqueeEnabled?: boolean
   marqueeItems?: boolean
+  phone?: boolean
+  whatsappNumber?: boolean
+  email?: boolean
+  addressLine1?: boolean
+  addressLine2?: boolean
+  businessHours?: boolean
 }, ExtArgs["result"]["siteConfig"]>
 
 export type SiteConfigSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -451,6 +595,12 @@ export type SiteConfigSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Ex
   zipnovaShippingEnabled?: boolean
   marqueeEnabled?: boolean
   marqueeItems?: boolean
+  phone?: boolean
+  whatsappNumber?: boolean
+  email?: boolean
+  addressLine1?: boolean
+  addressLine2?: boolean
+  businessHours?: boolean
 }, ExtArgs["result"]["siteConfig"]>
 
 export type SiteConfigSelectScalar = {
@@ -462,9 +612,15 @@ export type SiteConfigSelectScalar = {
   zipnovaShippingEnabled?: boolean
   marqueeEnabled?: boolean
   marqueeItems?: boolean
+  phone?: boolean
+  whatsappNumber?: boolean
+  email?: boolean
+  addressLine1?: boolean
+  addressLine2?: boolean
+  businessHours?: boolean
 }
 
-export type SiteConfigOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "heroIntervalSeconds" | "footerText" | "featuredOrderMode" | "expressShippingEnabled" | "zipnovaShippingEnabled" | "marqueeEnabled" | "marqueeItems", ExtArgs["result"]["siteConfig"]>
+export type SiteConfigOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "heroIntervalSeconds" | "footerText" | "featuredOrderMode" | "expressShippingEnabled" | "zipnovaShippingEnabled" | "marqueeEnabled" | "marqueeItems" | "phone" | "whatsappNumber" | "email" | "addressLine1" | "addressLine2" | "businessHours", ExtArgs["result"]["siteConfig"]>
 
 export type $SiteConfigPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "SiteConfig"
@@ -478,6 +634,12 @@ export type $SiteConfigPayload<ExtArgs extends runtime.Types.Extensions.Internal
     zipnovaShippingEnabled: boolean
     marqueeEnabled: boolean
     marqueeItems: string[]
+    phone: string | null
+    whatsappNumber: string | null
+    email: string | null
+    addressLine1: string | null
+    addressLine2: string | null
+    businessHours: string | null
   }, ExtArgs["result"]["siteConfig"]>
   composites: {}
 }
@@ -909,6 +1071,12 @@ export interface SiteConfigFieldRefs {
   readonly zipnovaShippingEnabled: Prisma.FieldRef<"SiteConfig", 'Boolean'>
   readonly marqueeEnabled: Prisma.FieldRef<"SiteConfig", 'Boolean'>
   readonly marqueeItems: Prisma.FieldRef<"SiteConfig", 'String[]'>
+  readonly phone: Prisma.FieldRef<"SiteConfig", 'String'>
+  readonly whatsappNumber: Prisma.FieldRef<"SiteConfig", 'String'>
+  readonly email: Prisma.FieldRef<"SiteConfig", 'String'>
+  readonly addressLine1: Prisma.FieldRef<"SiteConfig", 'String'>
+  readonly addressLine2: Prisma.FieldRef<"SiteConfig", 'String'>
+  readonly businessHours: Prisma.FieldRef<"SiteConfig", 'String'>
 }
     
 

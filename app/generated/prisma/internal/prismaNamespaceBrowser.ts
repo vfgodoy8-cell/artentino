@@ -418,7 +418,13 @@ export const SiteConfigScalarFieldEnum = {
   expressShippingEnabled: 'expressShippingEnabled',
   zipnovaShippingEnabled: 'zipnovaShippingEnabled',
   marqueeEnabled: 'marqueeEnabled',
-  marqueeItems: 'marqueeItems'
+  marqueeItems: 'marqueeItems',
+  phone: 'phone',
+  whatsappNumber: 'whatsappNumber',
+  email: 'email',
+  addressLine1: 'addressLine1',
+  addressLine2: 'addressLine2',
+  businessHours: 'businessHours'
 } as const
 
 export type SiteConfigScalarFieldEnum = (typeof SiteConfigScalarFieldEnum)[keyof typeof SiteConfigScalarFieldEnum]

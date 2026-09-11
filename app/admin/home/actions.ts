@@ -87,3 +87,39 @@ export async function updateSiteConfig(data: {
   revalidatePath('/admin/home')
   revalidatePath('/', 'layout')
 }
+
+type ActionResult<T> = { success: true; data: T } | { success: false; error: string }
+
+type ContactData = {
+  phone: string
+  whatsappNumber: string
+  email: string
+  addressLine1: string
+  addressLine2: string
+  businessHours: string
+}
+
+export async function updateContactSettings(data: ContactData): Promise<ActionResult<null>> {
+  try {
+    await prisma.siteConfig.upsert({
+      where: { id: 'singleton' },
+      update: data,
+      create: { id: 'singleton', heroIntervalSeconds: 6, ...data },
+    })
+    const session = await auth()
+    if (session?.user) {
+      await logAudit({ userId: session.user.id, userEmail: session.user.email!, action: 'update', entity: 'SiteConfig', entityId: 'singleton', detail: data })
+    }
+    revalidatePath('/admin/home')
+    revalidatePath('/', 'layout')
+    revalidatePath('/contacto')
+    revalidatePath('/faq')
+    revalidatePath('/turnos')
+    revalidatePath('/checkout')
+    revalidatePath('/privacidad')
+    revalidatePath('/terminos')
+    return { success: true, data: null }
+  } catch {
+    return { success: false, error: 'No se pudieron guardar los datos de contacto.' }
+  }
+}
