@@ -283,7 +283,7 @@ export async function POST(req: Request) {
           phone: { number: payer.phone },
         },
         back_urls: {
-          success: `${BASE_URL}/checkout/success`,
+          success: `${BASE_URL}/checkout/confirmado?method=mercadopago&shipping=${shipping}`,
           failure: `${BASE_URL}/checkout/failure`,
           pending: `${BASE_URL}/checkout/pending`,
         },

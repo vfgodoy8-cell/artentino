@@ -217,7 +217,7 @@ export default function CheckoutClient({ pickupAddress }: { pickupAddress: strin
 
       if (data.confirmed) {
         clearCart()
-        router.push(`/checkout/confirmado?method=${payment}`)
+        router.push(`/checkout/confirmado?method=${payment}&shipping=${shipping}`)
         return
       }
 

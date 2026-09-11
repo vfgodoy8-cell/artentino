@@ -2,15 +2,20 @@ import Link from 'next/link'
 import { CASH_DISCOUNT_PCT } from '@/app/lib/constants'
 import { getSiteContact } from '@/app/lib/site-contact'
 
-type Props = { searchParams: Promise<{ method?: string }> }
+type Props = { searchParams: Promise<{ method?: string; shipping?: string }> }
 
 export default async function CheckoutConfirmadoPage({ searchParams }: Props) {
-  const { method } = await searchParams
+  const { method, shipping } = await searchParams
   const contact = await getSiteContact()
   const isCash = method === 'cash'
   const isTransfer = method === 'transfer'
   const isLegacy = method === 'cash_transfer'
+  const isMercadopago = method === 'mercadopago'
   const isCashOrTransfer = isCash || isTransfer || isLegacy
+  // cash/transfer/cash_transfer son siempre retiro en tienda (regla de negocio en
+  // checkout-client.tsx — esos métodos de pago solo se ofrecen cuando shipping==='pickup').
+  // El fallback por isLegacy cubre links viejos que puedan llegar sin el query param `shipping`.
+  const isPickup = shipping === 'pickup' || isLegacy
 
   return (
     <main className="flex min-h-[70vh] flex-col items-center justify-center px-4 py-16 text-center">
@@ -28,6 +33,8 @@ export default async function CheckoutConfirmadoPage({ searchParams }: Props) {
       <p className="mt-3 max-w-sm text-base text-gray-500">
         {isTransfer
           ? 'Tu pedido quedó guardado. Realizá la transferencia y envianos el comprobante.'
+          : isMercadopago
+          ? 'Tu pago fue confirmado correctamente.'
           : 'Tu pedido quedó guardado. Pasá por el local a retirarlo y abonalo ahí mismo.'}
       </p>
 
@@ -41,9 +48,6 @@ export default async function CheckoutConfirmadoPage({ searchParams }: Props) {
             <>
               <p className="font-black text-[#1E1E1E]">Efectivo</p>
               <p className="mt-0.5 text-sm text-gray-500">Abonás al retirar en el local · {contact.addressLine1}</p>
-              <p className="mt-3 text-sm text-gray-500">
-                Aguardá nuestro contacto para pasar por el Showroom a retirar.
-              </p>
             </>
           )}
 
@@ -82,10 +86,6 @@ export default async function CheckoutConfirmadoPage({ searchParams }: Props) {
                 <p className="text-gray-500">Cta Cte 020-3781212-2 - Toque Creativo SRL - Artentino</p>
                 <p className="text-xs text-gray-400">CBU: 0270020510037812120025</p>
               </div>
-
-              <p className="mt-3 text-sm text-gray-500">
-                Aguardá nuestro contacto para pasar por el Showroom a retirar.
-              </p>
             </>
           )}
 
@@ -102,6 +102,12 @@ export default async function CheckoutConfirmadoPage({ searchParams }: Props) {
             <p className="font-black text-[#1E1E1E]">{CASH_DISCOUNT_PCT}% OFF por pago en efectivo o transferencia</p>
           </div>
         </div>
+      )}
+
+      {isPickup && (
+        <p className="mt-3 max-w-sm text-sm text-gray-500">
+          Aguardá nuestro contacto para pasar por el Showroom a retirar.
+        </p>
       )}
 
       <p className="mt-5 text-sm text-gray-400">
