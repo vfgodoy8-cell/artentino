@@ -7,6 +7,7 @@ import { CASH_DISCOUNT, CASH_DISCOUNT_PCT } from '@/app/lib/constants'
 import { resolveShippingProvider } from '@/app/lib/shipping-zones'
 import { getZipnovaQuote, type ZipnovaQuoteItem } from '@/app/lib/shipping/zipnova'
 import { resolveBaseUrl } from '@/app/lib/base-url'
+import { getSiteContact } from '@/app/lib/site-contact'
 
 type CartItem = {
   productId: string
@@ -181,6 +182,7 @@ export async function POST(req: Request) {
     })
 
     // Fire-and-forget email
+    const contact = await getSiteContact()
     const pickupCashHtml = pickupCashEmail({
       name: payer.name,
       items: items.map((i) => ({
@@ -192,6 +194,8 @@ export async function POST(req: Request) {
       total: discountedTotal,
       discountPct: CASH_DISCOUNT_PCT,
       paymentMethod,
+      shipping,
+      pickupAddress: contact.addressLine1,
     })
 
     // after() extiende la invocación serverless hasta que estas promesas resuelvan —
