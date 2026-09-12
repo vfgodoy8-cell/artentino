@@ -31,10 +31,11 @@ export async function applyOrderConfirmedEffects(orderId: string): Promise<Apply
   if (!customerName || !customerEmail) return { ok: false, reason: 'missing-contact' }
 
   const contact = await getSiteContact()
-  const shippingLabel =
-    order.shippingMethod === 'pickup'
-      ? `Retiro en tienda — ${contact.addressLine1}`
-      : 'Envío a domicilio'
+  const isPickup = order.shippingMethod === 'pickup'
+  const shippingLabel = isPickup ? `Retiro en tienda — ${contact.addressLine1}` : 'Envío a domicilio'
+  const avisoRetiro = isPickup
+    ? '<p style="margin:6px 0 0;color:#555;font-size:14px;">Aguardá nuestro contacto para pasar por el Showroom a retirar.</p>'
+    : ''
 
   const itemsData = order.items.map((i) => ({
     name: i.product.name,
@@ -69,6 +70,7 @@ export async function applyOrderConfirmedEffects(orderId: string): Promise<Apply
               .join(''),
             total: Number(order.total).toLocaleString('es-AR'),
             envio: shippingLabel,
+            avisoRetiro,
           })
         : purchaseConfirmationEmail({
             name: customerName,

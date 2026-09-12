@@ -68,6 +68,7 @@ const DEFAULT_ORDER_HTML = `<!DOCTYPE html><html lang="es">
       </table>
       <div style="background:#F7F7F7;border-radius:12px;padding:16px 20px;margin-bottom:28px;">
         <p style="margin:0;color:#555;"><strong style="color:#1E1E1E;">Envío:</strong> {{envio}}</p>
+        {{avisoRetiro}}
       </div>
       <p style="margin:0;color:#0eb1c3;font-weight:900;">Equipo Artentino</p>
     </div>
