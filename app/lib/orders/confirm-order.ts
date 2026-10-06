@@ -7,6 +7,69 @@ import { addContactToBrevo } from '@/app/lib/brevo'
 
 type ApplyResult = { ok: true } | { ok: false; reason: string }
 
+export type OrderForConfirmationEmail = {
+  contactName: string | null
+  total: unknown // Decimal
+  shippingMethod: string | null
+  user: { name: string | null } | null
+  items: Array<{ quantity: number; price: unknown /* Decimal */; product: { name: string } }>
+}
+
+// Arma el { subject, html } del mail de confirmación de compra (template ORDER_PRE_CONFIRMATION
+// en DB, o purchaseConfirmationEmail hardcodeado como fallback si no hay template). Usado por
+// applyOrderConfirmedEffects y por scripts/resend-failed-order-emails.ts para no duplicar HTML.
+export async function buildOrderConfirmationEmail(
+  order: OrderForConfirmationEmail,
+): Promise<{ subject: string; html: string } | null> {
+  const customerName = order.contactName ?? order.user?.name
+  if (!customerName) return null
+
+  const contact = await getSiteContact()
+  const isPickup = order.shippingMethod === 'pickup'
+  const shippingLabel = isPickup ? `Retiro en tienda — ${contact.addressLine1}` : 'Envío a domicilio'
+  const avisoRetiro = isPickup
+    ? '<p style="margin:6px 0 0;color:#555;font-size:14px;">Aguardá nuestro contacto para pasar por el Showroom a retirar.</p>'
+    : ''
+
+  const itemsData = order.items.map((i) => ({
+    name: i.product.name,
+    quantity: i.quantity,
+    price: Number(i.price),
+  }))
+
+  const template = await prisma.emailTemplate.findUnique({
+    where: { key: 'ORDER_PRE_CONFIRMATION' },
+  })
+
+  const html = template
+    ? interpolate(template.htmlBody, {
+        nombreCliente: customerName,
+        itemsHtml: itemsData
+          .map(
+            (item) =>
+              `<tr>
+                <td style="padding:10px 0;color:#1E1E1E;border-bottom:1px solid #eee;">${item.name}</td>
+                <td style="padding:10px 0;color:#888;text-align:center;border-bottom:1px solid #eee;">×${item.quantity}</td>
+                <td style="padding:10px 0;color:#1E1E1E;font-weight:700;text-align:right;border-bottom:1px solid #eee;">$${(item.price * item.quantity).toLocaleString('es-AR')}</td>
+              </tr>`,
+          )
+          .join(''),
+        total: Number(order.total).toLocaleString('es-AR'),
+        envio: shippingLabel,
+        avisoRetiro,
+      })
+    : purchaseConfirmationEmail({
+        name: customerName,
+        items: itemsData,
+        total: Number(order.total),
+        shipping: (order.shippingMethod as 'pickup' | 'delivery') ?? 'pickup',
+      })
+
+  const subject = template?.subject ?? '¡Gracias por tu compra en Artentino!'
+
+  return { subject, html }
+}
+
 // Efectos secundarios de confirmar un pedido pagado: dispara el envío por Zipnova si
 // corresponde y manda los mails de confirmación (cliente + copia a info@). Compartido
 // entre el webhook de MercadoPago (app/api/webhook/mercadopago) y el cron de
@@ -30,19 +93,6 @@ export async function applyOrderConfirmedEffects(orderId: string): Promise<Apply
 
   if (!customerName || !customerEmail) return { ok: false, reason: 'missing-contact' }
 
-  const contact = await getSiteContact()
-  const isPickup = order.shippingMethod === 'pickup'
-  const shippingLabel = isPickup ? `Retiro en tienda — ${contact.addressLine1}` : 'Envío a domicilio'
-  const avisoRetiro = isPickup
-    ? '<p style="margin:6px 0 0;color:#555;font-size:14px;">Aguardá nuestro contacto para pasar por el Showroom a retirar.</p>'
-    : ''
-
-  const itemsData = order.items.map((i) => ({
-    name: i.product.name,
-    quantity: i.quantity,
-    price: Number(i.price),
-  }))
-
   // after() extiende la invocación serverless hasta que estas promesas resuelvan —
   // sin esto, Vercel puede congelar el proceso apenas se manda la response y el
   // fetch a Resend nunca llega a completarse.
@@ -51,35 +101,9 @@ export async function applyOrderConfirmedEffects(orderId: string): Promise<Apply
     await addContactToBrevo(customerEmail, { PRENOM: customerName })
 
     try {
-      const template = await prisma.emailTemplate.findUnique({
-        where: { key: 'ORDER_PRE_CONFIRMATION' },
-      })
-
-      const html = template
-        ? interpolate(template.htmlBody, {
-            nombreCliente: customerName,
-            itemsHtml: itemsData
-              .map(
-                (item) =>
-                  `<tr>
-                    <td style="padding:10px 0;color:#1E1E1E;border-bottom:1px solid #eee;">${item.name}</td>
-                    <td style="padding:10px 0;color:#888;text-align:center;border-bottom:1px solid #eee;">×${item.quantity}</td>
-                    <td style="padding:10px 0;color:#1E1E1E;font-weight:700;text-align:right;border-bottom:1px solid #eee;">$${(item.price * item.quantity).toLocaleString('es-AR')}</td>
-                  </tr>`,
-              )
-              .join(''),
-            total: Number(order.total).toLocaleString('es-AR'),
-            envio: shippingLabel,
-            avisoRetiro,
-          })
-        : purchaseConfirmationEmail({
-            name: customerName,
-            items: itemsData,
-            total: Number(order.total),
-            shipping: (order.shippingMethod as 'pickup' | 'delivery') ?? 'pickup',
-          })
-
-      const subject = template?.subject ?? '¡Gracias por tu compra en Artentino!'
+      const emailContent = await buildOrderConfirmationEmail(order)
+      if (!emailContent) return
+      const { subject, html } = emailContent
 
       // Independientes entre sí — si uno falla, el otro tiene que intentar igual.
       await sendEmail({ to: customerEmail, subject, html }).catch((err) => {

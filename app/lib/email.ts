@@ -21,13 +21,26 @@ export async function sendEmail({ to, subject, html, bcc }: SendEmailParams) {
     console.warn('[email] RESEND_API_KEY not configured, skipping send')
     return { error: null }
   }
-  return resend.emails.send({
+  const result = await resend.emails.send({
     from: 'Artentino <noreply@artentino.com.ar>',
     to,
     subject,
     html,
     ...(bcc ? { bcc } : {}),
   })
+  if (result.error) {
+    // resend.emails.send() no rechaza la promesa ante un error de la API (403, rate limit,
+    // dominio no verificado, etc.) — devuelve { error } como resultado "normal". Si no
+    // tiramos acá, los catch de todos los callers quedan muertos y el fallo pasa en silencio.
+    console.error('[email] envío falló', {
+      to,
+      subject,
+      statusCode: result.error.statusCode,
+      message: result.error.message,
+    })
+    throw new Error(`[email] envío a ${to} falló: ${result.error.message}`)
+  }
+  return result
 }
 
 const HEADER = `

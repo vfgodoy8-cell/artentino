@@ -42,16 +42,13 @@ export async function updateOrderStatus(orderId: string, status: string) {
 
   if ((status === 'SHIPPED' || status === 'DELIVERED') && customerName && customerEmail) {
     try {
-      const result = await sendEmail({
+      await sendEmail({
         to: customerEmail,
         subject: status === 'SHIPPED' ? 'Artentino — Tu pedido está en camino' : 'Artentino — Tu pedido fue entregado',
         html: orderStatusUpdateEmail({ name: customerName, orderId: order.id, status }),
       })
-      if (result?.error) {
-        console.error('[updateOrderStatus] resend error:', result.error)
-        return { success: true, error: 'No se pudo enviar el email de notificación' }
-      }
     } catch (error) {
+      // sendEmail ya loguea el detalle (statusCode/mensaje de Resend) antes de tirar.
       console.error('[updateOrderStatus] fallo al enviar email de notificación:', error)
       return { success: true, error: 'No se pudo enviar el email de notificación' }
     }
