@@ -1,16 +1,18 @@
 import Link from 'next/link'
 import { prisma } from '@/lib/prisma'
 import { serializeProduct } from '@/lib/serialize'
+import { normalizeText } from '@/app/lib/normalize-text'
 import ProductCard from '@/app/ui/product-card'
 import CategoryPills from './category-pills'
 import CategorySidebar from './category-sidebar'
+import CatalogSearch from './catalog-search'
 
 type Props = {
-  searchParams: Promise<{ categoria?: string }>
+  searchParams: Promise<{ categoria?: string; q?: string }>
 }
 
 export default async function CatalogoPage({ searchParams }: Props) {
-  const { categoria } = await searchParams
+  const { categoria, q } = await searchParams
 
   // Determinar si el slug es de categoría padre o subcategoría
   const parentCategory = categoria
@@ -27,7 +29,7 @@ export default async function CatalogoPage({ searchParams }: Props) {
             : { category: { slug: categoria } }
           : {}),
       },
-      include: { category: true },
+      include: { category: { include: { category: true } } },
       orderBy: categoria
         ? [{ sortOrder: 'asc' }, { createdAt: 'desc' }]
         : [
@@ -58,6 +60,18 @@ export default async function CatalogoPage({ searchParams }: Props) {
       ? products[0]?.category?.name ?? 'Catálogo'
       : 'Catálogo'
 
+  const trimmedQuery = q?.trim() ?? ''
+  const queryWords = trimmedQuery ? normalizeText(trimmedQuery).split(/\s+/).filter(Boolean) : []
+
+  const filteredProducts = queryWords.length === 0
+    ? products
+    : products.filter((p) => {
+        const haystack = normalizeText(
+          [p.name, p.sku ?? '', p.category.name, p.category.category?.name ?? ''].join(' '),
+        )
+        return queryWords.every((word) => haystack.includes(word))
+      })
+
   return (
     <main className="min-h-dvh bg-white">
 
@@ -78,7 +92,7 @@ export default async function CatalogoPage({ searchParams }: Props) {
             {headingTitle}
           </h1>
           <p className="mt-1.5 text-sm text-[#9ca3af]">
-            {products.length} {products.length === 1 ? 'producto' : 'productos'}
+            {filteredProducts.length} {filteredProducts.length === 1 ? 'producto' : 'productos'}
           </p>
         </div>
       </div>
@@ -94,29 +108,37 @@ export default async function CatalogoPage({ searchParams }: Props) {
 
           <div className="min-w-0 flex-1">
 
-            {/* Mobile: horizontal pills */}
-            <div className="mb-6 lg:hidden">
-              <CategoryPills categories={categories} activeSlug={categoria} />
-            </div>
+            <CatalogSearch initialQuery={q ?? ''} resultCount={filteredProducts.length}>
 
-            {/* Products grid */}
-            {products.length === 0 ? (
-              <div className="py-24 text-center">
-                <p className="text-lg font-bold text-[#1E1E1E]">No hay productos en esta categoría</p>
-                <Link
-                  href="/catalogo"
-                  className="mt-4 inline-block text-sm font-semibold text-[#0eb1c3] underline underline-offset-4"
-                >
-                  Ver todos los productos
-                </Link>
+              {/* Mobile: horizontal pills */}
+              <div className="mb-6 lg:hidden">
+                <CategoryPills categories={categories} activeSlug={categoria} />
               </div>
-            ) : (
-              <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 lg:gap-6">
-                {products.map(serializeProduct).map((product) => (
-                  <ProductCard key={product.id} {...product} />
-                ))}
-              </div>
-            )}
+
+              {/* Products grid */}
+              {filteredProducts.length === 0 ? (
+                <div className="py-24 text-center">
+                  <p className="text-lg font-bold text-[#1E1E1E]">
+                    {trimmedQuery
+                      ? `No encontramos productos para «${trimmedQuery}»`
+                      : 'No hay productos en esta categoría'}
+                  </p>
+                  <Link
+                    href={trimmedQuery && categoria ? `/catalogo?q=${encodeURIComponent(trimmedQuery)}` : '/catalogo'}
+                    className="mt-4 inline-block text-sm font-semibold text-[#0eb1c3] underline underline-offset-4"
+                  >
+                    {trimmedQuery && categoria ? 'Buscar en todo el catálogo' : 'Ver todos los productos'}
+                  </Link>
+                </div>
+              ) : (
+                <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 lg:gap-6">
+                  {filteredProducts.map(serializeProduct).map((product) => (
+                    <ProductCard key={product.id} {...product} />
+                  ))}
+                </div>
+              )}
+
+            </CatalogSearch>
           </div>
 
         </div>
