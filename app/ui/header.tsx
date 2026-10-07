@@ -1,6 +1,6 @@
 ﻿'use client'
 
-import { useState, useRef, useEffect } from 'react'
+import { useState, useRef, useEffect, Suspense } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { usePathname } from 'next/navigation'
@@ -89,7 +89,9 @@ export default function Header() {
             {/* Actions */}
             <div className="flex items-center gap-3">
 
-              <HeaderSearch />
+              <Suspense fallback={<div className="h-11 w-11 md:h-0 md:w-0 lg:h-9 lg:w-44 xl:w-56" />}>
+                <HeaderSearch />
+              </Suspense>
 
               {/* User button — desktop */}
               <div className="relative hidden md:block" ref={dropdownRef}>
