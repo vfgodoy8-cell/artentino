@@ -1,7 +1,7 @@
 import Link from 'next/link'
 import { prisma } from '@/lib/prisma'
 import { serializeProduct } from '@/lib/serialize'
-import { normalizeText } from '@/app/lib/normalize-text'
+import { filterProducts } from '@/app/lib/product-search'
 import ProductCard from '@/app/ui/product-card'
 import CategoryPills from './category-pills'
 import CategorySidebar from './category-sidebar'
@@ -61,16 +61,7 @@ export default async function CatalogoPage({ searchParams }: Props) {
       : 'Catálogo'
 
   const trimmedQuery = q?.trim() ?? ''
-  const queryWords = trimmedQuery ? normalizeText(trimmedQuery).split(/\s+/).filter(Boolean) : []
-
-  const filteredProducts = queryWords.length === 0
-    ? products
-    : products.filter((p) => {
-        const haystack = normalizeText(
-          [p.name, p.sku ?? '', p.category.name, p.category.category?.name ?? ''].join(' '),
-        )
-        return queryWords.every((word) => haystack.includes(word))
-      })
+  const filteredProducts = filterProducts(products, trimmedQuery)
 
   return (
     <main className="min-h-dvh bg-white">

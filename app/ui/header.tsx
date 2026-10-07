@@ -9,6 +9,7 @@ import { useCart } from '@/app/context/cart-context'
 import { logout } from '@/app/actions/auth'
 import CartDrawer from './cart-drawer'
 import CartAddPopup from './cart-add-popup'
+import HeaderSearch from './header-search'
 
 const navLinks = [
   { href: '/', label: 'Inicio' },
@@ -87,6 +88,8 @@ export default function Header() {
 
             {/* Actions */}
             <div className="flex items-center gap-3">
+
+              <HeaderSearch />
 
               {/* User button — desktop */}
               <div className="relative hidden md:block" ref={dropdownRef}>
