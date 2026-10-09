@@ -3,7 +3,7 @@ import { MercadoPagoConfig, Preference } from 'mercadopago'
 import { auth } from '@/auth'
 import { prisma } from '@/lib/prisma'
 import { sendEmail, pickupCashEmail } from '@/app/lib/email'
-import { CASH_DISCOUNT, CASH_DISCOUNT_PCT } from '@/app/lib/constants'
+import { ADMIN_NOTIFICATION_EMAIL, CASH_DISCOUNT, CASH_DISCOUNT_PCT } from '@/app/lib/constants'
 import { resolveShippingProvider } from '@/app/lib/shipping-zones'
 import { getZipnovaQuote, type ZipnovaQuoteItem } from '@/app/lib/shipping/zipnova'
 import { resolveBaseUrl } from '@/app/lib/base-url'
@@ -215,7 +215,7 @@ export async function POST(req: Request) {
       // Independiente del mail al cliente — si el de arriba falla, este igual se intenta.
       try {
         await sendEmail({
-          to: 'info@artentino.com',
+          to: ADMIN_NOTIFICATION_EMAIL,
           subject: `Nuevo pedido — ${payer.name} — $${discountedTotal.toLocaleString('es-AR')}`,
           html: pickupCashHtml,
         })

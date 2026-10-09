@@ -1,6 +1,7 @@
 import { after } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { sendEmail, purchaseConfirmationEmail, interpolate } from '@/app/lib/email'
+import { ADMIN_NOTIFICATION_EMAIL } from '@/app/lib/constants'
 import { triggerZipnovaShipmentIfNeeded } from '@/app/lib/shipping/zipnova'
 import { getSiteContact } from '@/app/lib/site-contact'
 import { addContactToBrevo } from '@/app/lib/brevo'
@@ -111,7 +112,7 @@ export async function applyOrderConfirmedEffects(orderId: string): Promise<Apply
       })
 
       await sendEmail({
-        to: 'info@artentino.com',
+        to: ADMIN_NOTIFICATION_EMAIL,
         subject: `Nuevo pedido — ${customerName} — $${Number(order.total).toLocaleString('es-AR')}`,
         html,
       }).catch((err) => {

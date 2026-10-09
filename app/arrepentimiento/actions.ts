@@ -3,6 +3,7 @@
 import { after } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { sendEmail, arrepentimientoCustomerEmail, arrepentimientoAdminEmail } from '@/app/lib/email'
+import { ADMIN_NOTIFICATION_EMAIL } from '@/app/lib/constants'
 
 type SubmitArrepentimientoInput = {
   orderNumber: string
@@ -53,7 +54,7 @@ export async function submitArrepentimiento({ orderNumber, email, motivo }: Subm
     after(async () => {
       try {
         await sendEmail({
-          to: 'info@artentino.com',
+          to: ADMIN_NOTIFICATION_EMAIL,
           subject: 'Artentino — Nueva solicitud de arrepentimiento',
           html: arrepentimientoAdminEmail({
             orderId: order.id,

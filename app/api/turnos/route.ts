@@ -1,6 +1,10 @@
 import { NextResponse, after } from 'next/server'
 import { prisma } from '@/lib/prisma'
-import { sendEmail, appointmentConfirmationEmail, interpolate } from '@/app/lib/email'
+import { sendEmail, appointmentConfirmationEmail, adminNewAppointmentEmail, interpolate } from '@/app/lib/email'
+import { ADMIN_NOTIFICATION_EMAIL } from '@/app/lib/constants'
+import { resolveBaseUrl } from '@/app/lib/base-url'
+
+const BASE_URL = resolveBaseUrl()
 
 export async function POST(req: Request) {
   const body = await req.json()
@@ -72,6 +76,25 @@ export async function POST(req: Request) {
       await sendEmail({ to: email, subject, html })
     } catch (err) {
       console.error('[email] appointment confirmation failed:', err)
+    }
+
+    // Independiente del mail al cliente — si uno falla, el otro se intenta igual.
+    try {
+      await sendEmail({
+        to: ADMIN_NOTIFICATION_EMAIL,
+        subject: `Nuevo turno — ${appointment.name} — ${formattedDate} ${time}`,
+        html: adminNewAppointmentEmail({
+          name: appointment.name,
+          email,
+          phone,
+          date: formattedDate,
+          time,
+          modality,
+          adminUrl: `${BASE_URL}/admin/turnos`,
+        }),
+      })
+    } catch (err) {
+      console.error('[email] aviso de turno a admin falló:', err)
     }
   })
 

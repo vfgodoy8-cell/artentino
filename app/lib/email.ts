@@ -318,6 +318,66 @@ export function adminNewOrderEmail({
   )
 }
 
+export function adminNewAppointmentEmail({
+  name,
+  email,
+  phone,
+  date,
+  time,
+  modality,
+  adminUrl,
+}: {
+  name: string
+  email: string
+  phone: string
+  date: string
+  time: string
+  modality: 'PRESENCIAL' | 'WHATSAPP'
+  adminUrl: string
+}) {
+  const modalityLabel = modality === 'PRESENCIAL' ? 'Presencial en showroom' : 'WhatsApp por cámara'
+  const whatsappUrl = `https://wa.me/${phone.replace(/\D/g, '')}`
+
+  return (
+    WRAP_START +
+    HEADER.replace('{{title}}', 'Nuevo turno') +
+    `<div style="padding:36px 32px;">
+      <p style="margin:0 0 8px;color:#1E1E1E;font-size:16px;">Nuevo turno de <strong>${name}</strong>.</p>
+      <div style="background:#F7F7F7;border-radius:12px;padding:20px 24px;margin:16px 0 28px;">
+        <table style="width:100%;border-collapse:collapse;">
+          <tr>
+            <td style="padding:7px 0;color:#888;font-size:11px;font-weight:900;text-transform:uppercase;letter-spacing:1px;width:38%;">Fecha</td>
+            <td style="padding:7px 0;color:#1E1E1E;font-weight:700;">${date}</td>
+          </tr>
+          <tr>
+            <td style="padding:7px 0;color:#888;font-size:11px;font-weight:900;text-transform:uppercase;letter-spacing:1px;">Hora</td>
+            <td style="padding:7px 0;color:#1E1E1E;font-weight:700;">${time} hs</td>
+          </tr>
+          <tr>
+            <td style="padding:7px 0;color:#888;font-size:11px;font-weight:900;text-transform:uppercase;letter-spacing:1px;">Modalidad</td>
+            <td style="padding:7px 0;color:#1E1E1E;font-weight:700;">${modalityLabel}</td>
+          </tr>
+          <tr>
+            <td style="padding:7px 0;color:#888;font-size:11px;font-weight:900;text-transform:uppercase;letter-spacing:1px;">Email</td>
+            <td style="padding:7px 0;color:#1E1E1E;font-weight:700;">${email}</td>
+          </tr>
+          <tr>
+            <td style="padding:7px 0;color:#888;font-size:11px;font-weight:900;text-transform:uppercase;letter-spacing:1px;">Teléfono</td>
+            <td style="padding:7px 0;color:#1E1E1E;font-weight:700;"><a href="${whatsappUrl}" style="color:#0eb1c3;text-decoration:none;">${phone}</a></td>
+          </tr>
+        </table>
+      </div>
+      <div style="text-align:center;margin-bottom:8px;">
+        <a href="${adminUrl}" style="display:inline-block;background:#0eb1c3;color:#fff;font-weight:900;text-decoration:none;padding:14px 32px;border-radius:12px;">
+          Ver turnos
+        </a>
+      </div>
+    </div>` +
+    emailFooter() +
+    WRAP_END
+  )
+}
+
 export function arrepentimientoCustomerEmail({
   name,
   orderId,
