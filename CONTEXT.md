@@ -1,9 +1,9 @@
-# Proyecto Artentino — Contexto actualizado 2026-08-14
+# Proyecto Artentino — Contexto actualizado 2026-10-09
 
 E-commerce de decoración, hogar y regalos con diseño argentino.
 
 **Repo:** `C:\proyectos\bardot\artentino\` · Branch: `main`  
-**Último commit:** `4c894ee` — feat(instagram): curación manual de posts en el feed público (ver "Cambios recientes" 08-14 por más detalle — hay trabajo posterior sin commitear todavía, el cron de reconciliación de órdenes)
+**Último commit:** `cb60b62` — fix(productos): archivar en vez de fallar al borrar productos con pedidos (ver "Cambios recientes" 10-06/10-09 por el detalle completo de esta sesión larga — fix de raíz de Resend, buscador de catálogo + buscador global del header, aviso por mail de turno nuevo, soft-delete de productos con pedidos)
 
 **Dominios en producción:** confirmado vía `vercel inspect` que el deployment activo tiene **4 alias funcionando en simultáneo**: `artentino.com`, `www.artentino.com`, `artentino.com.ar`, `www.artentino.com.ar` — todos apuntan al mismo deployment, no hay dominio viejo/roto. `NEXT_PUBLIC_BASE_URL` en Vercel Production sigue "Sensitive" (no legible vía CLI), configurada hace 60+ días, sin cambios recientes.
 
@@ -18,7 +18,7 @@ E-commerce de decoración, hogar y regalos con diseño argentino.
 - MercadoPago (**producción** — `MP_ACCESS_TOKEN` es `APP_USR-` real de la cuenta del cliente, id 263472498, activa/platinum; ver "Cambios recientes" por el bug de `init_point` ya resuelto)
 - Zipnova — cotización **y creación real de envíos**, API v2 (ver "Cambios recientes" — antes solo cotizaba, ahora también dispara la creación del envío al confirmarse el pago)
 - Cloudinary (imágenes productos, cloud: `dgz7bquai`)
-- Resend (emails) — remitente `noreply@artentino.com.ar`, copia de admin a `info@artentino.com` (**sin** `.ar` — ver "Cambios recientes", dominios de contacto distintos, no confundir). **Estado de verificación del dominio en Resend no reconfirmado en esta sesión** — la sesión previa (2026-08-01) lo encontró bloqueado (403, dominio no verificado); no se re-testeó explícitamente acá, sendEmail() falla en silencio (`.catch(() => {})`) así que un 403 no se notaría solo. Verificar antes de asumir que los mails salen.
+- Resend (emails) — remitente `noreply@artentino.com.ar`, copia de admin a `ADMIN_NOTIFICATION_EMAIL` (`app/lib/constants.ts` = `info@artentino.com`, **sin** `.ar`). **Dominio verificado de nuevo en Resend** — estuvo sin verificar (403 en todos los envíos) entre un momento no identificado con precisión y 2026-10-06 15:26 ART; confirmado y resuelto en la sesión 10-06 (ver "Cambios recientes"). `sendEmail()` (`app/lib/email.ts`) ya **no** falla en silencio: si Resend devuelve `{ error }` lo loguea (destinatario, asunto, statusCode, mensaje) y **tira excepción** — antes ese caso se devolvía como resultado "normal" y los `catch` de todos los callers (ya existían, están en `after()`/try-catch) nunca llegaban a correr.
 - Instagram Graph API — flujo nuevo "Instagram API con inicio de sesión de Instagram" (tokens `IGAA...`), no el viejo Facebook Login (ver "Cambios recientes")
 - Deploy: Vercel (proyecto `artentino` en team `vfgodoy8-cells-projects`)
 
@@ -58,7 +58,7 @@ E-commerce de decoración, hogar y regalos con diseño argentino.
 
 | Modelo | Notas |
 |---|---|
-| `Product` | imageUrl (String?), featured, sortOrder, wholesalePrice, `height/width/length` (Decimal? cm), `weight` (Decimal? **gramos** — TODO el catálogo, 155/155 auditados, confirmado consistente; NUNCA convertir al cotizar con Zipnova, ver "Cambios recientes" — el bug real fue justamente una conversión de más) |
+| `Product` | imageUrl (String?), featured, sortOrder, wholesalePrice, `height/width/length` (Decimal? cm), `weight` (Decimal? **gramos** — TODO el catálogo, 155/155 auditados, confirmado consistente; NUNCA convertir al cotizar con Zipnova, ver "Cambios recientes" — el bug real fue justamente una conversión de más). **Nuevo 10-09:** `archivedAt` (DateTime?, nullable) — soft-delete para productos con `OrderItem` asociados, ver "Cambios recientes" |
 | `ProductImage` | tabla `product_images`, url, filename — relación 1:N con Product |
 | `Attribute` | `filter` (catálogo público), `hidden` (stock genérico sin variante) |
 | `ProductStock` | unique [productId, attributeId, value] |
@@ -89,10 +89,8 @@ E-commerce de decoración, hogar y regalos con diseño argentino.
 **Stock sin variante:**
 - `upsertGenericStock(productId, qty)` crea automáticamente un `Attribute` con `hidden:true` llamado "Genérico".
 
-**Resend — dominio sin verificar (bloqueante, pendiente acción manual — estado sin reconfirmar desde 2026-08-01):**
-- `app/lib/email.ts` manda todos los mails con `from: 'Artentino <noreply@artentino.com.ar>'`. Al 2026-08-01, probado con `scripts/test-email.ts` (script de debug, no versionado) contra la `RESEND_API_KEY` real: Resend devolvía 403 `"The artentino.com.ar domain is not verified"`. Quotas en la respuesta: `x-resend-daily-quota: 0` / `x-resend-monthly-quota: 0`.
-- **No se volvió a testear explícitamente en la sesión del 08-07** pese a agregar dos features nuevas de mail (copia de compra a `info@`, aviso de vencimiento de Instagram) — como `sendEmail()` siempre se llama con `.catch(() => {})` (fire-and-forget), un 403 no genera ningún error visible. Antes de confiar en que estos mails salen, verificar de nuevo.
-- Acción pendiente del lado de Valentín: verificar `artentino.com.ar` en `resend.com/domains` (agregar registros DNS SPF/DKIM que pida el panel).
+**Resend — RESUELTO (10-06, ver "Cambios recientes"):**
+- El dominio `artentino.com.ar` estuvo sin verificar (403 en todo `POST /emails`) hasta 2026-10-06 15:26 ART. Ya está verificado. `sendEmail()` ya no traga el error en silencio — ver nota en "Stack" más arriba.
 
 **`CRON_SECRET` no existe en Vercel Production (bloqueante, encontrado 2026-08-05, sin resolver — confirmado de nuevo 08-14, sigue igual):**
 - `vercel env ls production` no lista `CRON_SECRET` — solo existe en `.env` local (`dev-test-secret-12345`, un placeholder de dev). **Ahora bloquea DOS crons** (antes solo uno): `app/api/cron/instagram-refresh` (06:00 UTC) y el nuevo `app/api/cron/reconcile-orders` (cada 6hs, ver "Cambios recientes" 08-14). Ambos empiezan con `if (!process.env.CRON_SECRET || authHeader !== ...) return 401` — si la env var no existe en Production, **la ruta rechaza con 401 a cualquiera, incluido el propio cron de Vercel**, por lo que ninguno de los dos corre solo en producción todavía.
@@ -247,6 +245,42 @@ E-commerce de decoración, hogar y regalos con diseño argentino.
 - **Bloqueado por el mismo problema de `CRON_SECRET` faltante** (ver "Notas importantes") — no va a correr solo en producción hasta que se resuelva.
 - **Las 23 órdenes `PENDING`/`mercadopago` reales que ya existen en la DB (todas sin pago en MP, la más vieja del 22/07) no se tocaron a propósito** — decisión explícita de Valentín (2026-08-14/24): revisarlas una por una manualmente antes de dejar correr el cron sin acotar. Si se corre `GET /api/cron/reconcile-orders` sin `?orderId=`, las va a cancelar a todas de una — pensarlo dos veces antes de invocarlo sin acotar contra prod.
 - **Código sin commitear al cierre de esta sesión** (a diferencia de los puntos 18-21, que sí se pushearon) — confirmar con Valentín antes de commitear/pushear.
+
+---
+
+## Cambios recientes (sesión 2026-10-06/10-09 — fix de raíz de Resend, buscadores, aviso de turno, soft-delete de productos)
+
+**24. Dominio de Resend sin verificar — diagnóstico, reenvío puntual y fix de raíz (commit `81d0a58`)**
+- Diagnóstico confirmado: `artentino.com.ar` quedó sin verificar en Resend, causando 403 en **todos** los envíos entre `2026-09-28 18:14:16 ART` (hora que dio Valentín) y `2026-10-06 15:26 ART` (hora de re-verificación). Causa de que nadie se enterara: `sendEmail()` devolvía `{ data: null, error }` como resultado "normal" (el SDK de Resend no rechaza la promesa ante un error de API) — los `catch` de **todos** los callers (ya estaban bien puestos, dentro de `after()`/try-catch) nunca llegaban a ejecutarse.
+- `scripts/resend-failed-order-emails.ts` (nuevo, versionado): dry-run por default, `--send` para el envío real. Reconstruye el mismo mail que le hubiera llegado al cliente reutilizando `pickupCashEmail` (cash/transfer) y una función nueva extraída `buildOrderConfirmationEmail()` (`app/lib/orders/confirm-order.ts`, compartida con el webhook de MP para no duplicar el armado del HTML). De los pedidos en la ventana, solo **1** (cash/transfer) tenía un mail pendiente — los otros 2 eran de MercadoPago sin ningún `payment` real en MP (`0 resultados` en `/v1/payments/search?external_reference=...`, confirmado por API antes de tocar nada), así que no les correspondía ningún mail.
+- **Fix de raíz:** `sendEmail()` ahora, si Resend devuelve `{ error }`, lo loguea con `console.error` (destinatario, asunto, `statusCode`, mensaje) y **tira una excepción**. Así un futuro 403 (o cualquier otro error de Resend) deja de pasar desapercibido.
+
+**25. Buscador de `/catalogo` con filtro en vivo (commit `10d2d02`)**
+- `app/lib/normalize-text.ts` (nuevo): minúsculas + sin diacríticos vía `NFD` + `\p{Mn}`. `app/catalogo/catalog-search.tsx` (Client Component): input con debounce 300ms, `router.replace(..., { scroll: false })` preservando `categoria` si había una activa.
+- Filtro en `catalogo/page.tsx`: **en memoria** sobre el resultado de `findMany` (catálogo chico, no vale la pena `unaccent` a nivel DB) — parte la query en palabras, exige que **todas** matcheen contra nombre + SKU + subcategoría + categoría padre.
+- Sin resultados: si había `categoria` activa, link "Buscar en todo el catálogo" que preserva `q` pero saca `categoria`; si no, "Ver todos los productos".
+
+**26. Buscador global en el header (commits `b371c5c`, `e52debc`)**
+- `app/lib/product-search.ts` (nuevo): extrae la lógica de filtro de `catalogo/page.tsx` a funciones compartidas (`filterProducts`, `matchesSearch`, `matchesName`) para que el catálogo y el endpoint nuevo `GET /api/buscar` busquen exactamente igual. El endpoint devuelve `{ total, items }` (solo `active: true`, hasta 6, los que matchean por nombre primero) sin exponer `cost`/`wholesalePrice`.
+- `app/ui/header-search.tsx`: a `md` (768-1023px) el espacio real entre el nav y las acciones es de **~9px** (medido con `getBoundingClientRect` en el navegador real, no a ojo) — por eso ahí es solo un ícono que expande el input por encima del layout (`position: absolute`, no reserva ancho en el flex); a `lg+` sobra espacio y el input vive en flujo normal. Mobile (`<768px`): ícono junto al carrito que abre un overlay fullscreen con scroll del body bloqueado. Teclado tipo combobox (`role="combobox"`/`"listbox"`/`"option"`, `aria-activedescendant`, flechas + Enter + Escape). En `/catalogo` el input del header **no** abre panel de sugerencias — escribe directo en `?q=` con el mismo patrón que `catalog-search.tsx`, para no duplicar la búsqueda de esa página (ambos campos quedan sincronizados vía `useSearchParams`).
+- **Gotcha de build:** `useSearchParams()` en un Client Component montado desde el layout raíz (`header.tsx`) compila y corre perfecto en `npm run dev`, pero rompe el build de Vercel con `useSearchParams() should be wrapped in a suspense boundary` — `next build` lo detecta, `next dev` no. Hubo que envolver `<HeaderSearch />` en `<Suspense fallback={...}>` con un fallback que ocupa el mismo footprint por breakpoint (si no, el header salta al hidratar).
+
+**27. Aviso por mail a admin cuando se reserva un turno (commit `f979cd7`)**
+- Antes solo se mandaba la confirmación al cliente — el equipo se enteraba de un turno nuevo recién cuando la persona llegaba al showroom.
+- `ADMIN_NOTIFICATION_EMAIL` extraído a `app/lib/constants.ts` (mismo valor `info@artentino.com`) y reemplazado en los 4 lugares que lo tenían hardcodeado (`checkout/route.ts`, `confirm-order.ts`, `contacto/route.ts`, `arrepentimiento/actions.ts`).
+- `adminNewAppointmentEmail()` (nuevo en `email.ts`, mismo estilo que los otros avisos internos, con link de WhatsApp al teléfono del cliente y botón a `/admin/turnos`) se manda dentro del mismo `after()` de `POST /api/turnos`, con `try/catch` propio e independiente del mail al cliente.
+
+**28. Productos con pedidos: archivar en vez de fallar al borrar (commit `cb60b62`)**
+- Reporte de Pablo: no podía borrar ciertos SKU (901085, 901028, 901333) desde `/admin/productos` — al confirmar no pasaba nada, el producto seguía en la lista.
+- Causa raíz confirmada (lectura de DB antes de tocar nada): los 3 SKU tienen `OrderItem` asociados (pedidos reales, todos `PENDING_PICKUP_PAYMENT`). `OrderItem.product` es la **única** relación hacia `Product` sin `onDelete: Cascade` en todo el schema (a propósito — para no perder el historial de qué se vendió), así que `prisma.product.delete()` fallaba con P2003 (FK Restrict). `handleDelete` en `products-table.tsx` no tenía `try/catch` alrededor de la Server Action, así que el fallo quedaba como unhandled rejection silenciosa — Pablo (SUPERADMIN, permisos correctos) no veía ningún error.
+- `Product.archivedAt DateTime?` (nullable, cambio aditivo vía `prisma db push`, ya aplicado en producción). `deleteProduct()` ahora cuenta `OrderItem` antes de intentar: 0 → borra real, como antes; ≥1 → archiva (`archivedAt = now()`, `active = false`) y audita `'archive'` (en vez de `'delete'`) con `orderItemCount` en el detalle. Nueva `restoreProduct()` (limpia `archivedAt`, audita `'restore'`).
+- Todas las queries públicas que listan/resuelven productos (`catalogo/page.tsx`, `catalogo/[slug]/page.tsx`, `product-grid.tsx` del home, `/api/buscar`, `/api/products`, `/api/products/[slug]`) y los pickers de admin (`destacados`, relacionados en `productos/[id]/editar`) filtran `archivedAt: null` — un producto archivado desaparece del frente público y de los buscadores sin tocar los `OrderItem` que ya lo referencian (el pedido admin sigue mostrando nombre+imagen+variante+precio sin romperse, verificado contra el pedido real de 901085).
+- UI en `/admin/productos`: pestaña "Archivados" (4ta, junto a Todos/Activos/Inactivos) + badge ámbar "Archivado" + botón "Restaurar" en la fila.
+- **Bug encontrado y arreglado en el camino:** el estado de los toasts (`app/ui/toast.tsx`) vivía en `useState` dentro de `ProductsTable` — `router.refresh()` (llamado después de archivar/restaurar) remonta ese componente a mitad del timeout de 3s del toast, así que el aviso desaparecía antes de que el usuario llegara a leerlo (medido con timestamps reales: se perdía a ~1-1.5s de 3s). Se movió el store a nivel de módulo (`useSyncExternalStore`) con un único `<ToastHost />` montado una sola vez en `app/admin/layout.tsx`, fuera del subárbol que el refresh remonta — de paso se sacó el `<ToastContainer>` duplicado que tenía `administradores-client.tsx`.
+
+**Gotchas nuevos de esta sesión:**
+- El rol (`adminRole`) de un usuario vive en el JWT de la sesión (`auth.config.ts::jwt()` solo lo setea en el callback inicial de login), **no** se relee de la DB en cada request — si cambiás el rol en la DB a mano para testear algo, hace falta cerrar sesión y volver a loguearse para que se refleje; un simple refresh de página no alcanza.
+- `npm start` (build de producción) corrido en local tira `UntrustedHost` de NextAuth si falta `AUTH_TRUST_HOST=true` en el env — `npm run dev` no lo necesita.
 
 ---
 
