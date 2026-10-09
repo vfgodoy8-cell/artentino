@@ -281,6 +281,7 @@ export async function searchProductsForRelation(productId: string, q: string) {
   return prisma.product.findMany({
     where: {
       id: { not: productId },
+      archivedAt: null,
       OR: [
         { name: { contains: q, mode: 'insensitive' } },
         { sku: { contains: q, mode: 'insensitive' } },

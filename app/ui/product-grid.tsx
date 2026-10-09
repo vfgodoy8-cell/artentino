@@ -7,7 +7,7 @@ export default async function ProductGrid() {
   const siteConfig = await getSiteConfig()
 
   const products = await prisma.product.findMany({
-    where: { featured: true, active: true },
+    where: { featured: true, active: true, archivedAt: null },
     include: { category: true },
     orderBy:
       siteConfig.featuredOrderMode === 'recent'

@@ -135,6 +135,7 @@ export const ProductScalarFieldEnum = {
   images: 'images',
   featured: 'featured',
   active: 'active',
+  archivedAt: 'archivedAt',
   sortOrder: 'sortOrder',
   videoUrl: 'videoUrl',
   height: 'height',

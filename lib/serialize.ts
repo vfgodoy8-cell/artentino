@@ -8,6 +8,7 @@ export function serializeProduct<
     comparePrice: { toString(): string } | null
     cost?: { toString(): string } | null
     wholesalePrice?: { toString(): string } | null
+    archivedAt?: Date | null
     createdAt: Date
     updatedAt: Date
     category: {
@@ -24,6 +25,7 @@ export function serializeProduct<
     comparePrice: p.comparePrice ? Number(p.comparePrice.toString()) : null,
     cost: p.cost != null ? Number(p.cost.toString()) : null,
     wholesalePrice: p.wholesalePrice != null ? Number(p.wholesalePrice.toString()) : null,
+    ...(p.archivedAt !== undefined && { archivedAt: p.archivedAt ? p.archivedAt.toISOString() : null }),
     createdAt: p.createdAt.toISOString(),
     updatedAt: p.updatedAt.toISOString(),
     category: {

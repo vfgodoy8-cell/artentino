@@ -5,7 +5,7 @@ import DestacadosClient from './destacados-client'
 export default async function AdminDestacados() {
   const [featured, siteConfig] = await Promise.all([
     prisma.product.findMany({
-      where: { featured: true },
+      where: { featured: true, archivedAt: null },
       select: { id: true, name: true, price: true, imageUrl: true, sortOrder: true },
       orderBy: { sortOrder: 'asc' },
     }),

@@ -3,7 +3,7 @@
 import { useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import { createAdmin, updateAdminRole, setAdminActive } from './actions'
-import { useToasts, ToastContainer } from '@/app/ui/toast'
+import { pushToast } from '@/app/ui/toast'
 
 type Admin = {
   id: string
@@ -28,7 +28,6 @@ export default function AdministradoresClient({
   const [adminRole, setAdminRole] = useState<'SUPERADMIN' | 'ADMIN'>('ADMIN')
   const [creating, setCreating] = useState(false)
   const [tempPassword, setTempPassword] = useState<string | null>(null)
-  const { toasts, pushToast, dismissToast } = useToasts()
   const [, startTransition] = useTransition()
 
   async function handleCreate(e: React.FormEvent<HTMLFormElement>) {
@@ -173,8 +172,6 @@ export default function AdministradoresClient({
           </tbody>
         </table>
       </div>
-
-      <ToastContainer toasts={toasts} onDismiss={dismissToast} />
     </div>
   )
 }

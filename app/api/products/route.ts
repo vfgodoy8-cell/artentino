@@ -3,6 +3,7 @@ import { prisma } from '@/lib/prisma'
 export async function GET() {
   try {
     const products = await prisma.product.findMany({
+      where: { archivedAt: null },
       include: { category: true, comboPrices: { orderBy: { quantity: 'asc' } } },
       orderBy: { createdAt: 'desc' },
     })

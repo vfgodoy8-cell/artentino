@@ -1,4 +1,5 @@
 import SidebarNav from './sidebar-nav'
+import { ToastHost } from '@/app/ui/toast'
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -7,6 +8,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       <main className="flex-1 overflow-y-auto">
         {children}
       </main>
+      <ToastHost />
     </div>
   )
 }

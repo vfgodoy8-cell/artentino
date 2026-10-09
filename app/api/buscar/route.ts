@@ -15,7 +15,7 @@ export async function GET(req: Request) {
 
   try {
     const products = await prisma.product.findMany({
-      where: { active: true },
+      where: { active: true, archivedAt: null },
       select: {
         id: true,
         name: true,

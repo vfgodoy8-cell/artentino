@@ -23,6 +23,7 @@ export default async function CatalogoPage({ searchParams }: Props) {
     prisma.product.findMany({
       where: {
         active: true,
+        archivedAt: null,
         ...(categoria
           ? parentCategory
             ? { category: { category: { slug: categoria } } }

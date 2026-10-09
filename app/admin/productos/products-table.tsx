@@ -5,7 +5,8 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import { useSession } from 'next-auth/react'
-import { deleteProduct, updateProductSortOrder, updateProductActive } from './actions'
+import { deleteProduct, restoreProduct, updateProductSortOrder, updateProductActive } from './actions'
+import { pushToast } from '@/app/ui/toast'
 
 type Product = {
   id: string
@@ -17,6 +18,7 @@ type Product = {
   wholesalePrice: number | null
   featured: boolean
   active: boolean
+  archivedAt: string | null
   sortOrder: number
   category: { name: string }
   comboPrices?: { id: string; price: number; quantity: number }[]
@@ -29,6 +31,29 @@ function fmt(n: number) {
 export default function ProductsTable({ products, searchTerm }: { products: Product[]; searchTerm?: string }) {
   const router = useRouter()
 
+  async function handleDelete(id: string, name: string) {
+    if (!confirm(`¿Eliminar "${name}"? Esta acción no se puede deshacer.`)) return
+    const result = await deleteProduct(id)
+    if (!result.success) {
+      pushToast(result.error ?? 'No se pudo eliminar el producto', 'error')
+      return
+    }
+    if (result.archived) {
+      pushToast('El producto tiene pedidos, así que se archivó en lugar de borrarse.', 'success')
+    }
+    router.refresh()
+  }
+
+  async function handleRestore(id: string) {
+    const result = await restoreProduct(id)
+    if (!result.success) {
+      pushToast(result.error ?? 'No se pudo restaurar el producto', 'error')
+      return
+    }
+    pushToast('Producto restaurado.', 'success')
+    router.refresh()
+  }
+
   if (products.length === 0) {
     return (
       <div className="py-16 text-center text-sm text-gray-400">
@@ -37,12 +62,6 @@ export default function ProductsTable({ products, searchTerm }: { products: Prod
           : 'No hay productos todavía.'}
       </div>
     )
-  }
-
-  async function handleDelete(id: string, name: string) {
-    if (!confirm(`¿Eliminar "${name}"? Esta acción no se puede deshacer.`)) return
-    await deleteProduct(id)
-    router.refresh()
   }
 
   return (
@@ -72,7 +91,7 @@ export default function ProductsTable({ products, searchTerm }: { products: Prod
         </thead>
         <tbody className="divide-y divide-gray-50">
           {products.map((product) => (
-            <ProductRow key={product.id} product={product} onDelete={handleDelete} />
+            <ProductRow key={product.id} product={product} onDelete={handleDelete} onRestore={handleRestore} />
           ))}
         </tbody>
       </table>
@@ -83,15 +102,18 @@ export default function ProductsTable({ products, searchTerm }: { products: Prod
 function ProductRow({
   product,
   onDelete,
+  onRestore,
 }: {
   product: Product
   onDelete: (id: string, name: string) => Promise<void>
+  onRestore: (id: string) => Promise<void>
 }) {
   const [sortOrder, setSortOrder] = useState(product.sortOrder)
   const [active, setActive] = useState(product.active)
   const [, startTransition] = useTransition()
   const { data: sessionData } = useSession()
   const isSuperAdmin = (sessionData?.user as { adminRole?: string } | undefined)?.adminRole === 'SUPERADMIN'
+  const isArchived = product.archivedAt != null
 
   function handleSortBlur() {
     if (sortOrder === product.sortOrder) return
@@ -134,14 +156,20 @@ function ProductRow({
         {product.comboPrices?.[1] ? fmt(product.comboPrices[1].price) : <span className="text-gray-300">—</span>}
       </td>
       <td className="px-3 py-3">
-        <button
-          onClick={handleToggleActive}
-          className={`inline-flex rounded-full px-2.5 py-0.5 text-[10px] font-bold uppercase transition-colors ${
-            active ? 'bg-green-100 text-green-600' : 'bg-gray-100 text-gray-400'
-          }`}
-        >
-          {active ? 'Activo' : 'Inactivo'}
-        </button>
+        {isArchived ? (
+          <span className="inline-flex rounded-full bg-amber-100 px-2.5 py-0.5 text-[10px] font-bold uppercase text-amber-600">
+            Archivado
+          </span>
+        ) : (
+          <button
+            onClick={handleToggleActive}
+            className={`inline-flex rounded-full px-2.5 py-0.5 text-[10px] font-bold uppercase transition-colors ${
+              active ? 'bg-green-100 text-green-600' : 'bg-gray-100 text-gray-400'
+            }`}
+          >
+            {active ? 'Activo' : 'Inactivo'}
+          </button>
+        )}
       </td>
       <td className="px-3 py-3">
         <input
@@ -158,9 +186,15 @@ function ProductRow({
             Editar
           </Link>
           {isSuperAdmin && (
-            <button onClick={() => onDelete(product.id, product.name)} className="rounded-lg px-3 py-1.5 text-xs font-bold text-red-400 transition-colors hover:bg-red-50 hover:text-red-600">
-              Eliminar
-            </button>
+            isArchived ? (
+              <button onClick={() => onRestore(product.id)} className="rounded-lg px-3 py-1.5 text-xs font-bold text-[#0eb1c3] transition-colors hover:bg-[#0eb1c3]/10">
+                Restaurar
+              </button>
+            ) : (
+              <button onClick={() => onDelete(product.id, product.name)} className="rounded-lg px-3 py-1.5 text-xs font-bold text-red-400 transition-colors hover:bg-red-50 hover:text-red-600">
+                Eliminar
+              </button>
+            )
           )}
         </div>
       </td>

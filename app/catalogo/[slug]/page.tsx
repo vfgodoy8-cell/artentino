@@ -17,8 +17,8 @@ type Props = {
 export default async function ProductoPage({ params }: Props) {
   const { slug } = await params
 
-  const product = await prisma.product.findUnique({
-    where: { slug },
+  const product = await prisma.product.findFirst({
+    where: { slug, archivedAt: null },
     include: {
       category: { include: { category: true } },
       comboPrices: { orderBy: { quantity: 'asc' } },

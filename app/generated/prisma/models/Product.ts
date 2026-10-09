@@ -64,6 +64,7 @@ export type ProductMinAggregateOutputType = {
   imageUrl: string | null
   featured: boolean | null
   active: boolean | null
+  archivedAt: Date | null
   sortOrder: number | null
   videoUrl: string | null
   height: runtime.Decimal | null
@@ -89,6 +90,7 @@ export type ProductMaxAggregateOutputType = {
   imageUrl: string | null
   featured: boolean | null
   active: boolean | null
+  archivedAt: Date | null
   sortOrder: number | null
   videoUrl: string | null
   height: runtime.Decimal | null
@@ -115,6 +117,7 @@ export type ProductCountAggregateOutputType = {
   images: number
   featured: number
   active: number
+  archivedAt: number
   sortOrder: number
   videoUrl: number
   height: number
@@ -166,6 +169,7 @@ export type ProductMinAggregateInputType = {
   imageUrl?: true
   featured?: true
   active?: true
+  archivedAt?: true
   sortOrder?: true
   videoUrl?: true
   height?: true
@@ -191,6 +195,7 @@ export type ProductMaxAggregateInputType = {
   imageUrl?: true
   featured?: true
   active?: true
+  archivedAt?: true
   sortOrder?: true
   videoUrl?: true
   height?: true
@@ -217,6 +222,7 @@ export type ProductCountAggregateInputType = {
   images?: true
   featured?: true
   active?: true
+  archivedAt?: true
   sortOrder?: true
   videoUrl?: true
   height?: true
@@ -330,6 +336,7 @@ export type ProductGroupByOutputType = {
   images: string[]
   featured: boolean
   active: boolean
+  archivedAt: Date | null
   sortOrder: number
   videoUrl: string | null
   height: runtime.Decimal | null
@@ -379,6 +386,7 @@ export type ProductWhereInput = {
   images?: Prisma.StringNullableListFilter<"Product">
   featured?: Prisma.BoolFilter<"Product"> | boolean
   active?: Prisma.BoolFilter<"Product"> | boolean
+  archivedAt?: Prisma.DateTimeNullableFilter<"Product"> | Date | string | null
   sortOrder?: Prisma.IntFilter<"Product"> | number
   videoUrl?: Prisma.StringNullableFilter<"Product"> | string | null
   height?: Prisma.DecimalNullableFilter<"Product"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -412,6 +420,7 @@ export type ProductOrderByWithRelationInput = {
   images?: Prisma.SortOrder
   featured?: Prisma.SortOrder
   active?: Prisma.SortOrder
+  archivedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   sortOrder?: Prisma.SortOrder
   videoUrl?: Prisma.SortOrderInput | Prisma.SortOrder
   height?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -448,6 +457,7 @@ export type ProductWhereUniqueInput = Prisma.AtLeast<{
   images?: Prisma.StringNullableListFilter<"Product">
   featured?: Prisma.BoolFilter<"Product"> | boolean
   active?: Prisma.BoolFilter<"Product"> | boolean
+  archivedAt?: Prisma.DateTimeNullableFilter<"Product"> | Date | string | null
   sortOrder?: Prisma.IntFilter<"Product"> | number
   videoUrl?: Prisma.StringNullableFilter<"Product"> | string | null
   height?: Prisma.DecimalNullableFilter<"Product"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -481,6 +491,7 @@ export type ProductOrderByWithAggregationInput = {
   images?: Prisma.SortOrder
   featured?: Prisma.SortOrder
   active?: Prisma.SortOrder
+  archivedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   sortOrder?: Prisma.SortOrder
   videoUrl?: Prisma.SortOrderInput | Prisma.SortOrder
   height?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -515,6 +526,7 @@ export type ProductScalarWhereWithAggregatesInput = {
   images?: Prisma.StringNullableListFilter<"Product">
   featured?: Prisma.BoolWithAggregatesFilter<"Product"> | boolean
   active?: Prisma.BoolWithAggregatesFilter<"Product"> | boolean
+  archivedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"Product"> | Date | string | null
   sortOrder?: Prisma.IntWithAggregatesFilter<"Product"> | number
   videoUrl?: Prisma.StringNullableWithAggregatesFilter<"Product"> | string | null
   height?: Prisma.DecimalNullableWithAggregatesFilter<"Product"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -541,6 +553,7 @@ export type ProductCreateInput = {
   images?: Prisma.ProductCreateimagesInput | string[]
   featured?: boolean
   active?: boolean
+  archivedAt?: Date | string | null
   sortOrder?: number
   videoUrl?: string | null
   height?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -573,6 +586,7 @@ export type ProductUncheckedCreateInput = {
   images?: Prisma.ProductCreateimagesInput | string[]
   featured?: boolean
   active?: boolean
+  archivedAt?: Date | string | null
   sortOrder?: number
   videoUrl?: string | null
   height?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -605,6 +619,7 @@ export type ProductUpdateInput = {
   images?: Prisma.ProductUpdateimagesInput | string[]
   featured?: Prisma.BoolFieldUpdateOperationsInput | boolean
   active?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   videoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   height?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -637,6 +652,7 @@ export type ProductUncheckedUpdateInput = {
   images?: Prisma.ProductUpdateimagesInput | string[]
   featured?: Prisma.BoolFieldUpdateOperationsInput | boolean
   active?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   videoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   height?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -669,6 +685,7 @@ export type ProductCreateManyInput = {
   images?: Prisma.ProductCreateimagesInput | string[]
   featured?: boolean
   active?: boolean
+  archivedAt?: Date | string | null
   sortOrder?: number
   videoUrl?: string | null
   height?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -695,6 +712,7 @@ export type ProductUpdateManyMutationInput = {
   images?: Prisma.ProductUpdateimagesInput | string[]
   featured?: Prisma.BoolFieldUpdateOperationsInput | boolean
   active?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   videoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   height?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -720,6 +738,7 @@ export type ProductUncheckedUpdateManyInput = {
   images?: Prisma.ProductUpdateimagesInput | string[]
   featured?: Prisma.BoolFieldUpdateOperationsInput | boolean
   active?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   videoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   height?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -764,6 +783,7 @@ export type ProductCountOrderByAggregateInput = {
   images?: Prisma.SortOrder
   featured?: Prisma.SortOrder
   active?: Prisma.SortOrder
+  archivedAt?: Prisma.SortOrder
   sortOrder?: Prisma.SortOrder
   videoUrl?: Prisma.SortOrder
   height?: Prisma.SortOrder
@@ -801,6 +821,7 @@ export type ProductMaxOrderByAggregateInput = {
   imageUrl?: Prisma.SortOrder
   featured?: Prisma.SortOrder
   active?: Prisma.SortOrder
+  archivedAt?: Prisma.SortOrder
   sortOrder?: Prisma.SortOrder
   videoUrl?: Prisma.SortOrder
   height?: Prisma.SortOrder
@@ -826,6 +847,7 @@ export type ProductMinOrderByAggregateInput = {
   imageUrl?: Prisma.SortOrder
   featured?: Prisma.SortOrder
   active?: Prisma.SortOrder
+  archivedAt?: Prisma.SortOrder
   sortOrder?: Prisma.SortOrder
   videoUrl?: Prisma.SortOrder
   height?: Prisma.SortOrder
@@ -923,6 +945,10 @@ export type NullableDecimalFieldUpdateOperationsInput = {
 export type ProductUpdateimagesInput = {
   set?: string[]
   push?: string | string[]
+}
+
+export type NullableDateTimeFieldUpdateOperationsInput = {
+  set?: Date | string | null
 }
 
 export type ProductCreateNestedOneWithoutRelationsInput = {
@@ -1024,6 +1050,7 @@ export type ProductCreateWithoutCategoryInput = {
   images?: Prisma.ProductCreateimagesInput | string[]
   featured?: boolean
   active?: boolean
+  archivedAt?: Date | string | null
   sortOrder?: number
   videoUrl?: string | null
   height?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -1055,6 +1082,7 @@ export type ProductUncheckedCreateWithoutCategoryInput = {
   images?: Prisma.ProductCreateimagesInput | string[]
   featured?: boolean
   active?: boolean
+  archivedAt?: Date | string | null
   sortOrder?: number
   videoUrl?: string | null
   height?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -1115,6 +1143,7 @@ export type ProductScalarWhereInput = {
   images?: Prisma.StringNullableListFilter<"Product">
   featured?: Prisma.BoolFilter<"Product"> | boolean
   active?: Prisma.BoolFilter<"Product"> | boolean
+  archivedAt?: Prisma.DateTimeNullableFilter<"Product"> | Date | string | null
   sortOrder?: Prisma.IntFilter<"Product"> | number
   videoUrl?: Prisma.StringNullableFilter<"Product"> | string | null
   height?: Prisma.DecimalNullableFilter<"Product"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -1141,6 +1170,7 @@ export type ProductCreateWithoutRelationsInput = {
   images?: Prisma.ProductCreateimagesInput | string[]
   featured?: boolean
   active?: boolean
+  archivedAt?: Date | string | null
   sortOrder?: number
   videoUrl?: string | null
   height?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -1172,6 +1202,7 @@ export type ProductUncheckedCreateWithoutRelationsInput = {
   images?: Prisma.ProductCreateimagesInput | string[]
   featured?: boolean
   active?: boolean
+  archivedAt?: Date | string | null
   sortOrder?: number
   videoUrl?: string | null
   height?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -1208,6 +1239,7 @@ export type ProductCreateWithoutRelatedByInput = {
   images?: Prisma.ProductCreateimagesInput | string[]
   featured?: boolean
   active?: boolean
+  archivedAt?: Date | string | null
   sortOrder?: number
   videoUrl?: string | null
   height?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -1239,6 +1271,7 @@ export type ProductUncheckedCreateWithoutRelatedByInput = {
   images?: Prisma.ProductCreateimagesInput | string[]
   featured?: boolean
   active?: boolean
+  archivedAt?: Date | string | null
   sortOrder?: number
   videoUrl?: string | null
   height?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -1286,6 +1319,7 @@ export type ProductUpdateWithoutRelationsInput = {
   images?: Prisma.ProductUpdateimagesInput | string[]
   featured?: Prisma.BoolFieldUpdateOperationsInput | boolean
   active?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   videoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   height?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -1317,6 +1351,7 @@ export type ProductUncheckedUpdateWithoutRelationsInput = {
   images?: Prisma.ProductUpdateimagesInput | string[]
   featured?: Prisma.BoolFieldUpdateOperationsInput | boolean
   active?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   videoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   height?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -1359,6 +1394,7 @@ export type ProductUpdateWithoutRelatedByInput = {
   images?: Prisma.ProductUpdateimagesInput | string[]
   featured?: Prisma.BoolFieldUpdateOperationsInput | boolean
   active?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   videoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   height?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -1390,6 +1426,7 @@ export type ProductUncheckedUpdateWithoutRelatedByInput = {
   images?: Prisma.ProductUpdateimagesInput | string[]
   featured?: Prisma.BoolFieldUpdateOperationsInput | boolean
   active?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   videoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   height?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -1421,6 +1458,7 @@ export type ProductCreateWithoutComboPricesInput = {
   images?: Prisma.ProductCreateimagesInput | string[]
   featured?: boolean
   active?: boolean
+  archivedAt?: Date | string | null
   sortOrder?: number
   videoUrl?: string | null
   height?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -1452,6 +1490,7 @@ export type ProductUncheckedCreateWithoutComboPricesInput = {
   images?: Prisma.ProductCreateimagesInput | string[]
   featured?: boolean
   active?: boolean
+  archivedAt?: Date | string | null
   sortOrder?: number
   videoUrl?: string | null
   height?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -1499,6 +1538,7 @@ export type ProductUpdateWithoutComboPricesInput = {
   images?: Prisma.ProductUpdateimagesInput | string[]
   featured?: Prisma.BoolFieldUpdateOperationsInput | boolean
   active?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   videoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   height?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -1530,6 +1570,7 @@ export type ProductUncheckedUpdateWithoutComboPricesInput = {
   images?: Prisma.ProductUpdateimagesInput | string[]
   featured?: Prisma.BoolFieldUpdateOperationsInput | boolean
   active?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   videoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   height?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -1561,6 +1602,7 @@ export type ProductCreateWithoutStockItemsInput = {
   images?: Prisma.ProductCreateimagesInput | string[]
   featured?: boolean
   active?: boolean
+  archivedAt?: Date | string | null
   sortOrder?: number
   videoUrl?: string | null
   height?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -1592,6 +1634,7 @@ export type ProductUncheckedCreateWithoutStockItemsInput = {
   images?: Prisma.ProductCreateimagesInput | string[]
   featured?: boolean
   active?: boolean
+  archivedAt?: Date | string | null
   sortOrder?: number
   videoUrl?: string | null
   height?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -1639,6 +1682,7 @@ export type ProductUpdateWithoutStockItemsInput = {
   images?: Prisma.ProductUpdateimagesInput | string[]
   featured?: Prisma.BoolFieldUpdateOperationsInput | boolean
   active?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   videoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   height?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -1670,6 +1714,7 @@ export type ProductUncheckedUpdateWithoutStockItemsInput = {
   images?: Prisma.ProductUpdateimagesInput | string[]
   featured?: Prisma.BoolFieldUpdateOperationsInput | boolean
   active?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   videoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   height?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -1701,6 +1746,7 @@ export type ProductCreateWithoutProductImagesInput = {
   images?: Prisma.ProductCreateimagesInput | string[]
   featured?: boolean
   active?: boolean
+  archivedAt?: Date | string | null
   sortOrder?: number
   videoUrl?: string | null
   height?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -1732,6 +1778,7 @@ export type ProductUncheckedCreateWithoutProductImagesInput = {
   images?: Prisma.ProductCreateimagesInput | string[]
   featured?: boolean
   active?: boolean
+  archivedAt?: Date | string | null
   sortOrder?: number
   videoUrl?: string | null
   height?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -1779,6 +1826,7 @@ export type ProductUpdateWithoutProductImagesInput = {
   images?: Prisma.ProductUpdateimagesInput | string[]
   featured?: Prisma.BoolFieldUpdateOperationsInput | boolean
   active?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   videoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   height?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -1810,6 +1858,7 @@ export type ProductUncheckedUpdateWithoutProductImagesInput = {
   images?: Prisma.ProductUpdateimagesInput | string[]
   featured?: Prisma.BoolFieldUpdateOperationsInput | boolean
   active?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   videoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   height?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -1841,6 +1890,7 @@ export type ProductCreateWithoutOrderItemsInput = {
   images?: Prisma.ProductCreateimagesInput | string[]
   featured?: boolean
   active?: boolean
+  archivedAt?: Date | string | null
   sortOrder?: number
   videoUrl?: string | null
   height?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -1872,6 +1922,7 @@ export type ProductUncheckedCreateWithoutOrderItemsInput = {
   images?: Prisma.ProductCreateimagesInput | string[]
   featured?: boolean
   active?: boolean
+  archivedAt?: Date | string | null
   sortOrder?: number
   videoUrl?: string | null
   height?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -1919,6 +1970,7 @@ export type ProductUpdateWithoutOrderItemsInput = {
   images?: Prisma.ProductUpdateimagesInput | string[]
   featured?: Prisma.BoolFieldUpdateOperationsInput | boolean
   active?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   videoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   height?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -1950,6 +2002,7 @@ export type ProductUncheckedUpdateWithoutOrderItemsInput = {
   images?: Prisma.ProductUpdateimagesInput | string[]
   featured?: Prisma.BoolFieldUpdateOperationsInput | boolean
   active?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   videoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   height?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -1981,6 +2034,7 @@ export type ProductCreateManyCategoryInput = {
   images?: Prisma.ProductCreateimagesInput | string[]
   featured?: boolean
   active?: boolean
+  archivedAt?: Date | string | null
   sortOrder?: number
   videoUrl?: string | null
   height?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -2006,6 +2060,7 @@ export type ProductUpdateWithoutCategoryInput = {
   images?: Prisma.ProductUpdateimagesInput | string[]
   featured?: Prisma.BoolFieldUpdateOperationsInput | boolean
   active?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   videoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   height?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -2037,6 +2092,7 @@ export type ProductUncheckedUpdateWithoutCategoryInput = {
   images?: Prisma.ProductUpdateimagesInput | string[]
   featured?: Prisma.BoolFieldUpdateOperationsInput | boolean
   active?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   videoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   height?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -2068,6 +2124,7 @@ export type ProductUncheckedUpdateManyWithoutCategoryInput = {
   images?: Prisma.ProductUpdateimagesInput | string[]
   featured?: Prisma.BoolFieldUpdateOperationsInput | boolean
   active?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   videoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   height?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -2169,6 +2226,7 @@ export type ProductSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   images?: boolean
   featured?: boolean
   active?: boolean
+  archivedAt?: boolean
   sortOrder?: boolean
   videoUrl?: boolean
   height?: boolean
@@ -2203,6 +2261,7 @@ export type ProductSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exten
   images?: boolean
   featured?: boolean
   active?: boolean
+  archivedAt?: boolean
   sortOrder?: boolean
   videoUrl?: boolean
   height?: boolean
@@ -2230,6 +2289,7 @@ export type ProductSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exten
   images?: boolean
   featured?: boolean
   active?: boolean
+  archivedAt?: boolean
   sortOrder?: boolean
   videoUrl?: boolean
   height?: boolean
@@ -2257,6 +2317,7 @@ export type ProductSelectScalar = {
   images?: boolean
   featured?: boolean
   active?: boolean
+  archivedAt?: boolean
   sortOrder?: boolean
   videoUrl?: boolean
   height?: boolean
@@ -2268,7 +2329,7 @@ export type ProductSelectScalar = {
   updatedAt?: boolean
 }
 
-export type ProductOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "sku" | "name" | "slug" | "description" | "additionalData" | "price" | "comparePrice" | "cost" | "wholesalePrice" | "imageUrl" | "images" | "featured" | "active" | "sortOrder" | "videoUrl" | "height" | "width" | "length" | "weight" | "categoryId" | "createdAt" | "updatedAt", ExtArgs["result"]["product"]>
+export type ProductOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "sku" | "name" | "slug" | "description" | "additionalData" | "price" | "comparePrice" | "cost" | "wholesalePrice" | "imageUrl" | "images" | "featured" | "active" | "archivedAt" | "sortOrder" | "videoUrl" | "height" | "width" | "length" | "weight" | "categoryId" | "createdAt" | "updatedAt", ExtArgs["result"]["product"]>
 export type ProductInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   category?: boolean | Prisma.SubcategoryDefaultArgs<ExtArgs>
   orderItems?: boolean | Prisma.Product$orderItemsArgs<ExtArgs>
@@ -2312,6 +2373,7 @@ export type $ProductPayload<ExtArgs extends runtime.Types.Extensions.InternalArg
     images: string[]
     featured: boolean
     active: boolean
+    archivedAt: Date | null
     sortOrder: number
     videoUrl: string | null
     height: runtime.Decimal | null
@@ -2765,6 +2827,7 @@ export interface ProductFieldRefs {
   readonly images: Prisma.FieldRef<"Product", 'String[]'>
   readonly featured: Prisma.FieldRef<"Product", 'Boolean'>
   readonly active: Prisma.FieldRef<"Product", 'Boolean'>
+  readonly archivedAt: Prisma.FieldRef<"Product", 'DateTime'>
   readonly sortOrder: Prisma.FieldRef<"Product", 'Int'>
   readonly videoUrl: Prisma.FieldRef<"Product", 'String'>
   readonly height: Prisma.FieldRef<"Product", 'Decimal'>

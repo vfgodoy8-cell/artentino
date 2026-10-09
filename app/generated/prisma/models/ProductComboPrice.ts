@@ -453,10 +453,6 @@ export type ProductComboPriceUncheckedUpdateManyWithoutProductNestedInput = {
   deleteMany?: Prisma.ProductComboPriceScalarWhereInput | Prisma.ProductComboPriceScalarWhereInput[]
 }
 
-export type NullableDateTimeFieldUpdateOperationsInput = {
-  set?: Date | string | null
-}
-
 export type ProductComboPriceCreateWithoutProductInput = {
   id?: string
   price: runtime.Decimal | runtime.DecimalJsLike | number | string

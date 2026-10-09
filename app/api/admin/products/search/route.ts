@@ -9,6 +9,7 @@ export async function GET(req: NextRequest) {
     where: {
       name: { contains: q, mode: 'insensitive' },
       featured: false,
+      archivedAt: null,
     },
     select: { id: true, name: true, price: true, imageUrl: true },
     take: 10,

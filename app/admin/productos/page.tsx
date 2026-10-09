@@ -18,9 +18,10 @@ export default async function AdminProductos({ searchParams }: Props) {
   const search = q?.trim() ?? ''
 
   const estadoFilter =
-    estado === 'activos' ? { active: true }
-    : estado === 'inactivos' ? { active: false }
-    : {}
+    estado === 'activos' ? { active: true, archivedAt: null }
+    : estado === 'inactivos' ? { active: false, archivedAt: null }
+    : estado === 'archivados' ? { archivedAt: { not: null } }
+    : { archivedAt: null }
 
   const searchFilter = search
     ? {
@@ -69,6 +70,7 @@ export default async function AdminProductos({ searchParams }: Props) {
             { label: 'Todos', value: '' },
             { label: 'Activos', value: 'activos' },
             { label: 'Inactivos', value: 'inactivos' },
+            { label: 'Archivados', value: 'archivados' },
           ] as const).map(({ label, value }) => {
             const isActive = (estado ?? '') === value
             const href = new URLSearchParams({

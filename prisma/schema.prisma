@@ -103,6 +103,7 @@ model Product {
   images         String[]
   featured       Boolean             @default(false)
   active         Boolean             @default(true)
+  archivedAt     DateTime?
   sortOrder      Int                 @default(0)
   videoUrl       String?
   height         Decimal?            @db.Decimal(10, 2)
@@ -123,6 +124,7 @@ model Product {
   @@index([categoryId])
   @@index([featured])
   @@index([active])
+  @@index([archivedAt])
   @@map("products")
 }
 
