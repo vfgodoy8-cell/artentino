@@ -226,9 +226,12 @@ export function passwordChangedEmail({ name }: { name: string }) {
 export function instagramTokenReminderEmail({
   daysRemaining,
   expiresAt,
+  failureReason,
 }: {
   daysRemaining: number
   expiresAt: Date
+  // Error del refresco automático (si falló). null = aviso por edad del token.
+  failureReason: string | null
 }) {
   const dd = String(expiresAt.getDate()).padStart(2, '0')
   const mm = String(expiresAt.getMonth() + 1).padStart(2, '0')
@@ -237,7 +240,7 @@ export function instagramTokenReminderEmail({
 
   return (
     WRAP_START +
-    HEADER.replace('{{title}}', 'El token de Instagram vence pronto') +
+    HEADER.replace('{{title}}', 'El token de Instagram necesita renovarse') +
     `<div style="padding:36px 32px;">
       <p style="margin:0 0 8px;color:#1E1E1E;font-size:16px;">Hola,</p>
       <p style="margin:0 0 28px;color:#555;line-height:1.6;">
@@ -245,12 +248,21 @@ export function instagramTokenReminderEmail({
         — faltan <strong>${daysRemaining} día${daysRemaining === 1 ? '' : 's'}</strong>. Convendría renovarlo
         antes de que eso pase.
       </p>
+      ${
+        failureReason
+          ? `<p style="margin:0 0 28px;color:#555;line-height:1.6;">
+        El refresco automático falló con este error:<br />
+        <span style="font-family:monospace;font-size:12px;color:#b45309;">${failureReason.replace(/[<>&]/g, (c) => ({ '<': '&lt;', '>': '&gt;', '&': '&amp;' })[c]!)}</span>
+      </p>`
+          : ''
+      }
       <div style="background:#F7F7F7;border-radius:12px;padding:20px 24px;margin-bottom:28px;">
         <p style="margin:0 0 12px;color:#888;font-size:11px;font-weight:900;text-transform:uppercase;letter-spacing:1px;">Cómo renovarlo</p>
         <ol style="margin:0;padding-left:18px;color:#1E1E1E;line-height:1.9;">
-          <li>Entrá a <strong>developers.facebook.com/tools/explorer</strong> con la app "Artentino" seleccionada.</li>
-          <li>En la fila de la cuenta "artentino", hacé clic en "Generar token" (o el link que corresponda en ese momento).</li>
-          <li>Copiá el token generado.</li>
+          <li>Entrá a <strong>developers.facebook.com/apps</strong> y abrí la app de Artentino.</li>
+          <li>En el menú: <strong>Instagram → Configuración de la API con inicio de sesión de Instagram</strong>.</li>
+          <li>En "Generar tokens de acceso", fila de la cuenta "artentino", hacé clic en <strong>Generar token</strong> y logueate con @artentino.</li>
+          <li>Copiá el token generado (empieza con IGAA).</li>
           <li>Entrá a <strong>artentino.com.ar/admin/instagram</strong>, pegalo, y guardá.</li>
         </ol>
       </div>

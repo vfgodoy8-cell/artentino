@@ -1,5 +1,6 @@
+import { unstable_cache } from 'next/cache'
 import { prisma } from '@/lib/prisma'
-import { getInstagramToken } from './instagram-token'
+import { getInstagramToken, INSTAGRAM_FEED_TAG } from './instagram-token'
 
 export type InstagramFeedImage = {
   id: string
@@ -42,7 +43,18 @@ async function fetchRawInstagramMedia(limit: number): Promise<IgMediaItem[] | nu
 // placeholders — este helper nunca tira.
 // Se piden 24 posts crudos (no 4) para tener margen: si el admin excluye varios de
 // los más recientes, igual hay de dónde completar el feed de 4.
-export async function getInstagramFeedImages(): Promise<InstagramFeedImage[] | null> {
+//
+// Envuelto en unstable_cache con revalidate propio: antes la única señal de revalidación
+// era el fetch a Instagram, y con el token vencido ese fetch no corre — Next marcaba el
+// layout como estático sin vencimiento y la home quedaba congelada con los placeholders
+// aunque después se cargara un token nuevo (incidente 2026-10). Se invalida on-demand
+// con INSTAGRAM_FEED_TAG desde /admin/instagram y el cron de refresco.
+export const getInstagramFeedImages = unstable_cache(fetchInstagramFeedImages, ['instagram-feed-images'], {
+  revalidate: 3600,
+  tags: [INSTAGRAM_FEED_TAG],
+})
+
+async function fetchInstagramFeedImages(): Promise<InstagramFeedImage[] | null> {
   const items = await fetchRawInstagramMedia(24)
   if (!items) return null
 

@@ -32,7 +32,8 @@ export default async function AdminInstagram() {
         <InstagramClient
           hasToken={!!token}
           expiresAt={token?.expiresAt.toISOString() ?? null}
-          updatedAt={token?.updatedAt.toISOString() ?? null}
+          refreshedAt={token?.refreshedAt.toISOString() ?? null}
+          lastRefreshError={token?.lastRefreshError ?? null}
           igUserId={token?.igUserId ?? null}
         />
 

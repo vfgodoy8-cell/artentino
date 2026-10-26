@@ -20,12 +20,14 @@ function daysUntil(iso: string) {
 export default function InstagramClient({
   hasToken,
   expiresAt,
-  updatedAt,
+  refreshedAt,
+  lastRefreshError,
   igUserId,
 }: {
   hasToken: boolean
   expiresAt: string | null
-  updatedAt: string | null
+  refreshedAt: string | null
+  lastRefreshError: string | null
   igUserId: string | null
 }) {
   const [token, setToken] = useState('')
@@ -37,7 +39,7 @@ export default function InstagramClient({
     setError('')
     startTransition(async () => {
       const result = await saveInitialToken(token)
-      if (!result.ok) {
+      if (!result.success) {
         setError(result.error)
         return
       }
@@ -72,7 +74,12 @@ export default function InstagramClient({
             <p>
               Expira el <span className="font-semibold text-[#1E1E1E]">{fmtDate(expiresAt)}</span>
             </p>
-            {updatedAt && <p>Última actualización: {fmtDate(updatedAt)}</p>}
+            {refreshedAt && <p>Último refresco: {fmtDate(refreshedAt)}</p>}
+            {lastRefreshError && (
+              <p className="font-semibold text-[#d97706]">
+                El último refresco automático falló: {lastRefreshError}
+              </p>
+            )}
             {igUserId ? (
               <p>
                 Instagram User ID: <span className="font-mono text-xs text-[#1E1E1E]">{igUserId}</span>
@@ -98,14 +105,14 @@ export default function InstagramClient({
           {hasToken ? 'Reemplazar token' : 'Cargar token inicial'}
         </h2>
         <p className="mb-3 text-xs text-gray-400">
-          Pegá el access token de larga duración generado desde el Graph API Explorer de Meta.
+          Pegá el access token generado en developers.facebook.com → tu app → Instagram → Configuración de la API con inicio de sesión de Instagram → &ldquo;Generar token&rdquo;.
           Se valida contra la API y se guarda junto con su fecha real de expiración.
         </p>
         <textarea
           value={token}
           onChange={(e) => setToken(e.target.value)}
           rows={3}
-          placeholder="IGQVJ..."
+          placeholder="IGAA..."
           className="w-full rounded-xl border border-gray-200 px-4 py-3 font-mono text-xs text-[#1E1E1E] placeholder-gray-300 focus:border-[#0eb1c3] focus:outline-none"
         />
         {error && <p className="mt-2 text-sm text-red-500">{error}</p>}

@@ -437,6 +437,10 @@ export const InstagramTokenScalarFieldEnum = {
   igUserId: 'igUserId',
   expiresAt: 'expiresAt',
   reminderSentAt: 'reminderSentAt',
+  refreshedAt: 'refreshedAt',
+  lastRefreshAttemptAt: 'lastRefreshAttemptAt',
+  lastRefreshError: 'lastRefreshError',
+  createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
 

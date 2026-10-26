@@ -20,13 +20,20 @@ export default function PostsCuration({
 }) {
   const [excluded, setExcluded] = useState(new Set(initialExcludedIds))
   const [pendingId, setPendingId] = useState<string | null>(null)
+  const [error, setError] = useState('')
   const [, startTransition] = useTransition()
 
   function handleToggle(mediaId: string) {
     const willExclude = !excluded.has(mediaId)
     setPendingId(mediaId)
+    setError('')
     startTransition(async () => {
-      await setPostExcluded(mediaId, willExclude)
+      const result = await setPostExcluded(mediaId, willExclude)
+      if (!result.success) {
+        setError(result.error)
+        setPendingId(null)
+        return
+      }
       setExcluded((prev) => {
         const next = new Set(prev)
         if (willExclude) next.add(mediaId)
@@ -47,6 +54,7 @@ export default function PostsCuration({
         los que no quieras mostrar (ej. fotos donde una persona queda muy expuesta) — el resto
         se completa solo con los siguientes posts disponibles.
       </p>
+      {error && <p className="mb-4 text-sm text-red-500">{error}</p>}
 
       {!hasToken ? (
         <div className="rounded-2xl border border-gray-100 bg-white py-16 text-center text-sm text-gray-400">
