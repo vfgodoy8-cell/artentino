@@ -1,9 +1,9 @@
-# Proyecto Artentino — Contexto actualizado 2026-10-09
+# Proyecto Artentino — Contexto actualizado 2026-10-27
 
 E-commerce de decoración, hogar y regalos con diseño argentino.
 
 **Repo:** `C:\proyectos\bardot\artentino\` · Branch: `main`  
-**Último commit:** `cb60b62` — fix(productos): archivar en vez de fallar al borrar productos con pedidos (ver "Cambios recientes" 10-06/10-09 por el detalle completo de esta sesión larga — fix de raíz de Resend, buscador de catálogo + buscador global del header, aviso por mail de turno nuevo, soft-delete de productos con pedidos)
+**Último commit:** `6c3e3ac` — feat(instagram): refresco automatico semanal del token + feed que no se congela (ver "Cambios recientes" 10-26/10-27 — token de Instagram vencido: diagnóstico, reconexión y refresco automático; Fase 4 "miniaturas en Cloudinary" pendiente)
 
 **Dominios en producción:** confirmado vía `vercel inspect` que el deployment activo tiene **4 alias funcionando en simultáneo**: `artentino.com`, `www.artentino.com`, `artentino.com.ar`, `www.artentino.com.ar` — todos apuntan al mismo deployment, no hay dominio viejo/roto. `NEXT_PUBLIC_BASE_URL` en Vercel Production sigue "Sensitive" (no legible vía CLI), configurada hace 60+ días, sin cambios recientes.
 
@@ -19,7 +19,7 @@ E-commerce de decoración, hogar y regalos con diseño argentino.
 - Zipnova — cotización **y creación real de envíos**, API v2 (ver "Cambios recientes" — antes solo cotizaba, ahora también dispara la creación del envío al confirmarse el pago)
 - Cloudinary (imágenes productos, cloud: `dgz7bquai`)
 - Resend (emails) — remitente `noreply@artentino.com.ar`, copia de admin a `ADMIN_NOTIFICATION_EMAIL` (`app/lib/constants.ts` = `info@artentino.com`, **sin** `.ar`). **Dominio verificado de nuevo en Resend** — estuvo sin verificar (403 en todos los envíos) entre un momento no identificado con precisión y 2026-10-06 15:26 ART; confirmado y resuelto en la sesión 10-06 (ver "Cambios recientes"). `sendEmail()` (`app/lib/email.ts`) ya **no** falla en silencio: si Resend devuelve `{ error }` lo loguea (destinatario, asunto, statusCode, mensaje) y **tira excepción** — antes ese caso se devolvía como resultado "normal" y los `catch` de todos los callers (ya existían, están en `after()`/try-catch) nunca llegaban a correr.
-- Instagram Graph API — flujo nuevo "Instagram API con inicio de sesión de Instagram" (tokens `IGAA...`), no el viejo Facebook Login (ver "Cambios recientes")
+- Instagram Graph API — flujo nuevo "Instagram API con inicio de sesión de Instagram" (tokens `IGAA...`), no el viejo Facebook Login. Token en DB (`InstagramToken`), refrescado por cron semanal (ver "Cambios recientes" 10-26/10-27)
 - Deploy: Vercel (proyecto `artentino` en team `vfgodoy8-cells-projects`)
 
 ---
@@ -63,7 +63,7 @@ E-commerce de decoración, hogar y regalos con diseño argentino.
 | `Attribute` | `filter` (catálogo público), `hidden` (stock genérico sin variante) |
 | `ProductStock` | unique [productId, attributeId, value] |
 | `Order` | `userId` **opcional** (`String?`) — invitado si es null. `contactName/contactEmail/contactPhone` siempre poblados desde el form de checkout, son la fuente de verdad para emails/admin cuando no hay `user`. **Nuevo:** `contactDocument` (DNI, requerido para Zipnova), `zipnovaShipmentId`/`zipnovaServiceTypeCode`/`zipnovaShipmentStatus`/`zipnovaShipmentCreatedAt`/`zipnovaShipmentError` (ver "Cambios recientes") |
-| `InstagramToken` | Singleton (un solo row). `accessToken`, `igUserId`, `expiresAt`, `reminderSentAt` (`DateTime?`, se resetea a `null` en cada guardado de token — nuevo o refresh — para reiniciar el ciclo de aviso de vencimiento), `updatedAt` |
+| `InstagramToken` | Singleton (un solo row). `accessToken`, `igUserId`, `expiresAt`, `reminderSentAt` (`DateTime?`, se resetea a `null` en cada guardado de token — nuevo o refresh — para reiniciar el ciclo de aviso de vencimiento). **Nuevo 10-26:** `refreshedAt` (cuándo se obtuvo el token vigente — la **edad del token se mide desde acá, no desde `updatedAt`**, que se mueve con cualquier update), `lastRefreshAttemptAt`, `lastRefreshError` (último error del cron, visible en `/admin/instagram`), `createdAt`, `updatedAt` |
 | `InstagramExcludedPost` | **Nuevo** (08-14). `mediaId` único (id del post en Instagram) — curación manual del feed público desde `/admin/instagram`, sin depender de un fix de código |
 | `Role` (enum) | `USER` \| `ADMIN` — separado de `AdminRole` (enum) `SUPERADMIN` \| `ADMIN`, este último solo relevante dentro del panel (`User.adminRole`, opcional) |
 | `Condition` | **ELIMINADO** |
@@ -92,10 +92,10 @@ E-commerce de decoración, hogar y regalos con diseño argentino.
 **Resend — RESUELTO (10-06, ver "Cambios recientes"):**
 - El dominio `artentino.com.ar` estuvo sin verificar (403 en todo `POST /emails`) hasta 2026-10-06 15:26 ART. Ya está verificado. `sendEmail()` ya no traga el error en silencio — ver nota en "Stack" más arriba.
 
-**`CRON_SECRET` no existe en Vercel Production (bloqueante, encontrado 2026-08-05, sin resolver — confirmado de nuevo 08-14, sigue igual):**
+**`CRON_SECRET` en Vercel Production — EN CURSO (10-27): valor real generado, falta que Valentín lo cargue en Vercel + redeploy.** Al 2026-10-27 prod sigue respondiendo 401 con el secret nuevo. El valor real está en el historial de la sesión 10-26/10-27 (no se commitea); el `.env` local sigue con el placeholder. **`reconcile-orders` se sacó de `vercel.ts` a propósito** (commit `6c3e3ac`) para que cargar el secret NO active la cancelación de las órdenes PENDING reales — solo queda `instagram-refresh`. Historial del problema:
 - `vercel env ls production` no lista `CRON_SECRET` — solo existe en `.env` local (`dev-test-secret-12345`, un placeholder de dev). **Ahora bloquea DOS crons** (antes solo uno): `app/api/cron/instagram-refresh` (06:00 UTC) y el nuevo `app/api/cron/reconcile-orders` (cada 6hs, ver "Cambios recientes" 08-14). Ambos empiezan con `if (!process.env.CRON_SECRET || authHeader !== ...) return 401` — si la env var no existe en Production, **la ruta rechaza con 401 a cualquiera, incluido el propio cron de Vercel**, por lo que ninguno de los dos corre solo en producción todavía.
 - Esto también bloquea el recordatorio por mail de vencimiento del token de Instagram (mismo endpoint instagram-refresh).
-- Acción pendiente: generar un `CRON_SECRET` real y setearlo en Vercel Production. No lo generé yo mismo sin que el usuario lo supiera — quedó pendiente de decisión (van dos sesiones seguidas sin resolverse).
+- **Consecuencia real:** como el cron nunca corrió, el token de Instagram se venció el 2026-10-04 y la home quedó con placeholders unas 3 semanas. Ver "Cambios recientes" 10-26/10-27.
 
 ---
 
@@ -244,7 +244,7 @@ E-commerce de decoración, hogar y regalos con diseño argentino.
 - Probado manualmente con 3 órdenes descartables (creadas y borradas en la misma sesión, no se tocó ninguna orden real): vieja+sin pago → `CANCELLED` ✓, reciente+sin pago → sin tocar ✓, confirmación forzada → `applyOrderConfirmedEffects()` corrió sin errores (no se pudo probar la rama "MP devuelve approved" con un pago real — no se fabricó una transacción real).
 - **Bloqueado por el mismo problema de `CRON_SECRET` faltante** (ver "Notas importantes") — no va a correr solo en producción hasta que se resuelva.
 - **Las 23 órdenes `PENDING`/`mercadopago` reales que ya existen en la DB (todas sin pago en MP, la más vieja del 22/07) no se tocaron a propósito** — decisión explícita de Valentín (2026-08-14/24): revisarlas una por una manualmente antes de dejar correr el cron sin acotar. Si se corre `GET /api/cron/reconcile-orders` sin `?orderId=`, las va a cancelar a todas de una — pensarlo dos veces antes de invocarlo sin acotar contra prod.
-- **Código sin commitear al cierre de esta sesión** (a diferencia de los puntos 18-21, que sí se pushearon) — confirmar con Valentín antes de commitear/pushear.
+- ~~Código sin commitear~~ — se commiteó después (`6578e4a`, `b348d18`: frecuencia diaria por límite del plan Hobby). **Desde `6c3e3ac` (10-26) el cron está DESACTIVADO en `vercel.ts`** (comentado, con la línea para reactivarlo) hasta revisar las órdenes PENDING reales.
 
 ---
 
@@ -281,6 +281,34 @@ E-commerce de decoración, hogar y regalos con diseño argentino.
 **Gotchas nuevos de esta sesión:**
 - El rol (`adminRole`) de un usuario vive en el JWT de la sesión (`auth.config.ts::jwt()` solo lo setea en el callback inicial de login), **no** se relee de la DB en cada request — si cambiás el rol en la DB a mano para testear algo, hace falta cerrar sesión y volver a loguearse para que se refleje; un simple refresh de página no alcanza.
 - `npm start` (build de producción) corrido en local tira `UntrustedHost` de NextAuth si falta `AUTH_TRUST_HOST=true` en el env — `npm run dev` no lo necesita.
+
+---
+
+## Cambios recientes (sesión 2026-10-26/10-27 — token de Instagram vencido + refresco automático)
+
+**29. Diagnóstico: miniaturas de Instagram de la home no se veían (sin código)**
+- Sospecha inicial: URLs firmadas de `cdninstagram` (`oe=`) vencidas. **Descartado.** Causa real: el token venció el 2026-10-04 (`/me` → `OAuthException code 190`) porque el cron `instagram-refresh` nunca corrió en prod (`CRON_SECRET` faltante → 401 a todo, ver "Notas importantes"). El recordatorio de los 50 días tampoco salió por lo mismo (`reminderSentAt` null).
+- Con el token vencido, `fetchRawInstagramMedia()` corta antes del `fetch` → el feed cae a placeholders (tiles grises con link al perfil, no al post — por eso "el link funcionaba").
+- **Gotcha de caché (el más importante):** la home de prod estaba en `X-Vercel-Cache: HIT` con `Age` de ~10 días. La única señal de revalidación del layout era el `fetch(..., { next: { revalidate: 3600 } })` a Instagram; como ese fetch no corría, Next marcó el layout como **estático sin vencimiento** y la home no se regeneró sola ni después de cargar un token nuevo. Se destrabó con un `revalidatePath('/')` (ocultar/mostrar un post en el admin). Fix de raíz en el punto 31.
+- Para posts `VIDEO` ya se usaba `thumbnail_url` (correcto). Con token válido las URLs de media dan 200 y vencen a los ~4-5 días, pero se re-piden cada hora: no son el problema mientras el token esté vigente.
+
+**30. Reconexión manual del token (sin código)**
+- Token nuevo generado por Valentín en developers.facebook.com → app → Instagram → **Configuración de la API con inicio de sesión de Instagram** → "Generar token" (NO el Graph API Explorer — esa es la API vieja, y era lo que decía por error el mail de recordatorio; corregido en el punto 31). Pegado en `/admin/instagram`, que lo extiende a 60 días: `expiresAt` = 2026-12-25.
+- Al 10-26: de 24 posts crudos, 16 están ocultos (19 excluidos en total en la DB) → quedan 8 visibles. **Riesgo:** si se ocultan ~5 más de los recientes quedan <4 y el feed cae a placeholders aunque el token esté bien (pide solo 24). Tenerlo en cuenta en la Fase 4.
+
+**31. Refresco automático + feed que no se congela (commit `6c3e3ac`)**
+- Schema aditivo en `InstagramToken` (aplicado en prod con `db push --url`): `refreshedAt`, `lastRefreshAttemptAt`, `lastRefreshError`, `createdAt`.
+- `app/lib/instagram-token.ts`: `getInstagramToken()` lee de DB y, si la tabla está vacía y existe `INSTAGRAM_ACCESS_TOKEN`, siembra la DB (un intento por instancia). La lógica `/me` → `refresh_access_token` → guardar quedó en `exchangeAndSaveToken()` / `refreshAccessToken()` (las usan el admin, la siembra y el cron).
+- `app/api/cron/instagram-refresh/route.ts` reescrito: **semanal** (`0 6 * * 1` en `vercel.ts`), refresca solo si `refreshedAt` tiene >30 días; si falla guarda `lastRefreshError`. Mail a admins vía `after()` **solo si el refresco falló o el token supera 50 días**, una vez por ciclo (`reminderSentAt` se marca solo si los envíos salen). Se sacó el `?forceReminder=1` temporal; nuevo `?force=1` fuerza el refresco. Respuesta: `{ ok, refresh: { status: refreshed|skipped|failed, ... }, reminder: scheduled|already-sent|not-due }`.
+- `app/lib/instagram-media.ts`: `getInstagramFeedImages` envuelto en `unstable_cache` (`revalidate: 3600`, tag `INSTAGRAM_FEED_TAG = 'instagram-feed'`) → el layout siempre tiene revalidación propia aunque no corra el fetch.
+- `app/admin/instagram/actions.ts`: `saveInitialToken` y `setPostExcluded` con try/catch → `{ success, error }`, e invalidan el feed con `updateTag(INSTAGRAM_FEED_TAG)` + `revalidatePath('/', 'layout')` (el feed está en el layout raíz → todas las páginas). Guardar el token ahora sí invalida la home (antes solo revalidaba `/admin/instagram`).
+- El admin muestra "Último refresco" + el error del último refresco. Instrucciones de token corregidas en el admin y en `instagramTokenReminderEmail()` (que ahora recibe `failureReason`).
+- Prueba manual: `curl -H "Authorization: Bearer <CRON_SECRET>" https://www.artentino.com.ar/api/cron/instagram-refresh` (→ `too-young` hasta el día 30; con `?force=1` → `refreshed`). Probado en local contra prod sin `force` (no escribe). `?force=1` y el mail de recordatorio **no se probaron** contra prod.
+- Gotcha de sesión: matar el dev server a mitad de camino deja `.next/dev/types/validator.ts` truncado y `tsc --noEmit` falla con errores de sintaxis ahí — borrar `.next/dev/types` y repetir.
+
+**Pendiente al cierre:**
+- Valentín: cargar `CRON_SECRET` en Vercel Production + redeploy; verificar con el `curl` de arriba y que en Vercel → Cron Jobs figure solo `instagram-refresh`.
+- **Fase 4 — re-hostear miniaturas en Cloudinary** (`dgz7bquai`, carpeta `instagram/`, `public_id` = id del post): requiere tabla nueva de posts (ej. `InstagramPost`, aditiva); sync que suba `media_url` (IMAGE/CAROUSEL) o `thumbnail_url` (VIDEO) sin romper si falla y reintente en la próxima corrida; respetar los ocultos; backfill con confirmación previa de cuántos posts toca. `next.config.ts` ya tiene `res.cloudinary.com` en `remotePatterns` (el feed usa `<img>`, no `next/image`). Al terminar: actualizar CLAUDE.md + MEMORY.md (token en DB + cron + Cloudinary).
 
 ---
 
