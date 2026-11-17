@@ -8,6 +8,7 @@ import { resolveShippingProvider } from '@/app/lib/shipping-zones'
 import { getZipnovaQuote, type ZipnovaQuoteItem } from '@/app/lib/shipping/zipnova'
 import { resolveBaseUrl } from '@/app/lib/base-url'
 import { getSiteContact } from '@/app/lib/site-contact'
+import { createModoPaymentRequest, buildModoCheckoutUrl } from '@/app/lib/modo'
 
 type CartItem = {
   productId: string
@@ -37,8 +38,11 @@ type CheckoutBody = {
   }
   contactDocument?: string
   shipping: 'pickup' | 'delivery'
-  paymentMethod?: 'mercadopago' | 'cash' | 'transfer'
+  paymentMethod?: 'mercadopago' | 'cash' | 'transfer' | 'modo'
   shippingAddress?: ShippingAddress
+  // Reintento de MODO: el comprador volvió del site de MODO sin pagar (el payment request es
+  // de un solo uso) — se reusa la orden PENDING en vez de crear otra.
+  retryOrderId?: string
 }
 
 const BASE_URL = resolveBaseUrl()
@@ -50,7 +54,7 @@ export async function POST(req: Request) {
   const session = await auth()
 
   const body = (await req.json()) as CheckoutBody
-  const { items, payer, shipping, paymentMethod = 'mercadopago', shippingAddress, contactDocument } = body
+  const { items, payer, shipping, paymentMethod = 'mercadopago', shippingAddress, contactDocument, retryOrderId } = body
 
   if (!items?.length || !payer?.email) {
     return NextResponse.json({ error: 'Datos incompletos' }, { status: 400 })
@@ -227,8 +231,110 @@ export async function POST(req: Request) {
     return NextResponse.json({ confirmed: true, orderId: order.id })
   }
 
-  // ── MercadoPago flow ────────────────────────────────────────────────────────
   const total = subtotal + shippingAmount
+
+  // ── MODO flow ───────────────────────────────────────────────────────────────
+  if (paymentMethod === 'modo') {
+    // Reintento: solo se reusa la orden si sigue siendo el mismo pedido (MODO, sin pagar, mismo
+    // comprador y mismo total) — si cambió el carrito o el envío se crea una orden nueva.
+    const reusable = retryOrderId
+      ? await prisma.order.findFirst({
+          where: {
+            id: retryOrderId,
+            paymentMethod: 'modo',
+            status: 'PENDING',
+            contactEmail: payer.email,
+            userId: session?.user?.id ?? null,
+          },
+          select: { id: true, total: true },
+        })
+      : null
+    const reusedOrderId = reusable && Number(reusable.total) === total ? reusable.id : null
+
+    const order = reusedOrderId
+      ? { id: reusedOrderId }
+      : await prisma.order.create({
+          data: {
+            userId: session?.user?.id ?? null,
+            contactName: `${payer.name} ${payer.surname}`.trim(),
+            contactEmail: payer.email,
+            contactPhone: payer.phone,
+            total,
+            shippingMethod: shipping,
+            paymentMethod: 'modo',
+            status: 'PENDING',
+            shippingProvider,
+            contactDocument: contactDocument ?? null,
+            ...(shipping === 'delivery'
+              ? { shippingAddress: { ...shippingAddress }, shippingQuotedAmount: shippingAmount, zipnovaServiceTypeCode }
+              : {}),
+            items: {
+              create: items.map((item) => ({
+                productId: item.productId,
+                quantity: item.quantity,
+                price: item.price,
+                ...(item.attributeValueId ? { attributeValueId: item.attributeValueId } : {}),
+              })),
+            },
+          },
+          select: { id: true },
+        })
+
+    try {
+      const paymentRequest = await createModoPaymentRequest({
+        orderId: order.id,
+        amount: total,
+        description: `Artentino — Pedido #${order.id.slice(-8).toUpperCase()}`,
+        webhookUrl: `${BASE_URL}/api/webhook/modo`,
+        customer: contactDocument
+          ? {
+              fullName: `${payer.name} ${payer.surname}`.trim(),
+              email: payer.email,
+              identification: contactDocument,
+              phone: payer.phone,
+            }
+          : undefined,
+        shippingAddress:
+          shipping === 'delivery'
+            ? {
+                state: shippingAddress!.province,
+                city: shippingAddress!.locality,
+                zipCode: shippingAddress!.zip,
+                street: shippingAddress!.street,
+                number: shippingAddress!.streetNumber,
+              }
+            : undefined,
+        items: items.map((item) => ({
+          description: item.name,
+          quantity: item.quantity,
+          sku: item.productId,
+        })),
+      })
+
+      await prisma.order.update({
+        where: { id: order.id },
+        data: { paymentReference: paymentRequest.id },
+      })
+
+      const redirectUrl = buildModoCheckoutUrl(
+        paymentRequest.id,
+        `${BASE_URL}/checkout/confirmado?method=modo&shipping=${shipping}`,
+        `${BASE_URL}/checkout?modo=retry&orderId=${order.id}`,
+      )
+
+      return NextResponse.json({ redirectUrl, orderId: order.id })
+    } catch (error) {
+      // Una orden reusada ya existía antes de este intento — no se borra.
+      if (!reusedOrderId) {
+        await prisma.orderItem.deleteMany({ where: { orderId: order.id } })
+        await prisma.order.delete({ where: { id: order.id } })
+      }
+      console.error('[checkout] MODO error:', error instanceof Error ? error.message : error)
+      return NextResponse.json({ error: 'Error al iniciar el pago con MODO' }, { status: 500 })
+    }
+  }
+
+  // ── MercadoPago flow ────────────────────────────────────────────────────────
 
   const order = await prisma.order.create({
     data: {

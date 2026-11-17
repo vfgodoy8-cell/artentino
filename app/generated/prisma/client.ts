@@ -162,6 +162,11 @@ export type SiteConfig = Prisma.SiteConfigModel
  */
 export type InstagramToken = Prisma.InstagramTokenModel
 /**
+ * Model ModoToken
+ * 
+ */
+export type ModoToken = Prisma.ModoTokenModel
+/**
  * Model InstagramExcludedPost
  * 
  */

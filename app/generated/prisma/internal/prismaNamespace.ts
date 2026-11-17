@@ -408,6 +408,7 @@ export const ModelName = {
   EmailTemplate: 'EmailTemplate',
   SiteConfig: 'SiteConfig',
   InstagramToken: 'InstagramToken',
+  ModoToken: 'ModoToken',
   InstagramExcludedPost: 'InstagramExcludedPost'
 } as const
 
@@ -424,7 +425,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "category" | "subcategory" | "product" | "productRelation" | "productComboPrice" | "attribute" | "attributeValue" | "productStock" | "productImage" | "productImageAttributeValue" | "auditLog" | "user" | "passwordResetToken" | "shippingZone" | "order" | "orderItem" | "arrepentimientoRequest" | "appointment" | "contact" | "heroSlide" | "heroBadge" | "emailTemplate" | "siteConfig" | "instagramToken" | "instagramExcludedPost"
+    modelProps: "category" | "subcategory" | "product" | "productRelation" | "productComboPrice" | "attribute" | "attributeValue" | "productStock" | "productImage" | "productImageAttributeValue" | "auditLog" | "user" | "passwordResetToken" | "shippingZone" | "order" | "orderItem" | "arrepentimientoRequest" | "appointment" | "contact" | "heroSlide" | "heroBadge" | "emailTemplate" | "siteConfig" | "instagramToken" | "modoToken" | "instagramExcludedPost"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -2204,6 +2205,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    ModoToken: {
+      payload: Prisma.$ModoTokenPayload<ExtArgs>
+      fields: Prisma.ModoTokenFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.ModoTokenFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ModoTokenPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.ModoTokenFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ModoTokenPayload>
+        }
+        findFirst: {
+          args: Prisma.ModoTokenFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ModoTokenPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.ModoTokenFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ModoTokenPayload>
+        }
+        findMany: {
+          args: Prisma.ModoTokenFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ModoTokenPayload>[]
+        }
+        create: {
+          args: Prisma.ModoTokenCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ModoTokenPayload>
+        }
+        createMany: {
+          args: Prisma.ModoTokenCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.ModoTokenCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ModoTokenPayload>[]
+        }
+        delete: {
+          args: Prisma.ModoTokenDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ModoTokenPayload>
+        }
+        update: {
+          args: Prisma.ModoTokenUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ModoTokenPayload>
+        }
+        deleteMany: {
+          args: Prisma.ModoTokenDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.ModoTokenUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.ModoTokenUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ModoTokenPayload>[]
+        }
+        upsert: {
+          args: Prisma.ModoTokenUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ModoTokenPayload>
+        }
+        aggregate: {
+          args: Prisma.ModoTokenAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateModoToken>
+        }
+        groupBy: {
+          args: Prisma.ModoTokenGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ModoTokenGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.ModoTokenCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ModoTokenCountAggregateOutputType> | number
+        }
+      }
+    }
     InstagramExcludedPost: {
       payload: Prisma.$InstagramExcludedPostPayload<ExtArgs>
       fields: Prisma.InstagramExcludedPostFieldRefs
@@ -2522,6 +2597,7 @@ export const OrderScalarFieldEnum = {
   total: 'total',
   shippingMethod: 'shippingMethod',
   paymentMethod: 'paymentMethod',
+  paymentReference: 'paymentReference',
   shippingAddress: 'shippingAddress',
   deliveredAt: 'deliveredAt',
   shippingProvider: 'shippingProvider',
@@ -2668,6 +2744,16 @@ export const InstagramTokenScalarFieldEnum = {
 } as const
 
 export type InstagramTokenScalarFieldEnum = (typeof InstagramTokenScalarFieldEnum)[keyof typeof InstagramTokenScalarFieldEnum]
+
+
+export const ModoTokenScalarFieldEnum = {
+  id: 'id',
+  accessToken: 'accessToken',
+  expiresAt: 'expiresAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type ModoTokenScalarFieldEnum = (typeof ModoTokenScalarFieldEnum)[keyof typeof ModoTokenScalarFieldEnum]
 
 
 export const InstagramExcludedPostScalarFieldEnum = {
@@ -3062,6 +3148,7 @@ export type GlobalOmitConfig = {
   emailTemplate?: Prisma.EmailTemplateOmit
   siteConfig?: Prisma.SiteConfigOmit
   instagramToken?: Prisma.InstagramTokenOmit
+  modoToken?: Prisma.ModoTokenOmit
   instagramExcludedPost?: Prisma.InstagramExcludedPostOmit
 }
 

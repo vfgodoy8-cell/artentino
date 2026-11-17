@@ -75,6 +75,7 @@ export const ModelName = {
   EmailTemplate: 'EmailTemplate',
   SiteConfig: 'SiteConfig',
   InstagramToken: 'InstagramToken',
+  ModoToken: 'ModoToken',
   InstagramExcludedPost: 'InstagramExcludedPost'
 } as const
 
@@ -299,6 +300,7 @@ export const OrderScalarFieldEnum = {
   total: 'total',
   shippingMethod: 'shippingMethod',
   paymentMethod: 'paymentMethod',
+  paymentReference: 'paymentReference',
   shippingAddress: 'shippingAddress',
   deliveredAt: 'deliveredAt',
   shippingProvider: 'shippingProvider',
@@ -445,6 +447,16 @@ export const InstagramTokenScalarFieldEnum = {
 } as const
 
 export type InstagramTokenScalarFieldEnum = (typeof InstagramTokenScalarFieldEnum)[keyof typeof InstagramTokenScalarFieldEnum]
+
+
+export const ModoTokenScalarFieldEnum = {
+  id: 'id',
+  accessToken: 'accessToken',
+  expiresAt: 'expiresAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type ModoTokenScalarFieldEnum = (typeof ModoTokenScalarFieldEnum)[keyof typeof ModoTokenScalarFieldEnum]
 
 
 export const InstagramExcludedPostScalarFieldEnum = {

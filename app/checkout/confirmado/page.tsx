@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { CASH_DISCOUNT_PCT } from '@/app/lib/constants'
 import { getSiteContact } from '@/app/lib/site-contact'
+import ClearModoCheckout from './clear-modo-checkout'
 
 type Props = { searchParams: Promise<{ method?: string; shipping?: string }> }
 
@@ -11,6 +12,7 @@ export default async function CheckoutConfirmadoPage({ searchParams }: Props) {
   const isTransfer = method === 'transfer'
   const isLegacy = method === 'cash_transfer'
   const isMercadopago = method === 'mercadopago'
+  const isModo = method === 'modo'
   const isCashOrTransfer = isCash || isTransfer || isLegacy
   // cash/transfer/cash_transfer son siempre retiro en tienda (regla de negocio en
   // checkout-client.tsx — esos métodos de pago solo se ofrecen cuando shipping==='pickup').
@@ -19,6 +21,7 @@ export default async function CheckoutConfirmadoPage({ searchParams }: Props) {
 
   return (
     <main className="flex min-h-[70vh] flex-col items-center justify-center px-4 py-16 text-center">
+      {isModo && <ClearModoCheckout />}
       <div
         className="mb-6 flex h-20 w-20 items-center justify-center rounded-full"
         style={{ backgroundColor: '#0eb1c3' }}
@@ -33,7 +36,7 @@ export default async function CheckoutConfirmadoPage({ searchParams }: Props) {
       <p className="mt-3 max-w-sm text-base text-gray-500">
         {isTransfer
           ? 'Tu pedido quedó guardado. Realizá la transferencia y envianos el comprobante.'
-          : isMercadopago
+          : isMercadopago || isModo
           ? 'Tu pago fue confirmado correctamente.'
           : 'Tu pedido quedó guardado. Pasá por el local a retirarlo y abonalo ahí mismo.'}
       </p>

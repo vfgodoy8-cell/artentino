@@ -301,6 +301,10 @@ model Order {
   total                    Decimal                   @db.Decimal(10, 2)
   shippingMethod           String?
   paymentMethod            String?
+  // ID del pago en el proveedor. Hoy solo MODO: id del último payment request generado
+  // (o del que efectivamente se pagó, una vez confirmado) — necesario para consultar
+  // GET /v2/payment-requests/{id}/data, que no permite buscar por external_intention_id.
+  paymentReference         String?
   shippingAddress          Json?
   deliveredAt              DateTime?
   shippingProvider         ShippingProvider?
@@ -464,6 +468,20 @@ model InstagramToken {
   updatedAt            DateTime  @updatedAt
 
   @@map("instagram_token")
+}
+
+// ─── MODO ────────────────────────────────────────────────────────────────────
+
+// Token de acceso de MODO cacheado en DB: dura 1 semana y el endpoint de token tiene rate
+// limit de 10 requests / 10 min, así que no puede pedirse por invocación serverless.
+// Una fila por ambiente (id = "test" | "production") — Preview y Production comparten DB.
+model ModoToken {
+  id          String   @id
+  accessToken String   @db.Text
+  expiresAt   DateTime
+  updatedAt   DateTime @updatedAt
+
+  @@map("modo_token")
 }
 
 // Posts excluidos manualmente del feed público — curación editorial (ej. sacar fotos

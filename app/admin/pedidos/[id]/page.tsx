@@ -4,6 +4,7 @@ import { prisma } from '@/lib/prisma'
 import StatusSelect from './status-select'
 import ZipnovaShipmentBlock from './zipnova-shipment-block'
 import { SHIPPING_PROVIDER_LABEL } from '@/app/lib/shipping-zones'
+import { PAYMENT_METHOD_LABELS } from '@/app/lib/constants'
 
 const STATUS = {
   PENDING:                { label: 'Pendiente',        bg: '#FEF3C7', color: '#D97706' },
@@ -138,13 +139,7 @@ export default async function AdminPedidoDetallePage({ params }: Props) {
             <div className="rounded-2xl border border-gray-100 bg-white px-5 py-4">
               <p className="mb-3 text-[10px] font-black uppercase tracking-wider text-gray-400">Método de pago</p>
               <p className="font-semibold text-[#1E1E1E]">
-                {order.paymentMethod === 'cash'
-                  ? 'Efectivo'
-                  : order.paymentMethod === 'transfer'
-                  ? 'Transferencia bancaria'
-                  : order.paymentMethod === 'mercadopago'
-                  ? 'MercadoPago'
-                  : order.paymentMethod}
+                {PAYMENT_METHOD_LABELS[order.paymentMethod] ?? order.paymentMethod}
               </p>
             </div>
           )}

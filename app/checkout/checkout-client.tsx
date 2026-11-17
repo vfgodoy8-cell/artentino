@@ -4,7 +4,15 @@ import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useCart, getEffectivePrice } from '@/app/context/cart-context'
-import { CASH_DISCOUNT, CASH_DISCOUNT_PCT } from '@/app/lib/constants'
+import {
+  CASH_DISCOUNT,
+  CASH_DISCOUNT_PCT,
+  MODO_CHECKOUT_DRAFT_KEY,
+  MODO_PAY_CTA,
+  MODO_PAYMENT_SUBTITLE,
+  MODO_PAYMENT_TITLE,
+  MODO_RETRY_MESSAGE,
+} from '@/app/lib/constants'
 
 function fmt(n: number) {
   return `$${n.toLocaleString('es-AR')}`
@@ -40,7 +48,20 @@ const PROVIDER_LABEL: Record<ShippingProvider, string> = {
 
 const STEPS = ['Contacto', 'Envío', 'Pago', 'Resumen']
 
-export default function CheckoutClient({ pickupAddress }: { pickupAddress: string }) {
+type ModoCheckoutDraft = {
+  orderId: string
+  contact: ContactData
+  shipping: ShippingMethod
+  address: AddressData
+}
+
+export default function CheckoutClient({
+  pickupAddress,
+  modoRetryOrderId,
+}: {
+  pickupAddress: string
+  modoRetryOrderId: string | null
+}) {
   const { items, getTotal, clearCart } = useCart()
   const router = useRouter()
 
@@ -59,6 +80,35 @@ export default function CheckoutClient({ pickupAddress }: { pickupAddress: strin
   const [payment, setPayment] = useState<PaymentMethod>('mercadopago')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  // Orden MODO PENDING a reusar al reintentar (el payment request de MODO es de un solo uso,
+  // la orden no) — ver retryOrderId en /api/checkout.
+  const [retryOrderId, setRetryOrderId] = useState<string | null>(null)
+
+  // Vuelta desde el site de MODO sin pago: restaurar el formulario guardado antes de
+  // redirigir y dejar al comprador en el Resumen, listo para reintentar.
+  useEffect(() => {
+    if (!modoRetryOrderId) return
+    try {
+      const raw = sessionStorage.getItem(MODO_CHECKOUT_DRAFT_KEY)
+      const draft = raw ? (JSON.parse(raw) as ModoCheckoutDraft) : null
+      if (draft?.orderId === modoRetryOrderId) {
+        // sessionStorage solo existe en el browser: no puede leerse en el estado inicial sin
+        // romper la hidratación, así que se restaura una única vez post-mount.
+        // eslint-disable-next-line react-hooks/set-state-in-effect
+        setContact(draft.contact)
+        setShipping(draft.shipping)
+        setAddress(draft.address)
+        setLocalityQuery(draft.address.locality)
+        setStep(3)
+      }
+    } catch {
+      // sessionStorage bloqueado o draft corrupto — el comprador completa el form de nuevo
+    }
+    setRetryOrderId(modoRetryOrderId)
+    setPayment('modo')
+    setError(MODO_RETRY_MESSAGE)
+    router.replace('/checkout')
+  }, [modoRetryOrderId, router])
 
   // Autocompletado de localidad (Georef API) — búsqueda en todo el país, debounced.
   useEffect(() => {
@@ -205,6 +255,7 @@ export default function CheckoutClient({ pickupAddress }: { pickupAddress: strin
           ...(shipping === 'delivery'
             ? { shippingAddress: address, shippingProvider, shippingQuotedAmount: quotedAmount }
             : {}),
+          ...(payment === 'modo' && retryOrderId ? { retryOrderId } : {}),
         }),
       })
 
@@ -212,6 +263,23 @@ export default function CheckoutClient({ pickupAddress }: { pickupAddress: strin
 
       if (!res.ok) {
         setError(data.error ?? 'Error al procesar el pedido')
+        return
+      }
+
+      if (payment === 'modo') {
+        if (!data.redirectUrl) {
+          setError(data.error ?? 'Error al iniciar el pago')
+          return
+        }
+        // El carrito NO se vacía acá: si el comprador vuelve sin pagar lo necesita para
+        // reintentar. Se vacía en /checkout/confirmado?method=modo.
+        try {
+          const draft: ModoCheckoutDraft = { orderId: data.orderId, contact, shipping, address }
+          sessionStorage.setItem(MODO_CHECKOUT_DRAFT_KEY, JSON.stringify(draft))
+        } catch {
+          // sin sessionStorage el reintento igual funciona, solo hay que recompletar el form
+        }
+        window.location.href = data.redirectUrl
         return
       }
 
@@ -598,18 +666,24 @@ export default function CheckoutClient({ pickupAddress }: { pickupAddress: strin
                     </>
                   )}
 
-                  <div className="flex items-center gap-4 rounded-2xl border-2 border-gray-100 p-4 opacity-50">
-                    <input type="radio" name="payment" disabled className="accent-[#0eb1c3]" />
-                    <div className="flex flex-1 items-center justify-between">
-                      <div>
-                        <p className="font-black text-[#1E1E1E]">MODO</p>
-                        <p className="text-sm text-gray-500">Billetera digital</p>
-                      </div>
-                      <span className="rounded-full border border-gray-300 px-3 py-1 text-[10px] font-black uppercase tracking-widest text-gray-400">
-                        Próximamente
-                      </span>
+                  <label
+                    className={`flex cursor-pointer items-center gap-4 rounded-2xl border-2 p-4 transition-colors ${
+                      payment === 'modo' ? 'border-[#0eb1c3] bg-[#0eb1c3]/5' : 'border-gray-100 hover:border-gray-200'
+                    }`}
+                  >
+                    <input
+                      type="radio"
+                      name="payment"
+                      value="modo"
+                      checked={payment === 'modo'}
+                      onChange={() => setPayment('modo')}
+                      className="accent-[#0eb1c3]"
+                    />
+                    <div>
+                      <p className="font-black text-[#1E1E1E]">{MODO_PAYMENT_TITLE}</p>
+                      <p className="text-sm text-gray-500">{MODO_PAYMENT_SUBTITLE}</p>
                     </div>
-                  </div>
+                  </label>
                 </div>
 
                 <div className="mt-6 flex gap-3">
@@ -667,6 +741,8 @@ export default function CheckoutClient({ pickupAddress }: { pickupAddress: strin
                       ? 'Efectivo — pagás al retirar'
                       : payment === 'transfer'
                       ? 'Transferencia bancaria — enviás el comprobante'
+                      : payment === 'modo'
+                      ? MODO_PAYMENT_TITLE
                       : 'MercadoPago'}
                   </p>
                 </div>
@@ -738,7 +814,7 @@ export default function CheckoutClient({ pickupAddress }: { pickupAddress: strin
                       </svg>
                       Procesando...
                     </span>
-                  ) : isCashOrTransfer ? 'Confirmar pedido' : 'Pagar con MercadoPago'}
+                  ) : isCashOrTransfer ? 'Confirmar pedido' : payment === 'modo' ? MODO_PAY_CTA : 'Pagar con MercadoPago'}
                   </button>
                 </div>
               </div>
